@@ -11,10 +11,10 @@ class Price:
  
 @dataclass(frozen=True)
 class Ticker:
-    ticker: str
+    symbol: str
         
     def __str__(self):
-        return self.ticker
+        return self.symbol
 
 @dataclass
 class Stock:
