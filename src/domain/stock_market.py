@@ -20,18 +20,18 @@ class Ticker:
 class Stock:
     ticker: Ticker
     price: Price
-    earnings_per_share: Decimal = Decimal("0.0")
+    earnings_per_share: Decimal
     
     @property    
     def price_to_earnings_ratio(self) -> Decimal:
-        if self.earnings_per_share == 0:
+        if self.earnings_per_share == Decimal("0"):
             raise ValueError("Earnings cannot be zero for P/E calculation")
         
         return self.price.amount / self.earnings_per_share
     
 if __name__ == "__main__":
     apple_price = Price(amount=Decimal("150.00"), currency="USD")
-    apple_ticker = Ticker(ticker="AAPL")
+    apple_ticker = Ticker(symbol="AAPL")
     
     apple_stock = Stock(ticker=apple_ticker, 
                         price=apple_price, 

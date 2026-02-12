@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from decimal import Decimal
-from typing import List, Optional
 
 from domain.stock_market import Ticker, Stock, Price
 
