@@ -11,7 +11,7 @@ class StockService:
         stock_data = self.data_provider.get_stock_fundamental_data(ticker)
         
         try:
-            pe_ratio = f"{stock_data.price_to_earnings_ratio:.2f}"
+            pe_ratio = f"{stock_data.pe_ratio:.2f}"
         except ValueError as e:
             pe_ratio = None
         

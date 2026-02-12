@@ -23,7 +23,7 @@ class Stock:
     earnings_per_share: Decimal
     
     @property    
-    def price_to_earnings_ratio(self) -> Decimal:
+    def pe_ratio(self) -> Decimal:
         if self.earnings_per_share == Decimal("0"):
             raise ValueError("Earnings cannot be zero for P/E calculation")
         
@@ -37,5 +37,5 @@ if __name__ == "__main__":
                         price=apple_price, 
                         earnings_per_share=Decimal("5.00"))
     
-    print(f"Stock: {apple_stock.ticker}, Price: {apple_stock.price}, P/E Ratio: {apple_stock.price_to_earnings_ratio:.2f}")
+    print(f"Stock: {apple_stock.ticker}, Price: {apple_stock.price}, P/E Ratio: {apple_stock.pe_ratio:.2f}")
         
