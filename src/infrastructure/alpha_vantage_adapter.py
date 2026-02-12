@@ -80,8 +80,3 @@ class AlphaVantageAdapter(StockDataProvider):
             price=price_obj,
             earnings_per_share=Decimal(eps)
         )
-
-    def search_tickers_by_name(self, query: str) -> List[Ticker]:
-        data = self._get_data("SYMBOL_SEARCH", query)
-        matches = data.get("bestMatches", [])
-        return [Ticker(symbol=m["1. symbol"]) for m in matches]
