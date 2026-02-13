@@ -68,15 +68,10 @@ class AlphaVantageAdapter(StockDataProvider):
         
         if not overview:
             raise ValueError(f"No fundamental data for {ticker.symbol}")
-            
-        eps = overview.get("EPS")
-        if eps is None or eps == "None":
-             raise ValueError(f"EPS missing for {ticker.symbol}")
 
         price_obj = self.get_stock_current_price(ticker)
 
         return Stock(
             ticker=ticker,
-            price=price_obj,
-            earnings_per_share=Decimal(eps)
+            price=price_obj
         )
