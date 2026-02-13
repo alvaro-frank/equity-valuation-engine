@@ -14,8 +14,7 @@ def test_analyse_stock_success_flow():
     fake_price = Price(Decimal("200.0"), "USD")
     fake_stock = Stock(
         ticker=fake_ticker, 
-        price=fake_price, 
-        earnings_per_share=Decimal("10.0")
+        price=fake_price
     )
     
     mock_provider.get_stock_fundamental_data.return_value = fake_stock
@@ -26,8 +25,6 @@ def test_analyse_stock_success_flow():
 
     assert dto.symbol == ticker_name
     assert dto.price == Decimal("200.0")
-    assert dto.eps == Decimal("10.0")
-    assert dto.pe_ratio == Decimal("20.0")
     
     mock_provider.get_stock_fundamental_data.assert_called_once()
 

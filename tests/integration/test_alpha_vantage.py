@@ -37,8 +37,6 @@ class TestAlphaVantageIntegration:
         result = self.adapter.get_stock_fundamental_data(ticker)
         
         assert isinstance(result, Stock)
-        assert result.earnings_per_share is not None
-        assert isinstance(result.earnings_per_share, Decimal)
         assert result.ticker.symbol == "AAPL"
 
     def test_invalid_ticker_error_handling(self):
