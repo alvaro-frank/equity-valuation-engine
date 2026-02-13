@@ -1,5 +1,6 @@
 from decimal import Decimal
 from dataclasses import dataclass
+from typing import List
 
 @dataclass(frozen=True)
 class Price:
@@ -12,30 +13,45 @@ class Price:
 @dataclass(frozen=True)
 class Ticker:
     symbol: str
+    name: str = ""
+    sector: str = "Unknown"
+    industry: str = "Unknown"
         
     def __str__(self):
-        return self.symbol
+        return f"{self.symbol} - {self.name} ({self.sector}/{self.industry})"
 
-@dataclass
+@dataclass(frozen=True)
+class FinancialYear:
+    fiscal_date_ending: str
+    
+    revenue: Decimal
+    net_income: Decimal
+    ebitda: Decimal
+    
+    operating_cash_flow: Decimal
+    capital_expenditures: Decimal
+    
+    total_assets: Decimal
+    total_liabilities: Decimal
+    cash_and_equivalents: Decimal
+    total_debt: Decimal
+    
+    shares_outstanding: Decimal
+
+@dataclass(frozen=True)
 class Stock:
     ticker: Ticker
     price: Price
-    earnings_per_share: Decimal
-    
-    @property    
-    def pe_ratio(self) -> Decimal:
-        if self.earnings_per_share == Decimal("0"):
-            raise ValueError("Earnings cannot be zero for P/E calculation")
-        
-        return self.price.amount / self.earnings_per_share
+    financial_years: List[FinancialYear]
     
 if __name__ == "__main__":
     apple_price = Price(amount=Decimal("150.00"), currency="USD")
     apple_ticker = Ticker(symbol="AAPL")
     
     apple_stock = Stock(ticker=apple_ticker, 
-                        price=apple_price, 
-                        earnings_per_share=Decimal("5.00"))
+                        price=apple_price,
+                        financial_years=[])
     
-    print(f"Stock: {apple_stock.ticker}, Price: {apple_stock.price}, P/E Ratio: {apple_stock.pe_ratio:.2f}")
-        
+    print(f"Stock: {apple_stock.ticker}")
+    print(f"Price: {apple_stock.price}")
+    print(f"Financial Years: {len(apple_stock.financial_years)} years loaded.")  
