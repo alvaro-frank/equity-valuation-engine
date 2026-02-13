@@ -15,11 +15,6 @@ def main():
         
         print(f"\nREPORT: {result.symbol}")
         print(f"Price: {result.price} {result.currency}")
-        print(f"EPS:   {result.eps}")
-        if result.pe_ratio:
-            print(f"P/E:   {result.pe_ratio:.2f}")
-        else:
-            print("P/E:   N/A")
 
     except ConnectionError as e:
         print(f"\n[LIMIT]: {e}")
