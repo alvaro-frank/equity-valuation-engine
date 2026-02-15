@@ -35,8 +35,8 @@ class ValuationService:
                 ratio = float(end_val / begin_val)
                 cagr = (pow(ratio, (1 / t)) - 1) * 100
                 print("-" * 50)
-                print(f"🚀 CAGR ({t} anos): {cagr:.2f}%")
+                print(f"CAGR ({t} years): {cagr:.2f}%")
                 
-                if cagr > 10: print("Excelent growth! (>10%)")
+                if cagr > 10: print("Excellent growth! (>10%)")
                 elif cagr > 0: print("Moderate growth. (0-10%)")
                 else: print("Negative growth. (<0%)")
