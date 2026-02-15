@@ -25,18 +25,24 @@ class FinancialYear:
     fiscal_date_ending: str
     
     revenue: Decimal
-    net_income: Decimal
     ebitda: Decimal
+    
+    gross_profit: Decimal
+    operating_income: Decimal
+    net_income: Decimal
     
     operating_cash_flow: Decimal
     capital_expenditures: Decimal
     
+    shares_outstanding: Decimal
+    
+    short_term_debt: Decimal
+    long_term_debt: Decimal
+    total_debt: Decimal
+    
     total_assets: Decimal
     total_liabilities: Decimal
     cash_and_equivalents: Decimal
-    total_debt: Decimal
-    
-    shares_outstanding: Decimal
 
 @dataclass(frozen=True)
 class Stock:
