@@ -48,8 +48,8 @@ class SECAdapter(StockDataProvider):
                 fiscal_date_ending=date,
                 revenue=revs.get(date, Decimal("0")),
                 net_income=incs.get(date, Decimal("0")),
-                ebitda=Decimal("0"), # Calcularemos depois
-                operating_cash_flow=Decimal("0"), # Podes adicionar a tag se quiseres
+                ebitda=Decimal("0"),
+                operating_cash_flow=Decimal("0"),
                 capital_expenditures=Decimal("0"),
                 total_assets=Decimal("0"),
                 total_liabilities=Decimal("0"),

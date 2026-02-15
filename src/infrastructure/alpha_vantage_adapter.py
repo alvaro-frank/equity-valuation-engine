@@ -7,7 +7,7 @@ from typing import List, Optional
 from dotenv import load_dotenv
 
 from domain.interfaces import StockDataProvider
-from domain.stock_market import FinancialYear, Stock, Ticker, Price
+from services.dtos import FinancialYearDTO, PriceDTO, StockDataDTO, TickerDTO
 
 load_dotenv()
 
@@ -58,7 +58,7 @@ class AlphaVantageAdapter(StockDataProvider):
             return Decimal("0")
         return Decimal(value)
     
-    def _map_to_financial_years(self, income_list, balance_list, cash_list) -> List[FinancialYear]:
+    def _map_to_financial_years(self, income_list, balance_list, cash_list) -> List[FinancialYearDTO]:
         years = []
 
         for income_report in income_list:
@@ -71,55 +71,67 @@ class AlphaVantageAdapter(StockDataProvider):
             lt_debt = self._parse_decimal(balance_report.get("longTermDebt", "0"))
             total_debt_calculated = st_debt + lt_debt
             
-            year_data = FinancialYear(
+            year_data = FinancialYearDTO(
                 fiscal_date_ending=fiscal_date,
+                # Revenue and Earnings
                 revenue=self._parse_decimal(income_report.get("totalRevenue", "0")),
-                net_income=self._parse_decimal(income_report.get("netIncome", "0")),
                 ebitda=self._parse_decimal(income_report.get("ebitda", "0")),
+                # Gross Profit and Operating Income
+                gross_profit=self._parse_decimal(income_report.get("grossProfit", "0")),
+                operating_income=self._parse_decimal(income_report.get("operatingIncome", "0")),
+                # Net Income
+                net_income=self._parse_decimal(income_report.get("netIncome", "0")),
+                #Cash Flow
                 operating_cash_flow=self._parse_decimal(cash_report.get("operatingCashflow", "0")),
                 capital_expenditures=self._parse_decimal(cash_report.get("capitalExpenditures", "0")),
+                # Shares Outstanding
+                shares_outstanding=self._parse_decimal(balance_report.get("commonStockSharesOutstanding", "0")),
+                # Debt
+                short_term_debt=st_debt,
+                long_term_debt=lt_debt,
+                total_debt=total_debt_calculated,
+                # Assets and Liabilities
                 total_assets=self._parse_decimal(balance_report.get("totalAssets", "0")),
                 total_liabilities=self._parse_decimal(balance_report.get("totalLiabilities", "0")),
                 cash_and_equivalents=self._parse_decimal(balance_report.get("cashAndCashEquivalentsAtCarryingValue", "0")),
-                total_debt=total_debt_calculated,
-                shares_outstanding=self._parse_decimal(balance_report.get("commonStockSharesOutstanding", "0"))
             )
             
             years.append(year_data)
         
         return years
 
-    def get_stock_current_price(self, ticker: Ticker) -> Price:
-        data = self._get_data("GLOBAL_QUOTE", ticker.symbol)
+    def get_stock_current_price(self, symbol: str) -> PriceDTO:
+        data = self._get_data("GLOBAL_QUOTE", symbol)
         quote = data.get("Global Quote")
         
         if not quote:
-            raise ValueError(f"Price data not found for {ticker.symbol}")
+            raise ValueError(f"Price data not found for {symbol}")
             
         price_str = quote.get("05. price")
-        return Price(amount=Decimal(price_str), currency="USD")  
+        return PriceDTO(amount=Decimal(price_str), currency="USD")  
 
-    def get_stock_fundamental_data(self, ticker: Ticker) -> Stock:
-        overview = self._get_data("OVERVIEW", ticker.symbol)
-        updated_ticker = Ticker(
-            symbol=ticker.symbol,
+    def get_stock_fundamental_data(self, symbol: str) -> StockDataDTO:
+        overview = self._get_data("OVERVIEW", symbol)
+        
+        if not overview:
+            raise ValueError(f"No fundamental data for {symbol}")
+        
+        updated_ticker = TickerDTO(
+            symbol=symbol,
             name=overview.get("Name", ""),
             sector=overview.get("Sector", "Unknown"),
             industry=overview.get("Industry", "Unknown")
         )
         
-        if not overview:
-            raise ValueError(f"No fundamental data for {ticker.symbol}")
-        
-        income_data = self._get_data("INCOME_STATEMENT", ticker.symbol).get("annualReports", [])
-        balance_data = self._get_data("BALANCE_SHEET", ticker.symbol).get("annualReports", [])
-        cash_data = self._get_data("CASH_FLOW", ticker.symbol).get("annualReports", [])
+        income_data = self._get_data("INCOME_STATEMENT", symbol).get("annualReports", [])
+        balance_data = self._get_data("BALANCE_SHEET", symbol).get("annualReports", [])
+        cash_data = self._get_data("CASH_FLOW", symbol).get("annualReports", [])
 
         financial_years = self._map_to_financial_years(income_data, balance_data, cash_data)
 
-        price_obj = self.get_stock_current_price(updated_ticker)
+        price_obj = self.get_stock_current_price(symbol)
 
-        return Stock(
+        return StockDataDTO(
             ticker=updated_ticker,
             price=price_obj,
             financial_years=financial_years
