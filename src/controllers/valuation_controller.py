@@ -1,13 +1,26 @@
-from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.sec_adapter import SECAdapter
 from services.valuation_service import ValuationService
 from services.dtos import ValuationResultDTO
 
 class ValuationController:
+    """
+    Controller responsible for orchestrating the stock valuation process, including fetching data from the Adapter and performing analysis using the ValuationService.
+    """
     def __init__(self):
-        self.adapter = AlphaVantageAdapter()
+        self.adapter = SECAdapter()
         self.service = ValuationService()
 
     def run(self, ticker_symbol: str, years: int = 10):
+        """
+        Main method to run the valuation process for a given ticker and number of years.
+        
+        Args:
+            ticker_symbol (str): The stock ticker symbol to analyze.
+            years (int): The number of recent years to include in the analysis.
+            
+            Returns:
+            None: This method prints the results directly to the console.
+        """
         print(f"\nAnalysing: {ticker_symbol}...")
         
         try:
@@ -21,6 +34,14 @@ class ValuationController:
             print(f"Error: {e}")
 
     def _display_results(self, result: ValuationResultDTO):
+        """
+        Nicely formats and prints the valuation results to the console.
+        
+        Args:
+            result (ValuationResultDTO): The result of the valuation analysis to display.
+            
+        Returns:
+            None: This method prints the results directly to the console."""
         print(f"\n{'='*50}")
         print(f"REPORT: {result.ticker.name} ({result.ticker.symbol})")
         print(f"Sector: {result.ticker.sector} | Industry: {result.ticker.industry}")
