@@ -1,10 +1,14 @@
+import os
 import requests
 from decimal import Decimal
 from typing import List, Dict, Optional
 from services.dtos import PriceDTO, TickerDTO, FinancialYearDTO, StockDataDTO
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class SECAdapter:
-    USER_AGENT = "Alvaro Franco alvarojf96@hotmail.com"
+    USER_AGENT = os.getenv("SEC_USER_AGENT")
 
     def __init__(self):
         self.session = requests.Session()

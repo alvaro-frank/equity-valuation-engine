@@ -12,6 +12,10 @@ from services.dtos import FinancialYearDTO, PriceDTO, StockDataDTO, TickerDTO
 load_dotenv()
 
 class AlphaVantageAdapter(StockDataProvider):
+    """
+    Adapter for fetching stock data from the Alpha Vantage API. Implements the StockDataProvider interface.
+    This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
+    """
     BASE_URL = "https://www.alphavantage.co/query"
 
     def __init__(self, api_key: Optional[str] = None):
@@ -27,6 +31,21 @@ class AlphaVantageAdapter(StockDataProvider):
         )
 
     def _get_data(self, function: str, symbol: str) -> dict:
+        """
+        Internal method to fetch data from the Alpha Vantage API for a given function and stock symbol.
+        Handles rate limiting and API errors gracefully.
+        
+        Args:
+            function (str): The Alpha Vantage API function to call (e.g., "OVERVIEW", "INCOME_STATEMENT").
+            symbol (str): The stock ticker symbol to fetch data for.
+            
+        Raises:
+            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
+            ValueError: If the API returns an error message or if the expected data is not found in the response.
+            
+        Returns:
+            dict: The JSON response from the Alpha Vantage API as a dictionary.
+        """
         params = {
             "function": function,
             "symbol": symbol,
@@ -54,6 +73,18 @@ class AlphaVantageAdapter(StockDataProvider):
             raise ConnectionError(f"Alpha Vantage Connection Error: {e}")
         
     def _parse_decimal(self, value: str) -> Decimal:
+        """
+        Safely parses a string value to Decimal, returning 0 if the value is None or invalid.
+        
+        Args:
+            value (str): The string value to parse.
+            
+        Raises:
+            ValueError: If the value cannot be parsed to a Decimal and is not None or "None".
+            
+        Returns:
+            Decimal: The parsed decimal value, or 0 if the input is invalid.
+        """
         if not value or value == "None":
             return Decimal("0")
         return Decimal(value)
@@ -101,6 +132,20 @@ class AlphaVantageAdapter(StockDataProvider):
         return years
 
     def get_stock_current_price(self, symbol: str) -> PriceDTO:
+        """
+        Fetches the current stock price for a given ticker symbol from the Alpha Vantage API.
+        Handles API errors and rate limits gracefully.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch the price for.
+            
+        Raises:
+            ValueError: If the price data is not found for the given symbol or if the API returns an error message.
+            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
+            
+        Returns:
+            PriceDTO: A data transfer object containing the current price and currency.
+        """
         data = self._get_data("GLOBAL_QUOTE", symbol)
         quote = data.get("Global Quote")
         
@@ -111,6 +156,20 @@ class AlphaVantageAdapter(StockDataProvider):
         return PriceDTO(amount=Decimal(price_str), currency="USD")  
 
     def get_stock_fundamental_data(self, symbol: str) -> StockDataDTO:
+        """
+        Fetches the fundamental financial data for a given stock ticker symbol from the Alpha Vantage API.
+        Handles API errors and rate limits gracefully, and maps the response to a StockDataDTO.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch fundamental data for.
+            
+        Raises:
+            ValueError: If no fundamental data is available for the given symbol.
+            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
+            
+        Returns:
+            StockDataDTO: A data transfer object containing the fundamental stock data.
+        """
         overview = self._get_data("OVERVIEW", symbol)
         
         if not overview:
