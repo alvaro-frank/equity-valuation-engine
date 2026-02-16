@@ -1,4 +1,4 @@
-from infrastructure.sec_adapter import SECAdapter
+from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
 from services.valuation_service import ValuationService
 from services.dtos import ValuationResultDTO
 
@@ -7,7 +7,7 @@ class ValuationController:
     Controller responsible for orchestrating the stock valuation process, including fetching data from the Adapter and performing analysis using the ValuationService.
     """
     def __init__(self):
-        self.adapter = SECAdapter()
+        self.adapter = AlphaVantageAdapter()
         self.service = ValuationService()
 
     def run(self, ticker_symbol: str, years: int = 10):
@@ -55,5 +55,12 @@ class ValuationController:
             for data_point in analysis.yearly_data:
                 formatted_value = f"{data_point.value:,.2f}"
                 print(f"{data_point.date:<15} | {formatted_value:>20}")
+                
+            if analysis.cagr is not None:
+                print(f"\nCAGR ({len(analysis.yearly_data)-1} years): {analysis.cagr:>8.2f}%")
+            else:
+                print(f"\nCAGR: N/A (Insufficient data or zero initial value)")
+            
+            print("-" * 40)
         
         print(f"\n{'='*50}\n")
