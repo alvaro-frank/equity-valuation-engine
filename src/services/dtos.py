@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Dict, List
 
 class PriceDTO(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -46,4 +46,22 @@ class StockDataDTO(BaseModel):
 
     ticker: TickerDTO = Field(..., description="Ticker information")
     price: PriceDTO = Field(..., description="Current stock price")
-    financial_years: list[FinancialYearDTO] = Field(..., description="List of financial data for recent years")
+    financial_years: List[FinancialYearDTO] = Field(..., description="List of financial data for recent years")
+    
+class MetricYearlyDTO(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    date: str = Field(..., description="Fiscal year end date")
+    value: Decimal = Field(..., description="Value of the metric for the year")
+    
+class MetricAnalysisDTO(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    metric_name: str = Field(..., description="Name of the metric (e.g., Revenue, Net Income)")
+    yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
+    
+class ValuationResultDTO(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    ticker: TickerDTO = Field(..., description="Ticker information")
+    metrics: Dict[str, MetricAnalysisDTO] = Field(..., description="Dictionary of metric analyses by metric name")
