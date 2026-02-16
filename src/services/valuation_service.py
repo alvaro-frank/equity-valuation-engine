@@ -55,8 +55,21 @@ class ValuationService:
                 date=yr.fiscal_date_ending,
                 value=current_value
             ))
+            
+        cagr = None
+        if len(years) >= 2:
+            begin_val = getattr(years[0], field_name, Decimal("0"))
+            end_val = getattr(years[-1], field_name, Decimal("0"))
+            t = len(years) - 1
+
+            if begin_val > 0:
+                ratio = float(end_val / begin_val)
+                if ratio > 0:
+                    cagr_val = (pow(ratio, (1 / t)) - 1) * 100
+                    cagr = Decimal(str(round(cagr_val, 2)))
 
         return MetricAnalysisDTO(
             metric_name=field_name.replace("_", " ").title(),
             yearly_data=yearly_data,
+            cagr=cagr if cagr is not None else Decimal("0")
         )
