@@ -3,7 +3,21 @@ from typing import List
 from services.dtos import StockDataDTO, ValuationResultDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
 
 class ValuationService:
+    """
+    Service responsible for performing stock valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
+    This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a ValuationResultDTO containing the analysis results.
+    """
     def evaluate_stock(self, stock_dto: StockDataDTO, years_to_analyze: int = 5) -> ValuationResultDTO:
+        """
+        Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
+        
+        Args:
+            stock_dto (StockDataDTO): The data transfer object containing the stock's fundamental data, including financial years and current price.
+            years_to_analyze (int): The number of recent fiscal years to include in the analysis (default is 5).
+            
+        Returns:
+            ValuationResultDTO: The result of the valuation analysis.
+        """
         all_fields = list(FinancialYearDTO.model_fields.keys())
         excluded_fields = ["fiscal_date_ending"]
         all_years = sorted(stock_dto.financial_years, key=lambda x: x.fiscal_date_ending)
@@ -22,6 +36,16 @@ class ValuationService:
         )
 
     def _analyze_specific_metric(self, years: List, field_name: str) -> MetricAnalysisDTO:
+        """
+        Analyzes a specific financial metric across multiple fiscal years and prepares the data for presentation.
+        
+        Args:
+            years (List[FinancialYearDTO]): The list of financial years to analyze.
+            field_name (str): The name of the financial metric field to analyze (e.g., "revenue", "net_income").
+            
+        Returns:
+            MetricAnalysisDTO: The analysis of the specified metric across the given years.
+        """
         yearly_data = []
 
         for yr in years:
