@@ -63,10 +63,10 @@ class SECAdapter:
         inc_map = self._get_value(facts, inc_tags)
         gross_map = self._get_value(facts, gross_tags)
         
-        available_dates = sorted(inc_map.keys(), reverse=True)
+        sorted_dates = sorted(inc_map.keys(), reverse=True)
         financial_years_dto = []
 
-        for date in available_dates[:5]:
+        for date in sorted_dates:
             revenue = self._find_closest_value(rev_map, date)
             gross_profit = self._find_closest_value(gross_map, date)
             net_income = inc_map[date]
