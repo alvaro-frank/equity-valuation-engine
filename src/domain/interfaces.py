@@ -3,6 +3,10 @@ from abc import ABC, abstractmethod
 from services.dtos import PriceDTO, StockDataDTO
 
 class StockDataProvider(ABC):
+    """
+    Interface for fetching stock data, including current price and fundamental financial data.
+    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
+    """
     @abstractmethod
     def get_stock_current_price(self, symbol: str) -> PriceDTO:
         """
