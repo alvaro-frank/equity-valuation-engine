@@ -4,7 +4,7 @@ from services.dtos import StockDataDTO, ValuationResultDTO, MetricAnalysisDTO, M
 
 class ValuationService:
     """
-    Service responsible for performing stock valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
+    Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a ValuationResultDTO containing the analysis results.
     """
     def evaluate_stock(self, stock_dto: StockDataDTO, years_to_analyze: int = 5) -> ValuationResultDTO:
@@ -16,7 +16,7 @@ class ValuationService:
             years_to_analyze (int): The number of recent fiscal years to include in the analysis (default is 5).
             
         Returns:
-            ValuationResultDTO: The result of the valuation analysis.
+            ValuationResultDTO: The result of the quantitative valuation analysis.
         """
         all_fields = list(FinancialYearDTO.model_fields.keys())
         excluded_fields = ["fiscal_date_ending"]

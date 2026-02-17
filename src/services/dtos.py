@@ -122,7 +122,7 @@ class MetricAnalysisDTO(BaseModel):
     
 class ValuationResultDTO(BaseModel):
     """
-    Data Transfer Object representing the results of the stock valuation analysis, including the ticker information and a dictionary of metric analyses.
+    Data Transfer Object representing the results of the stock quantitative valuation analysis, including the ticker information and a dictionary of metric analyses.
     
     Attributes:
         ticker (TickerDTO): Ticker information of the stock.

@@ -1,10 +1,10 @@
 from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
-from services.valuation_service import ValuationService
+from services.quantitative_valuation_service import ValuationService
 from services.dtos import ValuationResultDTO
 
 class ValuationController:
     """
-    Controller responsible for orchestrating the stock valuation process, including fetching data from the Adapter and performing analysis using the ValuationService.
+    Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the ValuationService.
     """
     def __init__(self):
         self.adapter = AlphaVantageAdapter()
@@ -12,7 +12,7 @@ class ValuationController:
 
     def run(self, ticker_symbol: str, years: int = 10):
         """
-        Main method to run the valuation process for a given ticker and number of years.
+        Main method to run the quantitative valuation process for a given ticker and number of years.
         
         Args:
             ticker_symbol (str): The stock ticker symbol to analyze.
@@ -35,10 +35,10 @@ class ValuationController:
 
     def _display_results(self, result: ValuationResultDTO):
         """
-        Nicely formats and prints the valuation results to the console.
+        Nicely formats and prints the quantitative valuation results to the console.
         
         Args:
-            result (ValuationResultDTO): The result of the valuation analysis to display.
+            result (ValuationResultDTO): The result of the quantitative valuation analysis to display.
             
         Returns:
             None: This method prints the results directly to the console."""
