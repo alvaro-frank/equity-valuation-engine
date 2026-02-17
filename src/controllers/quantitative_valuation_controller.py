@@ -1,14 +1,14 @@
 from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
-from services.quantitative_valuation_service import ValuationService
+from services.quantitative_valuation_service import QuantitativeValuationService
 from services.dtos import QuantitativeValuationDTO
 
-class ValuationController:
+class QuantitativeValuationController:
     """
-    Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the ValuationService.
+    Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the QuantitativeValuationService.
     """
     def __init__(self):
         self.adapter = AlphaVantageAdapter()
-        self.service = ValuationService()
+        self.service = QuantitativeValuationService()
 
     def run(self, ticker_symbol: str, years: int = 10):
         """
@@ -18,7 +18,7 @@ class ValuationController:
             ticker_symbol (str): The stock ticker symbol to analyze.
             years (int): The number of recent years to include in the analysis.
             
-            Returns:
+        Returns:
             None: This method prints the results directly to the console.
         """
         print(f"\nAnalysing: {ticker_symbol}...")
@@ -48,7 +48,7 @@ class ValuationController:
         print(f"{'='*50}")
 
         for key, analysis in result.metrics.items():
-            print(f"\n📊 Metric: {analysis.metric_name}")
+            print(f"\nMetric: {analysis.metric_name}")
             print(f"{'Data':<15} | {'Value':>20}")
             print("-" * 40)
             
