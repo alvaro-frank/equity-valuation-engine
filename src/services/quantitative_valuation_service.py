@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import List
 from services.dtos import StockDataDTO, QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
 
-class ValuationService:
+class QuantitativeValuationService:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
