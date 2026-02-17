@@ -132,3 +132,18 @@ class QuantitativeValuationDTO(BaseModel):
 
     ticker: TickerDTO = Field(..., description="Ticker information")
     metrics: Dict[str, MetricAnalysisDTO] = Field(..., description="Dictionary of metric analyses by metric name")
+    
+class QualitativeValuationDTO(BaseModel):
+    """
+    Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
+    
+    Attributes:
+        ticker (TickerDTO): Ticker information of the stock.
+        business_description (str): Description of business operations
+        company_history (str): History of company foundation and evolution
+    """
+    model_config = ConfigDict(frozen=True)
+
+    ticker: TickerDTO
+    business_description: str = Field(..., description="Description of business operations")
+    company_history: str = Field(None, description="History of company foundation and evolution")
