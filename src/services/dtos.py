@@ -120,7 +120,7 @@ class MetricAnalysisDTO(BaseModel):
     yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
     cagr: Decimal = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analyzed years")
     
-class ValuationResultDTO(BaseModel):
+class QuantitativeValuationDTO(BaseModel):
     """
     Data Transfer Object representing the results of the stock quantitative valuation analysis, including the ticker information and a dictionary of metric analyses.
     

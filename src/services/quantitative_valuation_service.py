@@ -1,13 +1,13 @@
 from decimal import Decimal
 from typing import List
-from services.dtos import StockDataDTO, ValuationResultDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
+from services.dtos import StockDataDTO, QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
 
 class ValuationService:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a ValuationResultDTO containing the analysis results.
+    This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
     """
-    def evaluate_stock(self, stock_dto: StockDataDTO, years_to_analyze: int = 5) -> ValuationResultDTO:
+    def evaluate_stock(self, stock_dto: StockDataDTO, years_to_analyze: int = 5) -> QuantitativeValuationDTO:
         """
         Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
         
@@ -16,7 +16,7 @@ class ValuationService:
             years_to_analyze (int): The number of recent fiscal years to include in the analysis (default is 5).
             
         Returns:
-            ValuationResultDTO: The result of the quantitative valuation analysis.
+            QuantitativeValuationDTO: The result of the quantitative valuation analysis.
         """
         all_fields = list(FinancialYearDTO.model_fields.keys())
         excluded_fields = ["fiscal_date_ending"]
@@ -30,7 +30,7 @@ class ValuationService:
             analysis = self._analyze_specific_metric(analysis_years, field)
             analysis_map[field] = analysis
 
-        return ValuationResultDTO(
+        return QuantitativeValuationDTO(
             ticker=stock_dto.ticker,
             metrics=analysis_map
         )

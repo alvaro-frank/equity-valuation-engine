@@ -1,6 +1,6 @@
 from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
 from services.quantitative_valuation_service import ValuationService
-from services.dtos import ValuationResultDTO
+from services.dtos import QuantitativeValuationDTO
 
 class ValuationController:
     """
@@ -33,12 +33,12 @@ class ValuationController:
         except Exception as e:
             print(f"Error: {e}")
 
-    def _display_results(self, result: ValuationResultDTO):
+    def _display_results(self, result: QuantitativeValuationDTO):
         """
         Nicely formats and prints the quantitative valuation results to the console.
         
         Args:
-            result (ValuationResultDTO): The result of the quantitative valuation analysis to display.
+            result (QuantitativeValuationDTO): The result of the quantitative valuation analysis to display.
             
         Returns:
             None: This method prints the results directly to the console."""
