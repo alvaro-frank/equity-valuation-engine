@@ -210,3 +210,4 @@ alpha_vantage_cache.sqlite
 src/test_sec.py
 src/check_full_data.py
 src/test_valuation.py
+gemini.py
