@@ -10,7 +10,6 @@ class QualitativeValuationController:
         """
         Initializes the QualitativeValuationController with the necessary data adapter and qualitative analysis service.
         """
-        self.adapter = AlphaVantageAdapter()
         self.service = service
 
     def run(self, ticker_symbol: str):
@@ -26,10 +25,7 @@ class QualitativeValuationController:
         print(f"\nA realizar Análise Qualitativa com Gemini IA para {ticker_symbol}...")
         
         try:
-            stock_data = self.adapter.get_stock_fundamental_data(ticker_symbol)
-
-            analysis = self.service.analyze_business(stock_data.ticker)
-            
+            analysis = self.service.analyze_ticker(ticker_symbol)
             self._display_qualitative_report(analysis)
 
         except Exception as e:

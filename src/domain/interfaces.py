@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from services.dtos import PriceDTO, QuantitativeDataDTO
+from services.dtos import PriceDTO, TickerDTO, QuantitativeDataDTO
 
 class QuantitativeDataProvider(ABC):
     """
@@ -13,7 +13,7 @@ class QuantitativeDataProvider(ABC):
         Fetches the current stock price for a given ticker symbol.
         
         Args:
-            symbol (str): The stock ticker symbol to fetch the price for.
+            symbol (str): The stock ticker symbol to fetch the price.
             
         Returns:
             PriceDTO: A data transfer object containing the current price and currency.
@@ -26,10 +26,23 @@ class QuantitativeDataProvider(ABC):
         Fetches the fundamental financial data for a given stock ticker symbol.
         
         Args:
-            symbol (str): The stock ticker symbol to fetch the fundamental data for.
+            symbol (str): The stock ticker symbol to fetch the fundamental data.
             
         Returns:
             QuantitativeDataDTO: A data transfer object containing the stock's fundamental data, including financial years.
+        """
+        pass
+    
+    @abstractmethod
+    def get_ticker_info(self, symbol: str) -> TickerDTO:
+        """
+        Fetches only the basic metadata for a ticker (Name, Sector, Industry).
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch the ticker data.
+            
+        Returns:
+            TickerDTO: A data transfer object containing the ticker data
         """
         pass
     

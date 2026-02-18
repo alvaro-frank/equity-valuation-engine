@@ -16,7 +16,7 @@ def main():
     
     # Qualitative Analysis
     gemini_adapter = GeminiAdapter()
-    qual_service = QualitativeValuationService(adapter=gemini_adapter)
+    qual_service = QualitativeValuationService(adapter=gemini_adapter, quant_adapter=alpha_vantage_adapter)
     qual_controller = QualitativeValuationController(qual_service)
     qual_controller.run(ticker)
 

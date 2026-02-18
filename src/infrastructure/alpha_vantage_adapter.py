@@ -195,3 +195,22 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             price=price_obj,
             financial_years=financial_years
         )
+        
+    def get_ticker_info(self, symbol: str) -> TickerDTO:
+        """
+        Fetches only the basic metadata for a ticker (Name, Sector, Industry).
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch the ticker data.
+            
+        Returns:
+            TickerDTO: A data transfer object containing the ticker data
+        """
+        data = self._get_data("OVERVIEW", symbol)
+        
+        return TickerDTO(
+            symbol=symbol,
+            name=data.get("Name"),
+            sector=data.get("Sector"),
+            industry=data.get("Industry")
+        )
