@@ -19,7 +19,7 @@ class QuantitativeValuationController:
         Main method to run the quantitative valuation process for a given ticker and number of years.
         
         Args:
-            ticker_symbol (str): The stock ticker symbol to analyze.
+            ticker_symbol (str): The stock ticker symbol to analyse.
             years (int): The number of recent years to include in the analysis.
             
         Returns:

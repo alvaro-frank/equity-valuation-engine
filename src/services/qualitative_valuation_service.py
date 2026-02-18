@@ -4,7 +4,7 @@ from services.dtos import QualitativeValuationDTO, TickerDTO
 class QualitativeValuationService:
     """
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
-    This service takes in a TickerDTO, analyzes the quality, moat and background of a business, and returns a QualitativeValuationDTO containing the analysis results.
+    This service takes in a TickerDTO, analyses the quality, moat and background of a business, and returns a QualitativeValuationDTO containing the analysis results.
     """
     def __init__(self, adapter: QualitativeDataProvider, quant_adapter: QuantitativeDataProvider):
         """
@@ -13,9 +13,9 @@ class QualitativeValuationService:
         self.adapter = adapter
         self.quant_adapter = quant_adapter
 
-    def analyze_business(self, ticker_dto: TickerDTO) -> QualitativeValuationDTO:
+    def analyse_business(self, ticker_dto: TickerDTO) -> QualitativeValuationDTO:
         """
-        Analyzes the qualitative aspects of a business, such as its history and business model, using AI analysis.
+        analyses the qualitative aspects of a business, such as its history and business model, using AI analysis.
         
         Args:
             ticker_dto (TickerDTO): The data transfer object containing the ticker's metadata.
@@ -34,7 +34,15 @@ class QualitativeValuationService:
             **analysis_dict
         )
         
-    def analyze_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:
-    # Em vez de buscar TUDO, buscamos apenas o TickerDTO básico
+    def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:
+        """
+        Fetches the ticker information, such as business name, sector and industry
+        
+        Args:
+            ticker_symbol (str): The stock ticker symbol to analyse.
+            
+        Returns: 
+            QualitativeValuationDTO: The result of the qualitative analysis, including history and business description.
+        """
         ticker_info = self.quant_adapter.get_ticker_info(ticker_symbol)
-        return self.analyze_business(ticker_info)
+        return self.analyse_business(ticker_info)

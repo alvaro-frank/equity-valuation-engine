@@ -5,7 +5,7 @@ from services.dtos import QuantitativeDataDTO, QuantitativeValuationDTO, MetricA
 class QuantitativeValuationService:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a QuantitativeDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
+    This service takes in a QuantitativeDataDTO, analyses the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
     """
     def __init__(self, adapter: QuantitativeDataProvider):
         """
@@ -18,23 +18,23 @@ class QuantitativeValuationService:
         Orchestrates the valuation process by fetching data and then performing the analysis.
         
         Args:
-            symbol (str): The stock ticker symbol to analyze.
-            years (int): Number of recent years to analyze.
+            symbol (str): The stock ticker symbol to analyse.
+            years (int): Number of recent years to analyse.
             
         Returns:
             QuantitativeValuationDTO: The result of the quantitative analysis.
         """
         stock_dto = self.adapter.get_stock_fundamental_data(symbol)
         
-        return self.evaluate_stock(stock_dto, years_to_analyze=years)
+        return self.evaluate_stock(stock_dto, years_to_analyse=years)
         
-    def evaluate_stock(self, stock_dto: QuantitativeDataDTO, years_to_analyze: int = 5) -> QuantitativeValuationDTO:
+    def evaluate_stock(self, stock_dto: QuantitativeDataDTO, years_to_analyse: int = 5) -> QuantitativeValuationDTO:
         """
         Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
         
         Args:
             stock_dto (QuantitativeDataDTO): The data transfer object containing the stock's fundamental data, including financial years and current price.
-            years_to_analyze (int): The number of recent fiscal years to include in the analysis (default is 5).
+            years_to_analyse (int): The number of recent fiscal years to include in the analysis (default is 5).
             
         Returns:
             QuantitativeValuationDTO: The result of the quantitative valuation analysis.
@@ -48,10 +48,10 @@ class QuantitativeValuationService:
         analysis_map = {}
 
         for field in metrics_to_check:
-            cagr = stock_entity.calculate_cagr(field, years_to_analyze)
+            cagr = stock_entity.calculate_cagr(field, years_to_analyse)
             
             sorted_years = sorted(stock_entity.financial_years, key=lambda x: x.fiscal_date_ending)
-            analysis_years = sorted_years[-years_to_analyze:]
+            analysis_years = sorted_years[-years_to_analyse:]
             
             yearly_data = [
                 MetricYearlyDTO(date=y.fiscal_date_ending, value=getattr(y, field))

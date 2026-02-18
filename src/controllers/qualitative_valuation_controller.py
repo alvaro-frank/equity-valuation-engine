@@ -17,7 +17,7 @@ class QualitativeValuationController:
         Main method to run the qualitative valuation process for a given ticker.
 
         Args:
-            ticker_symbol (str): The stock ticker symbol to analyze.
+            ticker_symbol (str): The stock ticker symbol to analyse.
 
         Returns:
             None: This method prints the results directly to the console.
@@ -25,11 +25,11 @@ class QualitativeValuationController:
         print(f"\nA realizar Análise Qualitativa com Gemini IA para {ticker_symbol}...")
         
         try:
-            analysis = self.service.analyze_ticker(ticker_symbol)
+            analysis = self.service.analyse_ticker(ticker_symbol)
             self._display_qualitative_report(analysis)
 
         except Exception as e:
-            print(f"Erro na análise qualitativa: {e}")
+            print(f"Qualitative analysis error: {e}")
 
     def _display_qualitative_report(self, analysis: QualitativeValuationDTO):
         """
@@ -42,13 +42,13 @@ class QualitativeValuationController:
             None: This method prints the results directly to the console.
         """
         print(f"\n{'='*60}")
-        print(f"ANÁLISE QUALITATIVA: {analysis.ticker.name}")
+        print(f"QUALITATIVE ANALYSIS: {analysis.ticker.name}")
         print(f"{'='*60}")
         
-        print(f"\nHISTÓRIA DA EMPRESA:")
+        print(f"\nBUSINESS HISTORY:")
         print(analysis.company_history)
         
-        print(f"\nMODELO DE NEGÓCIO:")
+        print(f"\nBUSINESS MODEL:")
         print(analysis.business_description)
         
         print(f"\n{'='*60}\n")

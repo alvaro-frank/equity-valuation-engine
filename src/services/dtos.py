@@ -110,15 +110,15 @@ class MetricAnalysisDTO(BaseModel):
     Data Transfer Object representing the analysis of a specific financial metric across multiple fiscal years.
     
     Attributes:
-        metric_name (str): The name of the financial metric being analyzed (e.g., Revenue, Net Income).
-        yearly_data (List[MetricYearlyDTO]): A list of the metric's values for each fiscal year analyzed.
-        cagr (Decimal): The Compound Annual Growth Rate (CAGR) for the metric across the analyzed years, expressed as a percentage.
+        metric_name (str): The name of the financial metric being analysed (e.g., Revenue, Net Income).
+        yearly_data (List[MetricYearlyDTO]): A list of the metric's values for each fiscal year analysed.
+        cagr (Decimal): The Compound Annual Growth Rate (CAGR) for the metric across the analysed years, expressed as a percentage.
     """
     model_config = ConfigDict(frozen=True)
 
     metric_name: str = Field(..., description="Name of the metric (e.g., Revenue, Net Income)")
     yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
-    cagr: Decimal = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analyzed years")
+    cagr: Decimal = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
     
 class QuantitativeValuationDTO(BaseModel):
     """
