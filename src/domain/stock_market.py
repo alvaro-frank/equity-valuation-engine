@@ -94,6 +94,34 @@ class Stock:
     price: Price
     financial_years: List[FinancialYear]
     
+    def calculate_cagr(self, field_name: str, num_years: int) -> Decimal:
+        """Calculalates CAGR for a specific metric on the last X years.
+        
+        Args:
+            field_name (str): Name of the metric
+            num_years (int): Number of years to analyse
+            
+        Returns:
+            cagr_val (Decimal): the calculated CAGR value
+        """
+        sorted_years = sorted(self.financial_years, key=lambda x: x.fiscal_date_ending)
+        analysis_years = sorted_years[-num_years:]
+        
+        if len(analysis_years) < 2:
+            return Decimal("0")
+
+        begin_val = getattr(analysis_years[0], field_name, Decimal("0"))
+        end_val = getattr(analysis_years[-1], field_name, Decimal("0"))
+        t = len(analysis_years) - 1
+
+        if begin_val > 0:
+            ratio = float(end_val / begin_val)
+            if ratio > 0:
+                cagr_val = (pow(ratio, (1 / t)) - 1) * 100
+                return Decimal(str(round(cagr_val, 2)))
+        
+        return Decimal("0")
+    
 if __name__ == "__main__":
     apple_price = Price(amount=Decimal("150.00"), currency="USD")
     apple_ticker = Ticker(symbol="AAPL")
