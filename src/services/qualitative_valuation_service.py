@@ -1,6 +1,5 @@
 from infrastructure.gemini_adapter import GeminiAdapter
 from services.dtos import QualitativeValuationDTO, TickerDTO
-from domain.interfaces import QualitativeDataProvider
 
 class QualitativeValuationService:
     """
