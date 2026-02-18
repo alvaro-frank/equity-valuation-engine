@@ -135,25 +135,74 @@ class QuantitativeValuationDTO(BaseModel):
     
 class QualitativeDataDTO(BaseModel):
     """
-    Data Transfer Object for raw qualitative data fetched from Gemini.
+    Data Transfer Object for comprehensive raw qualitative data fetched from Gemini.
+    
+    Attributes:
+        ticker (str): Ticker symbol.
+        business_description (str): Summary of the business model.
+        company_history (str): Details about foundation and milestones.
+        ceo_name (str): Name of the current CEO.
+        ceo_ownership (str): Percentage of shares owned by the CEO.
+        major_shareholders (List[str]): List of top major shareholders.
+        revenue_model (str): Detailed explanation of how the company makes money.
+        strategy (str): The company's core strategic focus.
+        products_services (List[str]): Main products and services offered.
+        competitive_advantage (str): Competitive advantage or MOAT analysis.
+        competitors (List[str]): Main competitors in the industry.
+        management_insights (str): Insights on management quality and meetings.
+        risk_factors (List[str]): Main risk factors for the business.
+        historical_context_crises (str): History including major crises overcome.
     """
     model_config = ConfigDict(frozen=True)
 
     ticker: str = Field(..., description="Ticker symbol")
     business_description: str = Field(..., description="Summary of the business model")
     company_history: str = Field(..., description="Details about foundation and milestones")
+    ceo_name: str = Field(..., description="Name of the current CEO")
+    ceo_ownership: str = Field(..., description="Percentage of shares owned by the CEO")
+    major_shareholders: List[str] = Field(..., description="List of top major shareholders")
+    revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
+    strategy: str = Field(..., description="The company's core strategic focus")
+    products_services: List[str] = Field(..., description="Main products and services offered")
+    competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
+    competitors: List[str] = Field(..., description="Main competitors in the industry")
+    management_insights: str = Field(..., description="Insights on management quality and meetings")
+    risk_factors: List[str] = Field(..., description="Main risk factors for the business")
+    historical_context_crises: str = Field(..., description="History including major crises overcome")
     
 class QualitativeValuationDTO(BaseModel):
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
     
     Attributes:
-        ticker (TickerDTO): Ticker information of the stock.
-        business_description (str): Description of business operations
-        company_history (str): History of company foundation and evolution
+        ticker (str): Ticker symbol.
+        business_description (str): Summary of the business model.
+        company_history (str): Details about foundation and milestones.
+        ceo_name (str): Name of the current CEO.
+        ceo_ownership (str): Percentage of shares owned by the CEO.
+        major_shareholders (List[str]): List of top major shareholders.
+        revenue_model (str): Detailed explanation of how the company makes money.
+        strategy (str): The company's core strategic focus.
+        products_services (List[str]): Main products and services offered.
+        competitive_advantage (str): Competitive advantage or MOAT analysis.
+        competitors (List[str]): Main competitors in the industry.
+        management_insights (str): Insights on management quality and meetings.
+        risk_factors (List[str]): Main risk factors for the business.
+        historical_context_crises (str): History including major crises overcome.
     """
     model_config = ConfigDict(frozen=True)
 
     ticker: TickerDTO
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
+    ceo_name: str = Field(..., description="Name of the current CEO")
+    ceo_ownership: str = Field(..., description="Percentage of shares owned by the CEO")
+    major_shareholders: List[str] = Field(..., description="List of top major shareholders")
+    revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
+    strategy: str = Field(..., description="The company's core strategic focus")
+    products_services: List[str] = Field(..., description="Main products and services offered")
+    competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
+    competitors: List[str] = Field(..., description="Main competitors in the industry")
+    management_insights: str = Field(..., description="Insights on management quality and meetings")
+    risk_factors: List[str] = Field(..., description="Main risk factors for the business")
+    historical_context_crises: str = Field(..., description="History including major crises overcome")
