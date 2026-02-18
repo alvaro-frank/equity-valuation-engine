@@ -2,7 +2,7 @@ import os
 import requests
 from decimal import Decimal
 from typing import List, Dict, Optional
-from services.dtos import PriceDTO, TickerDTO, FinancialYearDTO, StockDataDTO
+from services.dtos import PriceDTO, TickerDTO, FinancialYearDTO, QuantitativeDataDTO
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -47,7 +47,7 @@ class SECAdapter:
                 return value
         return Decimal("0")
 
-    def get_stock_fundamental_data(self, symbol: str) -> StockDataDTO:
+    def get_stock_fundamental_data(self, symbol: str) -> QuantitativeDataDTO:
         cik = self._cik_map.get(symbol.upper())
         if not cik: raise ValueError(f"CIK not found for symbol: {symbol}")
 
@@ -93,7 +93,7 @@ class SECAdapter:
                 cash_and_equivalents=Decimal("0")
             ))
 
-        return StockDataDTO(
+        return QuantitativeDataDTO(
             ticker=TickerDTO(symbol=symbol.upper(), name=facts.get('entityName', symbol)),
             price=PriceDTO(amount=Decimal("0"), currency="USD"),
             financial_years=financial_years_dto

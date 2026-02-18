@@ -1,19 +1,19 @@
 from decimal import Decimal
 from typing import List
 from domain.stock_market import Stock, Price, Ticker, FinancialYear
-from services.dtos import StockDataDTO, QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
+from services.dtos import QuantitativeDataDTO, QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
 
 class QuantitativeValuationService:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a StockDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
+    This service takes in a QuantitativeDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
     """
-    def evaluate_stock(self, stock_dto: StockDataDTO, years_to_analyze: int = 5) -> QuantitativeValuationDTO:
+    def evaluate_stock(self, stock_dto: QuantitativeDataDTO, years_to_analyze: int = 5) -> QuantitativeValuationDTO:
         """
         Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
         
         Args:
-            stock_dto (StockDataDTO): The data transfer object containing the stock's fundamental data, including financial years and current price.
+            stock_dto (QuantitativeDataDTO): The data transfer object containing the stock's fundamental data, including financial years and current price.
             years_to_analyze (int): The number of recent fiscal years to include in the analysis (default is 5).
             
         Returns:
@@ -49,12 +49,12 @@ class QuantitativeValuationService:
             metrics=analysis_map
         )
         
-    def _map_to_domain(self, dto: StockDataDTO) -> Stock:
+    def _map_to_domain(self, dto: QuantitativeDataDTO) -> Stock:
         """
         Helper to convert DTO into Domain Entity.
         
         Args:
-            dto (StockDataDTO): DTO to be converted
+            dto (QuantitativeDataDTO): DTO to be converted
             
         Returns:
             Stock: new created Stock Domain Entity

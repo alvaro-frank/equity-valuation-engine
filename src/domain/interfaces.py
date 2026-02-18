@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from services.dtos import PriceDTO, StockDataDTO
+from services.dtos import PriceDTO, QuantitativeDataDTO
 
 class StockDataProvider(ABC):
     """
@@ -21,7 +21,7 @@ class StockDataProvider(ABC):
         pass
     
     @abstractmethod
-    def get_stock_fundamental_data(self, symbol: str) -> StockDataDTO:
+    def get_stock_fundamental_data(self, symbol: str) -> QuantitativeDataDTO:
         """
         Fetches the fundamental financial data for a given stock ticker symbol.
         
@@ -29,6 +29,6 @@ class StockDataProvider(ABC):
             symbol (str): The stock ticker symbol to fetch the fundamental data for.
             
         Returns:
-            StockDataDTO: A data transfer object containing the stock's fundamental data, including financial years.
+            QuantitativeDataDTO: A data transfer object containing the stock's fundamental data, including financial years.
         """
         pass

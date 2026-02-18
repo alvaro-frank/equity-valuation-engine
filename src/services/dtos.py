@@ -77,7 +77,7 @@ class FinancialYearDTO(BaseModel):
     total_liabilities: Decimal = Field(..., description="Total liabilities at fiscal year end")
     cash_and_equivalents: Decimal = Field(..., description="Cash and equivalents at fiscal year end")
 
-class StockDataDTO(BaseModel):
+class QuantitativeDataDTO(BaseModel):
     """
     Data Transfer Object representing the comprehensive data of a stock, including ticker information, current price, and financial data for recent years.
     

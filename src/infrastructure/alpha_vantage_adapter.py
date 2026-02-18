@@ -7,7 +7,7 @@ from typing import List, Optional
 from dotenv import load_dotenv
 
 from domain.interfaces import StockDataProvider
-from services.dtos import FinancialYearDTO, PriceDTO, StockDataDTO, TickerDTO
+from services.dtos import FinancialYearDTO, PriceDTO, QuantitativeDataDTO, TickerDTO
 
 load_dotenv()
 
@@ -155,10 +155,10 @@ class AlphaVantageAdapter(StockDataProvider):
         price_str = quote.get("05. price")
         return PriceDTO(amount=Decimal(price_str), currency="USD")  
 
-    def get_stock_fundamental_data(self, symbol: str) -> StockDataDTO:
+    def get_stock_fundamental_data(self, symbol: str) -> QuantitativeDataDTO:
         """
         Fetches the fundamental financial data for a given stock ticker symbol from the Alpha Vantage API.
-        Handles API errors and rate limits gracefully, and maps the response to a StockDataDTO.
+        Handles API errors and rate limits gracefully, and maps the response to a QuantitativeDataDTO.
         
         Args:
             symbol (str): The stock ticker symbol to fetch fundamental data for.
@@ -168,7 +168,7 @@ class AlphaVantageAdapter(StockDataProvider):
             ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
             
         Returns:
-            StockDataDTO: A data transfer object containing the fundamental stock data.
+            QuantitativeDataDTO: A data transfer object containing the fundamental stock data.
         """
         overview = self._get_data("OVERVIEW", symbol)
         
@@ -190,7 +190,7 @@ class AlphaVantageAdapter(StockDataProvider):
 
         price_obj = self.get_stock_current_price(symbol)
 
-        return StockDataDTO(
+        return QuantitativeDataDTO(
             ticker=updated_ticker,
             price=price_obj,
             financial_years=financial_years
