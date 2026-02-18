@@ -4,7 +4,7 @@ from services.dtos import PriceDTO, QuantitativeDataDTO
 
 class QuantitativeDataProvider(ABC):
     """
-    Interface for fetching stock data, including current price and fundamental financial data.
+    Interface for fetching quantitative data, including current price and fundamental financial data.
     This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
@@ -30,5 +30,23 @@ class QuantitativeDataProvider(ABC):
             
         Returns:
             QuantitativeDataDTO: A data transfer object containing the stock's fundamental data, including financial years.
+        """
+        pass
+    
+class QualitativeDataProvider(ABC):
+    """
+    Interface for fetching quantitative data, including current price and fundamental financial data.
+    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
+    """
+    @abstractmethod
+    def analyse_company(self, symbol: str) -> dict:
+        """
+        Fetches the qualitative data for a given stock ticker symbol.
+        
+        Args:
+            symbol(str): The ticker symbol to be analysed
+            
+        Returns:
+            QualitativeDataDTO: A data transfer object containing the qualitative data of the business
         """
         pass

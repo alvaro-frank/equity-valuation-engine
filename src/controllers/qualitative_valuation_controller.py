@@ -6,12 +6,12 @@ class QualitativeValuationController:
     """
     Controller responsible for orchestrating the stock qualitative valuation process, including fetching data from the Adapter and performing analysis using the QualitativeValuationService.
     """
-    def __init__(self):
+    def __init__(self, service: QualitativeValuationService):
         """
         Initializes the QualitativeValuationController with the necessary data adapter and qualitative analysis service.
         """
         self.adapter = AlphaVantageAdapter()
-        self.service = QualitativeValuationService()
+        self.service = service
 
     def run(self, ticker_symbol: str):
         """
