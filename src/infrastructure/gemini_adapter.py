@@ -23,22 +23,40 @@ class GeminiAdapter(QualitativeDataProvider):
             QualitativeDataDTO: A data transfer object containing the qualitative data of the business
         """
         prompt = f"""
-        Act as a Senior Equity Research Analyst specializing in fundamental analysis. 
-
-        Your task is to provide a concise qualitative summary for the company with the ticker: {symbol}.
-
+        Act as a Senior Equity Research Analyst. Provide a professional qualitative analysis for: {symbol}.
+        
         INSTRUCTIONS:
-        1. Summarize the "Business Description" focusing on the core business model and how the company makes money.
-        2. Provide a "Company History" highlighting the foundation and at least 3 major strategic milestones.
-        4. The tone must be professional, objective, and data-driven.
+        1. Business Description: Summarize the core business model.
+        2. Company History: Detail the foundation and evolution.
+        3. CEO: Current CEO name and background.
+        4. CEO Ownership: Estimated % of shares held by the CEO.
+        5. Major Shareholders: Main institutional or individual owners.
+        6. Revenue Model: How exactly they generate money.
+        7. Strategy: Core strategic focus for the next few years.
+        8. Products & Services: List main offerings.
+        9. MOAT: Sustainable competitive advantages.
+        10. Competitors: Main rivals.
+        11. Management: Evaluation of execution and quality.
+        12. Risks: Critical threats.
+        13. Crises: Major historical crises overcome.
 
         OUTPUT FORMAT:
-        You MUST return ONLY a valid JSON object. Do not include markdown headers like ```json or any conversational text. The JSON must follow this schema:
-
+        Return ONLY a valid JSON object:
         {{
             "ticker": "{symbol}",
-            "business_description": "A concise 3-4 sentence summary of the business model.",
-            "company_history": "A paragraph detailing foundation and key historical pivots."
+            "business_description": "...",
+            "company_history": "...",
+            "ceo_name": "...",
+            "ceo_ownership": "...",
+            "major_shareholders": ["...", "..."],
+            "revenue_model": "...",
+            "strategy": "...",
+            "products_services": ["...", "..."],
+            "competitive_advantage": "...",
+            "competitors": ["...", "..."],
+            "management_insights": "...",
+            "risk_factors": ["Risk 1", "Risk 2", "Risk 3"],
+            "historical_context_crises": "..."
         }}
         """
         
