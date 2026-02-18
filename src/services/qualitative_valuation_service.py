@@ -30,7 +30,18 @@ class QualitativeValuationService:
         return QualitativeValuationDTO(
             ticker=ticker_dto,
             business_description=qual_data.business_description,
-            company_history=qual_data.company_history
+            company_history=qual_data.company_history,
+            ceo_name=qual_data.ceo_name,
+            ceo_ownership=qual_data.ceo_ownership,
+            major_shareholders=qual_data.major_shareholders,
+            revenue_model=qual_data.revenue_model,
+            strategy=qual_data.strategy,
+            products_services=qual_data.products_services,
+            competitive_advantage=qual_data.competitive_advantage,
+            competitors=qual_data.competitors,
+            management_insights=qual_data.management_insights,
+            risk_factors=qual_data.risk_factors,
+            historical_context_crises=qual_data.historical_context_crises
         )
         
     def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:
