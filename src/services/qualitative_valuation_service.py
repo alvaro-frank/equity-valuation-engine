@@ -1,5 +1,5 @@
 from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
-from services.dtos import QualitativeValuationDTO, TickerDTO
+from services.dtos import QualitativeValuationDTO, QualitativeDataDTO, TickerDTO
 
 class QualitativeValuationService:
     """
@@ -23,15 +23,14 @@ class QualitativeValuationService:
         Returns:
             QualitativeValuationDTO: The result of the qualitative analysis, including history and business description.
         """
-        analysis_dict = self.adapter.analyse_company(
+        qual_data: QualitativeDataDTO = self.adapter.analyse_company(
             symbol=ticker_dto.symbol
         )
         
-        analysis_dict.pop("ticker", None)
-        
         return QualitativeValuationDTO(
             ticker=ticker_dto,
-            **analysis_dict
+            business_description=qual_data.business_description,
+            company_history=qual_data.company_history
         )
         
     def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:

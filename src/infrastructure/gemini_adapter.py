@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 import os
 from domain.interfaces import QualitativeDataProvider
+from services.dtos import QualitativeDataDTO
 
 load_dotenv()
 
@@ -11,7 +12,7 @@ class GeminiAdapter(QualitativeDataProvider):
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
         self.model = genai.GenerativeModel('gemini-2.5-flash')
 
-    def analyse_company(self, symbol: str) -> dict:
+    def analyse_company(self, symbol: str) -> QualitativeDataDTO:
         """
         Uses Gemini to generate qualitative analysis report. 
         
@@ -44,4 +45,4 @@ class GeminiAdapter(QualitativeDataProvider):
         response = self.model.generate_content(prompt)
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
         
-        return json.loads(clean_json)
+        return QualitativeDataDTO.model_validate_json(clean_json)

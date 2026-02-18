@@ -9,6 +9,9 @@ class QualitativeValuationController:
     def __init__(self, service: QualitativeValuationService):
         """
         Initializes the QualitativeValuationController with the necessary data adapter and qualitative analysis service.
+        
+        Args:
+            service (QualitativeValuationService): The service to handle the valuation logic.
         """
         self.service = service
 

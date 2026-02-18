@@ -133,6 +133,16 @@ class QuantitativeValuationDTO(BaseModel):
     ticker: TickerDTO = Field(..., description="Ticker information")
     metrics: Dict[str, MetricAnalysisDTO] = Field(..., description="Dictionary of metric analyses by metric name")
     
+class QualitativeDataDTO(BaseModel):
+    """
+    Data Transfer Object for raw qualitative data fetched from Gemini.
+    """
+    model_config = ConfigDict(frozen=True)
+
+    ticker: str = Field(..., description="Ticker symbol")
+    business_description: str = Field(..., description="Summary of the business model")
+    company_history: str = Field(..., description="Details about foundation and milestones")
+    
 class QualitativeValuationDTO(BaseModel):
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.

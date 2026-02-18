@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from services.dtos import PriceDTO, TickerDTO, QuantitativeDataDTO
+from services.dtos import PriceDTO, TickerDTO, QuantitativeDataDTO, QualitativeDataDTO
 
 class QuantitativeDataProvider(ABC):
     """
@@ -52,7 +52,7 @@ class QualitativeDataProvider(ABC):
     This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
-    def analyse_company(self, symbol: str) -> dict:
+    def analyse_company(self, symbol: str) -> QualitativeDataDTO:
         """
         Fetches the qualitative data for a given stock ticker symbol.
         
