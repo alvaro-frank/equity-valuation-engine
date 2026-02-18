@@ -1,4 +1,3 @@
-from infrastructure.sec_adapter import SECAdapter
 from services.quantitative_valuation_service import QuantitativeValuationService
 from services.dtos import QuantitativeValuationDTO
 
@@ -6,9 +5,14 @@ class QuantitativeValuationController:
     """
     Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the QuantitativeValuationService.
     """
-    def __init__(self):
-        self.adapter = SECAdapter()
-        self.service = QuantitativeValuationService()
+    def __init__(self, service: QuantitativeValuationService):
+        """
+        Initializes the controller with an injected QuantitativeValuationService.
+        
+        Args:
+            service (QuantitativeValuationService): The service to handle the valuation logic.
+        """
+        self.service = service
 
     def run(self, ticker_symbol: str, years: int = 10):
         """
@@ -24,10 +28,7 @@ class QuantitativeValuationController:
         print(f"\nAnalysing: {ticker_symbol}...")
         
         try:
-            stock_data = self.adapter.get_stock_fundamental_data(ticker_symbol)
-            
-            result = self.service.evaluate_stock(stock_data, years_to_analyze=years)
-            
+            result = self.service.evaluate_ticker(ticker_symbol, years=years)
             self._display_results(result)
             
         except Exception as e:

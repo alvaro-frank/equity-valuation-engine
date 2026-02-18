@@ -1,5 +1,4 @@
-from decimal import Decimal
-from typing import List
+from domain.interfaces import QuantitativeDataProvider
 from domain.stock_market import Stock, Price, Ticker, FinancialYear
 from services.dtos import QuantitativeDataDTO, QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, FinancialYearDTO
 
@@ -8,6 +7,27 @@ class QuantitativeValuationService:
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a QuantitativeDataDTO, analyzes the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
     """
+    def __init__(self, adapter: QuantitativeDataProvider):
+        """
+        Initializes the QuantitativeValuationService with the QuantitativeDataProvider to fetch fundamental business data.
+        """
+        self.adapter = adapter
+        
+    def evaluate_ticker(self, symbol: str, years: int = 5) -> QuantitativeValuationDTO:
+        """
+        Orchestrates the valuation process by fetching data and then performing the analysis.
+        
+        Args:
+            symbol (str): The stock ticker symbol to analyze.
+            years (int): Number of recent years to analyze.
+            
+        Returns:
+            QuantitativeValuationDTO: The result of the quantitative analysis.
+        """
+        stock_dto = self.adapter.get_stock_fundamental_data(symbol)
+        
+        return self.evaluate_stock(stock_dto, years_to_analyze=years)
+        
     def evaluate_stock(self, stock_dto: QuantitativeDataDTO, years_to_analyze: int = 5) -> QuantitativeValuationDTO:
         """
         Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
