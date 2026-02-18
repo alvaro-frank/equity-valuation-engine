@@ -2,12 +2,13 @@ import os
 import requests
 from decimal import Decimal
 from typing import List, Dict, Optional
+from domain.interfaces import QuantitativeDataProvider
 from services.dtos import PriceDTO, TickerDTO, FinancialYearDTO, QuantitativeDataDTO
 from dotenv import load_dotenv
 
 load_dotenv()
 
-class SECAdapter:
+class SECAdapter(QuantitativeDataProvider):
     USER_AGENT = os.getenv("SEC_USER_AGENT")
 
     def __init__(self):
@@ -98,3 +99,20 @@ class SECAdapter:
             price=PriceDTO(amount=Decimal("0"), currency="USD"),
             financial_years=financial_years_dto
         )
+        
+    def get_stock_current_price(self, symbol: str) -> PriceDTO:
+        """
+        Fetches the current stock price for a given ticker symbol from the Alpha Vantage API.
+        Handles API errors and rate limits gracefully.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch the price for.
+            
+        Raises:
+            ValueError: If the price data is not found for the given symbol or if the API returns an error message.
+            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
+            
+        Returns:
+            PriceDTO: A data transfer object containing the current price and currency.
+        """
+        pass

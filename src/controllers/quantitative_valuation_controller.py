@@ -1,4 +1,4 @@
-from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.sec_adapter import SECAdapter
 from services.quantitative_valuation_service import QuantitativeValuationService
 from services.dtos import QuantitativeValuationDTO
 
@@ -7,7 +7,7 @@ class QuantitativeValuationController:
     Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the QuantitativeValuationService.
     """
     def __init__(self):
-        self.adapter = AlphaVantageAdapter()
+        self.adapter = SECAdapter()
         self.service = QuantitativeValuationService()
 
     def run(self, ticker_symbol: str, years: int = 10):

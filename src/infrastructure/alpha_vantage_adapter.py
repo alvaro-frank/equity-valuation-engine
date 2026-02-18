@@ -6,14 +6,14 @@ from decimal import Decimal
 from typing import List, Optional
 from dotenv import load_dotenv
 
-from domain.interfaces import StockDataProvider
+from domain.interfaces import QuantitativeDataProvider
 from services.dtos import FinancialYearDTO, PriceDTO, QuantitativeDataDTO, TickerDTO
 
 load_dotenv()
 
-class AlphaVantageAdapter(StockDataProvider):
+class AlphaVantageAdapter(QuantitativeDataProvider):
     """
-    Adapter for fetching stock data from the Alpha Vantage API. Implements the StockDataProvider interface.
+    Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataProvider interface.
     This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
     """
     BASE_URL = "https://www.alphavantage.co/query"
