@@ -25,8 +25,6 @@ class QualitativeValuationController:
         Returns:
             None: This method prints the results directly to the console.
         """
-        print(f"\nA realizar Análise Qualitativa com Gemini IA para {ticker_symbol}...")
-        
         try:
             analysis = self.service.analyse_ticker(ticker_symbol)
             self._display_qualitative_report(analysis)
@@ -48,10 +46,29 @@ class QualitativeValuationController:
         print(f"QUALITATIVE ANALYSIS: {analysis.ticker.name}")
         print(f"{'='*60}")
         
-        print(f"\nBUSINESS HISTORY:")
-        print(analysis.company_history)
+        print(f"\nGENERAL DESCRIPTION AND HISTORY:")
+        print(f"   - Business: {analysis.business_description}")
+        print(f"   - Evolution: {analysis.company_history}")
         
-        print(f"\nBUSINESS MODEL:")
-        print(analysis.business_description)
+        print(f"\nLEADERSHIP AND MANAGEMENT:")
+        print(f"   - CEO: {analysis.ceo_name} (Ownership: {analysis.ceo_ownership})")
+        print(f"   - Insights: {analysis.management_insights}")
+        
+        print(f"\nSHAREHOLDER STRUCTURE AND COMPETITION:")
+        print(f"   - Major Shareholders: {', '.join(analysis.major_shareholders)}")
+        print(f"   - Main Competitors: {', '.join(analysis.competitors)}")
+        
+        print(f"\nSTRATEGY AND PRODUCTS:")
+        print(f"   - Revenue Model: {analysis.revenue_model}")
+        print(f"   - Core Strategy: {analysis.strategy}")
+        print(f"   - Offerings: {', '.join(analysis.products_services)}")
+        
+        print(f"\nCOMPETITIVE ADVANTAGE (MOAT):")
+        print(f"   - {analysis.competitive_advantage}")
+        
+        print(f"\nRISK FACTORS AND RESILIENCE:")
+        risks_formatted = "\n   - ".join(analysis.risk_factors)
+        print(f"   - {risks_formatted}")
+        print(f"   - Crisis History: {analysis.historical_context_crises}")
         
         print(f"\n{'='*60}\n")
