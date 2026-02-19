@@ -3,7 +3,7 @@ import json
 from dotenv import load_dotenv
 import os
 from domain.interfaces import QualitativeDataProvider
-from services.dtos import QualitativeDataDTO
+from services.dtos import QualitativeDataDTO, SectorDataDTO
 
 load_dotenv()
 
@@ -68,3 +68,56 @@ class GeminiAdapter(QualitativeDataProvider):
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
         
         return QualitativeDataDTO.model_validate_json(clean_json)
+    
+    def analyse_industry(self, sector: str, industry: str) -> SectorDataDTO:
+        """
+        Uses Gemini to perform a deep-dive analysis of industry dynamics and macro factors.
+        
+        Args:
+            sector (str): The sector to be analysed
+            industry (str): The industry to be analysed
+        
+        Returns:
+            SectorDataDTO: A data transfer object containing the data given the sector and industry
+        """
+        prompt = f"""
+        Act as a Senior Equity Research Analyst and Industry Strategist. 
+        Perform a comprehensive fundamental analysis of the following market:
+        SECTOR: {sector}
+        INDUSTRY: {industry}
+
+        CORE FRAMEWORK: Use Porter's Five Forces to evaluate structural profitability and competitive intensity.
+
+        INSTRUCTIONS FOR JSON DICTIONARIES (Sections 1-5):
+        For each force, identify 2-4 key factors. Return them as a dictionary where the KEY is a short, descriptive title (e.g., "Capital Intensity") and the VALUE is a professional analysis.
+
+        REQUIRED ANALYSIS POINTS:
+        1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
+        2. Bargaining Power of Suppliers: Supplier concentration, uniqueness of inputs, and switching costs.
+        3. Bargaining Power of Customers: Buyer volume, price sensitivity, and ability to substitute.
+        4. Threat of New Entrants: Barriers to entry (patents, economies of scale, regulatory hurdles).
+        5. Threat of Obsolescence: Technology disruption risks and evolution of consumer preferences.
+        6. Economic Sensitivity: Correlation with GDP, cyclicality (Cyclical vs. Defensive), and demand elasticity.
+        7. Interest Rate Exposure: Impact on capital expenditures (CAPEX), financing costs, and consumer spending power.
+
+        OUTPUT FORMAT:
+        Return ONLY a valid JSON object following this exact schema:
+        {{
+            "sector": "{sector}",
+            "industry": "{industry}",
+            "rivalry_among_competitors": {{ "Key Factor": "Analysis..." }},
+            "bargaining_power_of_suppliers": {{ "Key Factor": "Analysis..." }},
+            "bargaining_power_of_customers": {{ "Key Factor": "Analysis..." }},
+            "threat_of_new_entrants": {{ "Key Factor": "Analysis..." }},
+            "threat_of_obsolescence": {{ "Key Factor": "Analysis..." }},
+            "economic_sensitivity": "Detailed narrative about economic cycles.",
+            "interest_rate_exposure": "Detailed narrative about rate impacts."
+        }}
+
+        Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
+        """
+        
+        response = self.model.generate_content(prompt)
+        clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        
+        return SectorDataDTO.model_validate_json(clean_json)
