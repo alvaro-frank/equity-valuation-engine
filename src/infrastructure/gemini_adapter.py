@@ -23,41 +23,45 @@ class GeminiAdapter(QualitativeDataProvider):
             QualitativeDataDTO: A data transfer object containing the qualitative data of the business
         """
         prompt = f"""
-        Act as a Senior Equity Research Analyst. Provide a professional qualitative analysis for: {symbol}.
-        
-        INSTRUCTIONS:
-        1. Business Description: Summarize the core business model.
-        2. Company History: Detail the foundation and evolution.
-        3. CEO: Current CEO name and background.
-        4. CEO Ownership: Estimated % of shares held by the CEO.
-        5. Major Shareholders: Main institutional or individual owners.
-        6. Revenue Model: How exactly they generate money.
-        7. Strategy: Core strategic focus for the next few years.
-        8. Products & Services: List main offerings.
-        9. MOAT: Sustainable competitive advantages.
-        10. Competitors: Main rivals.
-        11. Management: Evaluation of execution and quality.
-        12. Risks: Critical threats.
-        13. Crises: Major historical crises overcome.
+        Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
+        Your goal is to provide a deep qualitative assessment for the company: {symbol}.
 
-        OUTPUT FORMAT:
-        Return ONLY a valid JSON object:
+        CRITICAL INSTRUCTIONS:
+        - Accuracy: Use the most recent public information available up to your knowledge cutoff.
+        - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
+        - Dictionaries: For 'major_shareholders', 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
+        - Tone: Professional, objective, and data-driven.
+
+        REQUIRED JSON STRUCTURE:
+        Return ONLY a valid JSON object following this exact schema:
         {{
             "ticker": "{symbol}",
-            "business_description": "...",
-            "company_history": "...",
-            "ceo_name": "...",
-            "ceo_ownership": "...",
-            "major_shareholders": ["...", "..."],
-            "revenue_model": "...",
-            "strategy": "...",
-            "products_services": ["...", "..."],
-            "competitive_advantage": "...",
-            "competitors": ["...", "..."],
-            "management_insights": "...",
-            "risk_factors": ["Risk 1", "Risk 2", "Risk 3"],
-            "historical_context_crises": "..."
+            "business_description": "A 3-4 sentence summary of core operations.",
+            "company_history": "Key milestones from foundation to present.",
+            "ceo_name": "Full name of current CEO.",
+            "ceo_ownership": 5,
+            "major_shareholders": {{
+                "Shareholder Name": 14.5,
+                "Other Name": 9.8
+            }},
+            "revenue_model": "Detailed explanation of revenue streams.",
+            "strategy": "Core strategic focus and future outlook.",
+            "products_services": {{
+                "Product/Service A": "Brief description of utility",
+                "Product/Service B": "Brief description of utility"
+            }},
+            "competitive_advantage": "Detailed MOAT analysis.",
+            "competitors": {{
+                "Competitor Name": "Main area of overlap/competition"
+            }},
+            "management_insights": "Analysis of management quality and track record.",
+            "risk_factors": {{
+                "Risk Title": "Detailed impact description"
+            }},
+            "historical_context_crises": "How the company navigated past major crises."
         }}
+
+        Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
         
         response = self.model.generate_content(prompt)
