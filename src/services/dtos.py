@@ -206,3 +206,40 @@ class QualitativeValuationDTO(BaseModel):
     management_insights: str = Field(..., description="Insights on management quality and meetings")
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
+    
+class SectorDataDTO(BaseModel):
+    """
+    Data Transfer Object for raw industry and sector analysis fetched from Gemini.
+    
+    Attributes:
+    """
+    model_config = ConfigDict(frozen=True)
+
+    sector: str = Field(..., description="The broad sector name")
+    industry: str = Field(..., description="The specific industry name")
+    rivalry_among_competitors: Dict[str, str] = Field(..., description="Analysis of intensity of competition")
+    bargaining_power_of_suppliers: Dict[str, str] = Field(..., description="Analysis of supplier leverage")
+    bargaining_power_of_customers: Dict[str, str] = Field(..., description="Analysis of customer leverage")
+    threat_of_new_entrants: Dict[str, str] = Field(..., description="Barriers to entry and new competition")
+    threat_of_obsolescence: Dict[str, str] = Field(..., description="Risk of technological or market displacement")
+    economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
+    interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
+    
+class SectorValuationDTO(BaseModel):
+    """
+    Result DTO for the comprehensive industry and sector valuation report.
+    
+    Attributes:
+    """
+    model_config = ConfigDict(frozen=True)
+
+    ticker: TickerDTO
+    sector: str = Field(..., description="The broad sector name")
+    industry: str = Field(..., description="The specific industry name")
+    rivalry_among_competitors: Dict[str, str] = Field(..., description="Analysis of intensity of competition")
+    bargaining_power_of_suppliers: Dict[str, str] = Field(..., description="Analysis of supplier leverage")
+    bargaining_power_of_customers: Dict[str, str] = Field(..., description="Analysis of customer leverage")
+    threat_of_new_entrants: Dict[str, str] = Field(..., description="Barriers to entry and new competition")
+    threat_of_obsolescence: Dict[str, str] = Field(..., description="Risk of technological or market displacement")
+    economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
+    interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
