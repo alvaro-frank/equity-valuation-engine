@@ -142,15 +142,15 @@ class QualitativeDataDTO(BaseModel):
         business_description (str): Summary of the business model.
         company_history (str): Details about foundation and milestones.
         ceo_name (str): Name of the current CEO.
-        ceo_ownership (str): Percentage of shares owned by the CEO.
-        major_shareholders (List[str]): List of top major shareholders.
+        ceo_ownership (Decimal): Percentage of shares owned by the CEO.
+        major_shareholders (Dict[str, Decimal]): List of top major shareholders.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
-        products_services (List[str]): Main products and services offered.
+        products_services (Dict[str, str]): Main products and services offered.
         competitive_advantage (str): Competitive advantage or MOAT analysis.
-        competitors (List[str]): Main competitors in the industry.
+        competitors (Dict[str, str]): Main competitors in the industry.
         management_insights (str): Insights on management quality and meetings.
-        risk_factors (List[str]): Main risk factors for the business.
+        risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
     """
     model_config = ConfigDict(frozen=True)
@@ -159,15 +159,15 @@ class QualitativeDataDTO(BaseModel):
     business_description: str = Field(..., description="Summary of the business model")
     company_history: str = Field(..., description="Details about foundation and milestones")
     ceo_name: str = Field(..., description="Name of the current CEO")
-    ceo_ownership: str = Field(..., description="Percentage of shares owned by the CEO")
-    major_shareholders: List[str] = Field(..., description="List of top major shareholders")
+    ceo_ownership: Decimal = Field(..., description="Percentage of shares owned by the CEO")
+    major_shareholders: Dict[str, Decimal] = Field(..., description="List of top major shareholders")
     revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
     strategy: str = Field(..., description="The company's core strategic focus")
-    products_services: List[str] = Field(..., description="Main products and services offered")
+    products_services: Dict[str, str] = Field(..., description="Main products and services offered")
     competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
-    competitors: List[str] = Field(..., description="Main competitors in the industry")
+    competitors: Dict[str, str] = Field(..., description="Main competitors in the industry")
     management_insights: str = Field(..., description="Insights on management quality and meetings")
-    risk_factors: List[str] = Field(..., description="Main risk factors for the business")
+    risk_factors: Dict[str, str] = Field(..., description="Main risk factors for the business")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
     
 class QualitativeValuationDTO(BaseModel):
@@ -179,15 +179,15 @@ class QualitativeValuationDTO(BaseModel):
         business_description (str): Summary of the business model.
         company_history (str): Details about foundation and milestones.
         ceo_name (str): Name of the current CEO.
-        ceo_ownership (str): Percentage of shares owned by the CEO.
-        major_shareholders (List[str]): List of top major shareholders.
+        ceo_ownership (Decimal): Percentage of shares owned by the CEO.
+        major_shareholders (Dict[str, Decimal]): List of top major shareholders.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
-        products_services (List[str]): Main products and services offered.
+        products_services (Dict[str, str]): Main products and services offered.
         competitive_advantage (str): Competitive advantage or MOAT analysis.
-        competitors (List[str]): Main competitors in the industry.
+        competitors (Dict[str, str]): Main competitors in the industry.
         management_insights (str): Insights on management quality and meetings.
-        risk_factors (List[str]): Main risk factors for the business.
+        risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
     """
     model_config = ConfigDict(frozen=True)
@@ -196,13 +196,13 @@ class QualitativeValuationDTO(BaseModel):
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
     ceo_name: str = Field(..., description="Name of the current CEO")
-    ceo_ownership: str = Field(..., description="Percentage of shares owned by the CEO")
-    major_shareholders: List[str] = Field(..., description="List of top major shareholders")
+    ceo_ownership: Decimal = Field(..., description="Percentage of shares owned by the CEO")
+    major_shareholders: Dict[str, Decimal] = Field(..., description="Shareholder name mapping to their ownership type/stakes")
     revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
     strategy: str = Field(..., description="The company's core strategic focus")
-    products_services: List[str] = Field(..., description="Main products and services offered")
+    products_services: Dict[str, str] = Field(..., description="Product name mapping to its function")
     competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
-    competitors: List[str] = Field(..., description="Main competitors in the industry")
+    competitors: Dict[str, str] = Field(..., description="Competitor name mapping to the competitive overlap")
     management_insights: str = Field(..., description="Insights on management quality and meetings")
-    risk_factors: List[str] = Field(..., description="Main risk factors for the business")
+    risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
