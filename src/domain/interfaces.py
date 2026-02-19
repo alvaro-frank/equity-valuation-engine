@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from services.dtos import PriceDTO, TickerDTO, QuantitativeDataDTO, QualitativeDataDTO
+from services.dtos import PriceDTO, SectorDataDTO, TickerDTO, QuantitativeDataDTO, QualitativeDataDTO
 
 class QuantitativeDataProvider(ABC):
     """
@@ -57,9 +57,23 @@ class QualitativeDataProvider(ABC):
         Fetches the qualitative data for a given stock ticker symbol.
         
         Args:
-            symbol(str): The ticker symbol to be analysed
+            symbol (str): The ticker symbol to be analysed
             
         Returns:
             QualitativeDataDTO: A data transfer object containing the qualitative data of the business
+        """
+        pass
+    
+    @abstractmethod
+    def analyse_industry(self, sector: str, industry: str) -> SectorDataDTO:
+        """
+        Analyses the specific sector and industry dynamics.
+        
+        Args:
+            sector (str): The sector to be analysed
+            industry (str): The industry to be analysed
+        
+        Returns:
+            SectorDataDTO: A data transfer object containing the data given the sector and industry
         """
         pass
