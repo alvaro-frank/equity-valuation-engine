@@ -54,21 +54,28 @@ class QualitativeValuationController:
         print(f"   - CEO: {analysis.ceo_name} (Ownership: {analysis.ceo_ownership})")
         print(f"   - Insights: {analysis.management_insights}")
         
-        print(f"\nSHAREHOLDER STRUCTURE AND COMPETITION:")
-        print(f"   - Major Shareholders: {', '.join(analysis.major_shareholders)}")
-        print(f"   - Main Competitors: {', '.join(analysis.competitors)}")
+        print(f"\nMAJOR SHAREHOLDERS:")
+        for title, description in analysis.major_shareholders.items():
+            print(f"   - {title}: {description}")
+        
+        print(f"\nCOMPETITION:")
+        for title, description in analysis.competitors.items():
+            print(f"   - {title}: {description}")
         
         print(f"\nSTRATEGY AND PRODUCTS:")
         print(f"   - Revenue Model: {analysis.revenue_model}")
         print(f"   - Core Strategy: {analysis.strategy}")
-        print(f"   - Offerings: {', '.join(analysis.products_services)}")
+        for title, description in analysis.products_services.items():
+            print(f"   - {title}: {description}")
         
         print(f"\nCOMPETITIVE ADVANTAGE (MOAT):")
         print(f"   - {analysis.competitive_advantage}")
         
-        print(f"\nRISK FACTORS AND RESILIENCE:")
-        risks_formatted = "\n   - ".join(analysis.risk_factors)
-        print(f"   - {risks_formatted}")
+        print(f"\nRISK FACTORS:")
+        for title, description in analysis.risk_factors.items():
+            print(f"   - {title}: {description}")
+            
+        print(f"\nRESILIENCE:")
         print(f"   - Crisis History: {analysis.historical_context_crises}")
         
         print(f"\n{'='*60}\n")
