@@ -1,5 +1,4 @@
-import google.generativeai as genai
-import json
+from google import genai
 from dotenv import load_dotenv
 import os
 from domain.interfaces import QualitativeDataProvider
@@ -9,8 +8,8 @@ load_dotenv()
 
 class GeminiAdapter(QualitativeDataProvider):
     def __init__(self):
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.model_id = 'gemini-2.5-flash'
 
     def analyse_company(self, symbol: str) -> QualitativeDataDTO:
         """
@@ -64,7 +63,10 @@ class GeminiAdapter(QualitativeDataProvider):
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
         
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(
+            model=self.model_id,
+            contents=prompt
+        )
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
         
         return QualitativeDataDTO.model_validate_json(clean_json)
@@ -117,7 +119,10 @@ class GeminiAdapter(QualitativeDataProvider):
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
         """
         
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(
+            model=self.model_id,
+            contents=prompt
+        )
         clean_json = response.text.replace("```json", "").replace("```", "").strip()
         
         return SectorDataDTO.model_validate_json(clean_json)

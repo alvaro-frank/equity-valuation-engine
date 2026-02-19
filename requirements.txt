@@ -4,4 +4,4 @@ pytest
 pytest-mock
 yfinance
 pydantic
-google-generativeai
+google-genai
