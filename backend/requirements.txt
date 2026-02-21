@@ -1,0 +1,7 @@
+python-dotenv
+requests-cache
+pytest
+pytest-mock
+yfinance
+pydantic
+google-genai
