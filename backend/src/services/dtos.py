@@ -45,7 +45,7 @@ class MetricAnalysisDTO(BaseModel):
 
     metric_name: str = Field(..., description="Name of the metric (e.g., Revenue, Net Income)")
     yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
-    cagr: Decimal = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
+    cagr: Optional[Decimal] = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
     
 class QuantitativeValuationDTO(BaseModel):
     """
