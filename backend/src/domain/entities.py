@@ -158,30 +158,44 @@ class Stock:
     profile: Optional[CompanyProfile] = None
     industry_sector: Optional[IndustrySectorDynamics] = None
     
-    def calculate_cagr(self, field_name: str, num_years: int) -> Decimal:
-        """Calculalates CAGR for a specific metric on the last X years.
-        
-        Args:
-            field_name (str): Name of the metric
-            num_years (int): Number of years to analyse
-            
-        Returns:
-            cagr_val (Decimal): the calculated CAGR value
-        """
-        sorted_years = sorted(self.financial_years, key=lambda x: x.fiscal_date_ending)
-        analysis_years = sorted_years[-num_years:]
-        
-        if len(analysis_years) < 2:
-            return Decimal("0")
+@dataclass(frozen=True)
+class MetricPoint:
+    """
+    Represents a single data point in a time series for a specific financial metric.
+    
+    Attributes:
+        date (str): The date associated with the metric value (usually fiscal year end).
+        value (Decimal): The numerical value of the metric at that point in time.
+    """
+    date: str
+    value: Decimal
 
-        begin_val = getattr(analysis_years[0], field_name, Decimal("0"))
-        end_val = getattr(analysis_years[-1], field_name, Decimal("0"))
-        t = len(analysis_years) - 1
+@dataclass(frozen=True)
+class QuantitativeAnalysis:
+    """
+    Encapsulates the statistical and trend analysis of a specific financial metric over time.
+    
+    Attributes:
+        metric_name (str): The name of the analyzed metric (e.g., Revenue Growth).
+        yearly_data (List[MetricPoint]): Chronological list of data points used for analysis.
+        cagr (Optional[Decimal]): The Compound Annual Growth Rate calculated for the period.
+    """
+    metric_name: str
+    yearly_data: List[MetricPoint]
+    cagr: Optional[Decimal] = None
 
-        if begin_val > 0:
-            ratio = float(end_val / begin_val)
-            if ratio > 0:
-                cagr_val = (pow(ratio, (1 / t)) - 1) * 100
-                return Decimal(str(round(cagr_val, 2)))
+    @classmethod
+    def create_analysis(cls, name: str, data: List[MetricPoint]) -> 'QuantitativeAnalysis':
+        cagr = cls._calculate_cagr(data)
+        return cls(metric_name=name, yearly_data=data, cagr=cagr)
+
+    @staticmethod
+    def _calculate_cagr(data: List[MetricPoint]) -> Optional[Decimal]:
+        if len(data) < 2: return None
+        begin_val = data[-1].value
+        end_val = data[0].value
+        if begin_val <= 0 or end_val <= 0: return None
         
-        return Decimal("0")
+        periods = len(data) - 1
+        cagr = ((end_val / begin_val) ** (Decimal(1) / Decimal(periods)) - 1) * 100
+        return round(cagr, 2)
