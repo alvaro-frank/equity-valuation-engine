@@ -1,8 +1,12 @@
+from dataclasses import fields
+from typing import Any
 from google import genai
 from dotenv import load_dotenv
 import os
+import json
 from domain.interfaces import QualitativeDataProvider
-from services.dtos import QualitativeDataDTO, SectorDataDTO
+from domain.entities import CompanyProfile, IndustrySectorDynamics
+from decimal import Decimal
 
 load_dotenv()
 
@@ -11,7 +15,7 @@ class GeminiAdapter(QualitativeDataProvider):
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.model_id = 'gemini-2.5-flash'
 
-    def analyse_company(self, symbol: str) -> QualitativeDataDTO:
+    def analyse_company(self, symbol: str) -> CompanyProfile:
         """
         Uses Gemini to generate qualitative analysis report. 
         
@@ -19,7 +23,7 @@ class GeminiAdapter(QualitativeDataProvider):
             symbol(str): The ticker symbol to be analysed
             
         Returns:
-            QualitativeDataDTO: A data transfer object containing the qualitative data of the business
+            CompanyProfile: A Domain Entity containing the qualitative data of the business
         """
         prompt = f"""
         Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
@@ -34,7 +38,6 @@ class GeminiAdapter(QualitativeDataProvider):
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
         {{
-            "ticker": "{symbol}",
             "business_description": "A 3-4 sentence summary of core operations.",
             "company_history": "Key milestones from foundation to present.",
             "ceo_name": "Full name of current CEO.",
@@ -62,16 +65,17 @@ class GeminiAdapter(QualitativeDataProvider):
 
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
-        
-        response = self.client.models.generate_content(
-            model=self.model_id,
-            contents=prompt
-        )
-        clean_json = response.text.replace("```json", "").replace("```", "").strip()
-        
-        return QualitativeDataDTO.model_validate_json(clean_json)
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
+        except Exception as e: 
+            raise ConnectionError(f"Connection Error: {e}")
+        else:
+            return self._parse_and_instantiate(response.text, CompanyProfile)
     
-    def analyse_industry(self, sector: str, industry: str) -> SectorDataDTO:
+    def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
         Uses Gemini to perform a deep-dive analysis of industry dynamics and macro factors.
         
@@ -80,7 +84,7 @@ class GeminiAdapter(QualitativeDataProvider):
             industry (str): The industry to be analysed
         
         Returns:
-            SectorDataDTO: A data transfer object containing the data given the sector and industry
+            IndustrySectorDynamics: A Domain Entity containing the data given the sector and industry
         """
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
@@ -119,10 +123,35 @@ class GeminiAdapter(QualitativeDataProvider):
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
         """
         
-        response = self.client.models.generate_content(
-            model=self.model_id,
-            contents=prompt
-        )
-        clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
+        except Exception as e: 
+            raise ConnectionError(f"Connection Error: {e}")
+        else:
+            return self._parse_and_instantiate(response.text, IndustrySectorDynamics)
         
-        return SectorDataDTO.model_validate_json(clean_json)
+    def _parse_and_instantiate(self, raw_text: str, entity_class: type) -> Any:
+        """
+        Helper method to parse the received JSON from the API and instantiate Domain Entity
+        
+        Args:
+            raw_text (str): json text to be parsed
+            entity_class (type): Domain Entity to be instantiated
+            
+        Returns: 
+            entity_class (Any): the instantiated Domain Entity
+        """
+        clean_json = raw_text.replace("```json", "").replace("```", "").replace("**", "").strip()
+        
+        try:
+            data = json.loads(clean_json, parse_float=Decimal)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"JSON Decoding Error: {e}")
+        
+        allowed_fields = [f.name for f in fields(entity_class)]
+        filtered_data = {k: v for k, v in data.items() if k in allowed_fields}
+        
+        return entity_class(**filtered_data)

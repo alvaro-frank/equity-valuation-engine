@@ -1,13 +1,14 @@
 import os
 import time
 import requests_cache
+import requests
 from datetime import timedelta
 from decimal import Decimal
 from typing import List, Optional
 from dotenv import load_dotenv
 
+from domain.entities import FinancialYear, Price, Stock, Ticker
 from domain.interfaces import QuantitativeDataProvider
-from services.dtos import FinancialYearDTO, PriceDTO, QuantitativeDataDTO, TickerDTO
 
 load_dotenv()
 
@@ -55,6 +56,10 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             time.sleep(1.5) 
             
             response = self.session.get(self.BASE_URL, params=params, timeout=15)
+            response.raise_for_status()
+        except requests.RequestException as e: 
+            raise ConnectionError(f"Connection Error: {e}")
+        else:
             data = response.json()
             
             if "Information" in data:
@@ -67,10 +72,6 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
                 raise ValueError(f"API Error: {data['Error Message']}")
                 
             return data
-        except Exception as e:
-            if isinstance(e, (ConnectionError, ValueError)):
-                raise e
-            raise ConnectionError(f"Alpha Vantage Connection Error: {e}")
         
     def _parse_decimal(self, value: str) -> Decimal:
         """
@@ -89,7 +90,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             return Decimal("0")
         return Decimal(value)
     
-    def _map_to_financial_years(self, income_list, balance_list, cash_list) -> List[FinancialYearDTO]:
+    def _map_to_financial_years(self, income_list, balance_list, cash_list) -> List[FinancialYear]:
         years = []
 
         for income_report in income_list:
@@ -102,7 +103,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             lt_debt = self._parse_decimal(balance_report.get("longTermDebt", "0"))
             total_debt_calculated = st_debt + lt_debt
             
-            year_data = FinancialYearDTO(
+            year_data = FinancialYear(
                 fiscal_date_ending=fiscal_date,
                 # Revenue and Earnings
                 revenue=self._parse_decimal(income_report.get("totalRevenue", "0")),
@@ -131,7 +132,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
         
         return years
 
-    def get_stock_current_price(self, symbol: str) -> PriceDTO:
+    def get_stock_current_price(self, symbol: str) -> Price:
         """
         Fetches the current stock price for a given ticker symbol from the Alpha Vantage API.
         Handles API errors and rate limits gracefully.
@@ -144,7 +145,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
             
         Returns:
-            PriceDTO: A data transfer object containing the current price and currency.
+            Price: Domain Entity containing the current price and currency.
         """
         data = self._get_data("GLOBAL_QUOTE", symbol)
         quote = data.get("Global Quote")
@@ -153,12 +154,12 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             raise ValueError(f"Price data not found for {symbol}")
             
         price_str = quote.get("05. price")
-        return PriceDTO(amount=Decimal(price_str), currency="USD")  
+        return Price(amount=Decimal(price_str), currency="USD")  
 
-    def get_stock_fundamental_data(self, symbol: str) -> QuantitativeDataDTO:
+    def get_stock_fundamental_data(self, symbol: str) -> Stock:
         """
         Fetches the fundamental financial data for a given stock ticker symbol from the Alpha Vantage API.
-        Handles API errors and rate limits gracefully, and maps the response to a QuantitativeDataDTO.
+        Handles API errors and rate limits gracefully, and maps the response to a Stock Entity.
         
         Args:
             symbol (str): The stock ticker symbol to fetch fundamental data for.
@@ -168,14 +169,14 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
             
         Returns:
-            QuantitativeDataDTO: A data transfer object containing the fundamental stock data.
+            Stock: Domain Entity containing the fundamental stock data.
         """
         overview = self._get_data("OVERVIEW", symbol)
         
         if not overview:
             raise ValueError(f"No fundamental data for {symbol}")
         
-        updated_ticker = TickerDTO(
+        updated_ticker = Ticker(
             symbol=symbol,
             name=overview.get("Name", ""),
             sector=overview.get("Sector", "Unknown"),
@@ -190,13 +191,13 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
 
         price_obj = self.get_stock_current_price(symbol)
 
-        return QuantitativeDataDTO(
+        return Stock(
             ticker=updated_ticker,
             price=price_obj,
             financial_years=financial_years
         )
         
-    def get_ticker_info(self, symbol: str) -> TickerDTO:
+    def get_ticker_info(self, symbol: str) -> Ticker:
         """
         Fetches only the basic metadata for a ticker (Name, Sector, Industry).
         
@@ -204,11 +205,11 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             symbol (str): The stock ticker symbol to fetch the ticker data.
             
         Returns:
-            TickerDTO: A data transfer object containing the ticker data
+            Ticker: Domain Entity containing the ticker data
         """
         data = self._get_data("OVERVIEW", symbol)
         
-        return TickerDTO(
+        return Ticker(
             symbol=symbol,
             name=data.get("Name"),
             sector=data.get("Sector"),
