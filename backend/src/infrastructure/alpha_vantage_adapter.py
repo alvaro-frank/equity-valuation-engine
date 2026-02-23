@@ -4,11 +4,12 @@ import requests_cache
 import requests
 from datetime import timedelta
 from decimal import Decimal
-from typing import List, Optional
+from typing import Dict, Optional
 from dotenv import load_dotenv
 
-from domain.entities import FinancialYear, Price, Stock, Ticker
+from domain.entities import Price, Stock, Ticker
 from domain.interfaces import QuantitativeDataProvider
+from infrastructure.mappers import map_to_financial_years
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
             expire_after=timedelta(hours=24)
         )
 
-    def _get_data(self, function: str, symbol: str) -> dict:
+    def _get_data(self, function: str, symbol: str) -> Dict:
         """
         Internal method to fetch data from the Alpha Vantage API for a given function and stock symbol.
         Handles rate limiting and API errors gracefully.
@@ -72,65 +73,6 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
                 raise ValueError(f"API Error: {data['Error Message']}")
                 
             return data
-        
-    def _parse_decimal(self, value: str) -> Decimal:
-        """
-        Safely parses a string value to Decimal, returning 0 if the value is None or invalid.
-        
-        Args:
-            value (str): The string value to parse.
-            
-        Raises:
-            ValueError: If the value cannot be parsed to a Decimal and is not None or "None".
-            
-        Returns:
-            Decimal: The parsed decimal value, or 0 if the input is invalid.
-        """
-        if not value or value == "None":
-            return Decimal("0")
-        return Decimal(value)
-    
-    def _map_to_financial_years(self, income_list, balance_list, cash_list) -> List[FinancialYear]:
-        years = []
-
-        for income_report in income_list:
-            fiscal_date = income_report.get("fiscalDateEnding")
-            
-            balance_report = next((b for b in balance_list if b.get("fiscalDateEnding") == fiscal_date), {})
-            cash_report = next((c for c in cash_list if c.get("fiscalDateEnding") == fiscal_date), {})
-            
-            st_debt = self._parse_decimal(balance_report.get("shortTermDebt", "0"))
-            lt_debt = self._parse_decimal(balance_report.get("longTermDebt", "0"))
-            total_debt_calculated = st_debt + lt_debt
-            
-            year_data = FinancialYear(
-                fiscal_date_ending=fiscal_date,
-                # Revenue and Earnings
-                revenue=self._parse_decimal(income_report.get("totalRevenue", "0")),
-                ebitda=self._parse_decimal(income_report.get("ebitda", "0")),
-                # Gross Profit and Operating Income
-                gross_profit=self._parse_decimal(income_report.get("grossProfit", "0")),
-                operating_income=self._parse_decimal(income_report.get("operatingIncome", "0")),
-                # Net Income
-                net_income=self._parse_decimal(income_report.get("netIncome", "0")),
-                #Cash Flow
-                operating_cash_flow=self._parse_decimal(cash_report.get("operatingCashflow", "0")),
-                capital_expenditures=self._parse_decimal(cash_report.get("capitalExpenditures", "0")),
-                # Shares Outstanding
-                shares_outstanding=self._parse_decimal(balance_report.get("commonStockSharesOutstanding", "0")),
-                # Debt
-                short_term_debt=st_debt,
-                long_term_debt=lt_debt,
-                total_debt=total_debt_calculated,
-                # Assets and Liabilities
-                total_assets=self._parse_decimal(balance_report.get("totalAssets", "0")),
-                total_liabilities=self._parse_decimal(balance_report.get("totalLiabilities", "0")),
-                cash_and_equivalents=self._parse_decimal(balance_report.get("cashAndCashEquivalentsAtCarryingValue", "0")),
-            )
-            
-            years.append(year_data)
-        
-        return years
 
     def get_stock_current_price(self, symbol: str) -> Price:
         """
@@ -187,7 +129,7 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
         balance_data = self._get_data("BALANCE_SHEET", symbol).get("annualReports", [])
         cash_data = self._get_data("CASH_FLOW", symbol).get("annualReports", [])
 
-        financial_years = self._map_to_financial_years(income_data, balance_data, cash_data)
+        financial_years = map_to_financial_years(income_data, balance_data, cash_data)
 
         price_obj = self.get_stock_current_price(symbol)
 
