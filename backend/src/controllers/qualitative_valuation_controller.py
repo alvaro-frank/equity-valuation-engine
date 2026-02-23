@@ -1,5 +1,4 @@
 from services.qualitative_valuation_service import QualitativeValuationService
-from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
 from services.dtos import QualitativeValuationDTO
 
 class QualitativeValuationController:
@@ -8,7 +7,7 @@ class QualitativeValuationController:
     """
     def __init__(self, service: QualitativeValuationService):
         """
-        Initializes the QualitativeValuationController with the necessary data adapter and qualitative analysis service.
+        Initializes the QualitativeValuationController with the qualitative analysis service.
         
         Args:
             service (QualitativeValuationService): The service to handle the valuation logic.
@@ -51,12 +50,12 @@ class QualitativeValuationController:
         print(f"   - Evolution: {analysis.company_history}")
         
         print(f"\nLEADERSHIP AND MANAGEMENT:")
-        print(f"   - CEO: {analysis.ceo_name} (Ownership: {analysis.ceo_ownership})")
+        print(f"   - CEO: {analysis.ceo_name} (Ownership: {analysis.ceo_ownership}%)")
         print(f"   - Insights: {analysis.management_insights}")
         
         print(f"\nMAJOR SHAREHOLDERS:")
-        for title, description in analysis.major_shareholders.items():
-            print(f"   - {title}: {description}")
+        for title, ownership in analysis.major_shareholders.items():
+            print(f"   - {title}: {ownership}%")
         
         print(f"\nCOMPETITION:")
         for title, description in analysis.competitors.items():

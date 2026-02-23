@@ -3,7 +3,7 @@ from services.dtos import QuantitativeValuationDTO
 
 class QuantitativeValuationController:
     """
-    Controller responsible for orchestrating the stock quantitative valuation process, including fetching data from the Adapter and performing analysis using the QuantitativeValuationService.
+    Controller responsible for orchestrating the stock quantitative valuation process performing analysis using the QuantitativeValuationService.
     """
     def __init__(self, service: QuantitativeValuationService):
         """
@@ -48,9 +48,9 @@ class QuantitativeValuationController:
         print(f"Sector: {result.ticker.sector} | Industry: {result.ticker.industry}")
         print(f"{'='*50}")
 
-        for key, analysis in result.metrics.items():
+        for analysis in result.metrics.values():
             print(f"\nMetric: {analysis.metric_name}")
-            print(f"{'Data':<15} | {'Value':>20}")
+            print(f"{'Date':<15} | {'Value':>20}")
             print("-" * 40)
             
             for data_point in analysis.yearly_data:

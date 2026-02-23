@@ -36,7 +36,7 @@ class SectorValuationController:
         Formats and prints the structural industry analysis to the console.
         
         Args:
-            result (SectorValuationDTO): The result of the industry/sector valuation analysis to display.
+            analysis (SectorValuationDTO): The industry/sector valuation analysis to display.
         """
         print(f"\n{'='*75}")
         print(f"INDUSTRY STRUCTURAL ANALYSIS: {analysis.industry.upper()}")
