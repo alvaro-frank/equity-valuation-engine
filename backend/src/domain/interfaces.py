@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from services.dtos import PriceDTO, SectorDataDTO, TickerDTO, QuantitativeDataDTO, QualitativeDataDTO
+from domain.entities import Price, Stock, Ticker, CompanyProfile, IndustrySectorDynamics
 
 class QuantitativeDataProvider(ABC):
     """
@@ -8,7 +8,7 @@ class QuantitativeDataProvider(ABC):
     This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
-    def get_stock_current_price(self, symbol: str) -> PriceDTO:
+    def get_stock_current_price(self, symbol: str) -> Price:
         """
         Fetches the current stock price for a given ticker symbol.
         
@@ -16,12 +16,12 @@ class QuantitativeDataProvider(ABC):
             symbol (str): The stock ticker symbol to fetch the price.
             
         Returns:
-            PriceDTO: A data transfer object containing the current price and currency.
+            Price: Domain Entity containing the current price and currency.
         """
         pass
     
     @abstractmethod
-    def get_stock_fundamental_data(self, symbol: str) -> QuantitativeDataDTO:
+    def get_stock_fundamental_data(self, symbol: str) -> Stock:
         """
         Fetches the fundamental financial data for a given stock ticker symbol.
         
@@ -29,12 +29,12 @@ class QuantitativeDataProvider(ABC):
             symbol (str): The stock ticker symbol to fetch the fundamental data.
             
         Returns:
-            QuantitativeDataDTO: A data transfer object containing the stock's fundamental data, including financial years.
+            Stock: Domain Entity containing the stock's fundamental data, including financial years.
         """
         pass
     
     @abstractmethod
-    def get_ticker_info(self, symbol: str) -> TickerDTO:
+    def get_ticker_info(self, symbol: str) -> Ticker:
         """
         Fetches only the basic metadata for a ticker (Name, Sector, Industry).
         
@@ -42,17 +42,17 @@ class QuantitativeDataProvider(ABC):
             symbol (str): The stock ticker symbol to fetch the ticker data.
             
         Returns:
-            TickerDTO: A data transfer object containing the ticker data
+            Ticker: Domain Entity containing the ticker data
         """
         pass
     
 class QualitativeDataProvider(ABC):
     """
-    Interface for fetching quantitative data, including current price and fundamental financial data.
-    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
+    Interface for fetching qualitative data, including business explanation, revenue models etc.
+    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
     """
     @abstractmethod
-    def analyse_company(self, symbol: str) -> QualitativeDataDTO:
+    def analyse_company(self, symbol: str) -> CompanyProfile:
         """
         Fetches the qualitative data for a given stock ticker symbol.
         
@@ -60,12 +60,12 @@ class QualitativeDataProvider(ABC):
             symbol (str): The ticker symbol to be analysed
             
         Returns:
-            QualitativeDataDTO: A data transfer object containing the qualitative data of the business
+            CompanyProfile: Domain Entity containing the qualitative data of the business
         """
         pass
     
     @abstractmethod
-    def analyse_industry(self, sector: str, industry: str) -> SectorDataDTO:
+    def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
         Analyses the specific sector and industry dynamics.
         
@@ -74,6 +74,6 @@ class QualitativeDataProvider(ABC):
             industry (str): The industry to be analysed
         
         Returns:
-            SectorDataDTO: A data transfer object containing the data given the sector and industry
+            IndustrySectorDynamics: Domain Entity containing the data given the sector and industry
         """
         pass
