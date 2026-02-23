@@ -11,7 +11,16 @@ from decimal import Decimal
 load_dotenv()
 
 class GeminiAdapter(QualitativeDataProvider):
+    """
+    Adapter that leverages Google's Gemini LLM to generate qualitative research.
+    
+    It transforms raw company and industry queries into structured Domain Entities 
+    by enforcing a strict JSON schema via system prompting.
+    """
     def __init__(self):
+        """
+        Initializes the Gemini client using the API key from environment variables.
+        """
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.model_id = 'gemini-2.5-flash'
 

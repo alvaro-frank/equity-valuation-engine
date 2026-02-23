@@ -56,7 +56,14 @@ class SectorValuationController:
         print(f"\n{'='*75}\n")
 
     def _print_force_section(self, title: str, force_dict: dict):
-        """Helper to print dictionary-based analysis sections."""
+        """
+        Helper to print dictionary-based analysis sections in a bulleted list format.
+        
+        Args:
+            title (str): The name of the industry force or section.
+            force_dict (dict): A dictionary where keys are factors and values are 
+                               their corresponding qualitative descriptions.
+        """
         print(f"\n{title}:")
         for factor, description in force_dict.items():
             print(f"   - {factor}: {description}")

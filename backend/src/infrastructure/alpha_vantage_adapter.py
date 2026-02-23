@@ -21,6 +21,9 @@ class AlphaVantageAdapter(QuantitativeDataProvider):
     BASE_URL = "https://www.alphavantage.co/query"
 
     def __init__(self, api_key: Optional[str] = None):
+        """
+        Initializes the adapter, setting up the API key and a 24-hour cache session.
+        """
         raw_key = api_key or os.getenv("ALPHA_VANTAGE_API_KEY")
         if not raw_key:
             raise ValueError("Alpha Vantage API Key not found in .env")

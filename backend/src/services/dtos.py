@@ -102,6 +102,16 @@ class SectorValuationDTO(BaseModel):
     Result DTO for the comprehensive industry and sector valuation report.
     
     Attributes:
+        ticker (TickerDTO): Ticker information of the stock.
+        sector (str): The broad economic sector (e.g., Technology).
+        industry (str): The specific industry classification (e.g., Consumer Electronics).
+        rivalry_among_competitors (Dict[str, str]): Analysis of competition intensity and key players.
+        bargaining_power_of_suppliers (Dict[str, str]): Evaluation of supplier influence on pricing.
+        bargaining_power_of_customers (Dict[str, str]): Evaluation of customer influence on pricing.
+        threat_of_new_entrants (Dict[str, str]): Barriers to entry for new competitors.
+        threat_of_obsolescence (Dict[str, str]): Risks from technological or market shifts.
+        economic_sensitivity (str): How much the business is affected by economic cycles (Cyclical vs defensive).
+        interest_rate_exposure (str): Impact of interest rate fluctuations on the business model.
     """
     model_config = ConfigDict(frozen=True)
 
