@@ -176,7 +176,7 @@ class QuantitativeAnalysis:
     Encapsulates the statistical and trend analysis of a specific financial metric over time.
     
     Attributes:
-        metric_name (str): The name of the analyzed metric (e.g., Revenue Growth).
+        metric_name (str): The name of the analysed metric (e.g., Revenue Growth).
         yearly_data (List[MetricPoint]): Chronological list of data points used for analysis.
         cagr (Optional[Decimal]): The Compound Annual Growth Rate calculated for the period.
     """
