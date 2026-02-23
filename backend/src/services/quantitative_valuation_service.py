@@ -1,12 +1,11 @@
 from domain.interfaces import QuantitativeDataProvider
-from domain.entities import Stock, Price, Ticker, FinancialYear
-from services.dtos import QuantitativeValuationDTO, MetricAnalysisDTO, MetricYearlyDTO, TickerDTO
+from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint, Ticker
 from dataclasses import fields
 
 class QuantitativeValuationService:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a QuantitativeValuationDTO containing the analysis results.
+    This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a tuple containing Ticker and a list of QuantitativeAnalysis
     """
     def __init__(self, adapter: QuantitativeDataProvider):
         """
@@ -14,56 +13,53 @@ class QuantitativeValuationService:
         """
         self.adapter = adapter
         
-    def evaluate_ticker(self, symbol: str, years: int = 5) -> QuantitativeValuationDTO:
+    def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> tuple[Ticker, list[QuantitativeAnalysis]]:
         """
-        Orchestrates the valuation process by fetching data and then performing the analysis.
-        
+        Performs a full quantitative evaluation of a stock by fetching its data and analyzing 
+        core financial metrics over a rolling window of years.
+
         Args:
-            symbol (str): The stock ticker symbol to analyse.
-            years (int): Number of recent years to analyse.
-            
+            ticker_symbol (str): The stock market ticker symbol (e.g., 'AAPL').
+            years (int): The number of recent fiscal years to include in the trend analysis. 
+                         Defaults to 5.
+
         Returns:
-            QuantitativeValuationDTO: The result of the quantitative analysis.
+            tuple[Ticker, list[QuantitativeAnalysis]]: A tuple containing the Ticker metadata 
+                                                       and a list of calculated quantitative 
+                                                       analyses for each core metric.
         """
-        stock = self.adapter.get_stock_fundamental_data(symbol)
+        ticker = self.adapter.get_ticker_info(ticker_symbol)
+        stock_data = self.adapter.get_stock_fundamental_data(ticker_symbol)
         
-        return self.evaluate_stock(stock, years_to_analyse=years)
-        
-    def evaluate_stock(self, stock: Stock, years_to_analyse: int = 5) -> QuantitativeValuationDTO:
-        """
-        Evaluates the stock's financial data and performs analysis on key metrics for a specified number of recent years.
-        
-        Args:
-            stock (Stock): The Stock Entity containing the stock's fundamental data, including financial years and current price.
-            years_to_analyse (int): The number of recent fiscal years to include in the analysis (default is 5).
-            
-        Returns:
-            QuantitativeValuationDTO: The result of the quantitative valuation analysis.
-        """
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending"]
         
-        metrics_to_check = [f for f in all_fields if f not in excluded_fields]
-        analysis_map = {}
+        metrics_to_analyse = [f for f in all_fields if f not in excluded_fields]
+
+        analyses = [
+            self._analyse_metric(stock_data.financial_years, metric, years)
+            for metric in metrics_to_analyse
+        ]
         
-        sorted_years = sorted(stock.financial_years, key=lambda x: x.fiscal_date_ending)
-        analysis_years = sorted_years[-years_to_analyse:]
+        return ticker, analyses
+        
+    def _analyse_metric(self, financial_years, field_name: str, years: int) -> QuantitativeAnalysis:
+        """
+        Extracts a specific financial metric from the historical data and encapsulates it 
+        into a QuantitativeAnalysis object.
 
-        for field in metrics_to_check:
-            cagr = stock.calculate_cagr(field, years_to_analyse)
-            
-            yearly_data = [
-                MetricYearlyDTO(date=y.fiscal_date_ending, value=getattr(y, field))
-                for y in analysis_years
-            ]
+        Args:
+            financial_years (List[FinancialYear]): The raw historical financial data.
+            field_name (str): The name of the attribute to extract from each FinancialYear.
+            years (int): The maximum number of years to extract, starting from the most recent.
 
-            analysis_map[field] = MetricAnalysisDTO(
-                metric_name=field.replace("_", " ").title(),
-                yearly_data=yearly_data,
-                cagr=cagr
-            )
+        Returns:
+            QuantitativeAnalysis: An object containing the time-series data (MetricPoints) 
+                                  and the derived growth metrics (CAGR).
+        """
+        points = [
+            MetricPoint(date=fy.fiscal_date_ending, value=getattr(fy, field_name))
+            for fy in financial_years[:years]
+        ]
 
-        return QuantitativeValuationDTO(
-            ticker= TickerDTO(symbol=stock.ticker.symbol, name=stock.ticker.name, sector=stock.ticker.sector, industry=stock.ticker.industry),
-            metrics=analysis_map
-        )
+        return QuantitativeAnalysis.create_analysis(field_name.replace("_", " ").title(), points)

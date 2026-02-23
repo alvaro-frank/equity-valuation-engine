@@ -1,5 +1,4 @@
 from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
-from services.dtos import SectorValuationDTO, TickerDTO
 from domain.entities import IndustrySectorDynamics, Ticker
 from dataclasses import asdict
 
@@ -19,24 +18,21 @@ class SectorValuationService:
         self.qual_provider = qual_provider
         self.quant_provider = quant_provider
 
-    def evaluate_industry_by_ticker(self, ticker_symbol: str) -> SectorValuationDTO:
+    def evaluate_industry_by_ticker(self, ticker_symbol: str) -> tuple[Ticker, IndustrySectorDynamics]:
         """
-        Main entry point to analyze an industry based on a specific company ticker.
+        Main entry point to analyse an industry based on a specific company ticker.
         
         Args:
             ticker_symbol (str): The stock ticker to identify the sector and industry.
             
         Returns:
-            SectorValuationDTO: The complete industry analysis mapped to the ticker context.
+            tuple[Ticker, IndustrySectorDynamics]: a tuple containing Ticker and IndustrySectorDynamics Entities.
         """
-        ticker_info: Ticker = self.quant_provider.get_ticker_info(ticker_symbol)
+        ticker_info = self.quant_provider.get_ticker_info(ticker_symbol)
         
-        sector_analysis: IndustrySectorDynamics = self.qual_provider.analyse_industry(
+        analysis: IndustrySectorDynamics = self.qual_provider.analyse_industry(
             sector=ticker_info.sector,
             industry=ticker_info.industry
         )
         
-        return SectorValuationDTO(
-            ticker=TickerDTO(symbol=ticker_info.symbol, name=ticker_info.name, sector=ticker_info.sector, industry=ticker_info.industry),
-            **asdict(sector_analysis)
-        )
+        return ticker_info, analysis
