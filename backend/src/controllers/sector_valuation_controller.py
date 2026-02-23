@@ -1,5 +1,6 @@
 from services.sector_valuation_service import SectorValuationService
-from services.dtos import SectorValuationDTO
+from services.dtos import SectorValuationDTO, TickerDTO
+from dataclasses import asdict
 
 class SectorValuationController:
     """
@@ -21,12 +22,28 @@ class SectorValuationController:
 
         Args:
             ticker_symbol (str): The stock ticker used to identify the industry.
+            
+        Returns:
+            None: This method creates the SectorValuationDTO.
         """
         print(f"\nPerforming Industry Dynamics Analysis for {ticker_symbol}...")
         
         try:
-            analysis = self.service.evaluate_industry_by_ticker(ticker_symbol)
-            self._display_industry_report(analysis)
+            ticker_entity, entity = self.service.evaluate_industry_by_ticker(ticker_symbol)
+            
+            ticker_dto = TickerDTO(
+                symbol=ticker_entity.symbol,
+                name=ticker_entity.name,
+                sector=ticker_entity.sector,
+                industry=ticker_entity.industry
+            )
+            
+            analysis_dto = SectorValuationDTO(
+                ticker=ticker_dto,
+                **asdict(entity)
+            )
+            
+            self._display_industry_report(analysis_dto)
 
         except Exception as e:
             print(f"Industry analysis error: {e}")
@@ -37,6 +54,9 @@ class SectorValuationController:
         
         Args:
             analysis (SectorValuationDTO): The industry/sector valuation analysis to display.
+            
+        Returns:
+            None: This method prints the results directly to the console.
         """
         print(f"\n{'='*75}")
         print(f"INDUSTRY STRUCTURAL ANALYSIS: {analysis.industry.upper()}")
@@ -63,6 +83,9 @@ class SectorValuationController:
             title (str): The name of the industry force or section.
             force_dict (dict): A dictionary where keys are factors and values are 
                                their corresponding qualitative descriptions.
+                               
+        Returns:
+            None: Only helps to print the keys and values of the dict
         """
         print(f"\n{title}:")
         for factor, description in force_dict.items():

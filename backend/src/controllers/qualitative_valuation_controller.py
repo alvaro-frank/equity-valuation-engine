@@ -1,5 +1,6 @@
 from services.qualitative_valuation_service import QualitativeValuationService
-from services.dtos import QualitativeValuationDTO
+from services.dtos import QualitativeValuationDTO, TickerDTO
+from dataclasses import asdict
 
 class QualitativeValuationController:
     """
@@ -22,11 +23,24 @@ class QualitativeValuationController:
             ticker_symbol (str): The stock ticker symbol to analyse.
 
         Returns:
-            None: This method prints the results directly to the console.
+            None: This method creates the QualitativeValuationDTO.
         """
         try:
-            analysis = self.service.analyse_ticker(ticker_symbol)
-            self._display_qualitative_report(analysis)
+            ticker_entity, profile_entity = self.service.analyse_ticker(ticker_symbol)
+
+            ticker_dto = TickerDTO(
+                symbol=ticker_entity.symbol,
+                name=ticker_entity.name,
+                sector=ticker_entity.sector,
+                industry=ticker_entity.industry
+            )
+
+            analysis_dto = QualitativeValuationDTO(
+                ticker=ticker_dto,
+                **asdict(profile_entity)
+            )
+
+            self._display_qualitative_report(analysis_dto)
 
         except Exception as e:
             print(f"Qualitative analysis error: {e}")

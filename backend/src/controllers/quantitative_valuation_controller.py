@@ -1,5 +1,5 @@
 from services.quantitative_valuation_service import QuantitativeValuationService
-from services.dtos import QuantitativeValuationDTO
+from services.dtos import QuantitativeValuationDTO, MetricAnalysisDTO, TickerDTO, MetricYearlyDTO
 
 class QuantitativeValuationController:
     """
@@ -23,14 +23,30 @@ class QuantitativeValuationController:
             years (int): The number of recent years to include in the analysis.
             
         Returns:
-            None: This method prints the results directly to the console.
+            None: This method creates the QuantitativeValuationDTO.
         """
-        print(f"\nAnalysing: {ticker_symbol}...")
-        
         try:
-            result = self.service.evaluate_ticker(ticker_symbol, years=years)
-            self._display_results(result)
-            
+            ticker_entity, analyses_entities = self.service.evaluate_ticker(ticker_symbol, years)
+
+            ticker_dto = TickerDTO(
+                symbol=ticker_entity.symbol,
+                name=ticker_entity.name,
+                sector=ticker_entity.sector,
+                industry=ticker_entity.industry
+            )
+
+            metrics_dtos = {}
+            for analysis in analyses_entities:
+                metrics_dtos[analysis.metric_name.lower()] = MetricAnalysisDTO(
+                    metric_name=analysis.metric_name,
+                    yearly_data=[MetricYearlyDTO(date=p.date, value=p.value) for p in analysis.yearly_data],
+                    cagr=analysis.cagr
+                )
+
+            final_dto = QuantitativeValuationDTO(ticker=ticker_dto, metrics=metrics_dtos)
+
+            self._display_results(final_dto)
+
         except Exception as e:
             print(f"Error: {e}")
 
@@ -42,7 +58,8 @@ class QuantitativeValuationController:
             result (QuantitativeValuationDTO): The result of the quantitative valuation analysis to display.
             
         Returns:
-            None: This method prints the results directly to the console."""
+            None: This method prints the results directly to the console.
+        """
         print(f"\n{'='*50}")
         print(f"REPORT: {result.ticker.name} ({result.ticker.symbol})")
         print(f"Sector: {result.ticker.sector} | Industry: {result.ticker.industry}")
