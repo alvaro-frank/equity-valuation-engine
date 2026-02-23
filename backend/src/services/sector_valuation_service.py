@@ -1,5 +1,7 @@
 from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
-from services.dtos import SectorValuationDTO, TickerDTO, SectorDataDTO
+from services.dtos import SectorValuationDTO, TickerDTO
+from domain.entities import IndustrySectorDynamics, Ticker
+from dataclasses import asdict
 
 class SectorValuationService:
     """
@@ -27,14 +29,14 @@ class SectorValuationService:
         Returns:
             SectorValuationDTO: The complete industry analysis mapped to the ticker context.
         """
-        ticker_info: TickerDTO = self.quant_provider.get_ticker_info(ticker_symbol)
+        ticker_info: Ticker = self.quant_provider.get_ticker_info(ticker_symbol)
         
-        sector_analysis: SectorDataDTO = self.qual_provider.analyse_industry(
+        sector_analysis: IndustrySectorDynamics = self.qual_provider.analyse_industry(
             sector=ticker_info.sector,
             industry=ticker_info.industry
         )
         
         return SectorValuationDTO(
-            ticker=ticker_info,
-            **sector_analysis.model_dump()
+            ticker=TickerDTO(symbol=ticker_info.symbol, name=ticker_info.name, sector=ticker_info.sector, industry=ticker_info.industry),
+            **asdict(sector_analysis)
         )
