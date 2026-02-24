@@ -3,7 +3,7 @@ from domain.entities import IndustrySectorDynamics
 from dtos.dtos import TickerDTO, SectorValuationDTO
 from dataclasses import asdict
 
-class SectorValuationService:
+class SectorIndustrialValuationUseCase:
     """
     Service responsible for orchestrating the industry and sector analysis.
     It fetches sector metadata for a ticker and uses AI to perform a structural analysis.

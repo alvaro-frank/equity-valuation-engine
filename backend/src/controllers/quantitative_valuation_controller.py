@@ -1,16 +1,16 @@
-from use_cases.analyse_quantitative_valuation import AnalyseQuantitativeValuation
+from use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from dtos.dtos import QuantitativeValuationDTO
 
 class QuantitativeValuationController:
     """
-    Controller responsible for orchestrating the stock quantitative valuation process performing analysis using the AnalyseQuantitativeValuation.
+    Controller responsible for orchestrating the stock quantitative valuation process performing analysis using the QuantitativeValuationUseCase.
     """
-    def __init__(self, service: AnalyseQuantitativeValuation):
+    def __init__(self, service: QuantitativeValuationUseCase):
         """
-        Initializes the controller with an injected AnalyseQuantitativeValuation.
+        Initializes the controller with an injected QuantitativeValuationUseCase.
         
         Args:
-            service (AnalyseQuantitativeValuation): The service to handle the valuation logic.
+            service (QuantitativeValuationUseCase): The service to handle the valuation logic.
         """
         self.service = service
 

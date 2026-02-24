@@ -3,14 +3,14 @@ from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint
 from dtos.dtos import TickerDTO, MetricYearlyDTO, MetricAnalysisDTO, QuantitativeValuationDTO
 from dataclasses import fields
 
-class AnalyseQuantitativeValuation:
+class QuantitativeValuationUseCase:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a DTO containing all information about the Quantitative data of the business.
     """
     def __init__(self, adapter: QuantitativeDataProvider):
         """
-        Initializes the AnalyseQuantitativeValuation with the QuantitativeDataProvider to fetch fundamental business data.
+        Initializes the QuantitativeValuationUseCase with the QuantitativeDataProvider to fetch fundamental business data.
         """
         self.adapter = adapter
         

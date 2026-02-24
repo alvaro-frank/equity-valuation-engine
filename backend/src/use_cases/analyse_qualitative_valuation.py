@@ -3,14 +3,14 @@ from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
 from dtos.dtos import TickerDTO, QualitativeValuationDTO
 from dataclasses import asdict
 
-class QualitativeValuationService:
+class QualitativeValuationUseCase:
     """
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
     This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
     def __init__(self, adapter: QualitativeDataProvider, quant_adapter: QuantitativeDataProvider):
         """
-        Initializes the QualitativeValuationService with the GeminiAdapter for AI-driven analysis.
+        Initializes the QualitativeValuationUseCase with the GeminiAdapter for AI-driven analysis.
         """
         self.adapter = adapter
         self.quant_adapter = quant_adapter

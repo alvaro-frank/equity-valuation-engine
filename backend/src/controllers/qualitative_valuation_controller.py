@@ -1,17 +1,17 @@
-from use_cases.analyse_qualitative_valuation import QualitativeValuationService
+from use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from dtos.dtos import QualitativeValuationDTO
 from dataclasses import asdict
 
 class QualitativeValuationController:
     """
-    Controller responsible for orchestrating the stock qualitative valuation process, including fetching data from the Adapter and performing analysis using the QualitativeValuationService.
+    Controller responsible for orchestrating the stock qualitative valuation process, including fetching data from the Adapter and performing analysis using the QualitativeValuationUseCase.
     """
-    def __init__(self, service: QualitativeValuationService):
+    def __init__(self, service: QualitativeValuationUseCase):
         """
         Initializes the QualitativeValuationController with the qualitative analysis service.
         
         Args:
-            service (QualitativeValuationService): The service to handle the valuation logic.
+            service (QualitativeValuationUseCase): The service to handle the valuation logic.
         """
         self.service = service
 

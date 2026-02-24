@@ -1,18 +1,18 @@
-from use_cases.analyse_sector_industrial_valuation import SectorValuationService
+from use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from dtos.dtos import SectorValuationDTO
 from dataclasses import asdict
 
 class SectorValuationController:
     """
     Controller responsible for orchestrating the industry and sector valuation process.
-    It delegates logic to the SectorValuationService and handles terminal presentation.
+    It delegates logic to the SectorIndustrialValuationUseCase and handles terminal presentation.
     """
-    def __init__(self, service: SectorValuationService):
+    def __init__(self, service: SectorIndustrialValuationUseCase):
         """
-        Initializes the controller with an injected SectorValuationService.
+        Initializes the controller with an injected SectorIndustrialValuationUseCase.
         
         Args:
-            service (SectorValuationService): The service to handle industry analysis.
+            service (SectorIndustrialValuationUseCase): The service to handle industry analysis.
         """
         self.service = service
 

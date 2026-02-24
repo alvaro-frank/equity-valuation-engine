@@ -1,8 +1,8 @@
 from infrastructure.gemini_adapter import GeminiAdapter
 from infrastructure.alpha_vantage_adapter import AlphaVantageAdapter
-from use_cases.analyse_qualitative_valuation import QualitativeValuationService
-from use_cases.analyse_quantitative_valuation import AnalyseQuantitativeValuation
-from use_cases.analyse_sector_industrial_valuation import SectorValuationService
+from use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
+from use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
+from use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from controllers.quantitative_valuation_controller import QuantitativeValuationController
 from controllers.qualitative_valuation_controller import QualitativeValuationController
 from controllers.sector_valuation_controller import SectorValuationController
@@ -15,10 +15,10 @@ def main():
     alpha_vantage_adapter = AlphaVantageAdapter()
     gemini_adapter = GeminiAdapter()
     
-    #Services
-    sector_service = SectorValuationService(qual_provider=gemini_adapter, quant_provider=alpha_vantage_adapter)
-    qual_service = QualitativeValuationService(adapter=gemini_adapter, quant_adapter=alpha_vantage_adapter)
-    quant_service = AnalyseQuantitativeValuation(adapter=alpha_vantage_adapter)
+    #Use Cases
+    sector_service = SectorIndustrialValuationUseCase(qual_provider=gemini_adapter, quant_provider=alpha_vantage_adapter)
+    qual_service = QualitativeValuationUseCase(adapter=gemini_adapter, quant_adapter=alpha_vantage_adapter)
+    quant_service = QuantitativeValuationUseCase(adapter=alpha_vantage_adapter)
     
     # Controllers
     sector_controller = SectorValuationController(sector_service)
