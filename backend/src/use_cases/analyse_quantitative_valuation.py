@@ -2,14 +2,14 @@ from domain.interfaces import QuantitativeDataProvider
 from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint, Ticker
 from dataclasses import fields
 
-class QuantitativeValuationService:
+class AnalyseQuantitativeValuation:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a tuple containing Ticker and a list of QuantitativeAnalysis
     """
     def __init__(self, adapter: QuantitativeDataProvider):
         """
-        Initializes the QuantitativeValuationService with the QuantitativeDataProvider to fetch fundamental business data.
+        Initializes the AnalyseQuantitativeValuation with the QuantitativeDataProvider to fetch fundamental business data.
         """
         self.adapter = adapter
         
