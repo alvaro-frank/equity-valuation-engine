@@ -1,4 +1,4 @@
-from services.qualitative_valuation_service import QualitativeValuationService
+from use_cases.analyse_qualitative_valuation import QualitativeValuationService
 from dtos.dtos import QualitativeValuationDTO, TickerDTO
 from dataclasses import asdict
 

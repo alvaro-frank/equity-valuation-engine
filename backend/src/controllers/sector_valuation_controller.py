@@ -1,4 +1,4 @@
-from services.sector_valuation_service import SectorValuationService
+from use_cases.analyse_sector_industrial_valuation import SectorValuationService
 from dtos.dtos import SectorValuationDTO, TickerDTO
 from dataclasses import asdict
 
