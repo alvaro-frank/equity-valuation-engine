@@ -1,5 +1,5 @@
 from services.qualitative_valuation_service import QualitativeValuationService
-from services.dtos import QualitativeValuationDTO, TickerDTO
+from dtos.dtos import QualitativeValuationDTO, TickerDTO
 from dataclasses import asdict
 
 class QualitativeValuationController:

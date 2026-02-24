@@ -1,5 +1,5 @@
 from services.quantitative_valuation_service import QuantitativeValuationService
-from services.dtos import QuantitativeValuationDTO, MetricAnalysisDTO, TickerDTO, MetricYearlyDTO
+from dtos.dtos import QuantitativeValuationDTO, MetricAnalysisDTO, TickerDTO, MetricYearlyDTO
 
 class QuantitativeValuationController:
     """

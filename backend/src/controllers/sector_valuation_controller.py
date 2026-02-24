@@ -1,5 +1,5 @@
 from services.sector_valuation_service import SectorValuationService
-from services.dtos import SectorValuationDTO, TickerDTO
+from dtos.dtos import SectorValuationDTO, TickerDTO
 from dataclasses import asdict
 
 class SectorValuationController:
