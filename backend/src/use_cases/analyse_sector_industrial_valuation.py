@@ -1,5 +1,5 @@
 from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
-from domain.entities import IndustrySectorDynamics, Ticker
+from domain.entities import IndustrySectorDynamics
 from dtos.dtos import TickerDTO, SectorValuationDTO
 from dataclasses import asdict
 
