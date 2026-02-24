@@ -1,5 +1,5 @@
 from use_cases.analyse_quantitative_valuation import AnalyseQuantitativeValuation
-from dtos.dtos import QuantitativeValuationDTO, MetricAnalysisDTO, TickerDTO, MetricYearlyDTO
+from dtos.dtos import QuantitativeValuationDTO
 
 class QuantitativeValuationController:
     """
@@ -26,26 +26,9 @@ class QuantitativeValuationController:
             None: This method creates the QuantitativeValuationDTO.
         """
         try:
-            ticker_entity, analyses_entities = self.service.evaluate_ticker(ticker_symbol, years)
+            dto = self.service.evaluate_ticker(ticker_symbol, years)
 
-            ticker_dto = TickerDTO(
-                symbol=ticker_entity.symbol,
-                name=ticker_entity.name,
-                sector=ticker_entity.sector,
-                industry=ticker_entity.industry
-            )
-
-            metrics_dtos = {}
-            for analysis in analyses_entities:
-                metrics_dtos[analysis.metric_name.lower()] = MetricAnalysisDTO(
-                    metric_name=analysis.metric_name,
-                    yearly_data=[MetricYearlyDTO(date=p.date, value=p.value) for p in analysis.yearly_data],
-                    cagr=analysis.cagr
-                )
-
-            final_dto = QuantitativeValuationDTO(ticker=ticker_dto, metrics=metrics_dtos)
-
-            self._display_results(final_dto)
+            self._display_results(dto)
 
         except Exception as e:
             print(f"Error: {e}")

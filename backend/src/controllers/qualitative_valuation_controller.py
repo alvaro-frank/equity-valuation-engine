@@ -1,5 +1,5 @@
 from use_cases.analyse_qualitative_valuation import QualitativeValuationService
-from dtos.dtos import QualitativeValuationDTO, TickerDTO
+from dtos.dtos import QualitativeValuationDTO
 from dataclasses import asdict
 
 class QualitativeValuationController:
@@ -26,19 +26,7 @@ class QualitativeValuationController:
             None: This method creates the QualitativeValuationDTO.
         """
         try:
-            ticker_entity, profile_entity = self.service.analyse_ticker(ticker_symbol)
-
-            ticker_dto = TickerDTO(
-                symbol=ticker_entity.symbol,
-                name=ticker_entity.name,
-                sector=ticker_entity.sector,
-                industry=ticker_entity.industry
-            )
-
-            analysis_dto = QualitativeValuationDTO(
-                ticker=ticker_dto,
-                **asdict(profile_entity)
-            )
+            analysis_dto = self.service.analyse_ticker(ticker_symbol)
 
             self._display_qualitative_report(analysis_dto)
 

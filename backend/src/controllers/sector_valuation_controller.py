@@ -1,5 +1,5 @@
 from use_cases.analyse_sector_industrial_valuation import SectorValuationService
-from dtos.dtos import SectorValuationDTO, TickerDTO
+from dtos.dtos import SectorValuationDTO
 from dataclasses import asdict
 
 class SectorValuationController:
@@ -29,20 +29,7 @@ class SectorValuationController:
         print(f"\nPerforming Industry Dynamics Analysis for {ticker_symbol}...")
         
         try:
-            ticker_entity, entity = self.service.evaluate_industry_by_ticker(ticker_symbol)
-            
-            ticker_dto = TickerDTO(
-                symbol=ticker_entity.symbol,
-                name=ticker_entity.name,
-                sector=ticker_entity.sector,
-                industry=ticker_entity.industry
-            )
-            
-            analysis_dto = SectorValuationDTO(
-                ticker=ticker_dto,
-                **asdict(entity)
-            )
-            
+            analysis_dto = self.service.evaluate_industry_by_ticker(ticker_symbol)
             self._display_industry_report(analysis_dto)
 
         except Exception as e:

@@ -1,10 +1,12 @@
-from domain.entities import CompanyProfile, Ticker
+from domain.entities import CompanyProfile
 from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
+from dtos.dtos import TickerDTO, QualitativeValuationDTO
+from dataclasses import asdict
 
 class QualitativeValuationService:
     """
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
-    This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a tuple[Ticker, CompanyProfile] containing the analysis results.
+    This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
     def __init__(self, adapter: QualitativeDataProvider, quant_adapter: QuantitativeDataProvider):
         """
@@ -12,24 +14,8 @@ class QualitativeValuationService:
         """
         self.adapter = adapter
         self.quant_adapter = quant_adapter
-
-    def analyse_business(self, ticker: Ticker) -> tuple[Ticker, CompanyProfile]:
-        """
-        analyses the qualitative aspects of a business, such as its history and business model, using AI analysis.
         
-        Args:
-            ticker (Ticker): The Domain Entity containing the ticker's metadata.
-            
-        Returns:
-            tuple[Ticker, CompanyProfile]: a tuple containing Ticker and CompanyProfile entities.
-        """
-        qual_data: CompanyProfile = self.adapter.analyse_company(
-            symbol=ticker.symbol
-        )
-        
-        return ticker, qual_data
-        
-    def analyse_ticker(self, ticker_symbol: str) -> tuple[Ticker, CompanyProfile]:
+    def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:
         """
         Fetches the ticker information, such as business name, sector and industry
         
@@ -37,7 +23,22 @@ class QualitativeValuationService:
             ticker_symbol (str): The stock ticker symbol to analyse.
             
         Returns:
-            tuple[Ticker, CompanyProfile]: a tuple containing Ticker and CompanyProfile entities.
+            QualitativeValuationDTO: a DTO containing all information about the Qualitative data of the business.
         """
         ticker_info = self.quant_adapter.get_ticker_info(ticker_symbol)
-        return self.analyse_business(ticker_info)
+        
+        qual_data: CompanyProfile = self.adapter.analyse_company(
+            symbol=ticker_info.symbol
+        )
+        
+        ticker_dto = TickerDTO(
+            symbol=ticker_info.symbol,
+            name=ticker_info.name,
+            sector=ticker_info.sector,
+            industry=ticker_info.industry
+        )
+
+        return QualitativeValuationDTO(
+            ticker=ticker_dto,
+            **asdict(qual_data)
+        )

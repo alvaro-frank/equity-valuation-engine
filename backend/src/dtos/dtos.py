@@ -1,8 +1,10 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Optional, Dict, List
+from dataclasses import dataclass
 
-class TickerDTO(BaseModel):
+@dataclass(frozen=True)
+class TickerDTO():
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.
     
@@ -12,14 +14,13 @@ class TickerDTO(BaseModel):
         sector (str): The sector in which the company operates.
         industry (str): The industry classification of the company.
     """
-    model_config = ConfigDict(frozen=True)
-
     symbol: str = Field(..., description="Ticker symbol")
     name: Optional[str] = Field(None, description="Company name")
     sector: Optional[str] = Field("Unknown", description="Sector of the company")
     industry: Optional[str] = Field("Unknown", description="Industry of the company")
-    
-class MetricYearlyDTO(BaseModel):
+
+@dataclass(frozen=True)
+class MetricYearlyDTO():
     """
     Data Transfer Object representing the value of a specific financial metric for a given fiscal year.
     
@@ -27,12 +28,11 @@ class MetricYearlyDTO(BaseModel):
         date (str): The fiscal year end date.
         value (Decimal): The value of the metric for that year.
     """
-    model_config = ConfigDict(frozen=True)
-
     date: str = Field(..., description="Fiscal year end date")
     value: Decimal = Field(..., description="Value of the metric for the year")
     
-class MetricAnalysisDTO(BaseModel):
+@dataclass(frozen=True)
+class MetricAnalysisDTO():
     """
     Data Transfer Object representing the analysis of a specific financial metric across multiple fiscal years.
     
@@ -41,13 +41,12 @@ class MetricAnalysisDTO(BaseModel):
         yearly_data (List[MetricYearlyDTO]): A list of the metric's values for each fiscal year analysed.
         cagr (Decimal): The Compound Annual Growth Rate (CAGR) for the metric across the analysed years, expressed as a percentage.
     """
-    model_config = ConfigDict(frozen=True)
-
     metric_name: str = Field(..., description="Name of the metric (e.g., Revenue, Net Income)")
     yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
     cagr: Optional[Decimal] = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
-    
-class QuantitativeValuationDTO(BaseModel):
+
+@dataclass(frozen=True) 
+class QuantitativeValuationDTO():
     """
     Data Transfer Object representing the results of the stock quantitative valuation analysis, including the ticker information and a dictionary of metric analyses.
     
@@ -55,12 +54,11 @@ class QuantitativeValuationDTO(BaseModel):
         ticker (TickerDTO): Ticker information of the stock.
         metrics (Dict[str, MetricAnalysisDTO]): A dictionary where the key is the metric name and the value is the analysis of that metric across years.
     """
-    model_config = ConfigDict(frozen=True)
-
     ticker: TickerDTO = Field(..., description="Ticker information")
     metrics: Dict[str, MetricAnalysisDTO] = Field(..., description="Dictionary of metric analyses by metric name")
-    
-class QualitativeValuationDTO(BaseModel):
+
+@dataclass(frozen=True) 
+class QualitativeValuationDTO():
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
     
@@ -80,8 +78,6 @@ class QualitativeValuationDTO(BaseModel):
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
     """
-    model_config = ConfigDict(frozen=True)
-
     ticker: TickerDTO
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
@@ -96,8 +92,9 @@ class QualitativeValuationDTO(BaseModel):
     management_insights: str = Field(..., description="Insights on management quality and meetings")
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
-    
-class SectorValuationDTO(BaseModel):
+
+@dataclass(frozen=True)
+class SectorValuationDTO():
     """
     Result DTO for the comprehensive industry and sector valuation report.
     
@@ -113,8 +110,6 @@ class SectorValuationDTO(BaseModel):
         economic_sensitivity (str): How much the business is affected by economic cycles (Cyclical vs defensive).
         interest_rate_exposure (str): Impact of interest rate fluctuations on the business model.
     """
-    model_config = ConfigDict(frozen=True)
-
     ticker: TickerDTO
     sector: str = Field(..., description="The broad sector name")
     industry: str = Field(..., description="The specific industry name")

@@ -1,11 +1,12 @@
 from domain.interfaces import QuantitativeDataProvider
-from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint, Ticker
+from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint
+from dtos.dtos import TickerDTO, MetricYearlyDTO, MetricAnalysisDTO, QuantitativeValuationDTO
 from dataclasses import fields
 
 class AnalyseQuantitativeValuation:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a tuple containing Ticker and a list of QuantitativeAnalysis
+    This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a DTO containing all information about the Quantitative data of the business.
     """
     def __init__(self, adapter: QuantitativeDataProvider):
         """
@@ -13,7 +14,7 @@ class AnalyseQuantitativeValuation:
         """
         self.adapter = adapter
         
-    def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> tuple[Ticker, list[QuantitativeAnalysis]]:
+    def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> QuantitativeValuationDTO:
         """
         Performs a full quantitative evaluation of a stock by fetching its data and analyzing 
         core financial metrics over a rolling window of years.
@@ -24,9 +25,7 @@ class AnalyseQuantitativeValuation:
                          Defaults to 5.
 
         Returns:
-            tuple[Ticker, list[QuantitativeAnalysis]]: A tuple containing the Ticker metadata 
-                                                       and a list of calculated quantitative 
-                                                       analyses for each core metric.
+            QuantitativeValuationDTO: a DTO containing all information about the Quantitative data of the business.
         """
         ticker = self.adapter.get_ticker_info(ticker_symbol)
         stock_data = self.adapter.get_stock_fundamental_data(ticker_symbol)
@@ -36,12 +35,32 @@ class AnalyseQuantitativeValuation:
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields]
 
-        analyses = [
+        analyses_entities = [
             self._analyse_metric(stock_data.financial_years, metric, years)
             for metric in metrics_to_analyse
         ]
         
-        return ticker, analyses
+        ticker_dto = TickerDTO(
+            symbol=ticker.symbol,
+            name=ticker.name,
+            sector=ticker.sector,
+            industry=ticker.industry
+        )
+        
+        metrics_dtos = {}
+        for analysis in analyses_entities:
+            yearly_dtos = [
+                MetricYearlyDTO(date=p.date, value=p.value) 
+                for p in analysis.yearly_data
+            ]
+            
+            metrics_dtos[analysis.metric_name.lower()] = MetricAnalysisDTO(
+                metric_name=analysis.metric_name,
+                yearly_data=yearly_dtos,
+                cagr=analysis.cagr
+            )
+
+        return QuantitativeValuationDTO(ticker=ticker_dto, metrics=metrics_dtos)
         
     def _analyse_metric(self, financial_years, field_name: str, years: int) -> QuantitativeAnalysis:
         """
