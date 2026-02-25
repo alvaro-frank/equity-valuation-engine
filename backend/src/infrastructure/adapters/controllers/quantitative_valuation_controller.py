@@ -1,5 +1,5 @@
-from use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from dtos.dtos import QuantitativeValuationDTO
+from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
+from application.dtos.dtos import QuantitativeValuationDTO
 
 class QuantitativeValuationController:
     """

@@ -8,8 +8,8 @@ from typing import Dict, Optional
 from dotenv import load_dotenv
 
 from domain.entities import Price, Stock, Ticker
-from domain.interfaces import QuantitativeDataProvider
-from infrastructure.mappers import map_to_financial_years
+from domain.ports import QuantitativeDataProvider
+from infrastructure.mappers.mapper_financial_years import map_to_financial_years
 
 load_dotenv()
 

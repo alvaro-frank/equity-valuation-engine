@@ -1,5 +1,5 @@
-from use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
-from dtos.dtos import QualitativeValuationDTO
+from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
+from application.dtos.dtos import QualitativeValuationDTO
 from dataclasses import asdict
 
 class QualitativeValuationController:

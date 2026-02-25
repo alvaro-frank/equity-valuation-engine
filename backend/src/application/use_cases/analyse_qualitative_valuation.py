@@ -1,6 +1,6 @@
 from domain.entities import CompanyProfile
-from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
-from dtos.dtos import TickerDTO, QualitativeValuationDTO
+from domain.ports import QualitativeDataProvider, QuantitativeDataProvider
+from application.dtos.dtos import TickerDTO, QualitativeValuationDTO
 from dataclasses import asdict
 
 class QualitativeValuationUseCase:

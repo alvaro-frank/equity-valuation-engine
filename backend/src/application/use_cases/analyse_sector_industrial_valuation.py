@@ -1,6 +1,6 @@
-from domain.interfaces import QualitativeDataProvider, QuantitativeDataProvider
+from domain.ports import QualitativeDataProvider, QuantitativeDataProvider
 from domain.entities import IndustrySectorDynamics
-from dtos.dtos import TickerDTO, SectorValuationDTO
+from application.dtos.dtos import TickerDTO, SectorValuationDTO
 from dataclasses import asdict
 
 class SectorIndustrialValuationUseCase:

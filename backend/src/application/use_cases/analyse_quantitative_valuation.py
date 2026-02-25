@@ -1,6 +1,6 @@
-from domain.interfaces import QuantitativeDataProvider
+from domain.ports import QuantitativeDataProvider
 from domain.entities import FinancialYear, QuantitativeAnalysis, MetricPoint
-from dtos.dtos import TickerDTO, MetricYearlyDTO, MetricAnalysisDTO, QuantitativeValuationDTO
+from application.dtos.dtos import TickerDTO, MetricYearlyDTO, MetricAnalysisDTO, QuantitativeValuationDTO
 from dataclasses import fields
 
 class QuantitativeValuationUseCase:

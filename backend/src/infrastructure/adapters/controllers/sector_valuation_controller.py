@@ -1,5 +1,5 @@
-from use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from dtos.dtos import SectorValuationDTO
+from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
+from application.dtos.dtos import SectorValuationDTO
 from dataclasses import asdict
 
 class SectorValuationController:
