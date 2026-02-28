@@ -1,5 +1,5 @@
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from application.dtos.dtos import SectorValuationDTO
+from application.dtos.dtos import SectorIndustrialValuationResult
 from dataclasses import asdict
 
 class SectorValuationController:
@@ -24,7 +24,7 @@ class SectorValuationController:
             ticker_symbol (str): The stock ticker used to identify the industry.
             
         Returns:
-            None: This method creates the SectorValuationDTO.
+            None: This method creates the SectorIndustrialValuationResult.
         """
         print(f"\nPerforming Industry Dynamics Analysis for {ticker_symbol}...")
         
@@ -35,12 +35,12 @@ class SectorValuationController:
         except Exception as e:
             print(f"Industry analysis error: {e}")
 
-    def _display_industry_report(self, analysis: SectorValuationDTO):
+    def _display_industry_report(self, analysis: SectorIndustrialValuationResult):
         """
         Formats and prints the structural industry analysis to the console.
         
         Args:
-            analysis (SectorValuationDTO): The industry/sector valuation analysis to display.
+            analysis (SectorIndustrialValuationResult): The industry/sector valuation analysis to display.
             
         Returns:
             None: This method prints the results directly to the console.

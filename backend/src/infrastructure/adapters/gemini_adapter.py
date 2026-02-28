@@ -4,13 +4,13 @@ from google import genai
 from dotenv import load_dotenv
 import os
 import json
-from domain.ports import QualitativeDataProvider
-from domain.entities import CompanyProfile, IndustrySectorDynamics
+from domain.ports.ports import SectorIndustrialDataProvider
+from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
 from decimal import Decimal
 
 load_dotenv()
 
-class GeminiAdapter(QualitativeDataProvider):
+class GeminiAdapter(SectorIndustrialDataProvider):
     """
     Adapter that leverages Google's Gemini LLM to generate qualitative research.
     

@@ -1,5 +1,5 @@
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from application.dtos.dtos import QuantitativeValuationDTO
+from application.dtos.dtos import QuantitativeValuationResult
 
 class QuantitativeValuationController:
     """
@@ -23,7 +23,7 @@ class QuantitativeValuationController:
             years (int): The number of recent years to include in the analysis.
             
         Returns:
-            None: This method creates the QuantitativeValuationDTO.
+            None: This method creates the QuantitativeValuationResult.
         """
         try:
             dto = self.service.evaluate_ticker(ticker_symbol, years)
@@ -33,12 +33,12 @@ class QuantitativeValuationController:
         except Exception as e:
             print(f"Error: {e}")
 
-    def _display_results(self, result: QuantitativeValuationDTO):
+    def _display_results(self, result: QuantitativeValuationResult):
         """
         Nicely formats and prints the quantitative valuation results to the console.
         
         Args:
-            result (QuantitativeValuationDTO): The result of the quantitative valuation analysis to display.
+            result (QuantitativeValuationResult): The result of the quantitative valuation analysis to display.
             
         Returns:
             None: This method prints the results directly to the console.

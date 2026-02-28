@@ -1,11 +1,11 @@
-from infrastructure.adapters.web_adapters.gemini_adapter import GeminiAdapter
-from infrastructure.adapters.web_adapters.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.adapters.gemini_adapter import GeminiAdapter
+from infrastructure.adapters.alpha_vantage_adapter import AlphaVantageAdapter
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from infrastructure.adapters.controllers.quantitative_valuation_controller import QuantitativeValuationController
-from infrastructure.adapters.controllers.qualitative_valuation_controller import QualitativeValuationController
-from infrastructure.adapters.controllers.sector_valuation_controller import SectorValuationController
+from controllers.quantitative_valuation_controller import QuantitativeValuationController
+from controllers.qualitative_valuation_controller import QualitativeValuationController
+from controllers.sector_valuation_controller import SectorValuationController
 
 def main():
     ticker = "MSFT"
@@ -16,7 +16,7 @@ def main():
     gemini_adapter = GeminiAdapter()
     
     #Use Cases
-    sector_service = SectorIndustrialValuationUseCase(qual_provider=gemini_adapter, quant_provider=alpha_vantage_adapter)
+    sector_service = SectorIndustrialValuationUseCase(quant_provider=alpha_vantage_adapter, sector_industrial_provider=gemini_adapter)
     qual_service = QualitativeValuationUseCase(adapter=gemini_adapter, quant_adapter=alpha_vantage_adapter)
     quant_service = QuantitativeValuationUseCase(adapter=alpha_vantage_adapter)
     

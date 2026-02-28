@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.entities import Price, Stock, Ticker, CompanyProfile, IndustrySectorDynamics
+from domain.entities.entities import Price, Stock, Ticker, CompanyProfile, IndustrySectorDynamics
 
 class QuantitativeDataProvider(ABC):
     """
@@ -63,7 +63,8 @@ class QualitativeDataProvider(ABC):
             CompanyProfile: Domain Entity containing the qualitative data of the business
         """
         pass
-    
+
+class SectorIndustrialDataProvider(ABC):   
     @abstractmethod
     def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """

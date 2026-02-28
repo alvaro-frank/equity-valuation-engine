@@ -1,6 +1,6 @@
-from domain.entities import CompanyProfile
-from domain.ports import QualitativeDataProvider, QuantitativeDataProvider
-from application.dtos.dtos import TickerDTO, QualitativeValuationDTO
+from domain.entities.entities import CompanyProfile
+from domain.ports.ports import QualitativeDataProvider, QuantitativeDataProvider
+from application.dtos.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
 
 class QualitativeValuationUseCase:
@@ -15,7 +15,7 @@ class QualitativeValuationUseCase:
         self.adapter = adapter
         self.quant_adapter = quant_adapter
         
-    def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationDTO:
+    def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationResult:
         """
         Fetches the ticker information, such as business name, sector and industry
         
@@ -23,7 +23,7 @@ class QualitativeValuationUseCase:
             ticker_symbol (str): The stock ticker symbol to analyse.
             
         Returns:
-            QualitativeValuationDTO: a DTO containing all information about the Qualitative data of the business.
+            QualitativeValuationResult: a DTO containing all information about the Qualitative data of the business.
         """
         ticker_info = self.quant_adapter.get_ticker_info(ticker_symbol)
         
@@ -31,14 +31,14 @@ class QualitativeValuationUseCase:
             symbol=ticker_info.symbol
         )
         
-        ticker_dto = TickerDTO(
+        ticker_dto = TickerResult(
             symbol=ticker_info.symbol,
             name=ticker_info.name,
             sector=ticker_info.sector,
             industry=ticker_info.industry
         )
 
-        return QualitativeValuationDTO(
+        return QualitativeValuationResult(
             ticker=ticker_dto,
             **asdict(qual_data)
         )

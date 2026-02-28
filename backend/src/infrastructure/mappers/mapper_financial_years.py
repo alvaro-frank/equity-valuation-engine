@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List, Dict, Any
 
-from domain.entities import FinancialYear
+from domain.entities.entities import FinancialYear
 
 def parse_decimal(value: str) -> Decimal:
         """

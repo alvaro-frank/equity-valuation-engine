@@ -4,7 +4,7 @@ from typing import Optional, Dict, List
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
-class TickerDTO():
+class TickerResult():
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.
     
@@ -20,7 +20,7 @@ class TickerDTO():
     industry: Optional[str] = Field("Unknown", description="Industry of the company")
 
 @dataclass(frozen=True)
-class MetricYearlyDTO():
+class MetricYearlyResult():
     """
     Data Transfer Object representing the value of a specific financial metric for a given fiscal year.
     
@@ -32,33 +32,33 @@ class MetricYearlyDTO():
     value: Decimal = Field(..., description="Value of the metric for the year")
     
 @dataclass(frozen=True)
-class MetricAnalysisDTO():
+class MetricAnalysisResult():
     """
     Data Transfer Object representing the analysis of a specific financial metric across multiple fiscal years.
     
     Attributes:
         metric_name (str): The name of the financial metric being analysed (e.g., Revenue, Net Income).
-        yearly_data (List[MetricYearlyDTO]): A list of the metric's values for each fiscal year analysed.
+        yearly_data (List[MetricYearlyResult]): A list of the metric's values for each fiscal year analysed.
         cagr (Decimal): The Compound Annual Growth Rate (CAGR) for the metric across the analysed years, expressed as a percentage.
     """
     metric_name: str = Field(..., description="Name of the metric (e.g., Revenue, Net Income)")
-    yearly_data: List[MetricYearlyDTO] = Field(..., description="List of yearly values for the metric")
+    yearly_data: List[MetricYearlyResult] = Field(..., description="List of yearly values for the metric")
     cagr: Optional[Decimal] = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
 
 @dataclass(frozen=True) 
-class QuantitativeValuationDTO():
+class QuantitativeValuationResult():
     """
     Data Transfer Object representing the results of the stock quantitative valuation analysis, including the ticker information and a dictionary of metric analyses.
     
     Attributes:
-        ticker (TickerDTO): Ticker information of the stock.
-        metrics (Dict[str, MetricAnalysisDTO]): A dictionary where the key is the metric name and the value is the analysis of that metric across years.
+        ticker (TickerResult): Ticker information of the stock.
+        metrics (Dict[str, MetricAnalysisResult]): A dictionary where the key is the metric name and the value is the analysis of that metric across years.
     """
-    ticker: TickerDTO = Field(..., description="Ticker information")
-    metrics: Dict[str, MetricAnalysisDTO] = Field(..., description="Dictionary of metric analyses by metric name")
+    ticker: TickerResult = Field(..., description="Ticker information")
+    metrics: Dict[str, MetricAnalysisResult] = Field(..., description="Dictionary of metric analyses by metric name")
 
 @dataclass(frozen=True) 
-class QualitativeValuationDTO():
+class QualitativeValuationResult():
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
     
@@ -78,7 +78,7 @@ class QualitativeValuationDTO():
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
     """
-    ticker: TickerDTO
+    ticker: TickerResult
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
     ceo_name: str = Field(..., description="Name of the current CEO")
@@ -94,12 +94,12 @@ class QualitativeValuationDTO():
     historical_context_crises: str = Field(..., description="History including major crises overcome")
 
 @dataclass(frozen=True)
-class SectorValuationDTO():
+class SectorIndustrialValuationResult():
     """
     Result DTO for the comprehensive industry and sector valuation report.
     
     Attributes:
-        ticker (TickerDTO): Ticker information of the stock.
+        ticker (TickerResult): Ticker information of the stock.
         sector (str): The broad economic sector (e.g., Technology).
         industry (str): The specific industry classification (e.g., Consumer Electronics).
         rivalry_among_competitors (Dict[str, str]): Analysis of competition intensity and key players.
@@ -110,7 +110,7 @@ class SectorValuationDTO():
         economic_sensitivity (str): How much the business is affected by economic cycles (Cyclical vs defensive).
         interest_rate_exposure (str): Impact of interest rate fluctuations on the business model.
     """
-    ticker: TickerDTO
+    ticker: TickerResult
     sector: str = Field(..., description="The broad sector name")
     industry: str = Field(..., description="The specific industry name")
     rivalry_among_competitors: Dict[str, str] = Field(..., description="Analysis of intensity of competition")

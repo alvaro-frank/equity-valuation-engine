@@ -1,5 +1,5 @@
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
-from application.dtos.dtos import QualitativeValuationDTO
+from application.dtos.dtos import QualitativeValuationResult
 from dataclasses import asdict
 
 class QualitativeValuationController:
@@ -23,7 +23,7 @@ class QualitativeValuationController:
             ticker_symbol (str): The stock ticker symbol to analyse.
 
         Returns:
-            None: This method creates the QualitativeValuationDTO.
+            None: This method creates the QualitativeValuationResult.
         """
         try:
             analysis_dto = self.service.analyse_ticker(ticker_symbol)
@@ -33,12 +33,12 @@ class QualitativeValuationController:
         except Exception as e:
             print(f"Qualitative analysis error: {e}")
 
-    def _display_qualitative_report(self, analysis: QualitativeValuationDTO):
+    def _display_qualitative_report(self, analysis: QualitativeValuationResult):
         """
         Nicely formats and prints the qualitative valuation results to the console.
 
         Args:
-            analysis (QualitativeValuationDTO): The result of the qualitative valuation analysis to display.
+            analysis (QualitativeValuationResult): The result of the qualitative valuation analysis to display.
 
         Returns:
             None: This method prints the results directly to the console.
