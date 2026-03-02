@@ -1,5 +1,5 @@
 from domain.entities.entities import CompanyProfile
-from domain.ports.ports import QualitativeDataPort, QuantitativeDataPort
+from application.ports.ports import QualitativeDataPort, QuantitativeDataPort
 from application.dtos.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
 

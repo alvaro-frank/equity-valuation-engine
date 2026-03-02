@@ -4,7 +4,7 @@ from google import genai
 from dotenv import load_dotenv
 import os
 import json
-from domain.ports.ports import SectorIndustrialDataPort
+from application.ports.ports import SectorIndustrialDataPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
 from decimal import Decimal
 

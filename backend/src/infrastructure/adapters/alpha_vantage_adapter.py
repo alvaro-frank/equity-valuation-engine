@@ -8,7 +8,7 @@ from typing import Dict, Optional
 from dotenv import load_dotenv
 
 from domain.entities.entities import Price, Stock, Ticker
-from domain.ports.ports import QuantitativeDataPort
+from application.ports.ports import QuantitativeDataPort
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years
 
 load_dotenv()
