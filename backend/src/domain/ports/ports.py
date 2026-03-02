@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 
 from domain.entities.entities import Price, Stock, Ticker, CompanyProfile, IndustrySectorDynamics
 
-class QuantitativeDataProvider(ABC):
+class QuantitativeDataPort(ABC):
     """
     Interface for fetching quantitative data, including current price and fundamental financial data.
-    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
+    This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
     def get_stock_current_price(self, symbol: str) -> Price:
@@ -46,10 +46,10 @@ class QuantitativeDataProvider(ABC):
         """
         pass
     
-class QualitativeDataProvider(ABC):
+class QualitativeDataPort(ABC):
     """
     Interface for fetching qualitative data, including business explanation, revenue models etc.
-    This interface defines the contract for any data provider implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
+    This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
     """
     @abstractmethod
     def analyse_company(self, symbol: str) -> CompanyProfile:
@@ -64,7 +64,7 @@ class QualitativeDataProvider(ABC):
         """
         pass
 
-class SectorIndustrialDataProvider(ABC):   
+class SectorIndustrialDataPort(ABC):   
     @abstractmethod
     def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """

@@ -1,5 +1,5 @@
 from domain.entities.entities import CompanyProfile
-from domain.ports.ports import QualitativeDataProvider, QuantitativeDataProvider
+from domain.ports.ports import QualitativeDataPort, QuantitativeDataPort
 from application.dtos.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
 
@@ -8,7 +8,7 @@ class QualitativeValuationUseCase:
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
     This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
-    def __init__(self, adapter: QualitativeDataProvider, quant_adapter: QuantitativeDataProvider):
+    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort):
         """
         Initializes the QualitativeValuationUseCase with the GeminiAdapter for AI-driven analysis.
         """

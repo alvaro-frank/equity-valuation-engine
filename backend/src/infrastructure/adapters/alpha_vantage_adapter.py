@@ -8,14 +8,14 @@ from typing import Dict, Optional
 from dotenv import load_dotenv
 
 from domain.entities.entities import Price, Stock, Ticker
-from domain.ports.ports import QuantitativeDataProvider
+from domain.ports.ports import QuantitativeDataPort
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years
 
 load_dotenv()
 
-class AlphaVantageAdapter(QuantitativeDataProvider):
+class AlphaVantageAdapter(QuantitativeDataPort):
     """
-    Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataProvider interface.
+    Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataPort interface.
     This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
     """
     BASE_URL = "https://www.alphavantage.co/query"

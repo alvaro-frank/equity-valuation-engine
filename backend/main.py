@@ -16,7 +16,7 @@ def main():
     gemini_adapter = GeminiAdapter()
     
     #Use Cases
-    sector_service = SectorIndustrialValuationUseCase(quant_provider=alpha_vantage_adapter, sector_industrial_provider=gemini_adapter)
+    sector_service = SectorIndustrialValuationUseCase(quant_port=alpha_vantage_adapter, sector_industrial_port=gemini_adapter)
     qual_service = QualitativeValuationUseCase(adapter=gemini_adapter, quant_adapter=alpha_vantage_adapter)
     quant_service = QuantitativeValuationUseCase(adapter=alpha_vantage_adapter)
     
