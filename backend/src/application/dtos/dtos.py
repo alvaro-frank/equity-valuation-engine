@@ -1,9 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Optional, Dict, List
-from dataclasses import dataclass
 
-#@dataclass(frozen=True)
 class TickerResult(BaseModel):
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.
@@ -21,7 +19,6 @@ class TickerResult(BaseModel):
     sector: Optional[str] = Field("Unknown", description="Sector of the company")
     industry: Optional[str] = Field("Unknown", description="Industry of the company")
 
-#@dataclass(frozen=True)
 class MetricYearlyResult(BaseModel):
     """
     Data Transfer Object representing the value of a specific financial metric for a given fiscal year.
@@ -35,7 +32,6 @@ class MetricYearlyResult(BaseModel):
     date: str = Field(..., description="Fiscal year end date")
     value: Decimal = Field(..., description="Value of the metric for the year")
     
-#@dataclass(frozen=True)
 class MetricAnalysisResult(BaseModel):
     """
     Data Transfer Object representing the analysis of a specific financial metric across multiple fiscal years.
@@ -51,7 +47,6 @@ class MetricAnalysisResult(BaseModel):
     yearly_data: List[MetricYearlyResult] = Field(..., description="List of yearly values for the metric")
     cagr: Optional[Decimal] = Field(..., description="Compound Annual Growth Rate (CAGR) for the metric across the analysed years")
 
-#@dataclass(frozen=True) 
 class QuantitativeValuationResult(BaseModel):
     """
     Data Transfer Object representing the results of the stock quantitative valuation analysis, including the ticker information and a dictionary of metric analyses.
@@ -65,7 +60,6 @@ class QuantitativeValuationResult(BaseModel):
     ticker: TickerResult = Field(..., description="Ticker information")
     metrics: Dict[str, MetricAnalysisResult] = Field(..., description="Dictionary of metric analyses by metric name")
 
-#@dataclass(frozen=True) 
 class QualitativeValuationResult(BaseModel):
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
@@ -103,7 +97,6 @@ class QualitativeValuationResult(BaseModel):
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
 
-#@dataclass(frozen=True)
 class SectorIndustrialValuationResult(BaseModel):
     """
     Result DTO for the comprehensive industry and sector valuation report.
