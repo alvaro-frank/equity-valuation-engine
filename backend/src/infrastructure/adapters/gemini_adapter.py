@@ -1,12 +1,12 @@
-from dataclasses import fields
-from typing import Any
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import os
 import json
 from application.ports.ports import SectorIndustrialDataPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
 from decimal import Decimal
+from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema 
 
 load_dotenv()
 
@@ -77,12 +77,34 @@ class GeminiAdapter(SectorIndustrialDataPort):
         try:
             response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=CompanyProfileSchema,
+                    temperature=0.2,
+                )
+            )
+            
+            data = json.loads(response.text)
+            schema_instance = CompanyProfileSchema(**data)
+            
+            return CompanyProfile(
+                business_description=schema_instance.business_description,
+                company_history=schema_instance.company_history,
+                ceo_name=schema_instance.ceo_name,
+                ceo_ownership=Decimal(str(schema_instance.ceo_ownership)),
+                major_shareholders={s.name: Decimal(str(s.ownership)) for s in schema_instance.major_shareholders},
+                revenue_model=schema_instance.revenue_model,
+                strategy=schema_instance.strategy,
+                products_services={p.name: p.description for p in schema_instance.products_services},
+                competitive_advantage=schema_instance.competitive_advantage,
+                competitors={c.name: c.overlap for c in schema_instance.competitors},
+                management_insights=schema_instance.management_insights,
+                risk_factors={r.title: r.description for r in schema_instance.risk_factors},
+                historical_context_crises=schema_instance.historical_context_crises
             )
         except Exception as e: 
             raise ConnectionError(f"Connection Error: {e}")
-        else:
-            return self._parse_and_instantiate(response.text, CompanyProfile)
     
     def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
@@ -135,32 +157,27 @@ class GeminiAdapter(SectorIndustrialDataPort):
         try:
             response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=IndustrySectorDynamicsSchema,
+                    temperature=0.2,
+                )
+            )
+            
+            data = json.loads(response.text)
+            schema_instance = IndustrySectorDynamicsSchema(**data)
+            
+            return IndustrySectorDynamics(
+                sector=schema_instance.sector,
+                industry=schema_instance.industry,
+                rivalry_among_competitors={f.factor: f.analysis for f in schema_instance.rivalry_among_competitors},
+                bargaining_power_of_suppliers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_suppliers},
+                bargaining_power_of_customers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_customers},
+                threat_of_new_entrants={f.factor: f.analysis for f in schema_instance.threat_of_new_entrants},
+                threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
+                economic_sensitivity=schema_instance.economic_sensitivity,
+                interest_rate_exposure=schema_instance.interest_rate_exposure
             )
         except Exception as e: 
             raise ConnectionError(f"Connection Error: {e}")
-        else:
-            return self._parse_and_instantiate(response.text, IndustrySectorDynamics)
-        
-    def _parse_and_instantiate(self, raw_text: str, entity_class: type) -> Any:
-        """
-        Helper method to parse the received JSON from the API and instantiate Domain Entity
-        
-        Args:
-            raw_text (str): json text to be parsed
-            entity_class (type): Domain Entity to be instantiated
-            
-        Returns: 
-            entity_class (Any): the instantiated Domain Entity
-        """
-        clean_json = raw_text.replace("```json", "").replace("```", "").replace("**", "").strip()
-        
-        try:
-            data = json.loads(clean_json, parse_float=Decimal)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"JSON Decoding Error: {e}")
-        
-        allowed_fields = [f.name for f in fields(entity_class)]
-        filtered_data = {k: v for k, v in data.items() if k in allowed_fields}
-        
-        return entity_class(**filtered_data)
