@@ -13,6 +13,10 @@ class Price:
     """
     amount: Decimal
     currency: str = "USD"
+    
+    def __post_init__(self):
+        if self.amount < 0:
+            raise ValueError(f"Domain Error: Price amount cannot be negative. Got {self.amount}")
         
     def __str__(self):
         return f"{self.amount:.2f} {self.currency}"
@@ -80,6 +84,14 @@ class FinancialYear:
     total_liabilities: Decimal
     cash_and_equivalents: Decimal
     
+    def __post_init__(self):
+        if self.shares_outstanding < 0:
+            raise ValueError(f"Domain Error: Shares outstanding cannot be negative. Got {self.shares_outstanding}")
+        if self.total_assets < 0:
+            raise ValueError(f"Domain Error: Total assets cannot be negative. Got {self.total_assets}")
+        if self.total_debt < 0:
+            raise ValueError(f"Domain Error: Total debt cannot be negative. Got {self.total_debt}")
+    
 @dataclass(frozen=True)
 class CompanyProfile:
     """
@@ -113,6 +125,10 @@ class CompanyProfile:
     management_insights: str
     risk_factors: Dict[str, str]
     historical_context_crises: str
+    
+    def __post_init__(self):
+        if self.ceo_ownership < 0 or self.ceo_ownership > 100:
+            raise ValueError(f"Domain Error: CEO ownership must be between 0 and 100%. Got {self.ceo_ownership}")
     
 @dataclass(frozen=True)
 class IndustrySectorDynamics:
@@ -186,15 +202,29 @@ class QuantitativeAnalysis:
 
     @classmethod
     def create_analysis(cls, name: str, data: List[MetricPoint]) -> 'QuantitativeAnalysis':
-        cagr = cls._calculate_cagr(data)
+        try:
+            cagr = cls._calculate_cagr(data)
+        except ValueError as e:
+            cagr = None
+            
         return cls(metric_name=name, yearly_data=data, cagr=cagr)
 
     @staticmethod
-    def _calculate_cagr(data: List[MetricPoint]) -> Optional[Decimal]:
-        if len(data) < 2: return None
+    def _calculate_cagr(data: List[MetricPoint]) -> Decimal:
+        """
+        Calculates Compound Annual Growth Rate.
+        Raises ValueError if calculation is mathematically impossible or breaks business logic.
+        """
+        if len(data) < 2: 
+            raise ValueError("Not enough data points to calculate CAGR. Minimum 2 required.")
+            
         begin_val = data[-1].value
         end_val = data[0].value
-        if begin_val <= 0 or end_val <= 0: return None
+        
+        if begin_val <= 0:
+            raise ValueError(f"Cannot calculate CAGR with a negative or zero beginning value ({begin_val}).")
+        if end_val <= 0:
+            raise ValueError(f"Cannot calculate CAGR with a negative or zero ending value ({end_val}).")
         
         periods = len(data) - 1
         cagr = ((end_val / begin_val) ** (Decimal(1) / Decimal(periods)) - 1) * 100
