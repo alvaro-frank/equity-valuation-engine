@@ -20,7 +20,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
     """
     BASE_URL = "https://www.alphavantage.co/query"
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, session: Optional[requests.Session] = None):
         """
         Initializes the adapter, setting up the API key and a 24-hour cache session.
         """
@@ -30,10 +30,13 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         
         self.api_key = raw_key.strip()
 
-        self.session = requests_cache.CachedSession(
-            'alpha_vantage_cache', 
-            expire_after=timedelta(hours=24)
-        )
+        if session is not None:
+            self.session = session
+        else:
+            self.session = requests_cache.CachedSession(
+                'alpha_vantage_cache', 
+                expire_after=timedelta(hours=24)
+            )
 
     def _get_data(self, function: str, symbol: str) -> Dict:
         """

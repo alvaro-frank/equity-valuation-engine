@@ -6,7 +6,8 @@ import json
 from application.ports.ports import SectorIndustrialDataPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
 from decimal import Decimal
-from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema 
+from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema
+from typing import Optional 
 
 load_dotenv()
 
@@ -17,11 +18,11 @@ class GeminiAdapter(SectorIndustrialDataPort):
     It transforms raw company and industry queries into structured Domain Entities 
     by enforcing a strict JSON schema via system prompting.
     """
-    def __init__(self):
+    def __init__(self, client: Optional[genai.Client] = None):
         """
         Initializes the Gemini client using the API key from environment variables.
         """
-        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.client = client or genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.model_id = 'gemini-2.5-flash'
 
     def analyse_company(self, symbol: str) -> CompanyProfile:
