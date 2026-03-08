@@ -51,3 +51,23 @@ class TestQuantitativeValuationUseCase:
 
         mock_quant_adapter.get_ticker_info.assert_called_once_with("AAPL")
         mock_quant_adapter.get_stock_fundamental_data.assert_called_once_with("AAPL")
+
+    def test_calculate_cagr_happy_path(self):
+        values = [Decimal("121"), Decimal("110"), Decimal("100")]
+        cagr = QuantitativeValuationUseCase.calculate_cagr(values)
+        assert cagr == Decimal("10.00")
+
+    def test_cagr_returns_none_with_insufficient_data(self):
+        values = [Decimal("100")]
+        cagr = QuantitativeValuationUseCase.calculate_cagr(values)
+        assert cagr is None 
+
+    @pytest.mark.parametrize("recent_val, old_val", [
+        (Decimal("100"), Decimal("-50")),
+        (Decimal("-20"), Decimal("100")), 
+        (Decimal("100"), Decimal("0")),  
+    ])
+    def test_cagr_returns_none_with_invalid_values(self, recent_val, old_val):
+        values = [recent_val, Decimal("50"), old_val]
+        cagr = QuantitativeValuationUseCase.calculate_cagr(values)
+        assert cagr is None
