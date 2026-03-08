@@ -74,7 +74,21 @@ class QuantitativeValuationUseCase:
     @staticmethod
     def calculate_cagr(values: List[Decimal]) -> Decimal | None:
         """
+        Calculates the Compound Annual Growth Rate (CAGR) over a specified period of time.
         
+        The calculation assumes the list is ordered from most recent (index 0) to oldest (last index).
+        The formula used is: 
+        
+        Args:
+            values (List[Decimal]): A list of financial values, ordered from newest to oldest.
+            
+        Raises:
+            ArithmeticError: If a mathematical error occurs during the exponentiation or division.
+            Exception: For any other unexpected calculation errors handled by the safe-guard block.
+            
+        Returns:
+            Decimal | None: The CAGR percentage rounded to two decimal places, 
+                           or None if the calculation is not possible (e.g., non-positive values or insufficient data).
         """
         if len(values) < 2:
             return None
