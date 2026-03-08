@@ -30,9 +30,9 @@ def main():
     print(f"{'='*80}")
     
     # Sector/Industry Analysis
-    sector_controller.run(ticker)
+    #sector_controller.run(ticker)
     # Qualitative Analysis
-    qual_controller.run(ticker)
+    #qual_controller.run(ticker)
     # Quantitative Analysis
     quant_controller.run(ticker, years=years_of_history)
     

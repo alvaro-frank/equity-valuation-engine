@@ -2,7 +2,7 @@ import pytest
 from decimal import Decimal
 
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from domain.entities.entities import Ticker, Stock, FinancialYear
+from domain.entities.entities import Ticker, FinancialYear
 from application.dtos.dtos import QuantitativeValuationResult
 
 class TestQuantitativeValuationUseCase:
@@ -37,9 +37,7 @@ class TestQuantitativeValuationUseCase:
             total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0")
         )
 
-        mock_quant_adapter.get_stock_fundamental_data.return_value = Stock(
-            ticker=Ticker(symbol="AAPL"), price=None, financial_years=[fy_recent, fy_old]
-        )
+        mock_quant_adapter.get_stock_fundamental_data.return_value = [fy_recent, fy_old]
 
         result = use_case.evaluate_ticker("AAPL", years=2)
 
