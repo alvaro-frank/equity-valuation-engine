@@ -91,6 +91,100 @@ class FinancialYear:
             raise ValueError(f"Domain Error: Total assets cannot be negative. Got {self.total_assets}")
         if self.total_debt < 0:
             raise ValueError(f"Domain Error: Total debt cannot be negative. Got {self.total_debt}")
+        
+    @property
+    def total_equity(self) -> Decimal:
+        """
+        Calculates the total shareholder equity by subtracting total liabilities from total assets.
+
+        Returns:
+            Decimal: The total equity of the business.
+        """
+        return self.total_assets - self.total_liabilities
+    
+    @property
+    def gross_margin(self) -> Decimal:
+        """
+        Calculates the gross profit margin as a percentage of total revenue.
+
+        Returns:
+            Decimal: The gross margin percentage, rounded to two decimal places.
+        """
+        if self.revenue == Decimal("0"):
+            return Decimal("0")
+        
+        return round((self.gross_profit / self.revenue) * 100, 2)
+    
+    @property
+    def operating_margin(self) -> Decimal:
+        """
+        Calculates the operating profit margin, representing the percentage of revenue remaining after operating expenses.
+
+        Returns:
+            Decimal: The operating margin percentage, rounded to two decimal places.
+        """
+        if self.revenue == Decimal("0"):
+            return Decimal("0")
+        
+        return round((self.operating_income / self.revenue) * 100, 2)
+    
+    @property
+    def net_margin(self) -> Decimal:
+        """
+        Calculates the net profit margin, representing the percentage of revenue that results in net income.
+
+        Returns:
+            Decimal: The net margin percentage, rounded to two decimal places.
+        """
+        if self.revenue == Decimal("0"):
+            return Decimal("0")
+        
+        return round((self.net_income / self.revenue) * 100, 2)
+    
+    @property
+    def roe(self) -> Decimal:
+        """
+        Calculates the Return on Equity (ROE), measuring profitability relative to shareholder equity.
+
+        Returns:
+            Decimal: The ROE percentage, rounded to two decimal places.
+        """
+        equity = self.total_equity
+        
+        if equity == Decimal("0"):
+            return Decimal("0")
+        
+        return round((self.net_income / equity) * 100, 2)
+    
+    @property
+    def roic(self) -> Decimal:
+        """
+        Calculates the Return on Invested Capital (ROIC) using net income over the sum of debt and equity.
+
+        Returns:
+            Decimal: The ROIC percentage, rounded to two decimal places.
+        """
+        invested_capital = self.total_debt + self.total_equity
+        
+        if invested_capital == Decimal("0"):
+            return Decimal("0")
+        
+        return round((self.net_income / invested_capital) * 100, 2)
+    
+    @property
+    def debt_to_equity(self) -> Decimal:
+        """
+        Calculates the debt-to-equity ratio, indicating the relative proportion of shareholder equity and debt used to finance assets.
+
+        Returns:
+            Decimal: The debt-to-equity ratio, rounded to two decimal places.
+        """
+        equity = self.total_equity
+        
+        if equity == Decimal("0"):
+            return Decimal("0")
+        
+        return round(self.total_debt / equity, 2)
     
 @dataclass(frozen=True)
 class CompanyProfile:
