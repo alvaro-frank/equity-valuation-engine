@@ -33,7 +33,12 @@ class QuantitativeValuationUseCase:
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending"]
         
-        metrics_to_analyse = [f for f in all_fields if f not in excluded_fields]
+        ratio_fields = [
+            "total_equity", "gross_margin", "operating_margin", 
+            "net_margin", "roe", "roic", "debt_to_equity"
+        ]
+        
+        metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
 
         analyses_entities = [
             self._analyse_metric(stock_data.financial_years, metric, years)
