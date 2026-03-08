@@ -4,10 +4,10 @@ import requests_cache
 import requests
 from datetime import timedelta
 from decimal import Decimal
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
-from domain.entities.entities import Price, Stock, Ticker
+from domain.entities.entities import Price, FinancialYear, Ticker
 from application.ports.ports import QuantitativeDataPort
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years
 
@@ -104,10 +104,10 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         price_str = quote.get("05. price")
         return Price(amount=Decimal(price_str), currency="USD")  
 
-    def get_stock_fundamental_data(self, symbol: str) -> Stock:
+    def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
         Fetches the fundamental financial data for a given stock ticker symbol from the Alpha Vantage API.
-        Handles API errors and rate limits gracefully, and maps the response to a Stock Entity.
+        Handles API errors and rate limits gracefully, and maps the response to a List of Financial Year Domain Entities.
         
         Args:
             symbol (str): The stock ticker symbol to fetch fundamental data for.
@@ -117,33 +117,16 @@ class AlphaVantageAdapter(QuantitativeDataPort):
             ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
             
         Returns:
-            Stock: Domain Entity containing the fundamental stock data.
+            List[FinancialYear]: List containing the fundamental stock data for each Financial Year.
         """
-        overview = self._get_data("OVERVIEW", symbol)
-        
-        if not overview:
-            raise ValueError(f"No fundamental data for {symbol}")
-        
-        updated_ticker = Ticker(
-            symbol=symbol,
-            name=overview.get("Name", ""),
-            sector=overview.get("Sector", "Unknown"),
-            industry=overview.get("Industry", "Unknown")
-        )
-        
         income_data = self._get_data("INCOME_STATEMENT", symbol).get("annualReports", [])
         balance_data = self._get_data("BALANCE_SHEET", symbol).get("annualReports", [])
         cash_data = self._get_data("CASH_FLOW", symbol).get("annualReports", [])
 
-        financial_years = map_to_financial_years(income_data, balance_data, cash_data)
-
         price_obj = self.get_stock_current_price(symbol)
-
-        return Stock(
-            ticker=updated_ticker,
-            price=price_obj,
-            financial_years=financial_years
-        )
+        
+        financial_years = map_to_financial_years(income_data, balance_data, cash_data)
+        return financial_years
         
     def get_ticker_info(self, symbol: str) -> Ticker:
         """
