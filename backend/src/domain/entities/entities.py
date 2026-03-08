@@ -249,24 +249,6 @@ class IndustrySectorDynamics:
     threat_of_obsolescence: Dict[str, str]
     economic_sensitivity: str
     interest_rate_exposure: str
-
-@dataclass
-class Stock:
-    """
-    Represents a stock with its ticker information, current price, and historical financial data.
-    
-    Attributes:
-        ticker (Ticker): The ticker information of the stock.
-        price (Price): The current price of the stock.
-        financial_years (List[FinancialYear]): The list of financial years for the stock.
-        profile (CompanyProfile): The detailed explanation of the company
-        industry_sector (IndustrySectorDynamics): The detailed explanation of the company industry and sector
-    """
-    ticker: Ticker
-    price: Price
-    financial_years: List[FinancialYear]
-    profile: Optional[CompanyProfile] = None
-    industry_sector: Optional[IndustrySectorDynamics] = None
     
 @dataclass(frozen=True)
 class MetricPoint:
