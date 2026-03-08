@@ -1,7 +1,9 @@
 from application.ports.ports import QuantitativeDataPort
-from domain.entities.entities import FinancialYear, QuantitativeAnalysis, MetricPoint
+from domain.entities.entities import FinancialYear
 from application.dtos.dtos import TickerResult, MetricYearlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from dataclasses import fields
+from decimal import Decimal
+from typing import List
 
 class QuantitativeValuationUseCase:
     """
@@ -39,11 +41,6 @@ class QuantitativeValuationUseCase:
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
-
-        analyses_entities = [
-            self._analyse_metric(financial_years, metric, years)
-            for metric in metrics_to_analyse
-        ]
         
         ticker_dto = TickerResult(
             symbol=ticker.symbol,
@@ -53,37 +50,45 @@ class QuantitativeValuationUseCase:
         )
         
         metrics_dtos = {}
-        for analysis in analyses_entities:
-            yearly_dtos = [
-                MetricYearlyResult(date=p.date, value=p.value) 
-                for p in analysis.yearly_data
-            ]
+        for metric in metrics_to_analyse:
+            yearly_dtos = []
+            raw_values = []
             
-            metrics_dtos[analysis.metric_name.lower()] = MetricAnalysisResult(
-                metric_name=analysis.metric_name,
+            for fy in financial_years[:years]:
+                val = getattr(fy, metric)
+                yearly_dtos.append(MetricYearlyResult(date=fy.fiscal_date_ending, value=val))
+                raw_values.append(val)
+                
+            cagr = self.calculate_cagr(raw_values)
+            
+            formatted_name = metric.replace("_", " ").title()
+            
+            metrics_dtos[metric] = MetricAnalysisResult(
+                metric_name=formatted_name,
                 yearly_data=yearly_dtos,
-                cagr=analysis.cagr
+                cagr=cagr
             )
 
         return QuantitativeValuationResult(ticker=ticker_dto, metrics=metrics_dtos)
+    
+    @staticmethod
+    def calculate_cagr(values: List[Decimal]) -> Decimal | None:
+        """
         
-    def _analyse_metric(self, financial_years, field_name: str, years: int) -> QuantitativeAnalysis:
         """
-        Extracts a specific financial metric from the historical data and encapsulates it 
-        into a QuantitativeAnalysis object.
-
-        Args:
-            financial_years (List[FinancialYear]): The raw historical financial data.
-            field_name (str): The name of the attribute to extract from each FinancialYear.
-            years (int): The maximum number of years to extract, starting from the most recent.
-
-        Returns:
-            QuantitativeAnalysis: An object containing the time-series data (MetricPoints) 
-                                  and the derived growth metrics (CAGR).
-        """
-        points = [
-            MetricPoint(date=fy.fiscal_date_ending, value=getattr(fy, field_name))
-            for fy in financial_years[:years]
-        ]
-
-        return QuantitativeAnalysis.create_analysis(field_name.replace("_", " ").title(), points)
+        if len(values) < 2:
+            return None
+            
+        begin_val = values[-1]
+        end_val = values[0]
+        
+        if begin_val <= 0 or end_val <= 0:
+            return None
+        
+        periods = len(values) - 1
+        
+        try:
+            cagr = ((end_val / begin_val) ** (Decimal(1) / Decimal(periods)) - 1) * 100
+            return round(cagr, 2)
+        except Exception:
+            return None
