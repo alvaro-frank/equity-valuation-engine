@@ -6,7 +6,7 @@ from dataclasses import fields
 class QuantitativeValuationUseCase:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
-    This service takes in a Stock Entity, analyses the financial metrics for a specified number of recent years, and returns a DTO containing all information about the Quantitative data of the business.
+    This service takes in a List of Financial Years, analyses the financial metrics for a specified number of recent years, and returns a DTO containing all information about the Quantitative data of the business.
     """
     def __init__(self, adapter: QuantitativeDataPort):
         """
@@ -28,7 +28,7 @@ class QuantitativeValuationUseCase:
             QuantitativeValuationResult: a DTO containing all information about the Quantitative data of the business.
         """
         ticker = self.adapter.get_ticker_info(ticker_symbol)
-        stock_data = self.adapter.get_stock_fundamental_data(ticker_symbol)
+        financial_years = self.adapter.get_stock_fundamental_data(ticker_symbol)
         
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending"]
@@ -41,7 +41,7 @@ class QuantitativeValuationUseCase:
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
 
         analyses_entities = [
-            self._analyse_metric(stock_data.financial_years, metric, years)
+            self._analyse_metric(financial_years, metric, years)
             for metric in metrics_to_analyse
         ]
         

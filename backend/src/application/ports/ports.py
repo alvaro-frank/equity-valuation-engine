@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-
-from domain.entities.entities import Price, Stock, Ticker, CompanyProfile, IndustrySectorDynamics
+from typing import List
+from domain.entities.entities import Price, FinancialYear, Ticker, CompanyProfile, IndustrySectorDynamics
 
 class QuantitativeDataPort(ABC):
     """
@@ -21,7 +21,7 @@ class QuantitativeDataPort(ABC):
         pass
     
     @abstractmethod
-    def get_stock_fundamental_data(self, symbol: str) -> Stock:
+    def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
         Fetches the fundamental financial data for a given stock ticker symbol.
         
@@ -29,7 +29,7 @@ class QuantitativeDataPort(ABC):
             symbol (str): The stock ticker symbol to fetch the fundamental data.
             
         Returns:
-            Stock: Domain Entity containing the stock's fundamental data, including financial years.
+            List[FinancialYear]: List containing the fundamental data for each Financial Year.
         """
         pass
     
