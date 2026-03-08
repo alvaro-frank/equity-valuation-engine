@@ -1,6 +1,6 @@
 from decimal import Decimal
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import Dict
 
 @dataclass(frozen=True)
 class Price:
@@ -249,59 +249,3 @@ class IndustrySectorDynamics:
     threat_of_obsolescence: Dict[str, str]
     economic_sensitivity: str
     interest_rate_exposure: str
-    
-@dataclass(frozen=True)
-class MetricPoint:
-    """
-    Represents a single data point in a time series for a specific financial metric.
-    
-    Attributes:
-        date (str): The date associated with the metric value (usually fiscal year end).
-        value (Decimal): The numerical value of the metric at that point in time.
-    """
-    date: str
-    value: Decimal
-
-@dataclass(frozen=True)
-class QuantitativeAnalysis:
-    """
-    Encapsulates the statistical and trend analysis of a specific financial metric over time.
-    
-    Attributes:
-        metric_name (str): The name of the analysed metric (e.g., Revenue Growth).
-        yearly_data (List[MetricPoint]): Chronological list of data points used for analysis.
-        cagr (Optional[Decimal]): The Compound Annual Growth Rate calculated for the period.
-    """
-    metric_name: str
-    yearly_data: List[MetricPoint]
-    cagr: Optional[Decimal] = None
-
-    @classmethod
-    def create_analysis(cls, name: str, data: List[MetricPoint]) -> 'QuantitativeAnalysis':
-        try:
-            cagr = cls._calculate_cagr(data)
-        except ValueError as e:
-            cagr = None
-            
-        return cls(metric_name=name, yearly_data=data, cagr=cagr)
-
-    @staticmethod
-    def _calculate_cagr(data: List[MetricPoint]) -> Decimal:
-        """
-        Calculates Compound Annual Growth Rate.
-        Raises ValueError if calculation is mathematically impossible or breaks business logic.
-        """
-        if len(data) < 2: 
-            raise ValueError("Not enough data points to calculate CAGR. Minimum 2 required.")
-            
-        begin_val = data[-1].value
-        end_val = data[0].value
-        
-        if begin_val <= 0:
-            raise ValueError(f"Cannot calculate CAGR with a negative or zero beginning value ({begin_val}).")
-        if end_val <= 0:
-            raise ValueError(f"Cannot calculate CAGR with a negative or zero ending value ({end_val}).")
-        
-        periods = len(data) - 1
-        cagr = ((end_val / begin_val) ** (Decimal(1) / Decimal(periods)) - 1) * 100
-        return round(cagr, 2)
