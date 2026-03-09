@@ -61,6 +61,7 @@ class FinancialYear:
         total_assets (Decimal): Total assets at fiscal year end.
         total_liabilities (Decimal): Total liabilities at fiscal year end.
         cash_and_equivalents (Decimal): Cash and equivalents at fiscal year end.
+        year_end_price (Decimal): The close price at fiscal year end
     """
     fiscal_date_ending: str
     
@@ -83,6 +84,8 @@ class FinancialYear:
     total_assets: Decimal
     total_liabilities: Decimal
     cash_and_equivalents: Decimal
+    
+    year_end_price: Decimal
     
     def __post_init__(self):
         if self.shares_outstanding < 0:
@@ -185,6 +188,66 @@ class FinancialYear:
             return None
         
         return round(self.total_debt / equity, 2)
+    
+    @property
+    def market_cap(self) -> Decimal:
+        """
+        Calculates the Market Capitalization based on year-end price and shares outstanding.
+        
+        Returns:
+            Decimal: The total market value of the company's outstanding shares.
+        """
+        return self.year_end_price * self.shares_outstanding
+
+    @property
+    def pe_ratio(self) -> Decimal | None:
+        """
+        Calculates the Price-to-Earnings (P/E) Ratio.
+        
+        Returns:
+            Decimal | None: The P/E ratio rounded to two decimal places, or None if net income is zero or negative.
+        """
+        if self.net_income <= Decimal("0"):
+            return None
+        return round(self.market_cap / self.net_income, 2)
+
+    @property
+    def pb_ratio(self) -> Decimal | None:
+        """
+        Calculates the Price-to-Book (P/B) Ratio.
+        
+        Returns:
+            Decimal | None: The P/B ratio rounded to two decimal places, or None if total equity is zero or negative.
+        """
+        equity = self.total_equity
+        if equity <= Decimal("0"):
+            return None
+        return round(self.market_cap / equity, 2)
+
+    @property
+    def ps_ratio(self) -> Decimal | None:
+        """
+        Calculates the Price-to-Sales (P/S) Ratio.
+        
+        Returns:
+            Decimal | None: The P/S ratio rounded to two decimal places, or None if revenue is zero or negative.
+        """
+        if self.revenue <= Decimal("0"):
+            return None
+        return round(self.market_cap / self.revenue, 2)
+
+    @property
+    def fcf_yield(self) -> Decimal | None:
+        """
+        Calculates the Free Cash Flow Yield as a percentage.
+        
+        Returns:
+            Decimal | None: The FCF yield percentage rounded to two decimal places, or None if market cap is zero.
+        """
+        if self.market_cap == Decimal("0"):
+            return None
+        fcf = self.operating_cash_flow - self.capital_expenditures
+        return round((fcf / self.market_cap) * 100, 2)
     
 @dataclass(frozen=True)
 class CompanyProfile:
