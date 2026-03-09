@@ -30,7 +30,7 @@ class MetricYearlyResult(BaseModel):
     model_config = ConfigDict(frozen=True)
     
     date: str = Field(..., description="Fiscal year end date")
-    value: Decimal = Field(..., description="Value of the metric for the year")
+    value: Decimal | None = Field(..., description="Value of the metric for the year")
     
 class MetricAnalysisResult(BaseModel):
     """
