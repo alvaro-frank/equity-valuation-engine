@@ -102,7 +102,38 @@ class AlphaVantageAdapter(QuantitativeDataPort):
             raise ValueError(f"Price data not found for {symbol}")
             
         price_str = quote.get("05. price")
-        return Price(amount=Decimal(price_str), currency="USD")  
+        return Price(amount=Decimal(price_str), currency="USD")
+    
+    def get_historical_prices(self, symbol):
+        """
+        Fetches and processes monthly historical closing prices for a given stock symbol.
+        
+        This method retrieves time-series data, extracts the monthly closing prices, 
+        and maps them to their respective year and month.
+
+        Args:
+            symbol (str): The stock ticker symbol to retrieve historical data for.
+
+        Returns:
+            dict[str, Price]: A dictionary where keys are strings in 'YYYY-MM' format 
+                              and values are Price objects containing the closing amount and currency.
+        """
+        data = self._get_data("TIME_SERIES_MONTHLY", symbol)
+        time_series = data.get("Monthly Time Series", {})
+        
+        historical_prices = {}
+        for date_str, metrics in time_series.items():
+            year_month = date_str[:7]
+            close_price = metrics.get("4. close")
+            
+            if close_price:
+                historical_prices[year_month] = Price(
+                    amount=Decimal(close_price), 
+                    currency="USD"
+                )
+                
+        return historical_prices
+        
 
     def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
@@ -123,9 +154,9 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         balance_data = self._get_data("BALANCE_SHEET", symbol).get("annualReports", [])
         cash_data = self._get_data("CASH_FLOW", symbol).get("annualReports", [])
 
-        price_obj = self.get_stock_current_price(symbol)
+        historical_prices = self.get_historical_prices(symbol)
         
-        financial_years = map_to_financial_years(income_data, balance_data, cash_data)
+        financial_years = map_to_financial_years(income_data, balance_data, cash_data, historical_prices)
         return financial_years
         
     def get_ticker_info(self, symbol: str) -> Ticker:

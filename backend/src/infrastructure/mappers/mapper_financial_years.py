@@ -1,7 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from typing import List, Dict, Any
 
-from domain.entities.entities import FinancialYear
+from domain.entities.entities import FinancialYear, Price
 
 def parse_decimal(value: Any, field_name: str) -> Decimal:
         """
@@ -25,7 +25,7 @@ def parse_decimal(value: Any, field_name: str) -> Decimal:
         except (InvalidOperation, TypeError, ValueError):
             raise ValueError(f"Data Integrity Error: Could not parse field '{field_name}' with value '{value}' to Decimal.")
 
-def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List[Dict[str, Any]], cash_list: List[Dict[str, Any]]) -> List[FinancialYear]:
+def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List[Dict[str, Any]], cash_list: List[Dict[str, Any]], historical_prices: Dict[str, Price]) -> List[FinancialYear]:
         """
         Merges financial reports from three different accounting statements based on their fiscal ending date.
 
@@ -37,6 +37,7 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
             income_list (List[Dict]): List of dictionaries representing yearly Income Statements.
             balance_list (List[Dict]): List of dictionaries representing yearly Balance Sheets.
             cash_list (List[Dict]): List of dictionaries representing yearly Cash Flow Statements.
+            historical_prices (Dict[str, Price]): Dictionary mapping YYYY-MM to the closing Price entity.
 
         Raises:
             ValueError: If a corresponding Balance Sheet or Cash Flow report is missing for a 
@@ -64,6 +65,10 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
                     f"Balance: {'OK' if balance_report else 'MISSING'}, "
                     f"CashFlow: {'OK' if cash_report else 'MISSING'}"
                 )
+                
+            year_month = fiscal_date[:7]
+            price_obj = historical_prices.get(year_month)
+            year_end_price = price_obj.amount if price_obj else Decimal("0")
             
             year_data = FinancialYear(
                 fiscal_date_ending=fiscal_date,
@@ -100,6 +105,9 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
                 total_assets=parse_decimal(balance_report.get("totalAssets", "0"), "totalAssets"),
                 total_liabilities=parse_decimal(balance_report.get("totalLiabilities", "0"), "totalLiabilities"),
                 cash_and_equivalents=parse_decimal(balance_report.get("cashAndCashEquivalentsAtCarryingValue", "0"), "cashAndCashEquivalentsAtCarryingValue"),
+                
+                # Market Price at Year End
+                year_end_price=year_end_price
             )
             
             years.append(year_data)
