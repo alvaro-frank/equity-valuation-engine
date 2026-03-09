@@ -56,6 +56,49 @@ class TestAlphaVantageAdapter:
         assert price.amount == Decimal("415.50")
         assert price.currency == "USD"
 
+    def test_get_historical_prices_happy_path(self, adapter, mock_session):
+        mock_response = mock_session.get.return_value
+        mock_response.json.return_value = {
+            "Meta Data": {
+                "1. Information": "Monthly Prices (open, high, low, close) and Volumes",
+                "2. Symbol": "MSFT",
+            },
+            "Monthly Time Series": {
+                "2023-12-29": {
+                    "1. open": "376.76",
+                    "2. high": "384.30",
+                    "3. low": "369.84",
+                    "4. close": "376.04",
+                    "5. volume": "543216789"
+                },
+                "2022-12-30": {
+                    "1. open": "253.87",
+                    "2. high": "263.92",
+                    "3. low": "233.87",
+                    "4. close": "239.82",
+                    "5. volume": "654321987"
+                }
+            }
+        }
+        
+        prices = adapter.get_historical_prices("MSFT")
+        
+        assert isinstance(prices, dict)
+        assert len(prices) == 2
+        
+        assert "2023-12" in prices
+        assert isinstance(prices["2023-12"], Price)
+        assert prices["2023-12"].amount == Decimal("376.04")
+        assert prices["2023-12"].currency == "USD"
+        
+        assert "2022-12" in prices
+        assert prices["2022-12"].amount == Decimal("239.82")
+        
+        mock_session.get.assert_called_once()
+        _, called_kwargs = mock_session.get.call_args
+        assert called_kwargs["params"]["function"] == "TIME_SERIES_MONTHLY"
+        assert called_kwargs["params"]["symbol"] == "MSFT"
+
     def test_get_data_handles_network_failure(self, adapter, mock_session):
         mock_session.get.side_effect = RequestException("Timeout error")
         

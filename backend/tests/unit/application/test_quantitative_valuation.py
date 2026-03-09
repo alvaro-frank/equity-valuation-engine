@@ -26,7 +26,7 @@ class TestQuantitativeValuationUseCase:
             operating_cash_flow=Decimal("0"), capital_expenditures=Decimal("0"), 
             shares_outstanding=Decimal("10"), short_term_debt=Decimal("0"), 
             long_term_debt=Decimal("0"), total_debt=Decimal("0"), total_assets=Decimal("100"),
-            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0")
+            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("150")
         )
         fy_old = FinancialYear(
             fiscal_date_ending="2022-12-31", revenue=Decimal("100"), ebitda=Decimal("0"),
@@ -34,7 +34,7 @@ class TestQuantitativeValuationUseCase:
             operating_cash_flow=Decimal("0"), capital_expenditures=Decimal("0"), 
             shares_outstanding=Decimal("10"), short_term_debt=Decimal("0"), 
             long_term_debt=Decimal("0"), total_debt=Decimal("0"), total_assets=Decimal("100"),
-            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0")
+            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("140")
         )
 
         mock_quant_adapter.get_stock_fundamental_data.return_value = [fy_recent, fy_old]
@@ -51,7 +51,7 @@ class TestQuantitativeValuationUseCase:
 
         mock_quant_adapter.get_ticker_info.assert_called_once_with("AAPL")
         mock_quant_adapter.get_stock_fundamental_data.assert_called_once_with("AAPL")
-
+        
     def test_calculate_cagr_happy_path(self):
         values = [Decimal("121"), Decimal("110"), Decimal("100")]
         cagr = QuantitativeValuationUseCase.calculate_cagr(values)
