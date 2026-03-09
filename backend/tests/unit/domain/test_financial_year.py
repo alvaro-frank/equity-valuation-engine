@@ -74,6 +74,6 @@ class TestFinancialYearEntity:
         fy = FinancialYear(**data)
         
         assert fy.total_equity == Decimal("0")
-        assert fy.roe == Decimal("0")
-        assert fy.roic == Decimal("0")
-        assert fy.debt_to_equity == Decimal("0")
+        assert fy.roe == None
+        assert fy.roic == None
+        assert fy.debt_to_equity == None
