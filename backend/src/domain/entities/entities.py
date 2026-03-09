@@ -142,7 +142,7 @@ class FinancialYear:
         return round((self.net_income / self.revenue) * 100, 2)
     
     @property
-    def roe(self) -> Decimal:
+    def roe(self) -> Decimal | None:
         """
         Calculates the Return on Equity (ROE), measuring profitability relative to shareholder equity.
 
@@ -151,13 +151,13 @@ class FinancialYear:
         """
         equity = self.total_equity
         
-        if equity == Decimal("0"):
-            return Decimal("0")
+        if equity <= Decimal("0"):
+            return None
         
         return round((self.net_income / equity) * 100, 2)
     
     @property
-    def roic(self) -> Decimal:
+    def roic(self) -> Decimal | None:
         """
         Calculates the Return on Invested Capital (ROIC) using net income over the sum of debt and equity.
 
@@ -166,13 +166,13 @@ class FinancialYear:
         """
         invested_capital = self.total_debt + self.total_equity
         
-        if invested_capital == Decimal("0"):
-            return Decimal("0")
+        if invested_capital <= Decimal("0"):
+            return None
         
         return round((self.net_income / invested_capital) * 100, 2)
     
     @property
-    def debt_to_equity(self) -> Decimal:
+    def debt_to_equity(self) -> Decimal | None:
         """
         Calculates the debt-to-equity ratio, indicating the relative proportion of shareholder equity and debt used to finance assets.
 
@@ -181,8 +181,8 @@ class FinancialYear:
         """
         equity = self.total_equity
         
-        if equity == Decimal("0"):
-            return Decimal("0")
+        if equity <= Decimal("0"):
+            return None
         
         return round(self.total_debt / equity, 2)
     
