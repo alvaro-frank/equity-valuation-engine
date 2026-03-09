@@ -37,7 +37,8 @@ class QuantitativeValuationUseCase:
         
         ratio_fields = [
             "total_equity", "gross_margin", "operating_margin", 
-            "net_margin", "roe", "roic", "debt_to_equity"
+            "net_margin", "roe", "roic", "debt_to_equity",
+            "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "fcf_yield"
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields

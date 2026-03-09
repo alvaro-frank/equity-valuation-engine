@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 from domain.entities.entities import Price, FinancialYear, Ticker, CompanyProfile, IndustrySectorDynamics
 
 class QuantitativeDataPort(ABC):
@@ -17,6 +17,13 @@ class QuantitativeDataPort(ABC):
             
         Returns:
             Price: Domain Entity containing the current price and currency.
+        """
+        pass
+    
+    @abstractmethod
+    def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
+        """
+        
         """
         pass
     
