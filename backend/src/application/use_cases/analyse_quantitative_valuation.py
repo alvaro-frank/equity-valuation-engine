@@ -97,7 +97,10 @@ class QuantitativeValuationUseCase:
         begin_val = values[-1]
         end_val = values[0]
         
-        if begin_val <= 0 or end_val <= 0:
+        if begin_val is None or end_val is None:
+            return None
+        
+        if begin_val <= Decimal("0") or end_val <= Decimal("0"):
             return None
         
         periods = len(values) - 1
