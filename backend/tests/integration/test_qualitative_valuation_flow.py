@@ -3,8 +3,8 @@ import json
 from decimal import Decimal
 
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
-from infrastructure.adapters.alpha_vantage_adapter import AlphaVantageAdapter
-from infrastructure.adapters.gemini_adapter import GeminiAdapter
+from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
 
 class TestQualitativeIntegrationFlow:
 

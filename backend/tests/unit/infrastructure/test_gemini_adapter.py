@@ -3,7 +3,7 @@ import json
 from decimal import Decimal
 
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
-from infrastructure.adapters.gemini_adapter import GeminiAdapter
+from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
 
 class TestGeminiAdapter:
 

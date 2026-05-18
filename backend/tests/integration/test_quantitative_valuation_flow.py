@@ -2,7 +2,7 @@ import pytest
 from decimal import Decimal
 
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from infrastructure.adapters.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 
 class TestQuantitativeIntegrationFlow:
 

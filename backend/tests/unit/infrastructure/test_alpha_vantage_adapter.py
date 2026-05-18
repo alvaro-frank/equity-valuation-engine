@@ -2,14 +2,14 @@ import pytest
 from decimal import Decimal
 from requests.exceptions import RequestException
 
-from infrastructure.adapters.alpha_vantage_adapter import AlphaVantageAdapter
+from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from domain.entities.entities import Price, Ticker
 
 class TestAlphaVantageAdapter:
     
     @pytest.fixture(autouse=True)
     def mock_sleep(self, mocker):
-        mocker.patch("infrastructure.adapters.alpha_vantage_adapter.time.sleep", return_value=None)
+        mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.time.sleep", return_value=None)
 
     @pytest.fixture
     def mock_session(self, mocker):
