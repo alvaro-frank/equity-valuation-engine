@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict
-from domain.entities.entities import Price, FinancialYear, Ticker, CompanyProfile, IndustrySectorDynamics
+from domain.entities.entities import Price, FinancialYear, Ticker, CompanyProfile, IndustrySectorDynamics, EarningsReport
 
 class QuantitativeDataPort(ABC):
     """
@@ -23,7 +23,13 @@ class QuantitativeDataPort(ABC):
     @abstractmethod
     def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
         """
+        Fetches the historical stock prices for a given ticker symbol.
         
+        Args:
+            symbol (str): The stock ticker symbol to fetch the historical prices.
+            
+        Returns:
+            Dict[str, Price]: Dictionary containing the historical prices by key.
         """
         pass
     
@@ -68,6 +74,25 @@ class QualitativeDataPort(ABC):
             
         Returns:
             CompanyProfile: Domain Entity containing the qualitative data of the business
+        """
+        pass
+
+class EarningsReportPort(ABC):
+    """
+    Interface for fetching earnings report data, including revenue growth, management tone etc.
+    This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for earnings report analysis.
+    """
+    @abstractmethod
+    def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+        """
+        Analyses the earnings report of a company for a specific fiscal period (either a year or a quarter)
+        
+        Args:
+            symbol (str): The stock ticker symbol of the company
+            pdf_file_path (str): The path to the PDF file to be analysed
+            
+        Returns:
+            EarningsReport: Domain Entity containing the data given the PDF file
         """
         pass
 
