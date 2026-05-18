@@ -2,7 +2,7 @@ import pytest
 import json
 from decimal import Decimal
 
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
+from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
 
 class TestGeminiAdapter:
@@ -79,5 +79,60 @@ class TestGeminiAdapter:
 
         with pytest.raises(ConnectionError, match="Gemini|Connection Error"):
             adapter.analyse_company("MSFT")
+            
+        assert mock_client.models.generate_content.call_count == 1
+
+    def test_analyse_earnings_report_happy_path(self, adapter, mock_client, mocker):
+        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
+        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
+        
+        mock_response = mock_client.models.generate_content.return_value
+        
+        json_earnings = {
+            "ticker": "MSFT",
+            "period_end_date": "2026-03-31",
+            "core_performance": {
+                "adjusted_revenue": {"amount": 50000.0, "yoy_growth": 15.0},
+                "adjusted_eps": {"amount": 5.0, "yoy_growth": 10.0},
+                "adjusted_ebitda_margin": {"amount": 40.0, "yoy_growth": 2.0},
+                "free_cash_flow": {"amount": 15000.0, "yoy_growth": 5.0}
+            },
+            "capital_allocation": {
+                "share_buybacks": 2000.0,
+                "dividends": 1000.0,
+                "capex_rd": 5000.0,
+                "infrastructure_assessment": "Accelerating"
+            },
+            "forward_guidance": "Raise",
+            "moat_trajectory": "Expanding",
+            "risk_deconstruction": {
+                "macro_risks": ["Interest rates"],
+                "internal_risks": ["Execution delay"]
+            },
+            "bottom_line": "Excellent execution."
+        }
+        mock_response.text = json.dumps(json_earnings)
+
+        mock_open = mocker.patch("builtins.open", mocker.mock_open())
+
+        report = adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
+
+        assert isinstance(report, EarningsReport)
+        assert report.period_end_date == "2026-03-31"
+        assert report.core_performance.adjusted_revenue.amount == Decimal("50000.0")
+        assert report.core_performance.adjusted_revenue.yoy_growth == Decimal("15.0")
+        assert report.capital_allocation.share_buybacks == Decimal("2000.0")
+        assert report.forward_guidance == "Raise"
+        assert "Interest rates" in report.risk_deconstruction.macro_risks
+        
+        mock_client.models.generate_content.assert_called_once()
+        mock_client.files.upload.assert_called_once()
+
+    def test_analyse_earnings_report_handles_api_failure(self, adapter, mock_client, mocker):
+        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
+        mock_client.models.generate_content.side_effect = Exception("Gemini server is down 503")
+
+        with pytest.raises(ConnectionError, match="Connection Error"):
+            adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
             
         assert mock_client.models.generate_content.call_count == 1
