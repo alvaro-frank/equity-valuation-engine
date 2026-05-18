@@ -2,16 +2,18 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 import os
+import time
 import json
-from application.ports.ports import SectorIndustrialDataPort
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics
+import re
+from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
 from decimal import Decimal
-from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema
-from typing import Optional 
+from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
+from typing import Optional
 
 load_dotenv()
 
-class GeminiAdapter(SectorIndustrialDataPort):
+class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort):
     """
     Adapter that leverages Google's Gemini LLM to generate qualitative research.
     
@@ -24,6 +26,10 @@ class GeminiAdapter(SectorIndustrialDataPort):
         """
         self.client = client or genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.model_id = 'gemini-2.5-flash'
+        
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        self.cache_dir = os.path.join(base_dir, '.gemini_cache')
+        os.makedirs(self.cache_dir, exist_ok=True)
 
     def analyse_company(self, symbol: str) -> CompanyProfile:
         """
@@ -75,37 +81,61 @@ class GeminiAdapter(SectorIndustrialDataPort):
 
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
-        try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=CompanyProfileSchema,
-                    temperature=0.2,
+        
+        cache_filename = f"company_{symbol.upper()}.json"
+        cache_path = os.path.join(self.cache_dir, cache_filename)
+        
+        if os.path.exists(cache_path):
+            file_age_seconds = time.time() - os.path.getmtime(cache_path)
+            
+            if file_age_seconds < 86400:
+                try:
+                    with open(cache_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                except Exception:
+                    data = None
+            else:
+                data = None 
+        else:
+            data = None
+            
+        if not data:
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_id,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=CompanyProfileSchema,
+                        temperature=0.2,
+                    )
                 )
-            )
-            
-            data = json.loads(response.text)
-            schema_instance = CompanyProfileSchema(**data)
-            
-            return CompanyProfile(
-                business_description=schema_instance.business_description,
-                company_history=schema_instance.company_history,
-                ceo_name=schema_instance.ceo_name,
-                ceo_ownership=Decimal(str(schema_instance.ceo_ownership)),
-                major_shareholders={s.name: Decimal(str(s.ownership)) for s in schema_instance.major_shareholders},
-                revenue_model=schema_instance.revenue_model,
-                strategy=schema_instance.strategy,
-                products_services={p.name: p.description for p in schema_instance.products_services},
-                competitive_advantage=schema_instance.competitive_advantage,
-                competitors={c.name: c.overlap for c in schema_instance.competitors},
-                management_insights=schema_instance.management_insights,
-                risk_factors={r.title: r.description for r in schema_instance.risk_factors},
-                historical_context_crises=schema_instance.historical_context_crises
-            )
-        except Exception as e: 
-            raise ConnectionError(f"Connection Error: {e}")
+                
+                data = json.loads(response.text)
+                
+                with open(cache_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4)
+                    
+            except Exception as e: 
+                raise ConnectionError(f"Connection Error: {e}")
+                
+        schema_instance = CompanyProfileSchema(**data)
+        
+        return CompanyProfile(
+            business_description=schema_instance.business_description,
+            company_history=schema_instance.company_history,
+            ceo_name=schema_instance.ceo_name,
+            ceo_ownership=Decimal(str(schema_instance.ceo_ownership)),
+            major_shareholders={s.name: Decimal(str(s.ownership)) for s in schema_instance.major_shareholders},
+            revenue_model=schema_instance.revenue_model,
+            strategy=schema_instance.strategy,
+            products_services={p.name: p.description for p in schema_instance.products_services},
+            competitive_advantage=schema_instance.competitive_advantage,
+            competitors={c.name: c.overlap for c in schema_instance.competitors},
+            management_insights=schema_instance.management_insights,
+            risk_factors={r.title: r.description for r in schema_instance.risk_factors},
+            historical_context_crises=schema_instance.historical_context_crises
+        )
     
     def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
@@ -155,30 +185,159 @@ class GeminiAdapter(SectorIndustrialDataPort):
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
         """
         
-        try:
-            response = self.client.models.generate_content(
+        safe_sector = re.sub(r'[^a-zA-Z0-9]', '_', sector)
+        safe_industry = re.sub(r'[^a-zA-Z0-9]', '_', industry)
+        cache_filename = f"industry_{safe_sector}_{safe_industry}.json"
+        cache_path = os.path.join(self.cache_dir, cache_filename)
+        
+        if os.path.exists(cache_path):
+            file_age_seconds = time.time() - os.path.getmtime(cache_path)
+            
+            if file_age_seconds < 86400:
+                try:
+                    with open(cache_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                except Exception:
+                    data = None
+            else:
+                data = None 
+        else:
+            data = None
+            
+        if not data:
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model_id,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=IndustrySectorDynamicsSchema,
+                        temperature=0.2,
+                    )
+                )
+                
+                data = json.loads(response.text)
+                
+                with open(cache_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4)
+                    
+            except Exception as e: 
+                raise ConnectionError(f"Connection Error: {e}")
+                
+        schema_instance = IndustrySectorDynamicsSchema(**data)
+        
+        return IndustrySectorDynamics(
+            sector=schema_instance.sector,
+            industry=schema_instance.industry,
+            rivalry_among_competitors={f.factor: f.analysis for f in schema_instance.rivalry_among_competitors},
+            bargaining_power_of_suppliers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_suppliers},
+            bargaining_power_of_customers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_customers},
+            threat_of_new_entrants={f.factor: f.analysis for f in schema_instance.threat_of_new_entrants},
+            threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
+            economic_sensitivity=schema_instance.economic_sensitivity,
+            interest_rate_exposure=schema_instance.interest_rate_exposure
+        )
+
+    def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+        """
+        Uses Gemini to perform a deep-dive analysis of a company's earnings report.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch fundamental data for.
+            pdf_file_path (str): The path to the PDF file containing the earnings report.
+            
+        Returns:
+            EarningsReport: A Domain Entity containing the earnings report analysis.
+        """
+        prompt = f"""
+        You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
+
+        Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
+
+        Extract and synthesize the following fields:
+
+        1. period_end_date: (String) The end date of the fiscal period.
+        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted EBITDA margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
+        3. capital_allocation: (Object) Detail exact amounts (as floats) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string assessing if infrastructure investment is accelerating or decelerating.
+        4. forward_guidance: (String) Summary of management's projections for the next quarter/year (Raise, Lower, or Maintain).
+        5. moat_trajectory: (String) Evidence of pricing power, market share changes, or competitive advantage expanding/shrinking.
+        6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
+        7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
+        """
+
+        pdf_basename = os.path.basename(pdf_file_path).replace(".pdf", "")
+        cache_filename = f"earnings_{symbol.upper()}_{pdf_basename}.json"
+        cache_path = os.path.join(self.cache_dir, cache_filename)
+
+        if os.path.exists(cache_path):
+            file_age_seconds = time.time() - os.path.getmtime(cache_path)
+            
+            if file_age_seconds < 86400:
+                try:
+                    with open(cache_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                except Exception:
+                    data = None
+            else:
+                data = None 
+        else:
+            data = None
+
+        if data is None:
+            uploaded_file = self.client.files.upload(file=pdf_file_path)
+
+            try:
+                response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt,
+                contents=[prompt, uploaded_file],
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=IndustrySectorDynamicsSchema,
+                    response_schema=EarningsReportSchema,
                     temperature=0.2,
                 )
             )
             
-            data = json.loads(response.text)
-            schema_instance = IndustrySectorDynamicsSchema(**data)
+                data = json.loads(response.text)
             
-            return IndustrySectorDynamics(
-                sector=schema_instance.sector,
-                industry=schema_instance.industry,
-                rivalry_among_competitors={f.factor: f.analysis for f in schema_instance.rivalry_among_competitors},
-                bargaining_power_of_suppliers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_suppliers},
-                bargaining_power_of_customers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_customers},
-                threat_of_new_entrants={f.factor: f.analysis for f in schema_instance.threat_of_new_entrants},
-                threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
-                economic_sensitivity=schema_instance.economic_sensitivity,
-                interest_rate_exposure=schema_instance.interest_rate_exposure
-            )
-        except Exception as e: 
-            raise ConnectionError(f"Connection Error: {e}")
+                with open(cache_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4)
+
+            except Exception as e: 
+                raise ConnectionError(f"Connection Error: {e}")
+
+        schema_instance = EarningsReportSchema(**data)
+
+        return EarningsReport(
+            period_end_date=schema_instance.period_end_date,
+            core_performance=CorePerformance(
+                adjusted_revenue=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_revenue.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_revenue.yoy_growth))
+                ),
+                adjusted_eps=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_eps.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_eps.yoy_growth))
+                ),
+                adjusted_ebitda_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.yoy_growth))
+                ),
+                free_cash_flow=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.free_cash_flow.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.free_cash_flow.yoy_growth))
+                )
+            ),
+            capital_allocation=CapitalAllocation(
+                share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)),
+                dividends=Decimal(str(schema_instance.capital_allocation.dividends)),
+                capex_rd=Decimal(str(schema_instance.capital_allocation.capex_rd)),
+                infrastructure_assessment=schema_instance.capital_allocation.infrastructure_assessment
+            ),
+            forward_guidance=schema_instance.forward_guidance,
+            moat_trajectory=schema_instance.moat_trajectory,
+            risk_deconstruction=RiskDeconstruction(
+                macro_risks=schema_instance.risk_deconstruction.macro_risks,
+                internal_risks=schema_instance.risk_deconstruction.internal_risks
+            ),
+            bottom_line=schema_instance.bottom_line
+        )
