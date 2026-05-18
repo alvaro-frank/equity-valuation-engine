@@ -126,27 +126,83 @@ class SectorIndustrialValuationResult(BaseModel):
     economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
     interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
 
+class MetricWithGrowthResult(BaseModel):
+    """
+    Result DTO for a metric with its year-over-year growth.
+    
+    Attributes:
+        amount (Decimal): The absolute value or margin of the metric.
+        yoy_growth (Decimal): The Year-over-Year growth percentage.
+    """
+    model_config = ConfigDict(frozen=True)
+    amount: Decimal = Field(..., description="The absolute value or margin of the metric")
+    yoy_growth: Decimal = Field(..., description="The Year-over-Year growth percentage")
+
+class CorePerformanceResult(BaseModel):
+    """
+    Result DTO for the core performance of the company.
+    
+    Attributes:
+        adjusted_revenue (MetricWithGrowthResult): Adjusted Revenue with YoY growth.
+        adjusted_eps (MetricWithGrowthResult): Adjusted EPS with YoY growth.
+        adjusted_ebitda_margin (MetricWithGrowthResult): Adjusted EBITDA Margin with YoY growth.
+        free_cash_flow (MetricWithGrowthResult): Free Cash Flow with YoY growth.
+    """
+    model_config = ConfigDict(frozen=True)
+    adjusted_revenue: MetricWithGrowthResult = Field(..., description="Adjusted Revenue with YoY growth")
+    adjusted_eps: MetricWithGrowthResult = Field(..., description="Adjusted EPS with YoY growth")
+    adjusted_ebitda_margin: MetricWithGrowthResult = Field(..., description="Adjusted EBITDA Margin with YoY growth")
+    free_cash_flow: MetricWithGrowthResult = Field(..., description="Free Cash Flow with YoY growth")
+
+class CapitalAllocationResult(BaseModel):
+    """
+    Result DTO for the capital allocation of the company.
+    
+    Attributes:
+        share_buybacks (Decimal): Amount spent on Share Buybacks.
+        dividends (Decimal): Amount spent on Dividends.
+        capex_rd (Decimal): Amount spent on CapEx/R&D.
+        infrastructure_assessment (str): Assessment of infrastructure investment (accelerating/decelerating).
+    """
+    model_config = ConfigDict(frozen=True)
+    share_buybacks: Decimal = Field(..., description="Amount spent on Share Buybacks")
+    dividends: Decimal = Field(..., description="Amount spent on Dividends")
+    capex_rd: Decimal = Field(..., description="Amount spent on CapEx/R&D")
+    infrastructure_assessment: str = Field(..., description="Assessment of infrastructure investment (accelerating/decelerating)")
+
+class RiskDeconstructionResult(BaseModel):
+    """
+    Result DTO for the risk deconstruction of the company.
+    
+    Attributes:
+        macro_risks (List[str]): List of external/macro risks.
+        internal_risks (List[str]): List of internal/execution risks.
+    """
+    model_config = ConfigDict(frozen=True)
+    macro_risks: List[str] = Field(..., description="List of external/macro risks")
+    internal_risks: List[str] = Field(..., description="List of internal/execution risks")
+
 class EarningsReportResult(BaseModel):
     """
-    Result DTO for the comprehensive earnings report valuation.
+    Result DTO for the comprehensive value-investing focused earnings report valuation.
     
     Attributes:
         ticker (TickerResult): Ticker information of the stock.
         period_end_date (str): The end date of the fiscal period.
-        revenue_growth (Decimal): The revenue growth for the period as a percentage.
-        management_tone (str): The tone of the management during the period.
-        key_challenges (Dict[str, str]): Key challenges faced during the period.
-        key_highlights (Dict[str, str]): Key highlights of the period.
-        future_guidance (str): Future guidance provided by the management.
-        summary (str): Summary of the results.
+        core_performance (CorePerformanceResult): Core non-GAAP performance metrics.
+        capital_allocation (CapitalAllocationResult): Capital allocation and infrastructure assessment.
+        forward_guidance (str): Summary of forward guidance.
+        moat_trajectory (str): Evidence of moat trajectory.
+        risk_deconstruction (RiskDeconstructionResult): Risk deconstruction.
+        bottom_line (str): Brutal, concise summary of business execution.
     """
     model_config = ConfigDict(frozen=True)
     
     ticker: TickerResult
     period_end_date: str = Field(..., description="The end date of the fiscal period")
-    revenue_growth: Decimal = Field(..., description="The revenue growth for the period as a percentage")
-    management_tone: str = Field(..., description="The tone of the management during the period")
-    key_challenges: Dict[str, str] = Field(..., description="Key challenges faced during the period")
-    key_highlights: Dict[str, str] = Field(..., description="Key highlights of the period")
-    future_guidance: str = Field(..., description="Future guidance provided by the management")
-    summary: str = Field(..., description="Summary of the results")
+    core_performance: CorePerformanceResult = Field(..., description="Core non-GAAP performance metrics")
+    capital_allocation: CapitalAllocationResult = Field(..., description="Capital allocation and infrastructure assessment")
+    forward_guidance: str = Field(..., description="Summary of forward guidance (Raise/Lower/Maintain)")
+    moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
+    risk_deconstruction: RiskDeconstructionResult = Field(..., description="Macro and internal risk breakdown")
+    bottom_line: str = Field(..., description="Brutal, concise summary of business execution")
