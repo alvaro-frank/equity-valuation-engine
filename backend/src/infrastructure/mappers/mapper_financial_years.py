@@ -60,11 +60,9 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
             cash_report = cash_map.get(fiscal_date)
             
             if not balance_report or not cash_report:
-                raise ValueError(
-                    f"Missing data on date: {fiscal_date}. "
-                    f"Balance: {'OK' if balance_report else 'MISSING'}, "
-                    f"CashFlow: {'OK' if cash_report else 'MISSING'}"
-                )
+                # Em vez de abortar tudo com ValueError, vamos apenas ignorar este ano incompleto
+                # e avançar para o próximo, garantindo que os anos mais recentes funcionam perfeitamente.
+                continue
                 
             year_month = fiscal_date[:7]
             price_obj = historical_prices.get(year_month)
