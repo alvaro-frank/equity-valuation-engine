@@ -1,11 +1,16 @@
-from infrastructure.adapters.gemini_adapter import GeminiAdapter
-from infrastructure.adapters.alpha_vantage_adapter import AlphaVantageAdapter
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
+from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from controllers.quantitative_valuation_controller import QuantitativeValuationController
-from controllers.qualitative_valuation_controller import QualitativeValuationController
-from controllers.sector_valuation_controller import SectorValuationController
+from infrastructure.adapters.input.quantitative_valuation_adapter import QuantitativeValuationAdapter
+from infrastructure.adapters.input.qualitative_valuation_adapter import QualitativeValuationAdapter
+from infrastructure.adapters.input.sector_valuation_adapter import SectorValuationAdapter
 
 def main():
     ticker = "MSFT"
@@ -21,9 +26,9 @@ def main():
     quant_service = QuantitativeValuationUseCase(adapter=alpha_vantage_adapter)
     
     # Controllers
-    sector_controller = SectorValuationController(sector_service)
-    qual_controller = QualitativeValuationController(qual_service)
-    quant_controller = QuantitativeValuationController(quant_service)
+    sector_controller = SectorValuationAdapter(sector_service)
+    qual_controller = QualitativeValuationAdapter(qual_service)
+    quant_controller = QuantitativeValuationAdapter(quant_service)
     
     print(f"{'='*80}")
     print(f"FULL INVESTMENT DOSSIER: {ticker}")
