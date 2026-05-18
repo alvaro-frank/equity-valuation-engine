@@ -1,7 +1,7 @@
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.dtos.dtos import QuantitativeValuationResult
 
-class QuantitativeValuationController:
+class QuantitativeValuationAdapter:
     """
     Controller responsible for orchestrating the stock quantitative valuation process performing analysis using the QuantitativeValuationUseCase.
     """

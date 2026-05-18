@@ -1,7 +1,7 @@
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.dtos.dtos import SectorIndustrialValuationResult
 
-class SectorValuationController:
+class SectorValuationAdapter:
     """
     Controller responsible for orchestrating the industry and sector valuation process.
     It delegates logic to the SectorIndustrialValuationUseCase and handles terminal presentation.
