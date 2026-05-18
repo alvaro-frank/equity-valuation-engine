@@ -125,3 +125,28 @@ class SectorIndustrialValuationResult(BaseModel):
     threat_of_obsolescence: Dict[str, str] = Field(..., description="Risk of technological or market displacement")
     economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
     interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
+
+class EarningsReportResult(BaseModel):
+    """
+    Result DTO for the comprehensive earnings report valuation.
+    
+    Attributes:
+        ticker (TickerResult): Ticker information of the stock.
+        period_end_date (str): The end date of the fiscal period.
+        revenue_growth (Decimal): The revenue growth for the period as a percentage.
+        management_tone (str): The tone of the management during the period.
+        key_challenges (Dict[str, str]): Key challenges faced during the period.
+        key_highlights (Dict[str, str]): Key highlights of the period.
+        future_guidance (str): Future guidance provided by the management.
+        summary (str): Summary of the results.
+    """
+    model_config = ConfigDict(frozen=True)
+    
+    ticker: TickerResult
+    period_end_date: str = Field(..., description="The end date of the fiscal period")
+    revenue_growth: Decimal = Field(..., description="The revenue growth for the period as a percentage")
+    management_tone: str = Field(..., description="The tone of the management during the period")
+    key_challenges: Dict[str, str] = Field(..., description="Key challenges faced during the period")
+    key_highlights: Dict[str, str] = Field(..., description="Key highlights of the period")
+    future_guidance: str = Field(..., description="Future guidance provided by the management")
+    summary: str = Field(..., description="Summary of the results")
