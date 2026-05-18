@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from typing import List
+from typing import Dict, List
 
 class Shareholder(BaseModel):
     """
-    Data Transfer Object representing a major shareholder of the company.
+    Represents a major shareholder of the company.
 
     Attributes:
         name (str): The name of the individual or institutional investor.
@@ -91,7 +91,7 @@ class ForceFactor(BaseModel):
 
 class IndustrySectorDynamicsSchema(BaseModel):
     """
-    Result DTO for the comprehensive industry and sector valuation report.
+    Schema for comprehensive industry and sector analysis.
 
     Attributes:
         sector (str): The broad economic sector (e.g., Technology).
@@ -113,3 +113,68 @@ class IndustrySectorDynamicsSchema(BaseModel):
     threat_of_obsolescence: List[ForceFactor]
     economic_sensitivity: str
     interest_rate_exposure: str
+
+class MetricWithGrowthSchema(BaseModel):
+    """
+    Represents a financial metric with its year-over-year growth percentage.
+    
+    Attributes:
+        amount (float): The absolute value or margin of the metric.
+        yoy_growth (float): The Year-over-Year growth percentage.
+    """
+    amount: float
+    yoy_growth: float
+
+class CorePerformanceSchema(BaseModel):
+    """
+    Represents the core non-GAAP performance metrics of the company.
+    
+    Attributes:
+        adjusted_revenue (MetricWithGrowthSchema): Adjusted Revenue with YoY growth.
+        adjusted_eps (MetricWithGrowthSchema): Adjusted EPS with YoY growth.
+        adjusted_ebitda_margin (MetricWithGrowthSchema): Adjusted EBITDA Margin with YoY growth.
+        free_cash_flow (MetricWithGrowthSchema): Free Cash Flow with YoY growth.
+    """
+    adjusted_revenue: MetricWithGrowthSchema
+    adjusted_eps: MetricWithGrowthSchema
+    adjusted_ebitda_margin: MetricWithGrowthSchema
+    free_cash_flow: MetricWithGrowthSchema
+
+class CapitalAllocationSchema(BaseModel):
+    """
+    Represents the capital allocation of the company.
+    
+    Attributes:
+        share_buybacks (float): Amount spent on Share Buybacks.
+        dividends (float): Amount spent on Dividends.
+        capex_rd (float): Amount spent on CapEx/R&D.
+        infrastructure_assessment (str): Assessment of infrastructure investment (accelerating/decelerating).
+    """
+    share_buybacks: float
+    dividends: float
+    capex_rd: float
+    infrastructure_assessment: str
+
+class RiskDeconstructionSchema(BaseModel):
+    """
+    Represents the risk deconstruction of the company.
+    
+    Attributes:
+        macro_risks (List[str]): List of external/macro risks.
+        internal_risks (List[str]): List of internal/execution risks.
+    """
+    macro_risks: List[str]
+    internal_risks: List[str]
+
+class EarningsReportSchema(BaseModel):
+    """
+    Schema for earnings report analysis focused on Value Investing.
+    """
+    ticker: str
+    period_end_date: str
+    core_performance: CorePerformanceSchema
+    capital_allocation: CapitalAllocationSchema
+    forward_guidance: str
+    moat_trajectory: str
+    risk_deconstruction: RiskDeconstructionSchema
+    bottom_line: str
