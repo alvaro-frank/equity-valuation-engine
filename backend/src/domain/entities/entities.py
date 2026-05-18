@@ -1,6 +1,6 @@
 from decimal import Decimal
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 @dataclass(frozen=True)
 class Price:
@@ -248,6 +248,84 @@ class FinancialYear:
             return None
         fcf = self.operating_cash_flow - self.capital_expenditures
         return round((fcf / self.market_cap) * 100, 2)
+
+@dataclass(frozen=True)
+class MetricWithGrowth:
+    """
+    Represents a financial metric with its corresponding Year-over-Year (YoY) growth.
+    
+    Attributes:
+        amount (Decimal): The absolute value or margin of the metric (e.g., revenue amount, EPS value, or margin percentage).
+        yoy_growth (Decimal): The Year-over-Year growth rate as a percentage.
+    """
+    amount: Decimal
+    yoy_growth: Decimal
+
+@dataclass(frozen=True)
+class CorePerformance:
+    """
+    Represents the core non-GAAP financial performance metrics of a company for a specific period.
+    
+    Attributes:
+        adjusted_revenue (MetricWithGrowth): The adjusted revenue figure and its year-over-year growth.
+        adjusted_eps (MetricWithGrowth): The adjusted earnings per share figure and its year-over-year growth.
+        adjusted_ebitda_margin (MetricWithGrowth): The adjusted EBITDA margin percentage and its year-over-year change.
+        free_cash_flow (MetricWithGrowth): The free cash flow figure and its year-over-year growth.
+    """
+    adjusted_revenue: MetricWithGrowth
+    adjusted_eps: MetricWithGrowth
+    adjusted_ebitda_margin: MetricWithGrowth
+    free_cash_flow: MetricWithGrowth
+
+@dataclass(frozen=True)
+class CapitalAllocation:
+    """
+    Represents the capital allocation decisions made by the company.
+    
+    Attributes:
+        share_buybacks (Decimal): Amount spent on share buybacks.
+        dividends (Decimal): Amount spent on dividends.
+        capex_rd (Decimal): Amount spent on CapEx and R&D.
+        infrastructure_assessment (str): Assessment of infrastructure investment (accelerating/decelerating).
+    """
+    share_buybacks: Decimal
+    dividends: Decimal
+    capex_rd: Decimal
+    infrastructure_assessment: str
+
+@dataclass(frozen=True)
+class RiskDeconstruction:
+    """
+    Represents the risk deconstruction of the company.
+    
+    Attributes:
+        macro_risks (List[str]): List of macro risks.
+        internal_risks (List[str]): List of internal risks.
+    """
+    macro_risks: List[str]
+    internal_risks: List[str]
+
+@dataclass(frozen=True)
+class EarningsReport:
+    """
+    Represents the comprehensive earnings report valuation of a company.
+    
+    Attributes:
+        period_end_date (str): The end date of the fiscal period.
+        core_performance (CorePerformance): Core non-GAAP performance metrics.
+        capital_allocation (CapitalAllocation): Capital allocation decisions.
+        forward_guidance (str): Summary of forward guidance.
+        moat_trajectory (str): Evidence of moat trajectory.
+        risk_deconstruction (RiskDeconstruction): Risk deconstruction.
+        bottom_line (str): Brutal, concise summary of business execution.
+    """
+    period_end_date: str
+    core_performance: CorePerformance
+    capital_allocation: CapitalAllocation
+    forward_guidance: str
+    moat_trajectory: str
+    risk_deconstruction: RiskDeconstruction
+    bottom_line: str
     
 @dataclass(frozen=True)
 class CompanyProfile:
