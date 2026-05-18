@@ -77,8 +77,8 @@ class TestMapToFinancialYears:
 
     def test_map_to_financial_years_missing_balance_sheet(self, mock_income, mock_cash, mock_prices):
         empty_balance = []
-        with pytest.raises(ValueError, match="Missing data on date: 2023-12-31"):
-            map_to_financial_years(mock_income, empty_balance, mock_cash, mock_prices)
+        years = map_to_financial_years(mock_income, empty_balance, mock_cash, mock_prices)
+        assert len(years) == 0
 
     def test_map_to_financial_years_skips_missing_fiscal_date(self, mock_balance, mock_cash, mock_prices):
         invalid_income = [{"totalRevenue": "1000"}] 

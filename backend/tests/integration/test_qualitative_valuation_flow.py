@@ -54,9 +54,10 @@ class TestQualitativeIntegrationFlow:
         mock_response.text = json.dumps(json_ficticio)
         return client
 
-    def test_full_qualitative_valuation_flow(self, mock_session, mock_gemini_client):
+    def test_full_qualitative_valuation_flow(self, mock_session, mock_gemini_client, tmp_path):
         quant_adapter = AlphaVantageAdapter(api_key="TEST_KEY", session=mock_session)
         qual_adapter = GeminiAdapter(client=mock_gemini_client)
+        qual_adapter.cache_dir = str(tmp_path)
         
         use_case = QualitativeValuationUseCase(
             adapter=qual_adapter, 

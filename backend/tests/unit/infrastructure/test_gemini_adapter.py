@@ -16,8 +16,10 @@ class TestGeminiAdapter:
         return mocker.MagicMock()
 
     @pytest.fixture
-    def adapter(self, mock_client):
-        return GeminiAdapter(client=mock_client)
+    def adapter(self, mock_client, tmp_path):
+        adapter = GeminiAdapter(client=mock_client)
+        adapter.cache_dir = str(tmp_path)
+        return adapter
 
     def test_analyse_company_happy_path(self, adapter, mock_client):
         mock_response = mock_client.models.generate_content.return_value
