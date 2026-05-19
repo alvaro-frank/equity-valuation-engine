@@ -5,3 +5,5 @@ pytest-mock
 yfinance
 pydantic
 google-genai
+fastapi
+uvicorn
