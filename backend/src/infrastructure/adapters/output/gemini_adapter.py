@@ -31,7 +31,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         self.cache_dir = os.path.join(base_dir, '.gemini_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str) -> CompanyProfile:
         """
         Uses Gemini to generate qualitative analysis report. 
         
@@ -101,7 +101,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             
         if not data:
             try:
-                response = self.client.models.generate_content(
+                response = await self.client.aio.models.generate_content(
                     model=self.model_id,
                     contents=prompt,
                     config=types.GenerateContentConfig(
@@ -137,7 +137,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             historical_context_crises=schema_instance.historical_context_crises
         )
     
-    def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
         Uses Gemini to perform a deep-dive analysis of industry dynamics and macro factors.
         
@@ -206,7 +206,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             
         if not data:
             try:
-                response = self.client.models.generate_content(
+                response = await self.client.aio.models.generate_content(
                     model=self.model_id,
                     contents=prompt,
                     config=types.GenerateContentConfig(
@@ -238,7 +238,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             interest_rate_exposure=schema_instance.interest_rate_exposure
         )
 
-    def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
         """
         Uses Gemini to perform a deep-dive analysis of a company's earnings report.
         
@@ -284,10 +284,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             data = None
 
         if data is None:
-            uploaded_file = self.client.files.upload(file=pdf_file_path)
+            uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
 
             try:
-                response = self.client.models.generate_content(
+                response = await self.client.aio.models.generate_content(
                 model=self.model_id,
                 contents=[prompt, uploaded_file],
                 config=types.GenerateContentConfig(

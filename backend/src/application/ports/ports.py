@@ -8,7 +8,7 @@ class QuantitativeDataPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
-    def get_stock_current_price(self, symbol: str) -> Price:
+    async def get_stock_current_price(self, symbol: str) -> Price:
         """
         Fetches the current stock price for a given ticker symbol.
         
@@ -21,7 +21,7 @@ class QuantitativeDataPort(ABC):
         pass
     
     @abstractmethod
-    def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
+    async def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
         """
         Fetches the historical stock prices for a given ticker symbol.
         
@@ -34,7 +34,7 @@ class QuantitativeDataPort(ABC):
         pass
     
     @abstractmethod
-    def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
+    async def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
         Fetches the fundamental financial data for a given stock ticker symbol.
         
@@ -47,7 +47,7 @@ class QuantitativeDataPort(ABC):
         pass
     
     @abstractmethod
-    def get_ticker_info(self, symbol: str) -> Ticker:
+    async def get_ticker_info(self, symbol: str) -> Ticker:
         """
         Fetches only the basic metadata for a ticker (Name, Sector, Industry).
         
@@ -65,7 +65,7 @@ class QualitativeDataPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
     """
     @abstractmethod
-    def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str) -> CompanyProfile:
         """
         Fetches the qualitative data for a given stock ticker symbol.
         
@@ -83,7 +83,7 @@ class EarningsReportPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for earnings report analysis.
     """
     @abstractmethod
-    def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
         """
         Analyses the earnings report of a company for a specific fiscal period (either a year or a quarter)
         
@@ -98,7 +98,7 @@ class EarningsReportPort(ABC):
 
 class SectorIndustrialDataPort(ABC):   
     @abstractmethod
-    def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
         """
         Analyses the specific sector and industry dynamics.
         

@@ -1,8 +1,8 @@
 import os
 import time
-import requests_cache
-import requests
-from datetime import timedelta
+import json
+import asyncio
+import httpx
 from decimal import Decimal
 from typing import Dict, Optional, List
 from dotenv import load_dotenv
@@ -20,28 +20,25 @@ class AlphaVantageAdapter(QuantitativeDataPort):
     """
     BASE_URL = "https://www.alphavantage.co/query"
 
-    def __init__(self, api_key: Optional[str] = None, session: Optional[requests.Session] = None):
+    def __init__(self, api_key: Optional[str] = None, client: Optional[httpx.AsyncClient] = None):
         """
-        Initializes the adapter, setting up the API key and a 24-hour cache session.
+        Initializes the adapter, setting up the API key and cache directory.
         """
         raw_key = api_key or os.getenv("ALPHA_VANTAGE_API_KEY")
         if not raw_key:
             raise ValueError("Alpha Vantage API Key not found in .env")
         
         self.api_key = raw_key.strip()
+        self.client = client
 
-        if session is not None:
-            self.session = session
-        else:
-            self.session = requests_cache.CachedSession(
-                'alpha_vantage_cache', 
-                expire_after=timedelta(hours=24)
-            )
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        self.cache_dir = os.path.join(base_dir, '.alpha_vantage_cache')
+        os.makedirs(self.cache_dir, exist_ok=True)
 
-    def _get_data(self, function: str, symbol: str) -> Dict:
+    async def _get_data(self, function: str, symbol: str) -> Dict:
         """
         Internal method to fetch data from the Alpha Vantage API for a given function and stock symbol.
-        Handles rate limiting and API errors gracefully.
+        Handles rate limiting, caching, and API errors gracefully.
         
         Args:
             function (str): The Alpha Vantage API function to call (e.g., "OVERVIEW", "INCOME_STATEMENT").
@@ -54,17 +51,33 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         Returns:
             dict: The JSON response from the Alpha Vantage API as a dictionary.
         """
+        cache_filename = f"{function}_{symbol.upper()}.json"
+        cache_path = os.path.join(self.cache_dir, cache_filename)
+
+        if os.path.exists(cache_path):
+            file_age_seconds = time.time() - os.path.getmtime(cache_path)
+            if file_age_seconds < 86400: # 24 hours
+                try:
+                    with open(cache_path, 'r', encoding='utf-8') as f:
+                        return json.load(f)
+                except Exception:
+                    pass
+
         params = {
             "function": function,
             "symbol": symbol,
             "apikey": self.api_key
         }
         try:
-            time.sleep(1.5) 
+            await asyncio.sleep(1.5)
             
-            response = self.session.get(self.BASE_URL, params=params, timeout=15)
+            if self.client:
+                response = await self.client.get(self.BASE_URL, params=params, timeout=15)
+            else:
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(self.BASE_URL, params=params, timeout=15)
             response.raise_for_status()
-        except requests.RequestException as e: 
+        except httpx.HTTPError as e: 
             raise ConnectionError(f"Connection Error: {e}")
         else:
             data = response.json()
@@ -77,10 +90,16 @@ class AlphaVantageAdapter(QuantitativeDataPort):
                  
             if "Error Message" in data:
                 raise ValueError(f"API Error: {data['Error Message']}")
+            
+            try:
+                with open(cache_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4)
+            except Exception:
+                pass
                 
             return data
 
-    def get_stock_current_price(self, symbol: str) -> Price:
+    async def get_stock_current_price(self, symbol: str) -> Price:
         """
         Fetches the current stock price for a given ticker symbol from the Alpha Vantage API.
         Handles API errors and rate limits gracefully.
@@ -95,7 +114,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         Returns:
             Price: Domain Entity containing the current price and currency.
         """
-        data = self._get_data("GLOBAL_QUOTE", symbol)
+        data = await self._get_data("GLOBAL_QUOTE", symbol)
         quote = data.get("Global Quote")
         
         if not quote:
@@ -104,7 +123,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         price_str = quote.get("05. price")
         return Price(amount=Decimal(price_str), currency="USD")
     
-    def get_historical_prices(self, symbol):
+    async def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
         """
         Fetches and processes monthly historical closing prices for a given stock symbol.
         
@@ -118,7 +137,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
             dict[str, Price]: A dictionary where keys are strings in 'YYYY-MM' format 
                               and values are Price objects containing the closing amount and currency.
         """
-        data = self._get_data("TIME_SERIES_MONTHLY", symbol)
+        data = await self._get_data("TIME_SERIES_MONTHLY", symbol)
         time_series = data.get("Monthly Time Series", {})
         
         historical_prices = {}
@@ -135,7 +154,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         return historical_prices
         
 
-    def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
+    async def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
         Fetches the fundamental financial data for a given stock ticker symbol from the Alpha Vantage API.
         Handles API errors and rate limits gracefully, and maps the response to a List of Financial Year Domain Entities.
@@ -150,16 +169,20 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         Returns:
             List[FinancialYear]: List containing the fundamental stock data for each Financial Year.
         """
-        income_data = self._get_data("INCOME_STATEMENT", symbol).get("annualReports", [])
-        balance_data = self._get_data("BALANCE_SHEET", symbol).get("annualReports", [])
-        cash_data = self._get_data("CASH_FLOW", symbol).get("annualReports", [])
+        income_stmt = await self._get_data("INCOME_STATEMENT", symbol)
+        balance_sheet = await self._get_data("BALANCE_SHEET", symbol)
+        cash_flow = await self._get_data("CASH_FLOW", symbol)
 
-        historical_prices = self.get_historical_prices(symbol)
+        income_data = income_stmt.get("annualReports", [])
+        balance_data = balance_sheet.get("annualReports", [])
+        cash_data = cash_flow.get("annualReports", [])
+
+        historical_prices = await self.get_historical_prices(symbol)
         
         financial_years = map_to_financial_years(income_data, balance_data, cash_data, historical_prices)
         return financial_years
         
-    def get_ticker_info(self, symbol: str) -> Ticker:
+    async def get_ticker_info(self, symbol: str) -> Ticker:
         """
         Fetches only the basic metadata for a ticker (Name, Sector, Industry).
         
@@ -169,7 +192,7 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         Returns:
             Ticker: Domain Entity containing the ticker data
         """
-        data = self._get_data("OVERVIEW", symbol)
+        data = await self._get_data("OVERVIEW", symbol)
         
         return Ticker(
             symbol=symbol,
