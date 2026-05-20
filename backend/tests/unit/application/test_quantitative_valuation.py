@@ -9,13 +9,17 @@ class TestQuantitativeValuationUseCase:
 
     @pytest.fixture
     def mock_quant_adapter(self, mocker):
-        return mocker.Mock()
+        mock = mocker.MagicMock()
+        mock.get_ticker_info = mocker.AsyncMock()
+        mock.get_stock_fundamental_data = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def use_case(self, mock_quant_adapter):
         return QuantitativeValuationUseCase(adapter=mock_quant_adapter)
 
-    def test_evaluate_ticker_happy_path(self, use_case, mock_quant_adapter):
+    @pytest.mark.anyio
+    async def test_evaluate_ticker_happy_path(self, use_case, mock_quant_adapter):
         mock_quant_adapter.get_ticker_info.return_value = Ticker(
             symbol="AAPL", name="Apple", sector="Tech", industry="Hardware"
         )
@@ -39,7 +43,7 @@ class TestQuantitativeValuationUseCase:
 
         mock_quant_adapter.get_stock_fundamental_data.return_value = [fy_recent, fy_old]
 
-        result = use_case.evaluate_ticker("AAPL", years=2)
+        result = await use_case.evaluate_ticker("AAPL", years=2)
 
         assert isinstance(result, QuantitativeValuationResult)
         assert result.ticker.symbol == "AAPL"

@@ -10,16 +10,17 @@ class TestEarningsIntegrationFlow:
 
     @pytest.fixture(autouse=True)
     def mock_sleep(self, mocker):
-        mocker.patch("time.sleep", return_value=None)
+        mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.asyncio.sleep", return_value=None)
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
         mocker.patch("builtins.open", mocker.mock_open())
 
     @pytest.fixture
     def mock_session(self, mocker):
-        session = mocker.MagicMock()
+        mock_client = mocker.MagicMock()
+        mock_client.get = mocker.AsyncMock()
 
-        def side_effect(url, params, **kwargs):
+        async def side_effect(url, params, **kwargs):
             mock_response = mocker.MagicMock()
             if params.get("function") == "OVERVIEW":
                 mock_response.json.return_value = {
@@ -31,13 +32,19 @@ class TestEarningsIntegrationFlow:
             mock_response.raise_for_status.return_value = None
             return mock_response
 
-        session.get.side_effect = side_effect
-        return session
+        mock_client.get.side_effect = side_effect
+        return mock_client
 
     @pytest.fixture
     def mock_gemini_client(self, mocker):
         client = mocker.MagicMock()
-        mock_response = client.models.generate_content.return_value
+        client.aio = mocker.MagicMock()
+        client.aio.models = mocker.MagicMock()
+        client.aio.models.generate_content = mocker.AsyncMock()
+        client.aio.files = mocker.MagicMock()
+        client.aio.files.upload = mocker.AsyncMock()
+        
+        mock_response = client.aio.models.generate_content.return_value
         
         json_ficticio = {
             "ticker": "MSFT",
@@ -65,8 +72,10 @@ class TestEarningsIntegrationFlow:
         mock_response.text = json.dumps(json_ficticio)
         return client
 
-    def test_full_earnings_report_flow(self, mock_session, mock_gemini_client, tmp_path):
-        quant_adapter = AlphaVantageAdapter(api_key="TEST_KEY", session=mock_session)
+    @pytest.mark.anyio
+    async def test_full_earnings_report_flow(self, mock_session, mock_gemini_client, tmp_path):
+        quant_adapter = AlphaVantageAdapter(api_key="TEST_KEY", client=mock_session)
+        quant_adapter.cache_dir = str(tmp_path)
         qual_adapter = GeminiAdapter(client=mock_gemini_client)
         qual_adapter.cache_dir = str(tmp_path)
         
@@ -75,7 +84,7 @@ class TestEarningsIntegrationFlow:
             quant_adapter=quant_adapter
         )
 
-        result = use_case.analyse_earnings_report("MSFT", "dummy.pdf")
+        result = await use_case.analyse_earnings_report("MSFT", "dummy.pdf")
 
         assert result.ticker.symbol == "MSFT"
         assert result.ticker.name == "Microsoft Corporation"

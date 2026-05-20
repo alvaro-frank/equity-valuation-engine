@@ -8,13 +8,14 @@ class TestQuantitativeIntegrationFlow:
 
     @pytest.fixture(autouse=True)
     def mock_sleep(self, mocker):
-        mocker.patch("time.sleep", return_value=None)
+        mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.asyncio.sleep", return_value=None)
 
     @pytest.fixture
     def mock_session(self, mocker):
-        session = mocker.MagicMock()
+        mock_client = mocker.MagicMock()
+        mock_client.get = mocker.AsyncMock()
 
-        def side_effect(url, params, **kwargs):
+        async def side_effect(url, params, **kwargs):
             mock_response = mocker.MagicMock()
             
             if params.get("function") == "OVERVIEW":
@@ -74,14 +75,16 @@ class TestQuantitativeIntegrationFlow:
             mock_response.raise_for_status.return_value = None
             return mock_response
 
-        session.get.side_effect = side_effect
-        return session
+        mock_client.get.side_effect = side_effect
+        return mock_client
 
-    def test_full_quantitative_valuation_flow(self, mock_session):
-        adapter = AlphaVantageAdapter(api_key="INTEGRATION_TEST_KEY", session=mock_session)
+    @pytest.mark.anyio
+    async def test_full_quantitative_valuation_flow(self, mock_session, tmp_path):
+        adapter = AlphaVantageAdapter(api_key="INTEGRATION_TEST_KEY", client=mock_session)
+        adapter.cache_dir = str(tmp_path)
         use_case = QuantitativeValuationUseCase(adapter=adapter)
 
-        result = use_case.evaluate_ticker("AAPL", years=1)
+        result = await use_case.evaluate_ticker("AAPL", years=1)
 
         assert result.ticker.symbol == "AAPL"
         assert result.ticker.sector == "TECHNOLOGY"

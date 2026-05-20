@@ -8,11 +8,15 @@ class TestSectorIndustrialValuationUseCase:
 
     @pytest.fixture
     def mock_quant_port(self, mocker):
-        return mocker.Mock()
+        mock = mocker.MagicMock()
+        mock.get_ticker_info = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def mock_sector_port(self, mocker):
-        return mocker.Mock()
+        mock = mocker.MagicMock()
+        mock.analyse_industry = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def use_case(self, mock_quant_port, mock_sector_port):
@@ -21,7 +25,8 @@ class TestSectorIndustrialValuationUseCase:
             sector_industrial_port=mock_sector_port
         )
 
-    def test_evaluate_industry_by_ticker_happy_path(self, use_case, mock_quant_port, mock_sector_port):
+    @pytest.mark.anyio
+    async def test_evaluate_industry_by_ticker_happy_path(self, use_case, mock_quant_port, mock_sector_port):
         mock_quant_port.get_ticker_info.return_value = Ticker(
             symbol="TSLA", name="Tesla", sector="Consumer Cyclical", industry="Auto Manufacturers"
         )
@@ -38,7 +43,7 @@ class TestSectorIndustrialValuationUseCase:
             interest_rate_exposure="High"
         )
 
-        result = use_case.evaluate_industry_by_ticker("TSLA")
+        result = await use_case.evaluate_industry_by_ticker("TSLA")
 
         assert isinstance(result, SectorIndustrialValuationResult)
         assert result.ticker.symbol == "TSLA"
@@ -52,17 +57,19 @@ class TestSectorIndustrialValuationUseCase:
             industry="Auto Manufacturers"
         )
 
-    def test_evaluate_industry_propagates_quant_error(self, use_case, mock_quant_port):
+    @pytest.mark.anyio
+    async def test_evaluate_industry_propagates_quant_error(self, use_case, mock_quant_port):
         mock_quant_port.get_ticker_info.side_effect = ConnectionError("API Down")
 
         with pytest.raises(ConnectionError, match="API Down"):
-            use_case.evaluate_industry_by_ticker("TSLA")
+            await use_case.evaluate_industry_by_ticker("TSLA")
 
-    def test_evaluate_industry_propagates_sector_error(self, use_case, mock_quant_port, mock_sector_port):
+    @pytest.mark.anyio
+    async def test_evaluate_industry_propagates_sector_error(self, use_case, mock_quant_port, mock_sector_port):
         mock_quant_port.get_ticker_info.return_value = Ticker(
             symbol="TSLA", sector="Consumer Cyclical", industry="Auto Manufacturers"
         )
         mock_sector_port.analyse_industry.side_effect = ValueError("Parsing Error")
 
         with pytest.raises(ValueError, match="Parsing Error"):
-            use_case.evaluate_industry_by_ticker("TSLA")
+            await use_case.evaluate_industry_by_ticker("TSLA")

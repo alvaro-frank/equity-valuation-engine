@@ -9,12 +9,15 @@ from application.dtos.dtos import EarningsReportResult
 class TestEarningsReportUseCase:
 
     @pytest.fixture
-    def mock_adapters(self):
-        quant_port = MagicMock()
-        qual_port = MagicMock()
+    def mock_adapters(self, mocker):
+        quant_port = mocker.MagicMock()
+        quant_port.get_ticker_info = mocker.AsyncMock()
+        qual_port = mocker.MagicMock()
+        qual_port.analyse_earnings_report = mocker.AsyncMock()
         return qual_port, quant_port
 
-    def test_analyse_earnings_report_returns_valid_dto(self, mock_adapters):
+    @pytest.mark.anyio
+    async def test_analyse_earnings_report_returns_valid_dto(self, mock_adapters):
         qual_port, quant_port = mock_adapters
         
         quant_port.get_ticker_info.return_value = Ticker(
@@ -48,7 +51,7 @@ class TestEarningsReportUseCase:
         )
 
         use_case = EarningsReportUseCase(adapter=qual_port, quant_adapter=quant_port)
-        result = use_case.analyse_earnings_report("MSFT", "dummy.pdf")
+        result = await use_case.analyse_earnings_report("MSFT", "dummy.pdf")
 
         assert isinstance(result, EarningsReportResult)
         assert result.ticker.symbol == "MSFT"

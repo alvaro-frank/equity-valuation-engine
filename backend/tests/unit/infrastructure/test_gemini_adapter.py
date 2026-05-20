@@ -13,7 +13,13 @@ class TestGeminiAdapter:
 
     @pytest.fixture
     def mock_client(self, mocker):
-        return mocker.MagicMock()
+        mock = mocker.MagicMock()
+        mock.aio = mocker.MagicMock()
+        mock.aio.models = mocker.MagicMock()
+        mock.aio.models.generate_content = mocker.AsyncMock()
+        mock.aio.files = mocker.MagicMock()
+        mock.aio.files.upload = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def adapter(self, mock_client, tmp_path):
@@ -21,8 +27,9 @@ class TestGeminiAdapter:
         adapter.cache_dir = str(tmp_path)
         return adapter
 
-    def test_analyse_company_happy_path(self, adapter, mock_client):
-        mock_response = mock_client.models.generate_content.return_value
+    @pytest.mark.anyio
+    async def test_analyse_company_happy_path(self, adapter, mock_client):
+        mock_response = mock_client.aio.models.generate_content.return_value
         
         json_ficticio = {
             "business_description": "Tech giant",
@@ -41,7 +48,7 @@ class TestGeminiAdapter:
         }
         mock_response.text = json.dumps(json_ficticio)
 
-        profile = adapter.analyse_company("MSFT")
+        profile = await adapter.analyse_company("MSFT")
 
         assert isinstance(profile, CompanyProfile)
         assert profile.ceo_name == "Satya Nadella"
@@ -50,10 +57,11 @@ class TestGeminiAdapter:
         assert profile.products_services["Azure"] == "Cloud platform"
         assert profile.competitors["AWS"] == "Cloud"
         
-        mock_client.models.generate_content.assert_called_once()
+        mock_client.aio.models.generate_content.assert_called_once()
 
-    def test_analyse_industry_happy_path(self, adapter, mock_client):
-        mock_response = mock_client.models.generate_content.return_value
+    @pytest.mark.anyio
+    async def test_analyse_industry_happy_path(self, adapter, mock_client):
+        mock_response = mock_client.aio.models.generate_content.return_value
         json_ficticio = {
             "sector": "TECHNOLOGY",
             "industry": "SOFTWARE",
@@ -67,26 +75,28 @@ class TestGeminiAdapter:
         }
         mock_response.text = json.dumps(json_ficticio)
 
-        industry_dynamics = adapter.analyse_industry("TECHNOLOGY", "SOFTWARE")
+        industry_dynamics = await adapter.analyse_industry("TECHNOLOGY", "SOFTWARE")
 
         assert isinstance(industry_dynamics, IndustrySectorDynamics)
         assert industry_dynamics.sector == "TECHNOLOGY"
         assert industry_dynamics.rivalry_among_competitors["Intensity"] == "High"
-        mock_client.models.generate_content.assert_called_once()
+        mock_client.aio.models.generate_content.assert_called_once()
 
-    def test_analyse_company_handles_api_failure(self, adapter, mock_client):
-        mock_client.models.generate_content.side_effect = Exception("Gemini server is down 503")
+    @pytest.mark.anyio
+    async def test_analyse_company_handles_api_failure(self, adapter, mock_client):
+        mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
         with pytest.raises(ConnectionError, match="Gemini|Connection Error"):
-            adapter.analyse_company("MSFT")
+            await adapter.analyse_company("MSFT")
             
-        assert mock_client.models.generate_content.call_count == 1
+        assert mock_client.aio.models.generate_content.call_count == 1
 
-    def test_analyse_earnings_report_happy_path(self, adapter, mock_client, mocker):
+    @pytest.mark.anyio
+    async def test_analyse_earnings_report_happy_path(self, adapter, mock_client, mocker):
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
         
-        mock_response = mock_client.models.generate_content.return_value
+        mock_response = mock_client.aio.models.generate_content.return_value
         
         json_earnings = {
             "ticker": "MSFT",
@@ -115,7 +125,7 @@ class TestGeminiAdapter:
 
         mock_open = mocker.patch("builtins.open", mocker.mock_open())
 
-        report = adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
+        report = await adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
 
         assert isinstance(report, EarningsReport)
         assert report.period_end_date == "2026-03-31"
@@ -125,14 +135,15 @@ class TestGeminiAdapter:
         assert report.forward_guidance == "Raise"
         assert "Interest rates" in report.risk_deconstruction.macro_risks
         
-        mock_client.models.generate_content.assert_called_once()
-        mock_client.files.upload.assert_called_once()
+        mock_client.aio.models.generate_content.assert_called_once()
+        mock_client.aio.files.upload.assert_called_once()
 
-    def test_analyse_earnings_report_handles_api_failure(self, adapter, mock_client, mocker):
+    @pytest.mark.anyio
+    async def test_analyse_earnings_report_handles_api_failure(self, adapter, mock_client, mocker):
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
-        mock_client.models.generate_content.side_effect = Exception("Gemini server is down 503")
+        mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
         with pytest.raises(ConnectionError, match="Connection Error"):
-            adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
+            await adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
             
-        assert mock_client.models.generate_content.call_count == 1
+        assert mock_client.aio.models.generate_content.call_count == 1

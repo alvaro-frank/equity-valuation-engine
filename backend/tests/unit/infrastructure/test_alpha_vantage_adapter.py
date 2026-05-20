@@ -1,6 +1,6 @@
 import pytest
 from decimal import Decimal
-from requests.exceptions import RequestException
+import httpx
 
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from domain.entities.entities import Price, Ticker
@@ -9,18 +9,23 @@ class TestAlphaVantageAdapter:
     
     @pytest.fixture(autouse=True)
     def mock_sleep(self, mocker):
-        mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.time.sleep", return_value=None)
+        mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.asyncio.sleep", return_value=None)
 
     @pytest.fixture
     def mock_session(self, mocker):
-        return mocker.MagicMock()
+        mock_client = mocker.MagicMock()
+        mock_client.get = mocker.AsyncMock()
+        return mock_client
 
     @pytest.fixture
-    def adapter(self, mock_session):
-        return AlphaVantageAdapter(api_key="TEST_API_KEY", session=mock_session)
+    def adapter(self, mock_session, tmp_path):
+        adapter = AlphaVantageAdapter(api_key="TEST_API_KEY", client=mock_session)
+        adapter.cache_dir = str(tmp_path)
+        return adapter
 
-    def test_get_ticker_info_happy_path(self, adapter, mock_session):
-        mock_response = mock_session.get.return_value
+    @pytest.mark.anyio
+    async def test_get_ticker_info_happy_path(self, adapter, mock_session, mocker):
+        mock_response = mocker.MagicMock()
         mock_response.json.return_value = {
             "Symbol": "MSFT",
             "Name": "Microsoft Corporation",
@@ -28,8 +33,9 @@ class TestAlphaVantageAdapter:
             "Industry": "SERVICES-PREPACKAGED SOFTWARE"
         }
         mock_response.raise_for_status.return_value = None
+        mock_session.get.return_value = mock_response
 
-        ticker = adapter.get_ticker_info("MSFT")
+        ticker = await adapter.get_ticker_info("MSFT")
 
         assert isinstance(ticker, Ticker)
         assert ticker.symbol == "MSFT"
@@ -41,23 +47,27 @@ class TestAlphaVantageAdapter:
         assert called_kwargs["params"]["symbol"] == "MSFT"
         assert called_kwargs["params"]["apikey"] == "TEST_API_KEY"
 
-    def test_get_stock_current_price_happy_path(self, adapter, mock_session):
-        mock_response = mock_session.get.return_value
+    @pytest.mark.anyio
+    async def test_get_stock_current_price_happy_path(self, adapter, mock_session, mocker):
+        mock_response = mocker.MagicMock()
         mock_response.json.return_value = {
             "Global Quote": {
                 "01. symbol": "MSFT",
                 "05. price": "415.50"
             }
         }
+        mock_response.raise_for_status.return_value = None
+        mock_session.get.return_value = mock_response
         
-        price = adapter.get_stock_current_price("MSFT")
+        price = await adapter.get_stock_current_price("MSFT")
         
         assert isinstance(price, Price)
         assert price.amount == Decimal("415.50")
         assert price.currency == "USD"
 
-    def test_get_historical_prices_happy_path(self, adapter, mock_session):
-        mock_response = mock_session.get.return_value
+    @pytest.mark.anyio
+    async def test_get_historical_prices_happy_path(self, adapter, mock_session, mocker):
+        mock_response = mocker.MagicMock()
         mock_response.json.return_value = {
             "Meta Data": {
                 "1. Information": "Monthly Prices (open, high, low, close) and Volumes",
@@ -80,8 +90,10 @@ class TestAlphaVantageAdapter:
                 }
             }
         }
+        mock_response.raise_for_status.return_value = None
+        mock_session.get.return_value = mock_response
         
-        prices = adapter.get_historical_prices("MSFT")
+        prices = await adapter.get_historical_prices("MSFT")
         
         assert isinstance(prices, dict)
         assert len(prices) == 2
@@ -99,20 +111,24 @@ class TestAlphaVantageAdapter:
         assert called_kwargs["params"]["function"] == "TIME_SERIES_MONTHLY"
         assert called_kwargs["params"]["symbol"] == "MSFT"
 
-    def test_get_data_handles_network_failure(self, adapter, mock_session):
-        mock_session.get.side_effect = RequestException("Timeout error")
+    @pytest.mark.anyio
+    async def test_get_data_handles_network_failure(self, adapter, mock_session):
+        mock_session.get.side_effect = httpx.HTTPError("Timeout error")
         
         with pytest.raises(ConnectionError, match="Connection Error: Timeout error"):
-            adapter.get_ticker_info("MSFT")
+            await adapter.get_ticker_info("MSFT")
 
     @pytest.mark.parametrize("api_error_response, expected_match", [
-        ({"Information": "Rate limit exceeded..."}, "Rate Limit \(Speed\)"),
-        ({"Note": "Daily limit reached..."}, "Rate Limit \(Daily\)"),
+        ({"Information": "Rate limit exceeded..."}, "Rate Limit \\(Speed\\)"),
+        ({"Note": "Daily limit reached..."}, "Rate Limit \\(Daily\\)"),
         ({"Error Message": "Invalid API call..."}, "API Error"),
     ])
-    def test_get_data_handles_api_rate_limits_and_errors(self, adapter, mock_session, api_error_response, expected_match):
-        mock_response = mock_session.get.return_value
+    @pytest.mark.anyio
+    async def test_get_data_handles_api_rate_limits_and_errors(self, adapter, mock_session, mocker, api_error_response, expected_match):
+        mock_response = mocker.MagicMock()
         mock_response.json.return_value = api_error_response
+        mock_response.raise_for_status.return_value = None
+        mock_session.get.return_value = mock_response
         
         with pytest.raises(Exception, match=expected_match):
-            adapter.get_ticker_info("MSFT")
+            await adapter.get_ticker_info("MSFT")

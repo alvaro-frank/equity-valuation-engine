@@ -9,11 +9,15 @@ class TestQualitativeValuationUseCase:
 
     @pytest.fixture
     def mock_qual_adapter(self, mocker):
-        return mocker.Mock()
+        mock = mocker.MagicMock()
+        mock.analyse_company = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def mock_quant_adapter(self, mocker):
-        return mocker.Mock()
+        mock = mocker.MagicMock()
+        mock.get_ticker_info = mocker.AsyncMock()
+        return mock
 
     @pytest.fixture
     def use_case(self, mock_qual_adapter, mock_quant_adapter):
@@ -22,7 +26,8 @@ class TestQualitativeValuationUseCase:
             quant_adapter=mock_quant_adapter
         )
 
-    def test_analyse_ticker_happy_path(self, use_case, mock_qual_adapter, mock_quant_adapter):
+    @pytest.mark.anyio
+    async def test_analyse_ticker_happy_path(self, use_case, mock_qual_adapter, mock_quant_adapter):
         mock_quant_adapter.get_ticker_info.return_value = Ticker(
             symbol="MSFT", name="Microsoft", sector="Tech", industry="Software"
         )
@@ -43,7 +48,7 @@ class TestQualitativeValuationUseCase:
             historical_context_crises="None"
         )
 
-        result = use_case.analyse_ticker("MSFT")
+        result = await use_case.analyse_ticker("MSFT")
 
         assert isinstance(result, QualitativeValuationResult)
         assert result.ticker.symbol == "MSFT"
@@ -52,8 +57,9 @@ class TestQualitativeValuationUseCase:
         mock_quant_adapter.get_ticker_info.assert_called_once_with("MSFT")
         mock_qual_adapter.analyse_company.assert_called_once_with(symbol="MSFT")
 
-    def test_analyse_ticker_propagates_adapter_errors(self, use_case, mock_quant_adapter):
+    @pytest.mark.anyio
+    async def test_analyse_ticker_propagates_adapter_errors(self, use_case, mock_quant_adapter):
         mock_quant_adapter.get_ticker_info.side_effect = ConnectionError("API Limit")
 
         with pytest.raises(ConnectionError, match="API Limit"):
-            use_case.analyse_ticker("MSFT")
+            await use_case.analyse_ticker("MSFT")
