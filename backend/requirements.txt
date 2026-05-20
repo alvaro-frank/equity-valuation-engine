@@ -1,7 +1,7 @@
 python-dotenv
-requests-cache
 pytest
 pytest-mock
+anyio
 yfinance
 pydantic
 google-genai
