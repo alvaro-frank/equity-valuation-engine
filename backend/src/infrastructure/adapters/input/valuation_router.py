@@ -26,7 +26,7 @@ router = APIRouter(
 )
 
 @router.get("/earnings/{ticker}", response_model=EarningsReportResult)
-def analyse_earnings_report(
+async def analyse_earnings_report(
     ticker: str,
     pdf_path: str = Query(..., description="Path to the Earnings Report PDF file"),
     use_case: EarningsReportUseCase = Depends(get_earnings_report_use_case)
@@ -39,13 +39,13 @@ def analyse_earnings_report(
         raise HTTPException(status_code=404, detail=f"PDF file not found at: {pdf_path}")
         
     try:
-        result = use_case.analyse_earnings_report(ticker.upper(), pdf_path)
+        result = await use_case.analyse_earnings_report(ticker.upper(), pdf_path)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/quantitative/{ticker}", response_model=QuantitativeValuationResult)
-def analyse_quantitative(
+async def analyse_quantitative(
     ticker: str,
     years: int = Query(10, description="Number of years of historical data to retrieve"),
     use_case: QuantitativeValuationUseCase = Depends(get_quantitative_use_case)
@@ -55,13 +55,13 @@ def analyse_quantitative(
     Returns a structured DTO with quantitative metrics and CAGRs.
     """
     try:
-        result = use_case.evaluate_ticker(ticker.upper(), years)
+        result = await use_case.evaluate_ticker(ticker.upper(), years)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/qualitative/{ticker}", response_model=QualitativeValuationResult)
-def analyse_qualitative(
+async def analyse_qualitative(
     ticker: str,
     use_case: QualitativeValuationUseCase = Depends(get_qualitative_use_case)
 ):
@@ -70,13 +70,13 @@ def analyse_qualitative(
     Returns a structured DTO representing the company profile.
     """
     try:
-        result = use_case.analyse_ticker(ticker.upper())
+        result = await use_case.analyse_ticker(ticker.upper())
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/sector/{ticker}", response_model=SectorIndustrialValuationResult)
-def analyse_sector(
+async def analyse_sector(
     ticker: str,
     use_case: SectorIndustrialValuationUseCase = Depends(get_sector_use_case)
 ):
@@ -85,7 +85,7 @@ def analyse_sector(
     Returns a structured DTO with the industry structural analysis.
     """
     try:
-        result = use_case.evaluate_industry_by_ticker(ticker.upper())
+        result = await use_case.evaluate_industry_by_ticker(ticker.upper())
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
