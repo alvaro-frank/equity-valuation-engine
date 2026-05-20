@@ -14,7 +14,7 @@ class QualitativeValuationAdapter:
         """
         self.service = service
 
-    def run(self, ticker_symbol: str):
+    async def run(self, ticker_symbol: str):
         """
         Main method to run the qualitative valuation process for a given ticker.
 
@@ -25,7 +25,7 @@ class QualitativeValuationAdapter:
             None: This method creates the QualitativeValuationResult.
         """
         try:
-            analysis_dto = self.service.analyse_ticker(ticker_symbol)
+            analysis_dto = await self.service.analyse_ticker(ticker_symbol)
 
             self._display_qualitative_report(analysis_dto)
 

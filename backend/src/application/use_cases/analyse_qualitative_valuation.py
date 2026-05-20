@@ -15,7 +15,7 @@ class QualitativeValuationUseCase:
         self.adapter = adapter
         self.quant_adapter = quant_adapter
         
-    def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationResult:
+    async def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationResult:
         """
         Fetches the ticker information, such as business name, sector and industry
         
@@ -25,9 +25,9 @@ class QualitativeValuationUseCase:
         Returns:
             QualitativeValuationResult: a DTO containing all information about the Qualitative data of the business.
         """
-        ticker_info = self.quant_adapter.get_ticker_info(ticker_symbol)
+        ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
-        qual_data: CompanyProfile = self.adapter.analyse_company(
+        qual_data: CompanyProfile = await self.adapter.analyse_company(
             symbol=ticker_info.symbol
         )
         

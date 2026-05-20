@@ -14,7 +14,7 @@ class EarningsReportUseCase:
         self.adapter = adapter
         self.quant_adapter = quant_adapter
 
-    def analyse_earnings_report(self, ticker_symbol: str, pdf_file_path: str) -> EarningsReportResult:
+    async def analyse_earnings_report(self, ticker_symbol: str, pdf_file_path: str) -> EarningsReportResult:
         """
         Analyses the earnings report of a company for a specific fiscal period (either a year or a quarter)
         
@@ -25,9 +25,9 @@ class EarningsReportUseCase:
         Returns:
             EarningsReportResult: DTO containing the data given the PDF file
         """
-        er = self.adapter.analyse_earnings_report(ticker_symbol, pdf_file_path)
+        er = await self.adapter.analyse_earnings_report(ticker_symbol, pdf_file_path)
 
-        ticker_info = self.quant_adapter.get_ticker_info(ticker_symbol)
+        ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
         ticker_dto = TickerResult(
             symbol=ticker_symbol,

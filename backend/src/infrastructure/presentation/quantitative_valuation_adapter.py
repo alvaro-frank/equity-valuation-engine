@@ -14,7 +14,7 @@ class QuantitativeValuationAdapter:
         """
         self.service = service
 
-    def run(self, ticker_symbol: str, years: int = 10):
+    async def run(self, ticker_symbol: str, years: int = 10):
         """
         Main method to run the quantitative valuation process for a given ticker and number of years.
         
@@ -26,7 +26,7 @@ class QuantitativeValuationAdapter:
             None: This method creates the QuantitativeValuationResult.
         """
         try:
-            dto = self.service.evaluate_ticker(ticker_symbol, years)
+            dto = await self.service.evaluate_ticker(ticker_symbol, years)
 
             self._display_results(dto)
 

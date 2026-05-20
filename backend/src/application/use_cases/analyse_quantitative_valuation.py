@@ -16,7 +16,7 @@ class QuantitativeValuationUseCase:
         """
         self.adapter = adapter
         
-    def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> QuantitativeValuationResult:
+    async def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> QuantitativeValuationResult:
         """
         Performs a full quantitative evaluation of a stock by fetching its data and analyzing 
         core financial metrics over a rolling window of years.
@@ -29,8 +29,8 @@ class QuantitativeValuationUseCase:
         Returns:
             QuantitativeValuationResult: a DTO containing all information about the Quantitative data of the business.
         """
-        ticker = self.adapter.get_ticker_info(ticker_symbol)
-        financial_years = self.adapter.get_stock_fundamental_data(ticker_symbol)
+        ticker = await self.adapter.get_ticker_info(ticker_symbol)
+        financial_years = await self.adapter.get_stock_fundamental_data(ticker_symbol)
         
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending"]

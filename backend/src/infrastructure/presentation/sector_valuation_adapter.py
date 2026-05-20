@@ -15,7 +15,7 @@ class SectorValuationAdapter:
         """
         self.service = service
 
-    def run(self, ticker_symbol: str):
+    async def run(self, ticker_symbol: str):
         """
         Executes the industry analysis process for a given ticker symbol.
 
@@ -28,7 +28,7 @@ class SectorValuationAdapter:
         print(f"\nPerforming Industry Dynamics Analysis for {ticker_symbol}...")
         
         try:
-            analysis_dto = self.service.evaluate_industry_by_ticker(ticker_symbol)
+            analysis_dto = await self.service.evaluate_industry_by_ticker(ticker_symbol)
             self._display_industry_report(analysis_dto)
 
         except Exception as e:

@@ -1,5 +1,6 @@
 import sys
 import os
+import asyncio
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -14,7 +15,7 @@ from infrastructure.presentation.sector_valuation_adapter import SectorValuation
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from infrastructure.presentation.earnings_report_adapter import EarningsReportAdapter
 
-def main():
+async def main():
     ticker = "META"
     years_of_history = 10
     pdf_path = os.path.join(os.path.dirname(__file__), "test_data", "Meta-03-31-2026-Exhibit-99-1_final.pdf")
@@ -40,17 +41,17 @@ def main():
     print(f"{'='*80}")
     
     # Sector/Industry Analysis
-    sector_controller.run(ticker)
+    await sector_controller.run(ticker)
     # Qualitative Analysis
-    qual_controller.run(ticker)
+    await qual_controller.run(ticker)
     # Quantitative Analysis
-    quant_controller.run(ticker, years=years_of_history)
+    await quant_controller.run(ticker, years=years_of_history)
     # Earnings Report Analysis
-    earnings_controller.run(ticker, pdf_path)
+    await earnings_controller.run(ticker, pdf_path)
     
     print(f"{'='*80}")
     print("ANALYSIS COMPLETE")
     print(f"{'='*80}")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -14,7 +14,7 @@ class EarningsReportAdapter:
         """
         self.service = service
 
-    def run(self, ticker_symbol: str, pdf_file_path: str):
+    async def run(self, ticker_symbol: str, pdf_file_path: str):
         """
         Main method to run the earnings report valuation process.
         
@@ -23,7 +23,7 @@ class EarningsReportAdapter:
             pdf_file_path (str): The path to the PDF file.
         """
         try:
-            dto = self.service.analyse_earnings_report(ticker_symbol, pdf_file_path)
+            dto = await self.service.analyse_earnings_report(ticker_symbol, pdf_file_path)
             self._display_results(dto)
         except Exception as e:
             print(f"Error analyzing earnings report: {e}")
