@@ -4,6 +4,7 @@ pytest-mock
 anyio
 yfinance
 pydantic
+pydantic-settings
 google-genai
 fastapi
 uvicorn
