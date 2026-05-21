@@ -24,11 +24,10 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         """
         Initializes the adapter, setting up the API key and cache directory.
         """
-        raw_key = api_key or os.getenv("ALPHA_VANTAGE_API_KEY")
-        if not raw_key:
-            raise ValueError("Alpha Vantage API Key not found in .env")
+        if not api_key:
+            raise ValueError("Alpha Vantage API Key is required")
         
-        self.api_key = raw_key.strip()
+        self.api_key = api_key.strip()
         self.client = client
 
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))

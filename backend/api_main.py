@@ -24,5 +24,7 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
-    print("Starting FastAPI server...")
-    uvicorn.run("api_main:app", host="0.0.0.0", port=8000, reload=True)
+    from infrastructure.config.settings import settings
+    
+    print(f"Starting FastAPI server on {settings.host}:{settings.port}...")
+    uvicorn.run("api_main:app", host=settings.host, port=settings.port, reload=True)

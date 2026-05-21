@@ -20,11 +20,17 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
     It transforms raw company and industry queries into structured Domain Entities 
     by enforcing a strict JSON schema via system prompting.
     """
-    def __init__(self, client: Optional[genai.Client] = None):
+    def __init__(self, api_key: Optional[str] = None, client: Optional[genai.Client] = None):
         """
-        Initializes the Gemini client using the API key from environment variables.
+        Initializes the Gemini client.
         """
-        self.client = client or genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        if client:
+            self.client = client
+        else:
+            if not api_key:
+                raise ValueError("Gemini API Key is required")
+            self.client = genai.Client(api_key=api_key)
+            
         self.model_id = 'gemini-2.5-flash'
         
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))

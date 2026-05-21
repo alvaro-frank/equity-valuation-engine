@@ -5,14 +5,15 @@ from application.use_cases.analyse_qualitative_valuation import QualitativeValua
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
+from infrastructure.config.settings import settings
 
 # In a real production environment, these adapters can be maintained as global variables (Singletons)
 # or constructed per request, depending on whether they store state (ex: DB sessions).
 # As ours do not store heavy state and httpx/requests handle the pools internally,
 # instantiating them here is not a problem, but we can optimize later.
 
-_alpha_adapter = AlphaVantageAdapter()
-_gemini_adapter = GeminiAdapter()
+_alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
+_gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key)
 
 def get_alpha_vantage_adapter() -> AlphaVantageAdapter:
     """

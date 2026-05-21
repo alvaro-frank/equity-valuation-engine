@@ -14,6 +14,7 @@ from infrastructure.presentation.qualitative_valuation_adapter import Qualitativ
 from infrastructure.presentation.sector_valuation_adapter import SectorValuationAdapter
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from infrastructure.presentation.earnings_report_adapter import EarningsReportAdapter
+from infrastructure.config.settings import settings
 
 async def main():
     ticker = "META"
@@ -21,8 +22,8 @@ async def main():
     pdf_path = os.path.join(os.path.dirname(__file__), "test_data", "Meta-03-31-2026-Exhibit-99-1_final.pdf")
     
     # Adapters
-    alpha_vantage_adapter = AlphaVantageAdapter()
-    gemini_adapter = GeminiAdapter()
+    alpha_vantage_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
+    gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key)
     
     #Use Cases
     sector_service = SectorIndustrialValuationUseCase(quant_port=alpha_vantage_adapter, sector_industrial_port=gemini_adapter)
