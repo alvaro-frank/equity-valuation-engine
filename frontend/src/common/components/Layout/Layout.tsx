@@ -17,7 +17,7 @@ export function Layout({ children, onSearch, activeTicker }: LayoutProps) {
   };
 
   return (
-    <div className="font-body-base text-body-base selection:bg-primary/30 min-h-screen">
+    <div className="font-body-base text-body-base selection:bg-primary/30 min-h-screen flex flex-col">
       {/* TopAppBar */}
       <header className="bg-surface-dim dark:bg-surface-dim flex justify-between items-center w-full px-container h-10 z-50 fixed top-0 border-b border-outline-variant">
         <div className="flex items-center gap-4 h-full">
