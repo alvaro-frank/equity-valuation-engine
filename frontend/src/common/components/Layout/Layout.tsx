@@ -3,14 +3,16 @@ import React, { ReactNode } from 'react';
 interface LayoutProps {
   children: ReactNode;
   onSearch: (ticker: string) => void;
+  activeTicker?: string;
 }
 
-export function Layout({ children, onSearch }: LayoutProps) {
+export function Layout({ children, onSearch, activeTicker }: LayoutProps) {
   const [searchTerm, setSearchTerm] = React.useState('MSFT');
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
       onSearch(searchTerm.toUpperCase());
+      setSearchTerm('');
     }
   };
 
@@ -19,7 +21,7 @@ export function Layout({ children, onSearch }: LayoutProps) {
       {/* TopAppBar */}
       <header className="bg-surface-dim dark:bg-surface-dim flex justify-between items-center w-full px-container h-10 z-50 fixed top-0 border-b border-outline-variant">
         <div className="flex items-center gap-4 h-full">
-          <span className="font-header-sm text-header-sm font-bold text-primary dark:text-primary">Equity Intel</span>
+          <span className="font-header-sm text-header-sm font-bold text-primary dark:text-primary ml-4">Equity Valuation Engine</span>
           <div className="flex items-center bg-surface-container-high rounded border border-outline-variant px-2 h-7 ml-4">
             <span className="material-symbols-outlined text-[16px] text-outline mr-2">search</span>
             <input 
@@ -33,7 +35,7 @@ export function Layout({ children, onSearch }: LayoutProps) {
               onClick={handleSearch}
               className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded ml-2 hover:opacity-90 active:opacity-80 transition-opacity"
             >
-              ANALISAR
+              ANALYSE
             </button>
           </div>
         </div>
@@ -53,10 +55,11 @@ export function Layout({ children, onSearch }: LayoutProps) {
       <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-10 h-[calc(100vh-40px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-40 group">
         <div className="px-4 py-2 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm shrink-0">M</div>
+            <div className="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm shrink-0">
+              {activeTicker ? activeTicker[0] : 'T'}
+            </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap">
-              <p className="font-header-sm text-header-sm font-bold text-on-surface">{searchTerm || 'TICKER'}</p>
-              <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Analysis Mode</p>
+              <p className="font-header-sm text-header-sm font-bold text-on-surface">{activeTicker || 'TICKER'}</p>
             </div>
           </div>
         </div>

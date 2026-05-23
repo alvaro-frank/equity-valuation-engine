@@ -6,7 +6,7 @@ function App() {
   const [ticker, setTicker] = useState<string>('MSFT');
 
   return (
-    <Layout onSearch={(newTicker) => setTicker(newTicker)}>
+    <Layout activeTicker={ticker} onSearch={(newTicker) => setTicker(newTicker)}>
       <Dashboard ticker={ticker} />
     </Layout>
   )
