@@ -8,6 +8,7 @@ from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
 from domain.entities.entities import Price, FinancialYear, Ticker
+from domain.exceptions import TickerNotFoundError, RateLimitExceededError
 from application.ports.ports import QuantitativeDataPort
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years
 
@@ -82,13 +83,13 @@ class AlphaVantageAdapter(QuantitativeDataPort):
             data = response.json()
             
             if "Information" in data:
-                raise ConnectionError(f"Rate Limit (Speed): {data['Information']}")
+                raise RateLimitExceededError(f"Rate Limit (Speed): {data['Information']}")
             
             if "Note" in data:
-                 raise ConnectionError("Rate Limit (Daily): 25 requests/day reached.")
+                 raise RateLimitExceededError("Rate Limit (Daily): 25 requests/day reached.")
                  
             if "Error Message" in data:
-                raise ValueError(f"API Error: {data['Error Message']}")
+                raise TickerNotFoundError(f"API Error: {data['Error Message']}")
             
             try:
                 with open(cache_path, 'w', encoding='utf-8') as f:
@@ -116,8 +117,8 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         data = await self._get_data("GLOBAL_QUOTE", symbol)
         quote = data.get("Global Quote")
         
-        if not quote:
-            raise ValueError(f"Price data not found for {symbol}")
+        if not quote or not quote.get("05. price"):
+            raise TickerNotFoundError(f"Price data not found for {symbol}")
             
         price_str = quote.get("05. price")
         return Price(amount=Decimal(price_str), currency="USD")

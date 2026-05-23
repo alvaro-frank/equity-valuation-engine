@@ -5,6 +5,7 @@ from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
+from domain.exceptions import TickerNotFoundError, RateLimitExceededError
 
 from infrastructure.adapters.input.dependencies import (
     get_earnings_report_use_case,
@@ -57,6 +58,10 @@ async def analyse_quantitative(
     try:
         result = await use_case.evaluate_ticker(ticker.upper(), years)
         return result
+    except TickerNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RateLimitExceededError as e:
+        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -72,6 +77,10 @@ async def analyse_qualitative(
     try:
         result = await use_case.analyse_ticker(ticker.upper())
         return result
+    except TickerNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RateLimitExceededError as e:
+        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -87,5 +96,9 @@ async def analyse_sector(
     try:
         result = await use_case.evaluate_industry_by_ticker(ticker.upper())
         return result
+    except TickerNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RateLimitExceededError as e:
+        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
