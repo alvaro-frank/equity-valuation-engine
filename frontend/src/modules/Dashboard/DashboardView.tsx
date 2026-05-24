@@ -1,5 +1,7 @@
 import React from 'react';
 import { MetricCard } from './components/MetricCard';
+import { RevenueChart } from './components/Charts/RevenueChart';
+import { MarginChart } from './components/Charts/MarginChart';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
 interface DashboardViewProps {
@@ -123,6 +125,12 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Section 3: Charts */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-panel-gap">
+        <RevenueChart quantData={quantData} />
+        <MarginChart quantData={quantData} />
       </section>
     </div>
   );
