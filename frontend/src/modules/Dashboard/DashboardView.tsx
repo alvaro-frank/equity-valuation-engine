@@ -113,15 +113,15 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
           <div className="px-4 py-3 border-b border-outline-variant">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">Leadership &amp; Macro</h3>
           </div>
-          <div className="p-4 flex-1 space-y-6">
-            <div className="flex items-center gap-4">
+          <div className="p-4 flex-1 flex flex-col space-y-6">
+            <div className="flex items-center gap-4 shrink-0">
               <div>
                 <p className="text-on-surface font-semibold line-clamp-1">{qualData?.ceo_name || 'Unknown'}</p>
                 <p className="text-on-surface-variant text-[11px] uppercase tracking-tighter">Chief Executive Officer</p>
               </div>
             </div>
-            <div className="mt-4">
-              <p className="text-body-sm text-on-surface-variant line-clamp-5" title={qualData?.management_insights}>{qualData?.management_insights || 'Analyzing leadership...'}</p>
+            <div className="mt-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
+              <p className="text-body-sm text-on-surface-variant leading-relaxed" title={qualData?.management_insights}>{qualData?.management_insights || 'Analyzing leadership...'}</p>
             </div>
           </div>
         </div>
