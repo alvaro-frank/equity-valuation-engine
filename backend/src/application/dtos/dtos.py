@@ -18,6 +18,10 @@ class TickerResult(BaseModel):
     name: Optional[str] = Field(None, description="Company name")
     sector: Optional[str] = Field("Unknown", description="Sector of the company")
     industry: Optional[str] = Field("Unknown", description="Industry of the company")
+    market_cap: Optional[Decimal] = Field(None, description="Live Market Capitalization")
+    pe_ratio: Optional[Decimal] = Field(None, description="Live Price-to-Earnings Ratio")
+    forward_pe: Optional[Decimal] = Field(None, description="Forward Price-to-Earnings Ratio")
+    current_price: Optional[Decimal] = Field(None, description="Live Stock Price")
 
 class MetricYearlyResult(BaseModel):
     """
@@ -31,6 +35,19 @@ class MetricYearlyResult(BaseModel):
     
     date: str = Field(..., description="Fiscal year end date")
     value: Decimal | None = Field(..., description="Value of the metric for the year")
+
+class MetricQuarterlyResult(BaseModel):
+    """
+    Data Transfer Object representing the value of a specific financial metric for a given fiscal quarter.
+    
+    Attributes:
+        date (str): The fiscal quarter end date.
+        value (Decimal): The value of the metric for that quarter.
+    """
+    model_config = ConfigDict(frozen=True)
+    
+    date: str = Field(..., description="Fiscal quarter end date")
+    value: Decimal | None = Field(..., description="Value of the metric for the quarter")
     
 class MetricAnalysisResult(BaseModel):
     """
@@ -54,11 +71,13 @@ class QuantitativeValuationResult(BaseModel):
     Attributes:
         ticker (TickerResult): Ticker information of the stock.
         metrics (Dict[str, MetricAnalysisResult]): A dictionary where the key is the metric name and the value is the analysis of that metric across years.
+        quarterly_metrics (Dict[str, List[MetricQuarterlyResult]]): A dictionary where the key is the metric name and the value is a list of quarterly results.
     """
     model_config = ConfigDict(frozen=True)
     
-    ticker: TickerResult = Field(..., description="Ticker information")
-    metrics: Dict[str, MetricAnalysisResult] = Field(..., description="Dictionary of metric analyses by metric name")
+    ticker: TickerResult = Field(..., description="Ticker metadata and live pricing")
+    metrics: Dict[str, MetricAnalysisResult] = Field(..., description="Detailed yearly analysis per metric")
+    quarterly_metrics: Optional[Dict[str, List[MetricQuarterlyResult]]] = Field(default_factory=dict, description="Detailed quarterly data per metric")
 
 class QualitativeValuationResult(BaseModel):
     """
