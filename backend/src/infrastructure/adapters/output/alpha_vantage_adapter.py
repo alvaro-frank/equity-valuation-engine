@@ -7,14 +7,14 @@ from decimal import Decimal
 from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
-from domain.entities.entities import Price, FinancialYear, Ticker
+from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from domain.exceptions import TickerNotFoundError, RateLimitExceededError
-from application.ports.ports import QuantitativeDataPort
-from infrastructure.mappers.mapper_financial_years import map_to_financial_years
+from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort
+from infrastructure.mappers.mapper_financial_years import map_to_financial_years, map_to_financial_quarters
 
 load_dotenv()
 
-class AlphaVantageAdapter(QuantitativeDataPort):
+class AlphaVantageAdapter(QuantitativeDataPort, QuarterlyDataPort):
     """
     Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataPort interface.
     This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
@@ -194,9 +194,51 @@ class AlphaVantageAdapter(QuantitativeDataPort):
         """
         data = await self._get_data("OVERVIEW", symbol)
         
+        if not data or "Symbol" not in data:
+            raise TickerNotFoundError(f"Ticker information not found for {symbol}")
+            
+        mc_raw = data.get("MarketCapitalization")
+        pe_raw = data.get("PERatio")
+        fpe_raw = data.get("ForwardPE")
+        
+        market_cap = Decimal(mc_raw) if mc_raw and mc_raw != "None" else None
+        pe_ratio = Decimal(pe_raw) if pe_raw and pe_raw != "None" else None
+        
+        try:
+            forward_pe = Decimal(fpe_raw) if fpe_raw and fpe_raw not in ["None", "-"] else None
+        except Exception:
+            forward_pe = None
+            
         return Ticker(
-            symbol=symbol,
+            symbol=data.get("Symbol", symbol),
             name=data.get("Name"),
-            sector=data.get("Sector"),
-            industry=data.get("Industry")
+            sector=data.get("Sector", "Unknown"),
+            industry=data.get("Industry", "Unknown"),
+            market_cap=market_cap,
+            pe_ratio=pe_ratio,
+            forward_pe=forward_pe
         )
+
+    async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
+        """
+        Fetches the fundamental financial data for a given stock ticker symbol from Alpha Vantage.
+        Uses the quarterlyReports array.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch fundamental data for.
+            
+        Returns:
+            List[FinancialQuarter]: List containing the fundamental stock data for each Financial Quarter.
+        """
+        income_stmt = await self._get_data("INCOME_STATEMENT", symbol)
+        balance_sheet = await self._get_data("BALANCE_SHEET", symbol)
+        cash_flow = await self._get_data("CASH_FLOW", symbol)
+
+        income_data = income_stmt.get("quarterlyReports", [])
+        balance_data = balance_sheet.get("quarterlyReports", [])
+        cash_data = cash_flow.get("quarterlyReports", [])
+
+        historical_prices = await self.get_historical_prices(symbol)
+        
+        financial_quarters = map_to_financial_quarters(income_data, balance_data, cash_data, historical_prices)
+        return financial_quarters[:5]
