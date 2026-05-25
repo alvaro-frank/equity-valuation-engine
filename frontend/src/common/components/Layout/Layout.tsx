@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { CompanyLogo } from '../CompanyLogo';
 
 interface LayoutProps {
   children: ReactNode;
@@ -7,12 +8,34 @@ interface LayoutProps {
 }
 
 export function Layout({ children, onSearch, activeTicker }: LayoutProps) {
-  const [searchTerm, setSearchTerm] = React.useState('MSFT');
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchHistory, setSearchHistory] = React.useState<string[]>([]);
+  const [showHistory, setShowHistory] = React.useState(false);
 
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      onSearch(searchTerm.toUpperCase());
+  React.useEffect(() => {
+    const history = localStorage.getItem('searchHistory');
+    if (history) {
+      try {
+        setSearchHistory(JSON.parse(history));
+      } catch (e) {
+        // ignore JSON parse error
+      }
+    }
+  }, []);
+
+  const saveToHistory = (term: string) => {
+    const newHistory = [term, ...searchHistory.filter(t => t !== term)].slice(0, 5);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+
+  const handleSearch = (termToSearch: string = searchTerm) => {
+    if (termToSearch.trim()) {
+      const upperTerm = termToSearch.toUpperCase();
+      onSearch(upperTerm);
+      saveToHistory(upperTerm);
       setSearchTerm('');
+      setShowHistory(false);
     }
   };
 
@@ -22,21 +45,55 @@ export function Layout({ children, onSearch, activeTicker }: LayoutProps) {
       <header className="bg-surface-dim dark:bg-surface-dim flex justify-between items-center w-full px-container h-10 z-50 fixed top-0 border-b border-outline-variant">
         <div className="flex items-center gap-4 h-full">
           <span className="font-header-sm text-header-sm font-bold text-primary dark:text-primary ml-4">Equity Valuation Engine</span>
-          <div className="flex items-center bg-surface-container-high rounded border border-outline-variant px-2 h-7 ml-4">
-            <span className="material-symbols-outlined text-[16px] text-outline mr-2">search</span>
-            <input 
-              className="bg-transparent border-none text-data-mono text-body-sm focus:ring-0 p-0 w-24 outline-none text-on-surface" 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button 
-              onClick={handleSearch}
-              className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded ml-2 hover:opacity-90 active:opacity-80 transition-opacity"
-            >
-              ANALYSE
-            </button>
+          <div className="relative">
+            <div className="flex items-center bg-surface-container-high rounded border border-outline-variant px-2 h-7 ml-4">
+              <span className="material-symbols-outlined text-[16px] text-outline mr-2">search</span>
+              <input 
+                className="bg-transparent border-none text-data-mono text-body-sm focus:ring-0 p-0 w-24 outline-none text-on-surface" 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onFocus={() => setShowHistory(true)}
+                onBlur={() => setTimeout(() => setShowHistory(false), 200)}
+              />
+              <button 
+                onClick={() => handleSearch()}
+                className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded ml-2 hover:opacity-90 active:opacity-80 transition-opacity"
+              >
+                ANALYSE
+              </button>
+            </div>
+
+            {showHistory && searchHistory.length > 0 && (
+              <div className="absolute top-8 left-4 min-w-[200px] bg-surface-container-high border border-outline-variant rounded shadow-lg overflow-hidden z-50">
+                <div className="px-3 py-1.5 text-[10px] font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant flex justify-between items-center">
+                  <span>RECENT SEARCHES</span>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchHistory([]);
+                      localStorage.removeItem('searchHistory');
+                    }}
+                    className="text-error hover:text-error/80 cursor-pointer transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="flex flex-col">
+                  {searchHistory.map((term) => (
+                    <div 
+                      key={term}
+                      className="px-3 py-2 text-sm text-on-surface hover:bg-surface-container-highest cursor-pointer flex items-center transition-colors"
+                      onClick={() => handleSearch(term)}
+                    >
+                      <span className="material-symbols-outlined text-[14px] text-outline mr-2">history</span>
+                      <span className="font-data-mono">{term}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -55,9 +112,7 @@ export function Layout({ children, onSearch, activeTicker }: LayoutProps) {
       <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-10 h-[calc(100vh-40px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-40 group">
         <div className="px-4 py-2 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm shrink-0">
-              {activeTicker ? activeTicker[0] : 'T'}
-            </div>
+            <CompanyLogo ticker={activeTicker} />
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap">
               <p className="font-header-sm text-header-sm font-bold text-on-surface">{activeTicker || 'TICKER'}</p>
             </div>
