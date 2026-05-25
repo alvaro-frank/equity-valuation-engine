@@ -42,7 +42,7 @@ def get_quantitative_use_case(
     """
     Builds and provides the Quantitative Valuation Use Case via Dependency Injection.
     """
-    return QuantitativeValuationUseCase(adapter=alpha_adapter)
+    return QuantitativeValuationUseCase(adapter=alpha_adapter, quarterly_adapter=alpha_adapter)
 
 def get_qualitative_use_case(
     alpha_adapter: AlphaVantageAdapter = Depends(get_alpha_vantage_adapter),
