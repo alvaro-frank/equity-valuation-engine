@@ -20,6 +20,10 @@ export interface QuantitativeValuationResult {
     name?: string;
     sector?: string;
     industry?: string;
+    market_cap?: number;
+    pe_ratio?: number;
+    forward_pe?: number;
+    current_price?: number;
   };
   metrics: Record<string, MetricSeries>;
 }
