@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuantitativeData, useQualitativeData, useSectorData } from '../Valuation/hooks/useValuationData';
 import { DashboardView } from './DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
+import { DashboardSkeleton } from './components/DashboardSkeleton';
 
 interface DashboardProps {
   ticker: string;
@@ -25,8 +26,8 @@ export function Dashboard({ ticker }: DashboardProps) {
   // In a real scenario, we could show a global spinner if both are loading
   if (isLoadingQuant || isLoadingQual) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="animate-in fade-in duration-500 min-h-[50vh]">
+        <DashboardSkeleton />
       </div>
     );
   }
