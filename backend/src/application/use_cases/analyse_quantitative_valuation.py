@@ -1,20 +1,26 @@
-from application.ports.ports import QuantitativeDataPort
-from domain.entities.entities import FinancialYear
-from application.dtos.dtos import TickerResult, MetricYearlyResult, MetricAnalysisResult, QuantitativeValuationResult
+from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort
+from domain.entities.entities import FinancialYear, FinancialQuarter
+from application.dtos.dtos import TickerResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from dataclasses import fields
 from decimal import Decimal
 from typing import List
+import asyncio
 
 class QuantitativeValuationUseCase:
     """
     Service responsible for performing stock quantitative valuation analysis based on the provided stock data, including financial metrics across multiple fiscal years.
     This service takes in a List of Financial Years, analyses the financial metrics for a specified number of recent years, and returns a DTO containing all information about the Quantitative data of the business.
     """
-    def __init__(self, adapter: QuantitativeDataPort):
+    def __init__(self, adapter: QuantitativeDataPort, quarterly_adapter: QuarterlyDataPort = None):
         """
         Initializes the QuantitativeValuationUseCase with the QuantitativeDataPort to fetch fundamental business data.
+        
+        Args:
+            adapter (QuantitativeDataPort): The adapter for yearly financial data.
+            quarterly_adapter (QuarterlyDataPort, optional): The adapter for quarterly financial data.
         """
         self.adapter = adapter
+        self.quarterly_adapter = quarterly_adapter
         
     async def evaluate_ticker(self, ticker_symbol: str, years: int = 5) -> QuantitativeValuationResult:
         """
@@ -29,9 +35,23 @@ class QuantitativeValuationUseCase:
         Returns:
             QuantitativeValuationResult: a DTO containing all information about the Quantitative data of the business.
         """
-        ticker = await self.adapter.get_ticker_info(ticker_symbol)
-        financial_years = await self.adapter.get_stock_fundamental_data(ticker_symbol)
+        import dataclasses
+        ticker, current_price_obj = await asyncio.gather(
+            self.adapter.get_ticker_info(ticker_symbol),
+            self.adapter.get_stock_current_price(ticker_symbol)
+        )
+        ticker = dataclasses.replace(ticker, current_price=current_price_obj.amount)
         
+        # Concurrently fetch yearly and quarterly data
+        if self.quarterly_adapter:
+            financial_years, financial_quarters = await asyncio.gather(
+                self.adapter.get_stock_fundamental_data(ticker_symbol),
+                self.quarterly_adapter.get_stock_quarterly_data(ticker_symbol)
+            )
+        else:
+            financial_years = await self.adapter.get_stock_fundamental_data(ticker_symbol)
+            financial_quarters = []
+            
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending"]
         
@@ -47,7 +67,11 @@ class QuantitativeValuationUseCase:
             symbol=ticker.symbol,
             name=ticker.name,
             sector=ticker.sector,
-            industry=ticker.industry
+            industry=ticker.industry,
+            market_cap=ticker.market_cap,
+            pe_ratio=ticker.pe_ratio,
+            forward_pe=ticker.forward_pe,
+            current_price=ticker.current_price
         )
         
         metrics_dtos = {}
@@ -70,7 +94,20 @@ class QuantitativeValuationUseCase:
                 cagr=cagr
             )
 
-        return QuantitativeValuationResult(ticker=ticker_dto, metrics=metrics_dtos)
+        quarterly_metrics_dtos = {}
+        if financial_quarters:
+            for metric in metrics_to_analyse:
+                quarterly_dtos = []
+                for fq in financial_quarters:
+                    val = getattr(fq, metric)
+                    quarterly_dtos.append(MetricQuarterlyResult(date=fq.fiscal_date_ending, value=val))
+                quarterly_metrics_dtos[metric] = quarterly_dtos
+
+        return QuantitativeValuationResult(
+            ticker=ticker_dto, 
+            metrics=metrics_dtos,
+            quarterly_metrics=quarterly_metrics_dtos
+        )
     
     @staticmethod
     def calculate_cagr(values: List[Decimal]) -> Decimal | None:
