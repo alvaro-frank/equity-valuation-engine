@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 interface CompanyLogoProps {
   ticker?: string;
   className?: string;
+  fallbackLetter?: string;
 }
 
-export function CompanyLogo({ ticker, className = "w-8 h-8" }: CompanyLogoProps) {
+export function CompanyLogo({ ticker, className = "w-8 h-8", fallbackLetter }: CompanyLogoProps) {
   const [hasError, setHasError] = useState(false);
 
   // Reset error state when ticker changes
@@ -17,9 +18,10 @@ export function CompanyLogo({ ticker, className = "w-8 h-8" }: CompanyLogoProps)
   const token = import.meta.env.VITE_LOGODEV_API_KEY || 'pk_your_publishable_key';
   
   if (!ticker || hasError) {
+    const letter = fallbackLetter || (ticker ? ticker[0].toUpperCase() : 'T');
     return (
-      <div className={`${className} rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm shrink-0`}>
-        {ticker ? ticker[0].toUpperCase() : 'T'}
+      <div className={`flex items-center justify-center bg-surface-container-highest text-on-surface rounded-md font-bold shrink-0 border border-outline-variant shadow-sm ${className}`}>
+        {letter}
       </div>
     );
   }
@@ -27,12 +29,14 @@ export function CompanyLogo({ ticker, className = "w-8 h-8" }: CompanyLogoProps)
   const imgUrl = `https://img.logo.dev/ticker/${ticker}?token=${token}`;
 
   return (
-    <img 
-      src={imgUrl} 
-      alt={`${ticker} logo`}
-      title={`${ticker} logo`}
-      className={`${className} rounded object-cover shrink-0 bg-white`}
-      onError={() => setHasError(true)}
-    />
+    <div className={`flex items-center justify-center bg-white rounded-md overflow-hidden shrink-0 border border-outline-variant shadow-sm ${className}`}>
+      <img 
+        src={imgUrl} 
+        alt={`${ticker} logo`}
+        title={`${ticker} logo`}
+        className="w-full h-full object-cover"
+        onError={() => setHasError(true)}
+      />
+    </div>
   );
 }
