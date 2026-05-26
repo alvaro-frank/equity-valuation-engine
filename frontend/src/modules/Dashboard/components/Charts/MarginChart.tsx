@@ -161,7 +161,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Margin Evolution
+              Annual Margin Evolution
             </h3>
             <button 
               onClick={() => setIsQuarterly(true)}
@@ -179,7 +179,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Quarterly Margin
+              Quarterly Margin Evolution
             </h3>
             <button 
               onClick={() => setIsQuarterly(false)}
