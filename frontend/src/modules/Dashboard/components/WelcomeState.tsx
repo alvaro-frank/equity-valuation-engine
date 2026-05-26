@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { CompanyLogo } from '../../../common/components/CompanyLogo';
+import { useSearchHistory } from '../../../common/hooks/useSearchHistory';
 
 interface WelcomeStateProps {
   onSearch: (ticker: string) => void;
@@ -6,31 +8,21 @@ interface WelcomeStateProps {
 
 export function WelcomeState({ onSearch }: WelcomeStateProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const { history: searchHistory, addSearch, clearHistory } = useSearchHistory();
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   React.useEffect(() => {
-    const history = localStorage.getItem('searchHistory');
-    if (history) {
-      try {
-        setSearchHistory(JSON.parse(history));
-      } catch (e) {
-        // ignore
-      }
+    if (!showHistory) {
+      setSelectedIndex(-1);
     }
-  }, []);
+  }, [showHistory]);
 
-  const saveToHistory = (term: string) => {
-    const newHistory = [term, ...searchHistory.filter(t => t !== term)].slice(0, 5);
-    setSearchHistory(newHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-  };
-
-  const handleSearch = (e?: React.FormEvent, termToSearch: string = searchTerm) => {
+  const handleSearch = (e?: React.FormEvent, termToSearch: string = searchTerm, nameToSearch?: string) => {
     if (e) e.preventDefault();
     if (termToSearch.trim()) {
       const upperTerm = termToSearch.trim().toUpperCase();
-      saveToHistory(upperTerm);
+      addSearch(upperTerm, nameToSearch);
       onSearch(upperTerm);
     }
   };
@@ -73,9 +65,27 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
           placeholder="Search for a ticker (e.g. MSFT)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setSelectedIndex(prev => (prev < searchHistory.length - 1 ? prev + 1 : prev));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setSelectedIndex(prev => (prev > -1 ? prev - 1 : -1));
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              if (selectedIndex >= 0 && selectedIndex < searchHistory.length) {
+                handleSearch(undefined, searchHistory[selectedIndex].ticker, searchHistory[selectedIndex].name);
+              } else {
+                handleSearch(e);
+              }
+            } else if (e.key === 'Escape') {
+              setShowHistory(false);
+              setSelectedIndex(-1);
+            }
+          }}
           onFocus={() => setShowHistory(true)}
           onBlur={() => setTimeout(() => setShowHistory(false), 200)}
-          autoFocus
         />
         <button
           type="button"
@@ -93,10 +103,10 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
               <span>RECENT SEARCHES</span>
               <button 
                 type="button"
-                onClick={(e) => {
+                onMouseDown={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
-                  setSearchHistory([]);
-                  localStorage.removeItem('searchHistory');
+                  clearHistory();
                 }}
                 className="text-error hover:text-error/80 cursor-pointer transition-colors"
               >
@@ -104,14 +114,22 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
               </button>
             </div>
             <div className="flex flex-col">
-              {searchHistory.map((term) => (
+              {searchHistory.map((item, index) => (
                 <div 
-                  key={term}
-                  className="px-4 py-3 text-base text-on-surface hover:bg-surface-container-highest cursor-pointer flex items-center transition-colors"
-                  onClick={() => handleSearch(undefined, term)}
+                  key={item.ticker}
+                  className={`px-4 py-3 text-base text-on-surface cursor-pointer flex items-center transition-colors ${index === selectedIndex ? 'bg-surface-container-highest' : 'hover:bg-surface-container-highest'}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSearch(undefined, item.ticker, item.name);
+                  }}
+                  onMouseEnter={() => setSelectedIndex(index)}
                 >
                   <span className="material-symbols-outlined text-[18px] text-outline mr-3">history</span>
-                  <span className="font-data-mono font-medium">{term}</span>
+                  <div className="flex items-center gap-2">
+                    <CompanyLogo ticker={item.ticker} className="w-6 h-6 text-xs" fallbackLetter={item.ticker[0]} />
+                    <span className="font-data-mono font-medium">{item.ticker}</span>
+                    {item.name && <span className="text-on-surface-variant text-sm ml-1">- {item.name}</span>}
+                  </div>
                 </div>
               ))}
             </div>
@@ -128,7 +146,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
           {suggestedTickers.map((ticker) => (
             <button
               key={ticker.symbol}
-              onClick={() => onSearch(ticker.symbol)}
+              onClick={() => handleSearch(undefined, ticker.symbol, ticker.name)}
               className="flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant hover:border-primary hover:bg-surface-container-high rounded-full transition-all group"
             >
               <span className="font-bold text-primary">{ticker.symbol}</span>
