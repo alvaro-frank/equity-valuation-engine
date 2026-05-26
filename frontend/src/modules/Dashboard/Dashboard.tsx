@@ -3,6 +3,7 @@ import { useQuantitativeData, useQualitativeData, useSectorData } from '../Valua
 import { DashboardView } from './DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
+import { useSearchHistory } from '../../common/hooks/useSearchHistory';
 
 interface DashboardProps {
   ticker: string;
@@ -22,6 +23,14 @@ export function Dashboard({ ticker }: DashboardProps) {
     error: errorQual,
     refetch: refetchQual
   } = useQualitativeData(ticker);
+
+  const { updateSearchName } = useSearchHistory();
+
+  React.useEffect(() => {
+    if (qualData?.ticker?.name) {
+      updateSearchName(ticker, qualData.ticker.name);
+    }
+  }, [qualData?.ticker?.name, ticker]);
 
   // In a real scenario, we could show a global spinner if both are loading
   if (isLoadingQuant || isLoadingQual) {
