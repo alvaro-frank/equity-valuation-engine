@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function DashboardSkeleton() {
   return (
     <div className="max-w-[1600px] mx-auto space-y-panel-gap animate-pulse">

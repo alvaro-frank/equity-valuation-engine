@@ -1,0 +1,178 @@
+
+import { SearchHistoryItem } from '@/common/components/SearchHistoryItem';
+import { SearchResultItem } from '@/common/components/SearchResultItem';
+import { useSearchBox } from '@/common/hooks/useSearchBox';
+
+interface WelcomeStateProps {
+  onSearch: (ticker: string) => void;
+}
+
+export function WelcomeState({ onSearch }: WelcomeStateProps) {
+  const {
+    searchTerm,
+    setSearchTerm,
+    showHistory,
+    selectedIndex,
+    setSelectedIndex,
+    searchResults,
+    filteredHistory,
+    isSearchingAPI: isFetching,
+    isSearchDisabled,
+    handleSearch,
+    handleKeyDown,
+    handleFocus,
+    handleBlur,
+    clearHistory
+  } = useSearchBox(onSearch);
+
+  const suggestedTickers = [
+    { symbol: 'AAPL', name: 'Apple Inc.' },
+    { symbol: 'MSFT', name: 'Microsoft Corp.' },
+    { symbol: 'NVDA', name: 'NVIDIA Corp.' },
+    { symbol: 'TSLA', name: 'Tesla Inc.' },
+    { symbol: 'AMZN', name: 'Amazon.com' },
+  ];
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] max-w-2xl mx-auto w-full px-4 animate-fade-in">
+      
+      {/* Brand & Logo */}
+      <div className="flex items-center gap-3 mb-8">
+        <span className="material-symbols-outlined text-5xl text-primary drop-shadow-[0_0_15px_rgba(var(--color-primary),0.3)]">
+          monitoring
+        </span>
+        <h1 className="font-display-lg text-4xl font-bold tracking-tight text-on-surface">
+          Equity Valuation Engine
+        </h1>
+      </div>
+
+      <p className="text-on-surface-variant text-body-lg mb-8 text-center max-w-lg">
+        Professional-grade fundamental analysis and automated valuation modeling for public equities.
+      </p>
+
+      {/* Main Search Bar */}
+      <form onSubmit={() => handleSearch(searchTerm)} className="w-full relative group z-50">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <span className="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors text-2xl">
+            search
+          </span>
+        </div>
+        <input
+          type="text"
+          className="w-full bg-surface-container-high border border-outline-variant rounded-full py-4 pl-12 pr-24 text-on-surface text-body-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-lg transition-all"
+          placeholder="Search for a ticker (e.g. MSFT)"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        <button
+          type="button"
+          onClick={() => handleSearch()}
+          disabled={isSearchDisabled}
+          className="absolute inset-y-2 right-2 px-6 bg-primary text-on-primary font-bold rounded-full hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ANALYSE
+        </button>
+
+        {/* History / Search Dropdown */}
+        {showHistory && (searchTerm.trim().length > 0 || filteredHistory.length > 0) ? (
+          <div className="absolute top-[110%] left-0 w-full bg-surface-container-high border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            {searchTerm.trim().length > 0 ? (
+              // Search Results rendering
+              <>
+                <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant uppercase tracking-wider flex justify-between items-center">
+                  <span>SEARCH RESULTS</span>
+                  {isFetching && <span className="material-symbols-outlined animate-spin text-[14px]">refresh</span>}
+                </div>
+                <div className="flex flex-col max-h-[300px] overflow-y-auto">
+                  {searchResults && searchResults.length > 0 ? (
+                    searchResults.map((item, index) => (
+                      <SearchResultItem
+                        key={item.symbol}
+                        symbol={item.symbol}
+                        name={item.name}
+                        exchange={item.exchange}
+                        isSelected={index === selectedIndex}
+                        onSelect={() => handleSearch(item.symbol, item.name)}
+                        onHover={() => setSelectedIndex(index)}
+                        className="px-4 py-3"
+                      />
+                    ))
+                  ) : (
+                    <div className="px-4 py-4 text-sm text-on-surface-variant flex items-center gap-2">
+                      {isFetching ? (
+                        <>
+                          <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
+                          Searching tickers...
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-[16px]">search_off</span>
+                          No tickers found matching "{searchTerm}"
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              // Recent Searches rendering
+              <>
+                <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant flex justify-between items-center">
+                  <span>RECENT SEARCHES</span>
+                  <button 
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      clearHistory();
+                    }}
+                    className="text-error hover:text-error/80 cursor-pointer transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="flex flex-col max-h-[300px] overflow-y-auto">
+                  {filteredHistory.map((item, index) => (
+                    <SearchHistoryItem
+                      key={item.ticker}
+                      ticker={item.ticker}
+                      name={item.name}
+                      isSelected={index === selectedIndex}
+                      onSelect={() => handleSearch(item.ticker, item.name)}
+                      onHover={() => setSelectedIndex(index)}
+                      className="px-4 py-3 text-base"
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        ) : null}
+      </form>
+
+      {/* Suggested Tickers */}
+      <div className="mt-12 w-full">
+        <p className="text-on-surface-variant font-label-caps text-label-caps mb-4 text-center">
+          TRENDING TICKERS
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          {suggestedTickers.map((ticker) => (
+            <button
+              key={ticker.symbol}
+              onClick={() => handleSearch(ticker.symbol, ticker.name)}
+              className="flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant hover:border-primary hover:bg-surface-container-high rounded-full transition-all group"
+            >
+              <span className="font-bold text-primary">{ticker.symbol}</span>
+              <span className="text-on-surface-variant text-sm group-hover:text-on-surface transition-colors">
+                {ticker.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
