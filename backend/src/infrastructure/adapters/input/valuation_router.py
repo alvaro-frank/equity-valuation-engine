@@ -18,13 +18,56 @@ from application.dtos.dtos import (
     EarningsReportResult,
     QuantitativeValuationResult,
     QualitativeValuationResult,
-    SectorIndustrialValuationResult
+    SectorIndustrialValuationResult,
+    TickerSearchResponse,
+    TickerSearchResult
 )
+import httpx
 
 router = APIRouter(
     prefix="/api/v1/valuation",
     tags=["Valuation"]
 )
+
+@router.get("/search", response_model=TickerSearchResponse)
+async def search_ticker(
+    q: str = Query(..., description="Search query for ticker or company name")
+):
+    """
+    Searches for a ticker or company name using Yahoo Finance autocomplete API.
+    """
+    if not q or len(q) < 1:
+        return TickerSearchResponse(results=[])
+        
+    url = f"https://query2.finance.yahoo.com/v1/finance/search?q={q}"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, timeout=5.0)
+            
+            if response.status_code != 200:
+                return TickerSearchResponse(results=[])
+                
+            data = response.json()
+            quotes = data.get("quotes", [])
+            
+            # Filter for Equity types and extract relevant fields
+            results = []
+            for quote in quotes:
+                if quote.get("quoteType") == "EQUITY":
+                    results.append(TickerSearchResult(
+                        symbol=quote.get("symbol", ""),
+                        name=quote.get("shortname", quote.get("longname", "")),
+                        exchange=quote.get("exchDisp", "")
+                    ))
+                    if len(results) >= 6: # limit to 6 results
+                        break
+                        
+            return TickerSearchResponse(results=results)
+    except Exception as e:
+        # Silently fail for autocomplete
+        return TickerSearchResponse(results=[])
 
 @router.get("/earnings/{ticker}", response_model=EarningsReportResult)
 async def analyse_earnings_report(

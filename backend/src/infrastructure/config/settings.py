@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     # Optional Server Configs
     host: str = Field("0.0.0.0", validation_alias="HOST")
     port: int = Field(8000, validation_alias="PORT")
+    data_provider: str = Field("YFINANCE", validation_alias="DATA_PROVIDER")
     
     model_config = SettingsConfigDict(
         env_file=".env",
