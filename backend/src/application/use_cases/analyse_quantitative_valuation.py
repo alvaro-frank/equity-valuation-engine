@@ -71,7 +71,9 @@ class QuantitativeValuationUseCase:
             market_cap=ticker.market_cap,
             pe_ratio=ticker.pe_ratio,
             forward_pe=ticker.forward_pe,
-            current_price=ticker.current_price
+            current_price=ticker.current_price,
+            regular_market_change=ticker.regular_market_change,
+            regular_market_change_percent=ticker.regular_market_change_percent
         )
         
         metrics_dtos = {}
