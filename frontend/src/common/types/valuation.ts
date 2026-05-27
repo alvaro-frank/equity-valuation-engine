@@ -24,8 +24,11 @@ export interface QuantitativeValuationResult {
     pe_ratio?: number;
     forward_pe?: number;
     current_price?: number;
+    regular_market_change?: number;
+    regular_market_change_percent?: number;
   };
   metrics: Record<string, MetricSeries>;
+  quarterly_metrics?: Record<string, BaseMetric[]>;
 }
 
 export interface QualitativeValuationResult {

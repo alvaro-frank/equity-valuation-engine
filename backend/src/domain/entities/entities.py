@@ -44,6 +44,8 @@ class Ticker:
     pe_ratio: Decimal | None = None
     forward_pe: Decimal | None = None
     current_price: Decimal | None = None
+    regular_market_change: Decimal | None = None
+    regular_market_change_percent: Decimal | None = None
         
     def __str__(self):
         return f"{self.symbol} - {self.name} ({self.sector}/{self.industry})"

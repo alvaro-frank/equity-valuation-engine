@@ -2,6 +2,14 @@ from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Optional, Dict, List
 
+class TickerSearchResult(BaseModel):
+    symbol: str = Field(..., description="Ticker symbol")
+    name: str = Field(..., description="Company name")
+    exchange: str = Field(..., description="Exchange name")
+
+class TickerSearchResponse(BaseModel):
+    results: List[TickerSearchResult] = Field(..., description="List of search results")
+
 class TickerResult(BaseModel):
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.
@@ -22,6 +30,8 @@ class TickerResult(BaseModel):
     pe_ratio: Optional[Decimal] = Field(None, description="Live Price-to-Earnings Ratio")
     forward_pe: Optional[Decimal] = Field(None, description="Forward Price-to-Earnings Ratio")
     current_price: Optional[Decimal] = Field(None, description="Live Stock Price")
+    regular_market_change: Optional[Decimal] = Field(None, description="Live Market Price Change")
+    regular_market_change_percent: Optional[Decimal] = Field(None, description="Live Market Price Change Percentage")
 
 class MetricYearlyResult(BaseModel):
     """
