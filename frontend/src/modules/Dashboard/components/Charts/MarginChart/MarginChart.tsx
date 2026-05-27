@@ -97,7 +97,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
     }
 
     return (
-      <ResponsiveContainer width="99%" height="100%">
+      <ResponsiveContainer width="99%" height="100%" debounce={300}>
         <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#32353c" vertical={false} />
           <XAxis 
@@ -119,7 +119,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
             cursor={{ stroke: '#424754', strokeWidth: 1, strokeDasharray: '3 3' }}
             contentStyle={{ backgroundColor: '#10131a', borderColor: '#424754', color: '#e1e2ec' }}
             itemStyle={{ color: '#e1e2ec' }}
-            formatter={(value: number | string | Array<number | string>, name: string | number) => [formatPercent(Number(value)), String(name)]}
+            formatter={(value: unknown, name: unknown) => [formatPercent(Number(value)), String(name)]}
             labelStyle={{ color: '#8c909f', marginBottom: '4px' }}
           />
           <Legend 
@@ -130,9 +130,9 @@ export function MarginChart({ quantData }: MarginChartProps) {
             type="monotone" 
             dataKey="grossMargin" 
             name="GROSS MARGIN" 
-            stroke="#2e7d32"
+            stroke="#a9bad3"
             strokeWidth={2}
-            dot={{ r: 3, fill: '#2e7d32', strokeWidth: 0 }}
+            dot={{ r: 3, fill: '#a9bad3', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
           />
           <Line 

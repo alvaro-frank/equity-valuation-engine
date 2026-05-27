@@ -8,12 +8,14 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from 'recharts';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
 
 interface RevenueDataPoint {
   label: string;
   revenue: number;
+  operatingIncome: number;
   netIncome: number;
 }
 
@@ -28,6 +30,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
     if (!quantData || !quantData.metrics) return [];
 
     const revenueSeries = quantData.metrics['revenue']?.yearly_data || [];
+    const opIncomeSeries = quantData.metrics['operating_income']?.yearly_data || [];
     const netIncomeSeries = quantData.metrics['net_income']?.yearly_data || [];
 
     const sortedRevenue = [...revenueSeries].sort(
@@ -36,6 +39,9 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
 
     return sortedRevenue.map((revItem) => {
       const year = new Date(revItem.date).getFullYear().toString();
+      const opIncomeItem = opIncomeSeries.find(
+        (oi) => new Date(oi.date).getFullYear().toString() === year
+      );
       const netIncomeItem = netIncomeSeries.find(
         (ni) => new Date(ni.date).getFullYear().toString() === year
       );
@@ -43,6 +49,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
       return {
         label: year,
         revenue: Number(revItem.value) / 1e9,
+        operatingIncome: opIncomeItem ? Number(opIncomeItem.value) / 1e9 : 0,
         netIncome: netIncomeItem ? Number(netIncomeItem.value) / 1e9 : 0,
       };
     });
@@ -52,6 +59,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
     if (!quantData || !quantData.quarterly_metrics) return [];
 
     const revenueSeries = quantData.quarterly_metrics['revenue'] || [];
+    const opIncomeSeries = quantData.quarterly_metrics['operating_income'] || [];
     const netIncomeSeries = quantData.quarterly_metrics['net_income'] || [];
 
     const sortedRevenue = [...revenueSeries].sort(
@@ -65,11 +73,13 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
       const yy = d.getFullYear().toString().slice(2);
       const label = `Q${q} ${yy}`;
       
+      const opIncomeItem = opIncomeSeries.find((oi: BaseMetric) => oi.date === revItem.date);
       const netIncomeItem = netIncomeSeries.find((ni: BaseMetric) => ni.date === revItem.date);
 
       return {
         label,
         revenue: Number(revItem.value) / 1e9,
+        operatingIncome: opIncomeItem ? Number(opIncomeItem.value) / 1e9 : 0,
         netIncome: netIncomeItem ? Number(netIncomeItem.value) / 1e9 : 0,
       };
     });
@@ -87,7 +97,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
       );
     }
     return (
-      <ResponsiveContainer width="99%" height="100%">
+      <ResponsiveContainer width="99%" height="100%" debounce={300}>
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#32353c" vertical={false} />
           <XAxis 
@@ -104,20 +114,28 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
             tickLine={false} 
             axisLine={false} 
             tickFormatter={(val) => `${val}B`}
+            domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
           />
           <Tooltip 
             cursor={{ fill: '#272a31' }}
             contentStyle={{ backgroundColor: '#10131a', borderColor: '#424754', color: '#e1e2ec' }}
             itemStyle={{ color: '#e1e2ec' }}
-            formatter={(value: number | string | Array<number | string>, name: string | number) => [formatCurrency(Number(value)), String(name)]}
+            formatter={(value: unknown, name: unknown) => [formatCurrency(Number(value)), String(name)]}
             labelStyle={{ color: '#8c909f', marginBottom: '4px' }}
           />
           <Legend 
             iconType="circle" 
             wrapperStyle={{ fontSize: '11px', color: '#c2c6d6', paddingTop: '10px' }}
           />
-          <Bar dataKey="revenue" name="REVENUE" fill="#4d8eff" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="netIncome" name="NET INCOME" fill="#a9bad3" radius={[2, 2, 0, 0]} />
+          <Bar dataKey="revenue" name="REVENUE" fill="#a9bad3" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="revenue" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          </Bar>
+          <Bar dataKey="operatingIncome" name="OPERATING INCOME" fill="#ed6c02" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="operatingIncome" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          </Bar>
+          <Bar dataKey="netIncome" name="NET INCOME" fill="#0288d1" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="netIncome" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     );
@@ -133,7 +151,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Annual Revenue vs Net Income
+              Annual Revenue vs Income
             </h3>
             <button 
               onClick={() => setIsQuarterly(true)}
@@ -151,7 +169,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Quarterly Revenue vs Net Income
+              Quarterly Revenue vs Income
             </h3>
             <button 
               onClick={() => setIsQuarterly(false)}
