@@ -39,7 +39,9 @@ class Ticker:
     symbol: str
     name: str = ""
     sector: str = "Unknown"
+    sector_key: str | None = None
     industry: str = "Unknown"
+    industry_key: str | None = None
     market_cap: Decimal | None = None
     pe_ratio: Decimal | None = None
     forward_pe: Decimal | None = None

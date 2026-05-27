@@ -107,7 +107,9 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 symbol=info.get("symbol", symbol),
                 name=info.get("longName", info.get("shortName", "")),
                 sector=info.get("sector", "Unknown"),
+                sector_key=info.get("sectorKey"),
                 industry=info.get("industry", "Unknown"),
+                industry_key=info.get("industryKey"),
                 market_cap=market_cap,
                 pe_ratio=pe_ratio,
                 forward_pe=forward_pe,
@@ -344,3 +346,51 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
             return sorted(quarters_data, key=lambda x: x.fiscal_date_ending)
         except Exception as e:
             raise Exception(f"Failed to fetch quarterly data from yfinance: {str(e)}")
+
+    async def get_trending_by_sector(self, sector_key: str) -> List[Dict]:
+        """
+        Fetches the top trending companies for a given sector using yfinance.
+        """
+        try:
+            sector = await asyncio.to_thread(yf.Sector, sector_key)
+            top_companies = await asyncio.to_thread(lambda: sector.top_companies)
+            
+            if top_companies is None or top_companies.empty:
+                return []
+            
+            results = []
+            for symbol, row in top_companies.iterrows():
+                results.append({
+                    "symbol": str(symbol),
+                    "name": str(row.get("name", "")),
+                    "rating": str(row.get("rating", "")) if pd.notna(row.get("rating")) else None,
+                    "weight": float(row.get("market weight", 0.0)) if pd.notna(row.get("market weight")) else None
+                })
+            return results
+        except Exception as e:
+            print(f"Error fetching trending sector {sector_key}: {e}")
+            return []
+
+    async def get_trending_by_industry(self, industry_key: str) -> List[Dict]:
+        """
+        Fetches the top trending companies for a given industry using yfinance.
+        """
+        try:
+            industry = await asyncio.to_thread(yf.Industry, industry_key)
+            top_companies = await asyncio.to_thread(lambda: industry.top_companies)
+            
+            if top_companies is None or top_companies.empty:
+                return []
+            
+            results = []
+            for symbol, row in top_companies.iterrows():
+                results.append({
+                    "symbol": str(symbol),
+                    "name": str(row.get("name", "")),
+                    "rating": str(row.get("rating", "")) if pd.notna(row.get("rating")) else None,
+                    "weight": float(row.get("market weight", 0.0)) if pd.notna(row.get("market weight")) else None
+                })
+            return results
+        except Exception as e:
+            print(f"Error fetching trending industry {industry_key}: {e}")
+            return []

@@ -35,7 +35,9 @@ class QualitativeValuationUseCase:
             symbol=ticker_info.symbol,
             name=ticker_info.name,
             sector=ticker_info.sector,
-            industry=ticker_info.industry
+            sector_key=ticker_info.sector_key,
+            industry=ticker_info.industry,
+            industry_key=ticker_info.industry_key
         )
 
         return QualitativeValuationResult(

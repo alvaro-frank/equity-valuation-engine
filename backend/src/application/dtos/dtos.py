@@ -10,6 +10,15 @@ class TickerSearchResult(BaseModel):
 class TickerSearchResponse(BaseModel):
     results: List[TickerSearchResult] = Field(..., description="List of search results")
 
+class TrendingTickerDTO(BaseModel):
+    symbol: str = Field(..., description="Ticker symbol")
+    name: str = Field(..., description="Company name")
+    rating: Optional[str] = Field(None, description="Analyst rating")
+    weight: Optional[float] = Field(None, description="Market weight in sector/industry")
+
+class TrendingTickersResponse(BaseModel):
+    results: List[TrendingTickerDTO] = Field(..., description="List of trending tickers")
+
 class TickerResult(BaseModel):
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.
@@ -23,10 +32,12 @@ class TickerResult(BaseModel):
     model_config = ConfigDict(frozen=True)
     
     symbol: str = Field(..., description="Ticker symbol")
-    name: Optional[str] = Field(None, description="Company name")
-    sector: Optional[str] = Field("Unknown", description="Sector of the company")
-    industry: Optional[str] = Field("Unknown", description="Industry of the company")
-    market_cap: Optional[Decimal] = Field(None, description="Live Market Capitalization")
+    name: str = Field(..., description="Company name")
+    sector: str = Field(..., description="Company sector")
+    sector_key: Optional[str] = Field(None, description="yfinance sector key")
+    industry: str = Field(..., description="Company industry")
+    industry_key: Optional[str] = Field(None, description="yfinance industry key")
+    market_cap: Optional[Decimal] = Field(None, description="Current market capitalization")
     pe_ratio: Optional[Decimal] = Field(None, description="Live Price-to-Earnings Ratio")
     forward_pe: Optional[Decimal] = Field(None, description="Forward Price-to-Earnings Ratio")
     current_price: Optional[Decimal] = Field(None, description="Live Stock Price")

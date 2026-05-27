@@ -11,6 +11,7 @@ class TestQuantitativeValuationUseCase:
     def mock_quant_adapter(self, mocker):
         mock = mocker.MagicMock()
         mock.get_ticker_info = mocker.AsyncMock()
+        mock.get_stock_current_price = mocker.AsyncMock()
         mock.get_stock_fundamental_data = mocker.AsyncMock()
         return mock
 
@@ -23,6 +24,9 @@ class TestQuantitativeValuationUseCase:
         mock_quant_adapter.get_ticker_info.return_value = Ticker(
             symbol="AAPL", name="Apple", sector="Tech", industry="Hardware"
         )
+        
+        from domain.entities.entities import Price
+        mock_quant_adapter.get_stock_current_price.return_value = Price(amount=Decimal("150.0"), currency="USD")
 
         fy_recent = FinancialYear(
             fiscal_date_ending="2023-12-31", revenue=Decimal("110"), ebitda=Decimal("0"),
