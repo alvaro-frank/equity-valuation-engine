@@ -14,30 +14,29 @@ export interface MetricSeries {
   cagr?: number | null;
 }
 
+export interface TickerResult {
+  symbol: string;
+  name: string;
+  sector: string;
+  sector_key?: string;
+  industry: string;
+  industry_key?: string;
+  market_cap?: number;
+  pe_ratio?: number;
+  forward_pe?: number;
+  current_price?: number;
+  regular_market_change?: number;
+  regular_market_change_percent?: number;
+}
+
 export interface QuantitativeValuationResult {
-  ticker: {
-    symbol: string;
-    name?: string;
-    sector?: string;
-    industry?: string;
-    market_cap?: number;
-    pe_ratio?: number;
-    forward_pe?: number;
-    current_price?: number;
-    regular_market_change?: number;
-    regular_market_change_percent?: number;
-  };
+  ticker: TickerResult;
   metrics: Record<string, MetricSeries>;
   quarterly_metrics?: Record<string, BaseMetric[]>;
 }
 
 export interface QualitativeValuationResult {
-  ticker: {
-    symbol: string;
-    name: string;
-    sector?: string;
-    industry?: string;
-  };
+  ticker: TickerResult;
   business_description: string;
   company_history: string;
   ceo_name: string;

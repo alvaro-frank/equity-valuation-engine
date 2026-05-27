@@ -7,6 +7,7 @@ interface DashboardProps {
   ticker: string;
   isParentError?: boolean;
   onErrorChange?: (hasError: boolean) => void;
+  onSearch?: (ticker: string) => void;
 }
 
 const ERROR_MAP: Record<number | string, { title: string, message: string, icon: string }> = {
@@ -32,7 +33,7 @@ const ERROR_MAP: Record<number | string, { title: string, message: string, icon:
   }
 };
 
-export function Dashboard({ ticker, isParentError, onErrorChange }: DashboardProps) {
+export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: DashboardProps) {
   const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker, isParentError, onErrorChange);
 
   if (isLoading) {
@@ -89,7 +90,8 @@ export function Dashboard({ ticker, isParentError, onErrorChange }: DashboardPro
       <DashboardView 
         ticker={ticker}
         quantData={quantData} 
-        qualData={qualData} 
+        qualData={qualData}
+        onSearch={onSearch}
       />
     </ErrorBoundary>
   );

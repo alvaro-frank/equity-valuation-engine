@@ -2,15 +2,17 @@
 import { MetricCard } from '@/modules/Dashboard/components/MetricCard';
 import { RevenueChart } from '@/modules/Dashboard/components/Charts/RevenueChart';
 import { MarginChart } from '@/modules/Dashboard/components/Charts/MarginChart';
+import { TrendingBadge } from '@/common/components/TrendingBadge';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
 interface DashboardViewProps {
   ticker: string;
   quantData?: QuantitativeValuationResult;
   qualData?: QualitativeValuationResult;
+  onSearch?: (ticker: string) => void;
 }
 
-export function DashboardView({ ticker, quantData, qualData }: DashboardViewProps) {
+export function DashboardView({ ticker, quantData, qualData, onSearch }: DashboardViewProps) {
   // Helper to safely extract the latest value of a metric by key
   const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' = 'number') => {
     if (!quantData || !quantData.metrics) return 'N/A';
@@ -22,6 +24,8 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
     
     // Sort by date descending and get the first one
     const latest = [...series.yearly_data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (latest.value == null) return 'N/A';
+    
     const val = Number(latest.value);
     if (isNaN(val)) return 'N/A';
 
@@ -59,6 +63,8 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
     const series = quantData.metrics[metricKey];
     if (!series || !series.yearly_data || series.yearly_data.length === 0) return null;
     const latest = [...series.yearly_data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (latest.value == null) return null;
+    
     const val = Number(latest.value);
     return isNaN(val) ? null : val;
   };
@@ -85,8 +91,22 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
           <div className="flex items-center gap-3">
             <h1 className="font-display-md text-display-md text-on-surface">{qualData?.ticker?.name || ticker} ({ticker})</h1>
             <div className="flex gap-2">
-              <span className="px-2 py-0.5 rounded bg-surface-container-highest border border-outline-variant text-[10px] font-bold text-primary uppercase">Sector: {qualData?.ticker?.sector || 'Unknown'}</span>
-              <span className="px-2 py-0.5 rounded bg-surface-container-highest border border-outline-variant text-[10px] font-bold text-secondary uppercase">Industry: {qualData?.ticker?.industry || 'Unknown'}</span>
+              <TrendingBadge
+                type="sector"
+                label="Sector"
+                value={qualData?.ticker?.sector || 'Unknown'}
+                queryKey={qualData?.ticker?.sector_key || quantData?.ticker?.sector_key}
+                currentTicker={ticker}
+                onSelectTicker={onSearch || (() => {})}
+              />
+              <TrendingBadge
+                type="industry"
+                label="Industry"
+                value={qualData?.ticker?.industry || 'Unknown'}
+                queryKey={qualData?.ticker?.industry_key || quantData?.ticker?.industry_key}
+                currentTicker={ticker}
+                onSelectTicker={onSearch || (() => {})}
+              />
             </div>
           </div>
         </div>

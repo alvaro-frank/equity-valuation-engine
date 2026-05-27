@@ -12,7 +12,7 @@ function App() {
       {!ticker ? (
         <WelcomeState onSearch={(t) => { setTicker(t); setHasError(false); }} />
       ) : (
-        <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} />
+        <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} onSearch={(t) => { setTicker(t); setHasError(false); }} />
       )}
     </Layout>
   )
