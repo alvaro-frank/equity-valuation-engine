@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Layout } from '@/common/components/Layout';
 import { Dashboard } from '@/modules/Dashboard/Dashboard';
 import { WelcomeState } from '@/modules/Dashboard/components/WelcomeState';
 
 function App() {
   const [ticker, setTicker] = useState<string>('');
+  const [hasError, setHasError] = useState<boolean>(false);
 
   return (
-    <Layout activeTicker={ticker} onSearch={(newTicker) => setTicker(newTicker)}>
+    <Layout activeTicker={ticker} hasError={hasError} onSearch={(newTicker) => { setTicker(newTicker); setHasError(false); }}>
       {!ticker ? (
-        <WelcomeState onSearch={setTicker} />
+        <WelcomeState onSearch={(t) => { setTicker(t); setHasError(false); }} />
       ) : (
-        <Dashboard ticker={ticker} />
+        <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} />
       )}
     </Layout>
   )
