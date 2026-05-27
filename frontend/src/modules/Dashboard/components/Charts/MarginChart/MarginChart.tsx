@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -9,35 +9,49 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import type { QuantitativeValuationResult } from '@/common/types/valuation';
+import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
 
-interface RevenueChartProps {
+interface MarginDataPoint {
+  label: string;
+  grossMargin: number;
+  opMargin: number | null;
+  netMargin: number | null;
+}
+
+interface MarginChartProps {
   quantData?: QuantitativeValuationResult;
 }
 
-export function RevenueChart({ quantData }: RevenueChartProps) {
+export function MarginChart({ quantData }: MarginChartProps) {
   const [isQuarterly, setIsQuarterly] = useState(false);
 
   const annualData = useMemo(() => {
     if (!quantData || !quantData.metrics) return [];
 
-    const revenueSeries = quantData.metrics['revenue']?.yearly_data || [];
-    const netIncomeSeries = quantData.metrics['net_income']?.yearly_data || [];
+    const grossMarginSeries = quantData.metrics['gross_margin']?.yearly_data || [];
+    const opMarginSeries = quantData.metrics['operating_margin']?.yearly_data || [];
+    const netMarginSeries = quantData.metrics['net_margin']?.yearly_data || [];
 
-    const sortedRevenue = [...revenueSeries].sort(
+    const sortedGross = [...grossMarginSeries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    return sortedRevenue.map((revItem) => {
-      const year = new Date(revItem.date).getFullYear().toString();
-      const netIncomeItem = netIncomeSeries.find(
-        (ni) => new Date(ni.date).getFullYear().toString() === year
+    return sortedGross.map((gmItem) => {
+      const year = new Date(gmItem.date).getFullYear().toString();
+      
+      const opItem = opMarginSeries.find(
+        (om) => new Date(om.date).getFullYear().toString() === year
+      );
+      
+      const netItem = netMarginSeries.find(
+        (nm) => new Date(nm.date).getFullYear().toString() === year
       );
 
       return {
         label: year,
-        revenue: Number(revItem.value) / 1e9,
-        netIncome: netIncomeItem ? Number(netIncomeItem.value) / 1e9 : 0,
+        grossMargin: Number(gmItem.value),
+        opMargin: opItem ? Number(opItem.value) : null,
+        netMargin: netItem ? Number(netItem.value) : null,
       };
     });
   }, [quantData]);
@@ -45,34 +59,35 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
   const quarterlyData = useMemo(() => {
     if (!quantData || !quantData.quarterly_metrics) return [];
 
-    const revenueSeries = quantData.quarterly_metrics['revenue'] || [];
-    const netIncomeSeries = quantData.quarterly_metrics['net_income'] || [];
+    const grossMarginSeries = quantData.quarterly_metrics['gross_margin'] || [];
+    const opMarginSeries = quantData.quarterly_metrics['operating_margin'] || [];
+    const netMarginSeries = quantData.quarterly_metrics['net_margin'] || [];
 
-    const sortedRevenue = [...revenueSeries].sort(
+    const sortedGross = [...grossMarginSeries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    return sortedRevenue.map((revItem) => {
-      // Format as Q1 24, Q2 24
-      const d = new Date(revItem.date);
+    return sortedGross.map((gmItem) => {
+      const d = new Date(gmItem.date);
       const q = Math.ceil((d.getMonth() + 1) / 3);
       const yy = d.getFullYear().toString().slice(2);
       const label = `Q${q} ${yy}`;
       
-      const netIncomeItem = netIncomeSeries.find((ni) => ni.date === revItem.date);
+      const opItem = opMarginSeries.find((om: BaseMetric) => om.date === gmItem.date);
+      const netItem = netMarginSeries.find((nm: BaseMetric) => nm.date === gmItem.date);
 
       return {
         label,
-        revenue: Number(revItem.value) / 1e9,
-        netIncome: netIncomeItem ? Number(netIncomeItem.value) / 1e9 : 0,
+        grossMargin: Number(gmItem.value),
+        opMargin: opItem ? Number(opItem.value) : null,
+        netMargin: netItem ? Number(netItem.value) : null,
       };
     });
   }, [quantData]);
 
-  // Custom formatter for the tooltip
-  const formatCurrency = (value: number) => `$${value.toFixed(1)}B`;
+  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
-  const renderChart = (data: any[]) => {
+  const renderChart = (data: MarginDataPoint[]) => {
     if (!data.length) {
       return (
         <div className="h-full flex items-center justify-center text-on-surface-variant">
@@ -80,9 +95,10 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         </div>
       );
     }
+
     return (
       <ResponsiveContainer width="99%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#32353c" vertical={false} />
           <XAxis 
             dataKey="label" 
@@ -90,29 +106,54 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
-            dy={10}
+            dy={5}
           />
           <YAxis 
             stroke="#8c909f" 
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
-            tickFormatter={(val) => `${val}B`}
+            tickFormatter={(val) => `${val}%`}
           />
           <Tooltip 
-            cursor={{ fill: '#272a31' }}
+            cursor={{ stroke: '#424754', strokeWidth: 1, strokeDasharray: '3 3' }}
             contentStyle={{ backgroundColor: '#10131a', borderColor: '#424754', color: '#e1e2ec' }}
             itemStyle={{ color: '#e1e2ec' }}
-            formatter={(value: number, name: string) => [formatCurrency(value), name]}
+            formatter={(value: number | string | Array<number | string>, name: string | number) => [formatPercent(Number(value)), String(name)]}
             labelStyle={{ color: '#8c909f', marginBottom: '4px' }}
           />
           <Legend 
-            iconType="circle" 
+            iconType="plainline" 
             wrapperStyle={{ fontSize: '11px', color: '#c2c6d6', paddingTop: '10px' }}
           />
-          <Bar dataKey="revenue" name="REVENUE" fill="#4d8eff" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="netIncome" name="NET INCOME" fill="#a9bad3" radius={[2, 2, 0, 0]} />
-        </BarChart>
+          <Line 
+            type="monotone" 
+            dataKey="grossMargin" 
+            name="GROSS MARGIN" 
+            stroke="#2e7d32"
+            strokeWidth={2}
+            dot={{ r: 3, fill: '#2e7d32', strokeWidth: 0 }}
+            activeDot={{ r: 5 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="opMargin" 
+            name="OPERATING MARGIN" 
+            stroke="#ed6c02"
+            strokeWidth={2}
+            dot={{ r: 3, fill: '#ed6c02', strokeWidth: 0 }}
+            activeDot={{ r: 5 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="netMargin" 
+            name="NET MARGIN" 
+            stroke="#0288d1"
+            strokeWidth={2}
+            dot={{ r: 3, fill: '#0288d1', strokeWidth: 0 }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
       </ResponsiveContainer>
     );
   };
@@ -127,7 +168,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Annual Revenue vs Net Income
+              Annual Margin Evolution
             </h3>
             <button 
               onClick={() => setIsQuarterly(true)}
@@ -145,7 +186,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Quarterly Revenue vs Net Income
+              Quarterly Margin Evolution
             </h3>
             <button 
               onClick={() => setIsQuarterly(false)}
