@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface CompanyLogoProps {
   ticker?: string;
@@ -9,11 +9,13 @@ interface CompanyLogoProps {
 export function CompanyLogo({ ticker, className = "w-8 h-8", fallbackLetter }: CompanyLogoProps) {
   const [hasError, setHasError] = useState(false);
 
-  // Reset error state when ticker changes
-  useEffect(() => {
+  const [prevTicker, setPrevTicker] = useState(ticker);
+
+  if (ticker !== prevTicker) {
+    setPrevTicker(ticker);
     setHasError(false);
-  }, [ticker]);
-  
+  }
+
   // Read token from environment variables (defaults to a placeholder if not set)
   const token = import.meta.env.VITE_LOGODEV_API_KEY || 'pk_your_publishable_key';
   
