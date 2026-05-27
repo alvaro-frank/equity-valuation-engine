@@ -27,6 +27,12 @@ def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]
         return _yfinance_adapter
     return _alpha_adapter
 
+def get_yfinance_adapter() -> YfinanceAdapter:
+    """
+    Provides the direct YfinanceAdapter instance for specific yfinance endpoints (like trending).
+    """
+    return _yfinance_adapter
+
 def get_gemini_adapter() -> GeminiAdapter:
     """
     Provides the GeminiAdapter instance.

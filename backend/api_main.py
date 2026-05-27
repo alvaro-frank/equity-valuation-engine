@@ -6,6 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from infrastructure.adapters.input.valuation_router import router as valuation_router
+from infrastructure.adapters.input.discovery_router import router as discovery_router
 
 app = FastAPI(
     title="Equity Valuation Engine API",
@@ -14,6 +15,7 @@ app = FastAPI(
 )
 
 app.include_router(valuation_router)
+app.include_router(discovery_router)
 
 @app.get("/", include_in_schema=False)
 def root():

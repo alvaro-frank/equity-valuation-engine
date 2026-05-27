@@ -1,6 +1,7 @@
 python-dotenv
 pytest
 pytest-mock
+pytest-cov
 anyio
 yfinance
 pydantic
