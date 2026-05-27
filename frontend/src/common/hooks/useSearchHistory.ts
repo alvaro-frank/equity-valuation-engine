@@ -13,7 +13,7 @@ export function useSearchHistory() {
     if (saved) {
       try {
         setHistory(JSON.parse(saved));
-      } catch (e) {
+      } catch {
         // ignore
       }
     } else {
@@ -26,7 +26,7 @@ export function useSearchHistory() {
           setHistory(newArr);
           localStorage.setItem('searchHistoryV2', JSON.stringify(newArr));
           localStorage.removeItem('searchHistory'); // Clean up old format after migrating
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
@@ -34,6 +34,7 @@ export function useSearchHistory() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadHistory();
     const handleStorage = () => loadHistory();
     window.addEventListener('searchHistoryUpdated', handleStorage);
@@ -52,7 +53,7 @@ export function useSearchHistory() {
       localStorage.setItem('searchHistoryV2', JSON.stringify(newHistory));
       setHistory(newHistory);
       window.dispatchEvent(new Event('searchHistoryUpdated'));
-    } catch (e) {}
+    } catch { /* ignore */ }
   };
 
   const updateSearchName = (ticker: string, name: string) => {
@@ -67,7 +68,7 @@ export function useSearchHistory() {
       localStorage.setItem('searchHistoryV2', JSON.stringify(newHistory));
       setHistory(newHistory);
       window.dispatchEvent(new Event('searchHistoryUpdated'));
-    } catch (e) {}
+    } catch { /* ignore */ }
   };
 
   const clearHistory = () => {
