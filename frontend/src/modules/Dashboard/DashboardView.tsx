@@ -1,7 +1,7 @@
-import React from 'react';
-import { MetricCard } from './components/MetricCard';
-import { RevenueChart } from './components/Charts/RevenueChart';
-import { MarginChart } from './components/Charts/MarginChart';
+
+import { MetricCard } from '@/modules/Dashboard/components/MetricCard';
+import { RevenueChart } from '@/modules/Dashboard/components/Charts/RevenueChart';
+import { MarginChart } from '@/modules/Dashboard/components/Charts/MarginChart';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
 interface DashboardViewProps {
@@ -90,10 +90,18 @@ export function DashboardView({ ticker, quantData, qualData }: DashboardViewProp
             </div>
           </div>
         </div>
-          <div className="text-right">
-            <div className="flex items-end justify-end gap-2">
-              <span className="font-display-lg text-3xl font-bold text-primary-container">{formatLiveCurrency(quantData?.ticker?.current_price)}</span>
-            </div>
+          <div className="text-right flex flex-col items-end justify-center">
+            <span className="font-display-lg text-3xl font-bold text-primary-container leading-none">{formatLiveCurrency(quantData?.ticker?.current_price)}</span>
+            {quantData?.ticker?.regular_market_change != null ? (
+              <span className={`text-[12px] font-bold mt-1.5 flex items-center gap-0.5 ${quantData.ticker.regular_market_change >= 0 ? 'text-green-500' : 'text-error'}`}>
+                <span className="material-symbols-outlined text-[14px]">
+                  {quantData.ticker.regular_market_change >= 0 ? 'arrow_upward' : 'arrow_downward'}
+                </span>
+                ${Math.abs(quantData.ticker.regular_market_change).toFixed(2)} ({Math.abs(quantData.ticker.regular_market_change_percent || 0).toFixed(2)}%)
+              </span>
+            ) : (
+              <span className="text-on-surface-variant text-[11px] font-medium mt-1 tracking-wide">Live Pricing</span>
+            )}
           </div>
       </div>
 
