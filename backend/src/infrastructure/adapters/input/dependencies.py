@@ -6,9 +6,11 @@ from application.use_cases.analyse_sector_industrial_valuation import SectorIndu
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
+from infrastructure.adapters.output.openrouter_adapter import OpenRouterAdapter
+from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeAdapter
 from infrastructure.config.settings import settings
 from typing import Union
-from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort
+from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort, SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
 
 # In a real production environment, these adapters can be maintained as global variables (Singletons)
 # or constructed per request, depending on whether they store state (ex: DB sessions).
@@ -18,6 +20,8 @@ from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort
 _alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
 _yfinance_adapter = YfinanceAdapter()
 _gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key)
+_openrouter_adapter = OpenRouterAdapter()
+_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_openrouter_adapter)
 
 def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]:
     """
@@ -33,20 +37,20 @@ def get_yfinance_adapter() -> YfinanceAdapter:
     """
     return _yfinance_adapter
 
-def get_gemini_adapter() -> GeminiAdapter:
+def get_llm_adapter() -> Union[SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort]:
     """
-    Provides the GeminiAdapter instance.
+    Provides the Fallback LLM Adapter instance.
     """
-    return _gemini_adapter
+    return _fallback_llm_adapter
 
 def get_earnings_report_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
-    gemini_adapter: GeminiAdapter = Depends(get_gemini_adapter)
+    llm_adapter = Depends(get_llm_adapter)
 ) -> EarningsReportUseCase:
     """
     Builds and provides the Earnings Report Use Case via Dependency Injection.
     """
-    return EarningsReportUseCase(adapter=gemini_adapter, quant_adapter=quant_adapter)
+    return EarningsReportUseCase(adapter=llm_adapter, quant_adapter=quant_adapter)
 
 def get_quantitative_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter)
@@ -58,18 +62,18 @@ def get_quantitative_use_case(
 
 def get_qualitative_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
-    gemini_adapter: GeminiAdapter = Depends(get_gemini_adapter)
+    llm_adapter = Depends(get_llm_adapter)
 ) -> QualitativeValuationUseCase:
     """
     Builds and provides the Qualitative Valuation Use Case via Dependency Injection.
     """
-    return QualitativeValuationUseCase(adapter=gemini_adapter, quant_adapter=quant_adapter)
+    return QualitativeValuationUseCase(adapter=llm_adapter, quant_adapter=quant_adapter)
 
 def get_sector_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
-    gemini_adapter: GeminiAdapter = Depends(get_gemini_adapter)
+    llm_adapter = Depends(get_llm_adapter)
 ) -> SectorIndustrialValuationUseCase:
     """
     Builds and provides the Sector Industrial Valuation Use Case via Dependency Injection.
     """
-    return SectorIndustrialValuationUseCase(quant_port=quant_adapter, sector_industrial_port=gemini_adapter)
+    return SectorIndustrialValuationUseCase(quant_port=quant_adapter, sector_industrial_port=llm_adapter)
