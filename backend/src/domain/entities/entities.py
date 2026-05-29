@@ -258,7 +258,7 @@ class FinancialYear:
         """
         if self.market_cap == Decimal("0"):
             return None
-        fcf = self.operating_cash_flow - self.capital_expenditures
+        fcf = self.operating_cash_flow - abs(self.capital_expenditures)
         return round((fcf / self.market_cap) * 100, 2)
 
 @dataclass(frozen=True)
@@ -456,7 +456,7 @@ class FinancialQuarter:
         """
         if self.market_cap == Decimal("0"):
             return None
-        fcf = self.operating_cash_flow - self.capital_expenditures
+        fcf = self.operating_cash_flow - abs(self.capital_expenditures)
         return round((fcf / self.market_cap) * 100, 2)
 
 @dataclass(frozen=True)
