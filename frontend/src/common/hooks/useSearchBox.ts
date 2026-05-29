@@ -36,6 +36,9 @@ export function useSearchBox(onSearchCallback?: (ticker: string) => void) {
       addSearch(upperTerm, companyName);
       setSearchTerm('');
       setShowHistory(false);
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     }
   };
 
