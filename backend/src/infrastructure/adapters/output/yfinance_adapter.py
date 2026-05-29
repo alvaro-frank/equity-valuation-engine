@@ -160,10 +160,27 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     continue # Skip years with missing data (yfinance usually returns NaNs for the 5th year)
                     
                 gross_profit = get_val(financials, 'Gross Profit')
+                
                 if gross_profit == Decimal("0"):
-                    # Fallback for Service Companies (100% Gross Margin if no COGS)
-                    gross_profit = revenue
+                    # Bank Fallback: If they have Interest Expense and Interest Income, they are a bank
+                    interest_expense = get_val(financials, 'Interest Expense')
+                    interest_income = get_val(financials, 'Interest Income')
+                    if interest_expense > Decimal("0") and interest_income > Decimal("0"):
+                        # For banks, yfinance 'Total Revenue' is actually Net Revenue.
+                        # We add back Interest Expense to get true Gross Revenue
+                        gross_profit = revenue
+                        revenue = revenue + interest_expense
+                    else:
+                        policy_benefits = get_val(financials, 'Net Policyholder Benefits And Claims')
+                        if policy_benefits > Decimal("0"):
+                            gross_profit = revenue - policy_benefits
+                        else:
+                            # Fallback for Service Companies (100% Gross Margin if no COGS)
+                            gross_profit = revenue
+                        
                 operating_income = get_val(financials, 'Operating Income')
+                if operating_income == Decimal("0"):
+                    operating_income = get_val(financials, 'Pretax Income')
                 net_income = get_val(financials, 'Net Income')
                 if net_income == Decimal("0"):
                     net_income = get_val(financials, 'Net Income Common Stockholders')
@@ -197,7 +214,8 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     price_hist = ticker.history(start=hist_start.strftime("%Y-%m-%d"), end=hist_end.strftime("%Y-%m-%d"))
                     if not price_hist.empty:
                         # Find the closest date before or on the fiscal date
-                        valid_prices = price_hist[price_hist.index <= date]
+                        comp_date = pd.to_datetime(date).tz_localize(None)
+                        valid_prices = price_hist[price_hist.index.tz_localize(None) <= comp_date]
                         if not valid_prices.empty:
                             close_val = valid_prices.iloc[-1]['Close']
                             if pd.notna(close_val):
@@ -274,10 +292,25 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     continue # Skip quarters with missing data
                     
                 gross_profit = get_val(financials, 'Gross Profit')
+
                 if gross_profit == Decimal("0"):
-                    # Fallback for Service Companies
-                    gross_profit = revenue
+                    # Bank Fallback
+                    interest_expense = get_val(financials, 'Interest Expense')
+                    interest_income = get_val(financials, 'Interest Income')
+                    if interest_expense > Decimal("0") and interest_income > Decimal("0"):
+                        gross_profit = revenue
+                        revenue = revenue + interest_expense
+                    else:
+                        policy_benefits = get_val(financials, 'Net Policyholder Benefits And Claims')
+                        if policy_benefits > Decimal("0"):
+                            gross_profit = revenue - policy_benefits
+                        else:
+                            # Fallback for Service Companies
+                            gross_profit = revenue
+                        
                 operating_income = get_val(financials, 'Operating Income')
+                if operating_income == Decimal("0"):
+                    operating_income = get_val(financials, 'Pretax Income')
                 net_income = get_val(financials, 'Net Income')
                 if net_income == Decimal("0"):
                     net_income = get_val(financials, 'Net Income Common Stockholders')
@@ -311,7 +344,8 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     price_hist = ticker.history(start=hist_start.strftime("%Y-%m-%d"), end=hist_end.strftime("%Y-%m-%d"))
                     if not price_hist.empty:
                         # Find the closest date before or on the fiscal date
-                        valid_prices = price_hist[price_hist.index <= date]
+                        comp_date = pd.to_datetime(date).tz_localize(None)
+                        valid_prices = price_hist[price_hist.index.tz_localize(None) <= comp_date]
                         if not valid_prices.empty:
                             close_val = valid_prices.iloc[-1]['Close']
                             if pd.notna(close_val):
