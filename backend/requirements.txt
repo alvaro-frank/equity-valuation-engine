@@ -11,3 +11,5 @@ fastapi
 uvicorn
 httpx
 pandas
+openai
+pymupdf4llm1
