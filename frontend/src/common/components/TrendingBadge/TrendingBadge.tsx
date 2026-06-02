@@ -13,8 +13,11 @@ interface TrendingBadgeProps {
 
 export function TrendingBadge({ label, value, type, queryKey, currentTicker, onSelectTicker }: TrendingBadgeProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, error } = useTrendingTickers(isOpen ? type : null, queryKey || null);
+
+  const displayData = data ? data.filter((item) => item.symbol !== currentTicker) : [];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -38,11 +41,34 @@ export function TrendingBadge({ label, value, type, queryKey, currentTicker, onS
 
   const handleSelect = (ticker: string) => {
     setIsOpen(false);
+    setSelectedIndex(-1);
     onSelectTicker(ticker);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen) return;
+    const maxIndex = displayData.length - 1;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < maxIndex ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex <= maxIndex) {
+        handleSelect(displayData[selectedIndex].symbol);
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+      setSelectedIndex(-1);
+    }
+  };
+
   return (
-    <div className="relative inline-block" ref={containerRef}>
+    <div className="relative inline-block" ref={containerRef} onKeyDown={handleKeyDown}>
       <button 
         onClick={handleToggle}
         disabled={!queryKey}
@@ -82,16 +108,14 @@ export function TrendingBadge({ label, value, type, queryKey, currentTicker, onS
               </div>
             )}
 
-            {data
-              .filter((item) => item.symbol !== currentTicker)
-              .map((item) => (
+            {displayData.map((item, index) => (
               <SearchResultItem
                 key={item.symbol}
                 symbol={item.symbol}
                 name={item.name}
-                isSelected={false}
+                isSelected={index === selectedIndex}
                 onSelect={() => handleSelect(item.symbol)}
-                onHover={() => {}}
+                onHover={() => setSelectedIndex(index)}
               />
             ))}
           </div>
