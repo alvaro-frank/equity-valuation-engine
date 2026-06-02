@@ -13,3 +13,4 @@ httpx
 pandas
 openai
 pymupdf4llm1
+python-multipartpython-multipart

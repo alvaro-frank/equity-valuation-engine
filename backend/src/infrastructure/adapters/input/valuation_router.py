@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
 import os
 
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
@@ -69,24 +69,39 @@ async def search_ticker(
         # Silently fail for autocomplete
         return TickerSearchResponse(results=[])
 
-@router.get("/earnings/{ticker}", response_model=EarningsReportResult)
+@router.post("/earnings/{ticker}", response_model=EarningsReportResult)
 async def analyse_earnings_report(
     ticker: str,
-    pdf_path: str = Query(..., description="Path to the Earnings Report PDF file"),
+    file: UploadFile = File(...),
     use_case: EarningsReportUseCase = Depends(get_earnings_report_use_case)
 ):
     """
     Analyses an Earnings Report (PDF) using the Gemini-powered Value Investing prompt.
     Returns a structured DTO with Core Performance, Capital Allocation, and Risk Deconstruction.
     """
-    if not os.path.exists(pdf_path):
-        raise HTTPException(status_code=404, detail=f"PDF file not found at: {pdf_path}")
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
         
+    import tempfile
+    import shutil
+    
     try:
-        result = await use_case.analyse_earnings_report(ticker.upper(), pdf_path)
+        # Create a temporary file to save the uploaded PDF
+        fd, temp_path = tempfile.mkstemp(suffix=".pdf")
+        with os.fdopen(fd, 'wb') as f:
+            shutil.copyfileobj(file.file, f)
+            
+        result = await use_case.analyse_earnings_report(ticker.upper(), temp_path)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Clean up the temporary file
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception as e:
+                print(f"Error removing temporary file: {e}")
 
 @router.get("/quantitative/{ticker}", response_model=QuantitativeValuationResult)
 async def analyse_quantitative(

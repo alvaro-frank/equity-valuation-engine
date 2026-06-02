@@ -39,13 +39,18 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
     def _get_json_from_response(self, text: str) -> dict:
         """Helper to extract json from markdown response."""
         text = text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        return json.loads(text.strip())
+        # Find the first { and the last }
+        start_idx = text.find('{')
+        end_idx = text.rfind('}')
+        if start_idx != -1 and end_idx != -1 and end_idx >= start_idx:
+            text = text[start_idx:end_idx+1]
+        else:
+            raise ValueError("No JSON object found in response.")
+        
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
     async def analyse_company(self, symbol: str) -> CompanyProfile:
         prompt = f"""
@@ -232,16 +237,31 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
 
-        Extract and synthesize the following fields:
+        Extract and synthesize the following fields EXACTLY as named:
 
-        0. ticker: (String) The stock ticker symbol.
-        1. period_end_date: (String) The end date of the fiscal period.
-        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted EBITDA margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
-        3. capital_allocation: (Object) Detail exact amounts (as floats) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string assessing if infrastructure investment is accelerating or decelerating.
-        4. forward_guidance: (String) Summary of management's projections for the next quarter/year (Raise, Lower, or Maintain).
-        5. moat_trajectory: (String) Evidence of pricing power, market share changes, or competitive advantage expanding/shrinking.
-        6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
-        7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
+        {{
+            "ticker": "String: The stock ticker symbol",
+            "period_end_date": "String: The end date of the fiscal period",
+            "core_performance": {{
+                "adjusted_revenue": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "adjusted_eps": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "adjusted_ebitda_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "free_cash_flow": {{ "amount": 0.0, "yoy_growth": 0.0 }}
+            }},
+            "capital_allocation": {{
+                "share_buybacks": 0.0,
+                "dividends": 0.0,
+                "capex_rd": 0.0,
+                "infrastructure_assessment": "String: Assess if infrastructure investment is accelerating or decelerating"
+            }},
+            "forward_guidance": "String: Detailed 2-3 sentence analysis of management's forward-looking projections and guidance",
+            "moat_trajectory": "String: Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why)",
+            "risk_deconstruction": {{
+                "macro_risks": ["String", "String"],
+                "internal_risks": ["String", "String"]
+            }},
+            "bottom_line": "String: A brutal, concise summary answering if the business executed well or if structural cracks are forming."
+        }}
         """
 
         pdf_basename = os.path.basename(pdf_file_path).replace(".pdf", "")
@@ -253,7 +273,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             if file_age_seconds < 86400:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
+                        cached_data = json.load(f)
+                    # Validate cache before accepting it
+                    EarningsReportSchema(**cached_data)
+                    data = cached_data
                 except Exception:
                     data = None
             else:
@@ -280,11 +303,15 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             
                 with open(cache_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4)
+                    
+                schema_instance = EarningsReportSchema(**data)
 
             except Exception as e: 
-                raise ConnectionError(f"Connection Error: {e}")
+                raise ConnectionError(f"OpenRouter Fallback Error: {e}")
 
-        schema_instance = EarningsReportSchema(**data)
+        # Ensure schema instance exists
+        if 'schema_instance' not in locals():
+            schema_instance = EarningsReportSchema(**data)
 
         return EarningsReport(
             period_end_date=schema_instance.period_end_date,
