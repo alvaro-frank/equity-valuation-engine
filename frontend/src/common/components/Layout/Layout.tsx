@@ -4,6 +4,7 @@ import { CompanyLogo } from '@/common/components/CompanyLogo';
 import { SearchHistoryItem } from '@/common/components/SearchHistoryItem';
 import { SearchResultItem } from '@/common/components/SearchResultItem';
 import { useSearchBox } from '@/common/hooks/useSearchBox';
+import { ThemeToggle } from '@/common/components/ThemeToggle/ThemeToggle';
 
 interface LayoutProps {
   children: ReactNode;
@@ -140,7 +141,8 @@ export function Layout({ children, onSearch, activeTicker, hasError }: LayoutPro
               ) : null}
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <ThemeToggle className="w-8 h-8 !p-1 !rounded" />
             <span className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer p-1 rounded">notifications</span>
             <span className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer p-1 rounded">history</span>
             <span className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer p-1 rounded">settings</span>
