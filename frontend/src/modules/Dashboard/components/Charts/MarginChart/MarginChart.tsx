@@ -99,58 +99,58 @@ export function MarginChart({ quantData }: MarginChartProps) {
     return (
       <ResponsiveContainer width="99%" height="100%" debounce={300}>
         <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#32353c" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--outline-variant)" vertical={false} />
           <XAxis 
             dataKey="label" 
-            stroke="#8c909f" 
+            stroke="var(--outline)" 
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
             dy={5}
           />
           <YAxis 
-            stroke="#8c909f" 
+            stroke="var(--outline)" 
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
             tickFormatter={(val) => `${val}%`}
           />
           <Tooltip 
-            cursor={{ stroke: '#424754', strokeWidth: 1, strokeDasharray: '3 3' }}
-            contentStyle={{ backgroundColor: '#10131a', borderColor: '#424754', color: '#e1e2ec' }}
-            itemStyle={{ color: '#e1e2ec' }}
+            cursor={{ stroke: 'var(--outline-variant)', strokeWidth: 1, strokeDasharray: '3 3' }}
+            contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderColor: 'var(--outline-variant)', color: 'var(--on-surface)' }}
+            itemStyle={{ color: 'var(--on-surface)' }}
             formatter={(value: unknown, name: unknown) => [formatPercent(Number(value)), String(name)]}
-            labelStyle={{ color: '#8c909f', marginBottom: '4px' }}
+            labelStyle={{ color: 'var(--on-surface-variant)', marginBottom: '4px' }}
           />
           <Legend 
             iconType="plainline" 
-            wrapperStyle={{ fontSize: '11px', color: '#c2c6d6', paddingTop: '10px' }}
+            wrapperStyle={{ fontSize: '11px', color: 'var(--on-surface-variant)', paddingTop: '10px' }}
           />
           <Line 
             type="monotone" 
             dataKey="grossMargin" 
             name="GROSS MARGIN" 
-            stroke="#a9bad3"
+            stroke="var(--primary)"
             strokeWidth={2}
-            dot={{ r: 3, fill: '#a9bad3', strokeWidth: 0 }}
+            dot={{ r: 3, fill: 'var(--primary)', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
           />
           <Line 
             type="monotone" 
             dataKey="opMargin" 
             name="OPERATING MARGIN" 
-            stroke="#ed6c02"
+            stroke="var(--secondary)"
             strokeWidth={2}
-            dot={{ r: 3, fill: '#ed6c02', strokeWidth: 0 }}
+            dot={{ r: 3, fill: 'var(--secondary)', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
           />
           <Line 
             type="monotone" 
             dataKey="netMargin" 
             name="NET MARGIN" 
-            stroke="#0288d1"
+            stroke="var(--tertiary)"
             strokeWidth={2}
-            dot={{ r: 3, fill: '#0288d1', strokeWidth: 0 }}
+            dot={{ r: 3, fill: 'var(--tertiary)', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
           />
         </LineChart>

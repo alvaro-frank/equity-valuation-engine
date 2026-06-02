@@ -99,17 +99,17 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
     return (
       <ResponsiveContainer width="99%" height="100%" debounce={300}>
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#32353c" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--outline-variant)" vertical={false} />
           <XAxis 
             dataKey="label" 
-            stroke="#8c909f" 
+            stroke="var(--outline)" 
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
             dy={10}
           />
           <YAxis 
-            stroke="#8c909f" 
+            stroke="var(--outline)" 
             fontSize={11} 
             tickLine={false} 
             axisLine={false} 
@@ -117,24 +117,24 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
             domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
           />
           <Tooltip 
-            cursor={{ fill: '#272a31' }}
-            contentStyle={{ backgroundColor: '#10131a', borderColor: '#424754', color: '#e1e2ec' }}
-            itemStyle={{ color: '#e1e2ec' }}
+            cursor={{ fill: 'var(--surface-container-highest)' }}
+            contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderColor: 'var(--outline-variant)', color: 'var(--on-surface)' }}
+            itemStyle={{ color: 'var(--on-surface)' }}
             formatter={(value: unknown, name: unknown) => [formatCurrency(Number(value)), String(name)]}
-            labelStyle={{ color: '#8c909f', marginBottom: '4px' }}
+            labelStyle={{ color: 'var(--on-surface-variant)', marginBottom: '4px' }}
           />
           <Legend 
             iconType="circle" 
-            wrapperStyle={{ fontSize: '11px', color: '#c2c6d6', paddingTop: '10px' }}
+            wrapperStyle={{ fontSize: '11px', color: 'var(--on-surface-variant)', paddingTop: '10px' }}
           />
-          <Bar dataKey="revenue" name="REVENUE" fill="#a9bad3" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="revenue" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          <Bar dataKey="revenue" name="REVENUE" fill="var(--primary)" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="revenue" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
-          <Bar dataKey="operatingIncome" name="OPERATING INCOME" fill="#ed6c02" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="operatingIncome" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          <Bar dataKey="operatingIncome" name="OPERATING INCOME" fill="var(--secondary)" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="operatingIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
-          <Bar dataKey="netIncome" name="NET INCOME" fill="#0288d1" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="netIncome" position="top" fill="#8c909f" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+          <Bar dataKey="netIncome" name="NET INCOME" fill="var(--tertiary)" radius={[2, 2, 0, 0]}>
+            <LabelList dataKey="netIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
