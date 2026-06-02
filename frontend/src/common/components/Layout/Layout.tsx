@@ -11,9 +11,11 @@ interface LayoutProps {
   onSearch: (ticker: string) => void;
   activeTicker?: string;
   hasError?: boolean;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export function Layout({ children, onSearch, activeTicker, hasError }: LayoutProps) {
+export function Layout({ children, onSearch, activeTicker, hasError, activeTab, onTabChange }: LayoutProps) {
   const isFetching = useIsFetching({
     predicate: (query) => query.queryKey[0] !== 'search'
   });
@@ -175,7 +177,8 @@ export function Layout({ children, onSearch, activeTicker, hasError }: LayoutPro
             ].map(item => (
               <button 
                 key={item.label}
-                className={`${item.active ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`}
+                onClick={() => onTabChange?.(item.label)}
+                className={`${activeTab === item.label ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
                 <span className="ml-4 font-label-caps text-label-caps opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{item.label}</span>
