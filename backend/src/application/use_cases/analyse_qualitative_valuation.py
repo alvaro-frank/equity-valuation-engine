@@ -15,7 +15,7 @@ class QualitativeValuationUseCase:
         self.adapter = adapter
         self.quant_adapter = quant_adapter
         
-    async def analyse_ticker(self, ticker_symbol: str) -> QualitativeValuationResult:
+    async def analyse_ticker(self, ticker_symbol: str, language: str = "en") -> QualitativeValuationResult:
         """
         Fetches the ticker information, such as business name, sector and industry
         
@@ -28,7 +28,8 @@ class QualitativeValuationUseCase:
         ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
         qual_data: CompanyProfile = await self.adapter.analyse_company(
-            symbol=ticker_info.symbol
+            symbol=ticker_info.symbol,
+            language=language
         )
         
         ticker_dto = TickerResult(

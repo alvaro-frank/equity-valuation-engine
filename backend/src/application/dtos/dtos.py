@@ -185,13 +185,14 @@ class CorePerformanceResult(BaseModel):
     Attributes:
         adjusted_revenue (MetricWithGrowthResult): Adjusted Revenue with YoY growth.
         adjusted_eps (MetricWithGrowthResult): Adjusted EPS with YoY growth.
-        adjusted_ebitda_margin (MetricWithGrowthResult): Adjusted EBITDA Margin with YoY growth.
         free_cash_flow (MetricWithGrowthResult): Free Cash Flow with YoY growth.
     """
     model_config = ConfigDict(frozen=True)
     adjusted_revenue: MetricWithGrowthResult = Field(..., description="Adjusted Revenue with YoY growth")
     adjusted_eps: MetricWithGrowthResult = Field(..., description="Adjusted EPS with YoY growth")
-    adjusted_ebitda_margin: MetricWithGrowthResult = Field(..., description="Adjusted EBITDA Margin with YoY growth")
+    adjusted_gross_margin: MetricWithGrowthResult = Field(..., description="Adjusted Gross Margin with YoY growth")
+    adjusted_operating_margin: MetricWithGrowthResult = Field(..., description="Adjusted Operating Margin with YoY growth")
+    adjusted_net_margin: MetricWithGrowthResult = Field(..., description="Adjusted Net Margin with YoY growth")
     free_cash_flow: MetricWithGrowthResult = Field(..., description="Free Cash Flow with YoY growth")
 
 class CapitalAllocationResult(BaseModel):

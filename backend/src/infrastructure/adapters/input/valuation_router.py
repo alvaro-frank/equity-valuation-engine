@@ -73,6 +73,7 @@ async def search_ticker(
 async def analyse_earnings_report(
     ticker: str,
     file: UploadFile = File(...),
+    lang: str = Query("en", description="Language to generate the report in"),
     use_case: EarningsReportUseCase = Depends(get_earnings_report_use_case)
 ):
     """
@@ -91,7 +92,7 @@ async def analyse_earnings_report(
         with os.fdopen(fd, 'wb') as f:
             shutil.copyfileobj(file.file, f)
             
-        result = await use_case.analyse_earnings_report(ticker.upper(), temp_path)
+        result = await use_case.analyse_earnings_report(ticker.upper(), temp_path, language=lang)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -126,6 +127,7 @@ async def analyse_quantitative(
 @router.get("/qualitative/{ticker}", response_model=QualitativeValuationResult)
 async def analyse_qualitative(
     ticker: str,
+    lang: str = Query("en", description="Language to generate the report in"),
     use_case: QualitativeValuationUseCase = Depends(get_qualitative_use_case)
 ):
     """
@@ -133,7 +135,7 @@ async def analyse_qualitative(
     Returns a structured DTO representing the company profile.
     """
     try:
-        result = await use_case.analyse_ticker(ticker.upper())
+        result = await use_case.analyse_ticker(ticker.upper(), language=lang)
         return result
     except TickerNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -145,6 +147,7 @@ async def analyse_qualitative(
 @router.get("/sector/{ticker}", response_model=SectorIndustrialValuationResult)
 async def analyse_sector(
     ticker: str,
+    lang: str = Query("en", description="Language to generate the report in"),
     use_case: SectorIndustrialValuationUseCase = Depends(get_sector_use_case)
 ):
     """
@@ -152,7 +155,7 @@ async def analyse_sector(
     Returns a structured DTO with the industry structural analysis.
     """
     try:
-        result = await use_case.evaluate_industry_by_ticker(ticker.upper())
+        result = await use_case.evaluate_industry_by_ticker(ticker.upper(), language=lang)
         return result
     except TickerNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))

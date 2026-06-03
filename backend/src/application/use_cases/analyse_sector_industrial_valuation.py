@@ -19,7 +19,7 @@ class SectorIndustrialValuationUseCase:
         self.quant_port = quant_port
         self.sector_industrial_port = sector_industrial_port
 
-    async def evaluate_industry_by_ticker(self, ticker_symbol: str) -> SectorIndustrialValuationResult:
+    async def evaluate_industry_by_ticker(self, ticker_symbol: str, language: str = "en") -> SectorIndustrialValuationResult:
         """
         Main entry point to analyse an industry based on a specific company ticker.
         
@@ -32,8 +32,9 @@ class SectorIndustrialValuationUseCase:
         ticker_info = await self.quant_port.get_ticker_info(ticker_symbol)
         
         analysis: IndustrySectorDynamics = await self.sector_industrial_port.analyse_industry(
-            sector=ticker_info.sector,
-            industry=ticker_info.industry
+            sector=ticker_info.sector_key,
+            industry=ticker_info.industry_key,
+            language=language
         )
         
         ticker_dto = TickerResult(
