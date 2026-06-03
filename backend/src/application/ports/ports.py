@@ -82,7 +82,7 @@ class QualitativeDataPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
     """
     @abstractmethod
-    async def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
         """
         Fetches the qualitative data for a given stock ticker symbol.
         
@@ -100,7 +100,7 @@ class EarningsReportPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for earnings report analysis.
     """
     @abstractmethod
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
         """
         Analyses the earnings report of a company for a specific fiscal period (either a year or a quarter)
         
@@ -115,7 +115,7 @@ class EarningsReportPort(ABC):
 
 class SectorIndustrialDataPort(ABC):   
     @abstractmethod
-    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
         """
         Analyses the specific sector and industry dynamics.
         
@@ -125,5 +125,16 @@ class SectorIndustrialDataPort(ABC):
         
         Returns:
             IndustrySectorDynamics: Domain Entity containing the data given the sector and industry
+        """
+        pass
+
+class TranslationPort(ABC):
+    """
+    Interface for translating raw JSON data via an LLM or Translation API.
+    """
+    @abstractmethod
+    async def translate_json(self, data: dict, target_language: str) -> dict:
+        """
+        Translates the string values of a JSON dictionary to the target language, preserving keys and structure.
         """
         pass
