@@ -71,14 +71,42 @@ export interface SectorIndustrialValuationResult {
   technological_disruption: string;
 }
 
+export interface MetricWithGrowth {
+  amount: number;
+  yoy_growth: number;
+}
+
+export interface CorePerformance {
+  adjusted_revenue: MetricWithGrowth;
+  adjusted_eps: MetricWithGrowth;
+  adjusted_gross_margin: MetricWithGrowth;
+  adjusted_operating_margin: MetricWithGrowth;
+  adjusted_net_margin: MetricWithGrowth;
+  free_cash_flow: MetricWithGrowth;
+}
+
+export interface CapitalAllocation {
+  share_buybacks: number;
+  dividends: number;
+  capex_rd: number;
+  infrastructure_assessment: string;
+}
+
+export interface RiskDeconstruction {
+  macro_risks: string[];
+  internal_risks: string[];
+}
+
 export interface EarningsReportResult {
   ticker: {
     symbol: string;
     name?: string;
   };
-  period: string;
-  core_performance: string;
-  capital_allocation: string;
-  risk_deconstruction: string;
+  period_end_date: string;
+  core_performance: CorePerformance;
+  capital_allocation: CapitalAllocation;
   forward_guidance: string;
+  moat_trajectory: string;
+  risk_deconstruction: RiskDeconstruction;
+  bottom_line: string;
 }
