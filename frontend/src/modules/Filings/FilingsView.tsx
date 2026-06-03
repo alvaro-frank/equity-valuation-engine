@@ -14,12 +14,10 @@ export function FilingsView({ ticker }: { ticker: string }) {
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
 
   // Reset mutation state when language changes so mutationData doesn't override cachedData
-  useEffect(() => {
-    if (currentLang !== i18n.language) {
-      setCurrentLang(i18n.language);
-      reset();
-    }
-  }, [i18n.language, currentLang, reset]);
+  if (currentLang !== i18n.language) {
+    setCurrentLang(i18n.language);
+    reset();
+  }
 
   const cachedData = queryClient.getQueryData(['earnings_analysis', ticker, i18n.language]);
   const activeData = cachedData || mutationData;
@@ -44,8 +42,11 @@ export function FilingsView({ ticker }: { ticker: string }) {
 
   const getErrorMessage = () => {
     if (!error) return "";
-    const anyErr = error as any;
-    return anyErr.response?.data?.detail || anyErr.message || t('filings.error_default');
+    if (typeof error === 'object' && error !== null) {
+      const err = error as { response?: { data?: { detail?: string } }, message?: string };
+      return err.response?.data?.detail || err.message || t('filings.error_default');
+    }
+    return t('filings.error_default');
   };
 
   return (
