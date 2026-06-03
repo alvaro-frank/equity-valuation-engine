@@ -5,6 +5,7 @@ import type {
   SectorIndustrialValuationResult,
   EarningsReportResult,
 } from '@/common/types/valuation';
+import i18n from '@/common/i18n/i18n';
 
 export const ValuationApi = {
   getQuantitative: async (ticker: string, years: number = 10): Promise<QuantitativeValuationResult> => {
@@ -15,12 +16,16 @@ export const ValuationApi = {
   },
 
   getQualitative: async (ticker: string): Promise<QualitativeValuationResult> => {
-    const response = await api.get(`/valuation/qualitative/${ticker}`);
+    const response = await api.get(`/valuation/qualitative/${ticker}`, {
+      params: { lang: i18n.language }
+    });
     return response.data;
   },
 
   getSector: async (ticker: string): Promise<SectorIndustrialValuationResult> => {
-    const response = await api.get(`/valuation/sector/${ticker}`);
+    const response = await api.get(`/valuation/sector/${ticker}`, {
+      params: { lang: i18n.language }
+    });
     return response.data;
   },
 
@@ -29,6 +34,7 @@ export const ValuationApi = {
     formData.append('file', file);
     
     const response = await api.post(`/valuation/earnings/${ticker}`, formData, {
+      params: { lang: i18n.language },
       headers: {
         'Content-Type': 'multipart/form-data',
       },

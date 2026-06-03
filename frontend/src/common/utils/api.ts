@@ -3,7 +3,7 @@ import axios from 'axios';
 // Base API configuration
 export const api = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
-  timeout: 60000, // 60 seconds timeout (Gemini analysis can be slow)
+  timeout: 300000, // 5 minutes timeout (Gemini analysis can be slow)
 });
 
 // Interceptor for handling global errors (Rule 1.11, 2.13 concept)

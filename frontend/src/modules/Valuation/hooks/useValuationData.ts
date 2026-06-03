@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ValuationApi } from '@/common/api/valuationApi';
+import { useTranslation } from 'react-i18next';
 
 // Custom Hook to fetch Quantitative Data
 export const useQuantitativeData = (ticker: string) => {
@@ -13,8 +14,9 @@ export const useQuantitativeData = (ticker: string) => {
 
 // Custom Hook to fetch Qualitative Data
 export const useQualitativeData = (ticker: string) => {
+  const { i18n } = useTranslation();
   return useQuery({
-    queryKey: ['valuation', 'qualitative', ticker],
+    queryKey: ['valuation', 'qualitative', ticker, i18n.language],
     queryFn: () => ValuationApi.getQualitative(ticker),
     enabled: !!ticker,
     staleTime: 30 * 60 * 1000, // 30 minutes cache
@@ -23,8 +25,9 @@ export const useQualitativeData = (ticker: string) => {
 
 // Custom Hook to fetch Sector Data
 export const useSectorData = (ticker: string) => {
+  const { i18n } = useTranslation();
   return useQuery({
-    queryKey: ['valuation', 'sector', ticker],
+    queryKey: ['valuation', 'sector', ticker, i18n.language],
     queryFn: () => ValuationApi.getSector(ticker),
     enabled: !!ticker,
     staleTime: 30 * 60 * 1000,
