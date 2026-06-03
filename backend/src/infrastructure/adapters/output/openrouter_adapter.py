@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from decimal import Decimal
 from typing import Optional
 
-from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
@@ -18,22 +18,28 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
     """
     Adapter that leverages OpenRouter (specifically DeepSeek) to generate qualitative research.
     """
-    def __init__(self, api_key: Optional[str] = None):
-        if not api_key:
-            api_key = os.getenv("OPENROUTER_API_KEY")
+    def __init__(self, api_key: Optional[str] = None, client: Optional[AsyncOpenAI] = None, translator: Optional[TranslationPort] = None):
+        """
+        Initializes the OpenRouter client.
+        """
+        if client:
+            self.client = client
+        else:
             if not api_key:
-                raise ValueError("OPENROUTER_API_KEY is required")
-        
-        self.client = AsyncOpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=api_key,
-        )
+                api_key = os.getenv("OPENROUTER_API_KEY")
+                if not api_key:
+                    raise ValueError("OPENROUTER_API_KEY is required")
             
-        # self.model_id = 'deepseek/deepseek-chat'
+            self.client = AsyncOpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=api_key,
+            )
+            
+        self.translator = translator
         self.model_id = 'deepseek/deepseek-chat' # Use standard deepseek v3/v4 depending on availability
         
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-        self.cache_dir = os.path.join(base_dir, '.openrouter_cache')
+        self.cache_dir = os.path.join(base_dir, '.llm_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
 
     def _get_json_from_response(self, text: str) -> dict:
@@ -52,7 +58,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
-    async def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
         Your goal is to provide a deep qualitative assessment for the company: {symbol}.
@@ -60,8 +70,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         CRITICAL INSTRUCTIONS:
         - Accuracy: Use the most recent public information available up to your knowledge cutoff.
         - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
-        - Lists of Objects: For 'major_shareholders', 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
+        - Lists of Objects: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
         - Tone: Professional, objective, and data-driven.
+        - Language: Generate the analysis text in the following language: {lang_instruction}. 
+        - CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "business_description", "major_shareholders").
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
@@ -93,7 +105,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
         
-        cache_filename = f"company_{symbol.upper()}.json"
+        cache_filename = f"company_{symbol.upper()}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
         
         if os.path.exists(cache_path):
@@ -115,10 +127,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     model=self.model_id,
                     messages=[{"role": "user", "content": prompt}],
                     response_format={"type": "json_object"},
-                    temperature=0.2,
+                    temperature=0.0,
                 )
                 
-                data = self._get_json_from_response(response.choices[0].message.content)
+                if not getattr(response, 'choices', None) or len(response.choices) == 0:
+                    raise ValueError(f"OpenRouter API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
+                
+                content = response.choices[0].message.content
+                if content is None:
+                    raise ValueError("OpenRouter API returned None for message content.")
+                
+                data = self._get_json_from_response(content)
                 
                 with open(cache_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4)
@@ -144,7 +163,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             historical_context_crises=schema_instance.historical_context_crises
         )
 
-    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
         Perform a comprehensive fundamental analysis of the following market:
@@ -155,6 +178,8 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
 
         INSTRUCTIONS FOR JSON ARRAYS (Sections 1-5):
         For each force, identify 2-4 key factors. Return them as a LIST of objects, where each object has a 'factor' (short, descriptive title) and an 'analysis' (professional analysis).
+        Language: Generate the analysis text in the following language: {lang_instruction}.
+        CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "rivalry_among_competitors").
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -184,39 +209,58 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         
         safe_sector = re.sub(r'[^a-zA-Z0-9]', '_', sector)
         safe_industry = re.sub(r'[^a-zA-Z0-9]', '_', industry)
-        cache_filename = f"industry_{safe_sector}_{safe_industry}.json"
+        cache_filename = f"industry_{safe_sector}_{safe_industry}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
         
+        cache_filename_en = f"industry_{safe_sector}_{safe_industry}_en.json"
+        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        
+        data = None
         if os.path.exists(cache_path):
-            file_age_seconds = time.time() - os.path.getmtime(cache_path)
-            if file_age_seconds < 86400:
+            if time.time() - os.path.getmtime(cache_path) < 86400:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                 except Exception:
-                    data = None
-            else:
-                data = None 
-        else:
-            data = None
-            
+                    pass
+
         if not data:
-            try:
-                response = await self.client.chat.completions.create(
-                    model=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    response_format={"type": "json_object"},
-                    temperature=0.2,
-                )
+            data_en = None
+            if os.path.exists(cache_path_en):
+                if time.time() - os.path.getmtime(cache_path_en) < 86400:
+                    try:
+                        with open(cache_path_en, 'r', encoding='utf-8') as f:
+                            data_en = json.load(f)
+                    except Exception:
+                        pass
+
+            if not data_en:
+                # Force English for base extraction
+                prompt_en = prompt.replace(lang_instruction, "English")
+                try:
+                    response = await self.client.chat.completions.create(
+                        model=self.model_id,
+                        messages=[
+                            {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
+                            {"role": "user", "content": prompt_en}
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.0
+                    )
+                    data_en = self._get_json_from_response(response.choices[0].message.content)
+                    with open(cache_path_en, 'w', encoding='utf-8') as f:
+                        json.dump(data_en, f, indent=4)
+                except Exception as e: 
+                    raise ConnectionError(f"Connection Error: {e}")
+            
+            if language != "en" and self.translator:
+                data = await self.translator.translate_json(data_en, language)
+            else:
+                data = data_en
                 
-                data = self._get_json_from_response(response.choices[0].message.content)
-                
-                with open(cache_path, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=4)
-                    
-            except Exception as e: 
-                raise ConnectionError(f"Connection Error: {e}")
-                
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+
         schema_instance = IndustrySectorDynamicsSchema(**data)
         
         return IndustrySectorDynamics(
@@ -231,11 +275,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             interest_rate_exposure=schema_instance.interest_rate_exposure
         )
 
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
+        Language: Generate the analysis text in the following language: {lang_instruction}. 
+        CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "core_performance", "adjusted_revenue").
 
         Extract and synthesize the following fields EXACTLY as named:
 
@@ -245,7 +295,9 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             "core_performance": {{
                 "adjusted_revenue": {{ "amount": 0.0, "yoy_growth": 0.0 }},
                 "adjusted_eps": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "adjusted_ebitda_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "adjusted_gross_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "adjusted_operating_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
+                "adjusted_net_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
                 "free_cash_flow": {{ "amount": 0.0, "yoy_growth": 0.0 }}
             }},
             "capital_allocation": {{
@@ -264,8 +316,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         }}
         """
 
-        pdf_basename = os.path.basename(pdf_file_path).replace(".pdf", "")
-        cache_filename = f"earnings_{symbol.upper()}_{pdf_basename}.json"
+        import hashlib
+        with open(pdf_file_path, "rb") as f:
+            file_hash = hashlib.md5(f.read()).hexdigest()[:12]
+        cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
 
         if os.path.exists(cache_path):
@@ -288,6 +342,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             # Extract markdown text from PDF
             md_text = pymupdf4llm.to_markdown(pdf_file_path)
             
+            # Truncate text to avoid exceeding token limits (approx 25k tokens)
+            if len(md_text) > 100000:
+                md_text = md_text[:100000] + "\n\n[TEXT TRUNCATED DUE TO LENGTH LIMITS]"
+            
             # Combine prompt and PDF text
             full_prompt = prompt + f"\n\n--- EARNINGS REPORT TEXT ---\n\n{md_text}"
 
@@ -296,10 +354,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     model=self.model_id,
                     messages=[{"role": "user", "content": full_prompt}],
                     response_format={"type": "json_object"},
-                    temperature=0.2,
+                    temperature=0.0,
                 )
                 
-                data = self._get_json_from_response(response.choices[0].message.content)
+                if not getattr(response, 'choices', None) or len(response.choices) == 0:
+                    raise ValueError(f"OpenRouter API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
+                
+                content = response.choices[0].message.content
+                if content is None:
+                    raise ValueError("OpenRouter API returned None for message content.")
+                
+                data = self._get_json_from_response(content)
             
                 with open(cache_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4)
@@ -324,9 +389,18 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     amount=Decimal(str(schema_instance.core_performance.adjusted_eps.amount)),
                     yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_eps.yoy_growth))
                 ),
-                adjusted_ebitda_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.yoy_growth))
+
+                adjusted_gross_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.yoy_growth))
+                ),
+                adjusted_operating_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.yoy_growth))
+                ),
+                adjusted_net_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_net_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_net_margin.yoy_growth))
                 ),
                 free_cash_flow=MetricWithGrowth(
                     amount=Decimal(str(schema_instance.core_performance.free_cash_flow.amount)),
