@@ -5,6 +5,7 @@ import { SearchHistoryItem } from '@/common/components/SearchHistoryItem';
 import { SearchResultItem } from '@/common/components/SearchResultItem';
 import { useSearchBox } from '@/common/hooks/useSearchBox';
 import { ThemeToggle } from '@/common/components/ThemeToggle/ThemeToggle';
+import { useTranslation } from 'react-i18next';
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +41,12 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
   const activeCompany = filteredHistory.find(item => item.ticker === activeTicker);
   const activeName = activeCompany?.name;
 
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'pt' ? 'en' : 'pt');
+  };
+
   return (
     <div className="font-body-base text-body-base selection:bg-primary/30 min-h-screen flex flex-col">
       {/* TopAppBar */}
@@ -53,6 +60,7 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
                     <input 
                       className="bg-transparent border-none text-data-mono text-body-sm focus:ring-0 p-0 w-24 outline-none text-on-surface" 
                       type="text" 
+                      placeholder={t('search.placeholder')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyDown={handleKeyDown}
@@ -64,7 +72,7 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
                       disabled={isSearchDisabled}
                       className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded ml-2 hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      ANALYSE
+                      {t('search.analyze')}
                     </button>
                   </div>
 
@@ -143,6 +151,13 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
               ) : null}
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center justify-center w-8 h-8 rounded hover:bg-surface-container-highest transition-colors font-bold text-xs"
+            title="Toggle Language"
+          >
+            {i18n.language === 'pt' ? 'PT' : 'EN'}
+          </button>
           <div className="flex gap-2 items-center">
             <ThemeToggle className="w-8 h-8 !p-1 !rounded" />
             <span className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer p-1 rounded">notifications</span>
@@ -169,16 +184,16 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
           </div>
           <nav className="flex-1 px-3 space-y-1">
             {[
-              { icon: 'dashboard', label: 'SUMMARY', active: true },
-              { icon: 'account_balance', label: 'FINANCIALS' },
-              { icon: 'calculate', label: 'VALUATION' },
-              { icon: 'analytics', label: 'COMPARABLES' },
-              { icon: 'description', label: 'FILINGS' }
+              { icon: 'dashboard', label: t('nav.summary'), id: 'SUMMARY', active: true },
+              { icon: 'account_balance', label: t('nav.financials'), id: 'FINANCIALS' },
+              { icon: 'calculate', label: t('nav.valuation'), id: 'VALUATION' },
+              { icon: 'analytics', label: t('nav.comparables'), id: 'COMPARABLES' },
+              { icon: 'description', label: t('nav.filings'), id: 'FILINGS' }
             ].map(item => (
               <button 
-                key={item.label}
-                onClick={() => onTabChange?.(item.label)}
-                className={`${activeTab === item.label ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`}
+                key={item.id}
+                onClick={() => onTabChange?.(item.id)}
+                className={`${activeTab === item.id ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
                 <span className="ml-4 font-label-caps text-label-caps opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{item.label}</span>
@@ -187,10 +202,10 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
           </nav>
           <div className="px-3 space-y-1 mt-auto border-t border-outline-variant pt-4">
             {[
-              { icon: 'help', label: 'SUPPORT' },
-              { icon: 'code', label: 'API' }
+              { icon: 'help', label: t('nav.support'), id: 'SUPPORT' },
+              { icon: 'code', label: t('nav.api'), id: 'API' }
             ].map(item => (
-              <button key={item.label} className="text-on-surface-variant hover:text-on-surface w-full hover:bg-surface-container-high flex items-center h-10 px-2 rounded-sm transition-colors">
+              <button key={item.id} className="text-on-surface-variant hover:text-on-surface w-full hover:bg-surface-container-high flex items-center h-10 px-2 rounded-sm transition-colors">
                 <span className="material-symbols-outlined">{item.icon}</span>
                 <span className="ml-4 font-label-caps text-label-caps opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{item.label}</span>
               </button>

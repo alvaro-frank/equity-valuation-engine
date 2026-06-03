@@ -2,6 +2,7 @@
 import { SearchHistoryItem } from '@/common/components/SearchHistoryItem';
 import { SearchResultItem } from '@/common/components/SearchResultItem';
 import { useSearchBox } from '@/common/hooks/useSearchBox';
+import { useTranslation } from 'react-i18next';
 
 interface WelcomeStateProps {
   onSearch: (ticker: string) => void;
@@ -25,6 +26,8 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
     clearHistory
   } = useSearchBox(onSearch);
 
+  const { t } = useTranslation();
+
   const suggestedTickers = [
     { symbol: 'AAPL', name: 'Apple Inc.' },
     { symbol: 'MSFT', name: 'Microsoft Corp.' },
@@ -42,12 +45,12 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
           monitoring
         </span>
         <h1 className="font-display-lg text-4xl font-bold tracking-tight text-on-surface">
-          Equity Valuation Engine
+          {t('dashboard.empty_title')}
         </h1>
       </div>
 
       <p className="text-on-surface-variant text-body-lg mb-8 text-center max-w-lg">
-        Professional-grade fundamental analysis and automated valuation modeling for public equities.
+        {t('dashboard.empty_desc')}
       </p>
 
       {/* Main Search Bar */}
@@ -60,7 +63,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
         <input
           type="text"
           className="w-full bg-surface-container-high border border-outline-variant rounded-full py-4 pl-12 pr-24 text-on-surface text-body-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-lg transition-all"
-          placeholder="Search for a ticker (e.g. MSFT)"
+          placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -73,7 +76,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
           disabled={isSearchDisabled}
           className="absolute inset-y-2 right-2 px-6 bg-primary text-on-primary font-bold rounded-full hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          ANALYSE
+          {t('search.analyze')}
         </button>
 
         {/* History / Search Dropdown */}
