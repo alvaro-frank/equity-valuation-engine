@@ -479,12 +479,16 @@ class CorePerformance:
     Attributes:
         adjusted_revenue (MetricWithGrowth): The adjusted revenue figure and its year-over-year growth.
         adjusted_eps (MetricWithGrowth): The adjusted earnings per share figure and its year-over-year growth.
-        adjusted_ebitda_margin (MetricWithGrowth): The adjusted EBITDA margin percentage and its year-over-year change.
+        adjusted_gross_margin (MetricWithGrowth): The adjusted gross margin percentage and its year-over-year change.
+        adjusted_operating_margin (MetricWithGrowth): The adjusted operating margin percentage and its year-over-year change.
+        adjusted_net_margin (MetricWithGrowth): The adjusted net margin percentage and its year-over-year change.
         free_cash_flow (MetricWithGrowth): The free cash flow figure and its year-over-year growth.
     """
     adjusted_revenue: MetricWithGrowth
     adjusted_eps: MetricWithGrowth
-    adjusted_ebitda_margin: MetricWithGrowth
+    adjusted_gross_margin: MetricWithGrowth
+    adjusted_operating_margin: MetricWithGrowth
+    adjusted_net_margin: MetricWithGrowth
     free_cash_flow: MetricWithGrowth
 
 @dataclass(frozen=True)

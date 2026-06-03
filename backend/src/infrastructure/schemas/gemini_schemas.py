@@ -132,12 +132,16 @@ class CorePerformanceSchema(BaseModel):
     Attributes:
         adjusted_revenue (MetricWithGrowthSchema): Adjusted Revenue with YoY growth.
         adjusted_eps (MetricWithGrowthSchema): Adjusted EPS with YoY growth.
-        adjusted_ebitda_margin (MetricWithGrowthSchema): Adjusted EBITDA Margin with YoY growth.
+        adjusted_gross_margin (MetricWithGrowthSchema): Adjusted Gross Margin with YoY growth.
+        adjusted_operating_margin (MetricWithGrowthSchema): Adjusted Operating Margin with YoY growth.
+        adjusted_net_margin (MetricWithGrowthSchema): Adjusted Net Margin with YoY growth.
         free_cash_flow (MetricWithGrowthSchema): Free Cash Flow with YoY growth.
     """
     adjusted_revenue: MetricWithGrowthSchema
     adjusted_eps: MetricWithGrowthSchema
-    adjusted_ebitda_margin: MetricWithGrowthSchema
+    adjusted_gross_margin: MetricWithGrowthSchema
+    adjusted_operating_margin: MetricWithGrowthSchema
+    adjusted_net_margin: MetricWithGrowthSchema
     free_cash_flow: MetricWithGrowthSchema
 
 class CapitalAllocationSchema(BaseModel):

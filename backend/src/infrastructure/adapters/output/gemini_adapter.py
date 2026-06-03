@@ -5,7 +5,8 @@ import os
 import time
 import json
 import re
-from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+import asyncio
+from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
 from decimal import Decimal
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
@@ -20,7 +21,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
     It transforms raw company and industry queries into structured Domain Entities 
     by enforcing a strict JSON schema via system prompting.
     """
-    def __init__(self, api_key: Optional[str] = None, client: Optional[genai.Client] = None):
+    def __init__(self, api_key: Optional[str] = None, client: Optional[genai.Client] = None, translator: Optional[TranslationPort] = None):
         """
         Initializes the Gemini client.
         """
@@ -32,12 +33,13 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             self.client = genai.Client(api_key=api_key)
             
         self.model_id = 'gemini-2.5-flash'
+        self.translator = translator
         
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-        self.cache_dir = os.path.join(base_dir, '.gemini_cache')
+        self.cache_dir = os.path.join(base_dir, '.llm_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    async def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
         """
         Uses Gemini to generate qualitative analysis report. 
         
@@ -47,6 +49,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             CompanyProfile: A Domain Entity containing the qualitative data of the business
         """
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
         Your goal is to provide a deep qualitative assessment for the company: {symbol}.
@@ -54,8 +60,9 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         CRITICAL INSTRUCTIONS:
         - Accuracy: Use the most recent public information available up to your knowledge cutoff.
         - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
-        - Dictionaries: For 'major_shareholders', 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
+        - Dictionaries: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
         - Tone: Professional, objective, and data-driven.
+        - Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
@@ -88,43 +95,58 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
         """
         
-        cache_filename = f"company_{symbol.upper()}.json"
+        cache_filename = f"company_{symbol.upper()}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
         
+        cache_filename_en = f"company_{symbol.upper()}_en.json"
+        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        
+        data = None
         if os.path.exists(cache_path):
-            file_age_seconds = time.time() - os.path.getmtime(cache_path)
-            
-            if file_age_seconds < 86400:
+            if time.time() - os.path.getmtime(cache_path) < 86400:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                 except Exception:
-                    data = None
-            else:
-                data = None 
-        else:
-            data = None
-            
-        if not data:
-            try:
-                response = await self.client.aio.models.generate_content(
-                    model=self.model_id,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=CompanyProfileSchema,
-                        temperature=0.2,
-                    )
-                )
-                
-                data = json.loads(response.text)
-                
-                with open(cache_path, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=4)
+                    pass
                     
-            except Exception as e: 
-                raise ConnectionError(f"Connection Error: {e}")
+        if not data:
+            data_en = None
+            if os.path.exists(cache_path_en):
+                if time.time() - os.path.getmtime(cache_path_en) < 86400:
+                    try:
+                        with open(cache_path_en, 'r', encoding='utf-8') as f:
+                            data_en = json.load(f)
+                    except Exception:
+                        pass
+                        
+            if not data_en:
+                # Force English for base extraction
+                prompt_en = prompt.replace(lang_instruction, "English")
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=self.model_id,
+                        contents=prompt_en,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=CompanyProfileSchema,
+                            temperature=0.0,
+                        )
+                    )
+                    data_en = json.loads(response.text)
+                    with open(cache_path_en, 'w', encoding='utf-8') as f:
+                        json.dump(data_en, f, indent=4)
+                except Exception as e: 
+                    raise ConnectionError(f"Connection Error: {e}")
+            
+            if language != "en" and self.translator:
+                data = await self.translator.translate_json(data_en, language)
+            else:
+                data = data_en
                 
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+
         schema_instance = CompanyProfileSchema(**data)
         
         return CompanyProfile(
@@ -143,7 +165,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             historical_context_crises=schema_instance.historical_context_crises
         )
     
-    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
         """
         Uses Gemini to perform a deep-dive analysis of industry dynamics and macro factors.
         
@@ -154,6 +176,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             IndustrySectorDynamics: A Domain Entity containing the data given the sector and industry
         """
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
         Perform a comprehensive fundamental analysis of the following market:
@@ -164,6 +190,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
 
         INSTRUCTIONS FOR JSON DICTIONARIES (Sections 1-5):
         For each force, identify 2-4 key factors. Return them as a dictionary where the KEY is a short, descriptive title (e.g., "Capital Intensity") and the VALUE is a professional analysis.
+        Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -193,43 +220,58 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         
         safe_sector = re.sub(r'[^a-zA-Z0-9]', '_', sector)
         safe_industry = re.sub(r'[^a-zA-Z0-9]', '_', industry)
-        cache_filename = f"industry_{safe_sector}_{safe_industry}.json"
+        cache_filename = f"industry_{safe_sector}_{safe_industry}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
         
+        cache_filename_en = f"industry_{safe_sector}_{safe_industry}_en.json"
+        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        
+        data = None
         if os.path.exists(cache_path):
-            file_age_seconds = time.time() - os.path.getmtime(cache_path)
-            
-            if file_age_seconds < 86400:
+            if time.time() - os.path.getmtime(cache_path) < 86400:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                 except Exception:
-                    data = None
-            else:
-                data = None 
-        else:
-            data = None
-            
+                    pass
+
         if not data:
-            try:
-                response = await self.client.aio.models.generate_content(
-                    model=self.model_id,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=IndustrySectorDynamicsSchema,
-                        temperature=0.2,
+            data_en = None
+            if os.path.exists(cache_path_en):
+                if time.time() - os.path.getmtime(cache_path_en) < 86400:
+                    try:
+                        with open(cache_path_en, 'r', encoding='utf-8') as f:
+                            data_en = json.load(f)
+                    except Exception:
+                        pass
+
+            if not data_en:
+                # Force English for base extraction
+                prompt_en = prompt.replace(lang_instruction, "English")
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=self.model_id,
+                        contents=prompt_en,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=IndustrySectorDynamicsSchema,
+                            temperature=0.0,
+                        )
                     )
-                )
+                    data_en = json.loads(response.text)
+                    with open(cache_path_en, 'w', encoding='utf-8') as f:
+                        json.dump(data_en, f, indent=4)
+                except Exception as e: 
+                    raise ConnectionError(f"Connection Error: {e}")
+            
+            if language != "en" and self.translator:
+                data = await self.translator.translate_json(data_en, language)
+            else:
+                data = data_en
                 
-                data = json.loads(response.text)
-                
-                with open(cache_path, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=4)
-                    
-            except Exception as e: 
-                raise ConnectionError(f"Connection Error: {e}")
-                
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+
         schema_instance = IndustrySectorDynamicsSchema(**data)
         
         return IndustrySectorDynamics(
@@ -244,7 +286,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             interest_rate_exposure=schema_instance.interest_rate_exposure
         )
 
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
         """
         Uses Gemini to perform a deep-dive analysis of a company's earnings report.
         
@@ -255,15 +297,20 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             EarningsReport: A Domain Entity containing the earnings report analysis.
         """
+        lang_instruction = language
+        if language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
         prompt = f"""
         You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
+        Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         Extract and synthesize the following fields:
 
         1. period_end_date: (String) The end date of the fiscal period.
-        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted EBITDA margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
+        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
         3. capital_allocation: (Object) Detail exact amounts (as floats) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string assessing if infrastructure investment is accelerating or decelerating.
         4. forward_guidance: (String) Detailed 2-3 sentence analysis of management's forward-looking projections and guidance.
         5. moat_trajectory: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why).
@@ -271,45 +318,69 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
         """
 
-        pdf_basename = os.path.basename(pdf_file_path).replace(".pdf", "")
-        cache_filename = f"earnings_{symbol.upper()}_{pdf_basename}.json"
+        import hashlib
+        with open(pdf_file_path, "rb") as f:
+            file_hash = hashlib.md5(f.read()).hexdigest()[:12]
+        cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
         cache_path = os.path.join(self.cache_dir, cache_filename)
-
+        
+        cache_filename_en = f"earnings_{symbol.upper()}_{file_hash}_en.json"
+        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        
+        data = None
         if os.path.exists(cache_path):
-            file_age_seconds = time.time() - os.path.getmtime(cache_path)
-            
-            if file_age_seconds < 86400:
+            if time.time() - os.path.getmtime(cache_path) < 86400:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                 except Exception:
-                    data = None
+                    pass
+
+        if not data:
+            data_en = None
+            if os.path.exists(cache_path_en):
+                if time.time() - os.path.getmtime(cache_path_en) < 86400:
+                    try:
+                        with open(cache_path_en, 'r', encoding='utf-8') as f:
+                            data_en = json.load(f)
+                    except Exception:
+                        pass
+
+            if not data_en:
+                # Need to run Gemini for EN
+                uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
+                file_info = await self.client.aio.files.get(name=uploaded_file.name)
+                while file_info.state.name == "PROCESSING":
+                    await asyncio.sleep(2)
+                    file_info = await self.client.aio.files.get(name=uploaded_file.name)
+                    
+                if file_info.state.name == "FAILED":
+                    raise ValueError("Gemini failed to process the uploaded PDF document.")
+
+                prompt_en = prompt.replace(lang_instruction, "English")
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=self.model_id,
+                        contents=[prompt_en, uploaded_file],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=EarningsReportSchema,
+                            temperature=0.0,
+                        )
+                    )
+                    data_en = json.loads(response.text)
+                    with open(cache_path_en, 'w', encoding='utf-8') as f:
+                        json.dump(data_en, f, indent=4)
+                except Exception as e: 
+                    raise ConnectionError(f"Connection Error: {e}")
+
+            if language != "en" and self.translator:
+                data = await self.translator.translate_json(data_en, language)
             else:
-                data = None 
-        else:
-            data = None
-
-        if data is None:
-            uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
-
-            try:
-                response = await self.client.aio.models.generate_content(
-                model=self.model_id,
-                contents=[prompt, uploaded_file],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=EarningsReportSchema,
-                    temperature=0.2,
-                )
-            )
-            
-                data = json.loads(response.text)
-            
-                with open(cache_path, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=4)
-
-            except Exception as e: 
-                raise ConnectionError(f"Connection Error: {e}")
+                data = data_en
+                
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
 
         schema_instance = EarningsReportSchema(**data)
 
@@ -324,9 +395,18 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     amount=Decimal(str(schema_instance.core_performance.adjusted_eps.amount)),
                     yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_eps.yoy_growth))
                 ),
-                adjusted_ebitda_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_ebitda_margin.yoy_growth))
+
+                adjusted_gross_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.yoy_growth))
+                ),
+                adjusted_operating_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.yoy_growth))
+                ),
+                adjusted_net_margin=MetricWithGrowth(
+                    amount=Decimal(str(schema_instance.core_performance.adjusted_net_margin.amount)),
+                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_net_margin.yoy_growth))
                 ),
                 free_cash_flow=MetricWithGrowth(
                     amount=Decimal(str(schema_instance.core_performance.free_cash_flow.amount)),
