@@ -207,8 +207,7 @@ marimo/_lsp/
 __marimo__/
 alpha_vantage_cache.sqlite
 .alpha_vantage_cache
-.openrouter_cache
-.gemini_cache/
+.llm_cache/
 src/test_sec.py
 src/check_full_data.py
 src/test_valuation.py

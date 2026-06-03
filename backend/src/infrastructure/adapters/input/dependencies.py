@@ -17,10 +17,13 @@ from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort, Sec
 # As ours do not store heavy state and httpx/requests handle the pools internally,
 # instantiating them here is not a problem, but we can optimize later.
 
+from infrastructure.adapters.output.openrouter_translator import OpenRouterTranslatorAdapter
+
+_translator = OpenRouterTranslatorAdapter()
 _alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
 _yfinance_adapter = YfinanceAdapter()
-_gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key)
-_openrouter_adapter = OpenRouterAdapter()
+_gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
+_openrouter_adapter = OpenRouterAdapter(translator=_translator)
 _fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_openrouter_adapter)
 
 def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]:
