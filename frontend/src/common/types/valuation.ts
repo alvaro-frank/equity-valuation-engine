@@ -19,6 +19,7 @@ export interface TickerResult {
   name: string;
   sector: string;
   sector_key?: string;
+
   industry: string;
   industry_key?: string;
   market_cap?: number;

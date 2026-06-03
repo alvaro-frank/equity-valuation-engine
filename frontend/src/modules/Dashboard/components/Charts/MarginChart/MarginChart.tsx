@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
+import { useTranslation } from 'react-i18next';
 
 interface MarginDataPoint {
   label: string;
@@ -23,6 +24,7 @@ interface MarginChartProps {
 }
 
 export function MarginChart({ quantData }: MarginChartProps) {
+  const { t } = useTranslation();
   const [isQuarterly, setIsQuarterly] = useState(false);
 
   const annualData = useMemo(() => {
@@ -129,7 +131,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
           <Line 
             type="monotone" 
             dataKey="grossMargin" 
-            name="GROSS MARGIN" 
+            name={t('dashboard.gross_margin')} 
             stroke="var(--primary)"
             strokeWidth={2}
             dot={{ r: 3, fill: 'var(--primary)', strokeWidth: 0 }}
@@ -138,7 +140,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
           <Line 
             type="monotone" 
             dataKey="opMargin" 
-            name="OPERATING MARGIN" 
+            name={t('dashboard.operating_margin')} 
             stroke="var(--secondary)"
             strokeWidth={2}
             dot={{ r: 3, fill: 'var(--secondary)', strokeWidth: 0 }}
@@ -147,7 +149,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
           <Line 
             type="monotone" 
             dataKey="netMargin" 
-            name="NET MARGIN" 
+            name={t('dashboard.net_margin', 'NET MARGIN')} 
             stroke="var(--tertiary)"
             strokeWidth={2}
             dot={{ r: 3, fill: 'var(--tertiary)', strokeWidth: 0 }}
@@ -168,13 +170,13 @@ export function MarginChart({ quantData }: MarginChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Annual Margin Evolution
+              {t('dashboard.margin_chart_annual')}
             </h3>
             <button 
               onClick={() => setIsQuarterly(true)}
               className="text-xs px-2 py-1 bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant rounded transition-colors"
             >
-              Show Quarters
+              {t('dashboard.show_quarters')}
             </button>
           </div>
           <div className="p-4 flex-1 min-h-0 min-w-0">
@@ -186,13 +188,13 @@ export function MarginChart({ quantData }: MarginChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Quarterly Margin Evolution
+              {t('dashboard.margin_chart_quarterly')}
             </h3>
             <button 
               onClick={() => setIsQuarterly(false)}
               className="text-xs px-2 py-1 bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant rounded transition-colors"
             >
-              Show Annual
+              {t('dashboard.show_annual')}
             </button>
           </div>
           <div className="p-4 flex-1 min-h-0 min-w-0">

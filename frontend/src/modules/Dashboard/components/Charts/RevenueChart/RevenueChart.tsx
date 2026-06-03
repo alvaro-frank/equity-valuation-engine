@@ -11,6 +11,7 @@ import {
   LabelList,
 } from 'recharts';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
+import { useTranslation } from 'react-i18next';
 
 interface RevenueDataPoint {
   label: string;
@@ -24,6 +25,7 @@ interface RevenueChartProps {
 }
 
 export function RevenueChart({ quantData }: RevenueChartProps) {
+  const { t } = useTranslation();
   const [isQuarterly, setIsQuarterly] = useState(false);
 
   const annualData = useMemo(() => {
@@ -127,13 +129,13 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
             iconType="circle" 
             wrapperStyle={{ fontSize: '11px', color: 'var(--on-surface-variant)', paddingTop: '10px' }}
           />
-          <Bar dataKey="revenue" name="REVENUE" fill="var(--primary)" radius={[2, 2, 0, 0]}>
+          <Bar dataKey="revenue" name={t('dashboard.revenue')} fill="var(--primary)" radius={[2, 2, 0, 0]}>
             <LabelList dataKey="revenue" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
-          <Bar dataKey="operatingIncome" name="OPERATING INCOME" fill="var(--secondary)" radius={[2, 2, 0, 0]}>
+          <Bar dataKey="operatingIncome" name={t('dashboard.operating_income')} fill="var(--secondary)" radius={[2, 2, 0, 0]}>
             <LabelList dataKey="operatingIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
-          <Bar dataKey="netIncome" name="NET INCOME" fill="var(--tertiary)" radius={[2, 2, 0, 0]}>
+          <Bar dataKey="netIncome" name={t('dashboard.net_income')} fill="var(--tertiary)" radius={[2, 2, 0, 0]}>
             <LabelList dataKey="netIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: any) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
           </Bar>
         </BarChart>
@@ -151,13 +153,13 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Annual Revenue vs Income
+              {t('dashboard.revenue_chart_annual')}
             </h3>
             <button 
               onClick={() => setIsQuarterly(true)}
               className="text-xs px-2 py-1 bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant rounded transition-colors"
             >
-              Show Quarters
+              {t('dashboard.show_quarters')}
             </button>
           </div>
           <div className="p-4 flex-1 min-h-0 min-w-0">
@@ -169,13 +171,13 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Quarterly Revenue vs Income
+              {t('dashboard.revenue_chart_quarterly')}
             </h3>
             <button 
               onClick={() => setIsQuarterly(false)}
               className="text-xs px-2 py-1 bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant rounded transition-colors"
             >
-              Show Annual
+              {t('dashboard.show_annual')}
             </button>
           </div>
           <div className="p-4 flex-1 min-h-0 min-w-0">
