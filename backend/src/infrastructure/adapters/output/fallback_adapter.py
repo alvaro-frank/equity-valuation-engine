@@ -10,23 +10,23 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
         self.primary = primary_adapter
         self.backup = backup_adapter
 
-    async def analyse_company(self, symbol: str) -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
         try:
-            return await self.primary.analyse_company(symbol)
+            return await self.primary.analyse_company(symbol, language=language)
         except Exception as e:
             print(f"Primary adapter failed for analyse_company: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_company(symbol)
+            return await self.backup.analyse_company(symbol, language=language)
 
-    async def analyse_industry(self, sector: str, industry: str) -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
         try:
-            return await self.primary.analyse_industry(sector, industry)
+            return await self.primary.analyse_industry(sector, industry, language=language)
         except Exception as e:
             print(f"Primary adapter failed for analyse_industry: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_industry(sector, industry)
+            return await self.backup.analyse_industry(sector, industry, language=language)
 
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str) -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
         try:
-            return await self.primary.analyse_earnings_report(symbol, pdf_file_path)
+            return await self.primary.analyse_earnings_report(symbol, pdf_file_path, language=language)
         except Exception as e:
             print(f"Primary adapter failed for analyse_earnings_report: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_earnings_report(symbol, pdf_file_path)
+            return await self.backup.analyse_earnings_report(symbol, pdf_file_path, language=language)
