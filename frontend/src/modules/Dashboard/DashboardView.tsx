@@ -4,6 +4,7 @@ import { RevenueChart } from '@/modules/Dashboard/components/Charts/RevenueChart
 import { MarginChart } from '@/modules/Dashboard/components/Charts/MarginChart';
 import { TrendingBadge } from '@/common/components/TrendingBadge';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardViewProps {
   ticker: string;
@@ -13,6 +14,8 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ ticker, quantData, qualData, onSearch }: DashboardViewProps) {
+  const { t } = useTranslation();
+
   // Helper to safely extract the latest value of a metric by key
   const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' = 'number') => {
     if (!quantData || !quantData.metrics) return 'N/A';
@@ -93,16 +96,16 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
             <div className="flex gap-2">
               <TrendingBadge
                 type="sector"
-                label="Sector"
-                value={qualData?.ticker?.sector || 'Unknown'}
+                label={t('dashboard.sector')}
+                value={qualData?.ticker?.sector || t('dashboard.unknown')}
                 queryKey={qualData?.ticker?.sector_key || quantData?.ticker?.sector_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
               />
               <TrendingBadge
                 type="industry"
-                label="Industry"
-                value={qualData?.ticker?.industry || 'Unknown'}
+                label={t('dashboard.industry')}
+                value={qualData?.ticker?.industry || t('dashboard.unknown')}
                 queryKey={qualData?.ticker?.industry_key || quantData?.ticker?.industry_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
@@ -111,7 +114,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           </div>
         </div>
           <div className="text-right flex flex-col items-end justify-center">
-            <span className="font-display-lg text-3xl font-bold text-primary-container leading-none">{formatLiveCurrency(quantData?.ticker?.current_price)}</span>
+            <span className="font-display-lg text-3xl font-bold text-primary leading-none">{formatLiveCurrency(quantData?.ticker?.current_price)}</span>
             {quantData?.ticker?.regular_market_change != null ? (
               <span className={`text-[12px] font-bold mt-1.5 flex items-center gap-0.5 ${quantData.ticker.regular_market_change >= 0 ? 'text-green-500' : 'text-error'}`}>
                 <span className="material-symbols-outlined text-[14px]">
@@ -120,7 +123,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
                 ${Math.abs(quantData.ticker.regular_market_change).toFixed(2)} ({Math.abs(quantData.ticker.regular_market_change_percent || 0).toFixed(2)}%)
               </span>
             ) : (
-              <span className="text-on-surface-variant text-[11px] font-medium mt-1 tracking-wide">Live Pricing</span>
+              <span className="text-on-surface-variant text-[11px] font-medium mt-1 tracking-wide">{t('company_profile.live_pricing')}</span>
             )}
           </div>
       </div>
@@ -174,7 +177,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
         <div className="lg:col-span-2 bg-surface-container-low border border-outline-variant flex flex-col">
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-              Business Strategy &amp; Competitive Moat
+              {t('company_profile.title')}
             </h3>
           </div>
           <div className="p-6 space-y-4">
@@ -183,19 +186,19 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
             </p>
             <div className="grid grid-cols-3 gap-4 pt-4">
               <div className="bg-surface-container-lowest p-3 border border-outline-variant/50 rounded flex flex-col h-48">
-                <span className="font-label-caps text-label-caps text-primary mb-2 shrink-0">COMPETITIVE MOAT</span>
+                <span className="font-label-caps text-label-caps text-primary mb-2 shrink-0">{t('company_profile.moat')}</span>
                 <div className="overflow-y-auto custom-scrollbar pr-2 h-full">
                   <p className="text-body-sm text-on-surface-variant leading-relaxed">{qualData?.competitive_advantage || 'Evaluating...'}</p>
                 </div>
               </div>
               <div className="bg-surface-container-lowest p-3 border border-outline-variant/50 rounded flex flex-col h-48">
-                <span className="font-label-caps text-label-caps text-secondary mb-2 shrink-0">REVENUE MODEL</span>
+                <span className="font-label-caps text-label-caps text-secondary mb-2 shrink-0">{t('company_profile.revenue_model')}</span>
                 <div className="overflow-y-auto custom-scrollbar pr-2 h-full">
                   <p className="text-body-sm text-on-surface-variant leading-relaxed">{qualData?.revenue_model || 'Evaluating...'}</p>
                 </div>
               </div>
               <div className="bg-surface-container-lowest p-3 border border-outline-variant/50 rounded flex flex-col h-48">
-                <span className="font-label-caps text-label-caps text-tertiary mb-2 shrink-0">KEY RISKS</span>
+                <span className="font-label-caps text-label-caps text-tertiary mb-2 shrink-0">{t('company_profile.key_risks')}</span>
                 <div className="overflow-y-auto custom-scrollbar pr-2 h-full flex flex-col gap-3">
                   {!qualData ? (
                     <p className="text-body-sm text-on-surface-variant leading-relaxed">Evaluating...</p>
@@ -216,7 +219,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
         {/* Right: Leadership & Macro */}
         <div className="bg-surface-container-low border border-outline-variant flex flex-col">
           <div className="px-4 py-3 border-b border-outline-variant">
-            <h3 className="font-header-sm text-header-sm font-bold text-on-surface">Leadership &amp; Governance</h3>
+            <h3 className="font-header-sm text-header-sm font-bold text-on-surface">{t('company_profile.leadership')}</h3>
           </div>
           <div className="p-4 flex-1 flex flex-col space-y-6">
             <div className="flex items-center gap-4 shrink-0">
@@ -225,11 +228,11 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
                   <p className="text-on-surface font-semibold line-clamp-1">{qualData?.ceo_name || 'Unknown'}</p>
                   {qualData?.ceo_ownership != null && (
                     <span className="bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-sm shrink-0" title="CEO Skin in the Game">
-                      {Number(qualData.ceo_ownership) < 0.1 ? Number(qualData.ceo_ownership).toFixed(2) : Number(qualData.ceo_ownership).toFixed(1)}% OWNED
+                      {Number(qualData.ceo_ownership) < 0.1 ? Number(qualData.ceo_ownership).toFixed(2) : Number(qualData.ceo_ownership).toFixed(1)}% {t('dashboard.owned')}
                     </span>
                   )}
                 </div>
-                <p className="text-on-surface-variant text-[11px] uppercase tracking-tighter">Chief Executive Officer</p>
+                <p className="text-on-surface-variant text-[11px] uppercase tracking-tighter">{t('company_header.ceo')}</p>
               </div>
             </div>
             <div className="mt-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar pr-2">
@@ -237,12 +240,14 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
               
               {qualData?.major_shareholders && Object.keys(qualData.major_shareholders).length > 0 && (
                 <div className="mt-auto pt-4 border-t border-outline-variant/50">
-                  <p className="font-label-caps text-label-caps text-on-surface-variant mb-3">TOP INSTITUTIONAL INVESTORS</p>
+                  <p className="font-label-caps text-label-caps text-on-surface-variant mb-3">{t('company_profile.top_investors')}</p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(qualData.major_shareholders).map(([investor, pct]) => (
                       <span key={investor} className="bg-surface-container text-on-surface-variant text-[11px] px-2 py-1 rounded border border-outline-variant flex items-center">
                         <span className="font-medium text-on-surface mr-1.5">{investor}</span>
-                        <span className="font-mono opacity-80">{Number(pct).toFixed(1)}%</span>
+                        <span className="font-mono opacity-80">
+                          {Number(pct).toFixed(2)}%
+                        </span>
                       </span>
                     ))}
                   </div>

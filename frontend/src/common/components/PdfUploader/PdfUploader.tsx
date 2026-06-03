@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PdfUploaderProps {
   onFileSelect: (file: File) => void;
@@ -6,6 +7,7 @@ interface PdfUploaderProps {
 }
 
 export function PdfUploader({ onFileSelect, isUploading }: PdfUploaderProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,12 +69,12 @@ export function PdfUploader({ onFileSelect, isUploading }: PdfUploaderProps) {
         <span className="material-symbols-outlined text-[32px] text-primary">upload_file</span>
       </div>
       <h3 className="text-header-sm font-bold text-on-surface mb-2">
-        {isUploading ? 'Analyzing Document...' : 'Upload Earnings Report'}
+        {isUploading ? t('pdf_uploader.uploading') : t('pdf_uploader.title')}
       </h3>
       <p className="text-body-sm text-on-surface-variant max-w-md">
         {isUploading 
-          ? 'Please wait while our AI engine extracts and analyzes the core fundamentals, capital allocation, and risk profile.'
-          : 'Drag and drop a PDF file here (e.g., 10-K, 10-Q, Earnings Call Transcript), or click to browse your files.'}
+          ? t('pdf_uploader.extracting')
+          : t('pdf_uploader.desc')}
       </p>
     </div>
   );
