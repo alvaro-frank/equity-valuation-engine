@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "summary": "SUMMARY",
+    "financials": "FINANCIALS",
+    "valuation": "VALUATION",
+    "comparables": "COMPARABLES",
+    "filings": "FILINGS",
+    "support": "SUPPORT",
+    "api": "API"
+  },
+  "search": {
+    "placeholder": "Search company...",
+    "hint": "Press Enter to search",
+    "analyze": "ANALYSE"
+  },
+  "dashboard": {
+    "error_title": "Analysis failed",
+    "error_default": "Unable to process your request. Please try another company.",
+    "try_again": "Try Again",
+    "sector": "SECTOR",
+    "industry": "INDUSTRY",
+    "unknown": "Unknown",
+    "owned": "OWNED",
+    "revenue_chart_annual": "Annual Revenue vs Income",
+    "revenue_chart_quarterly": "Quarterly Revenue vs Income",
+    "margin_chart_annual": "Annual Margin Evolution",
+    "margin_chart_quarterly": "Quarterly Margin Evolution",
+    "show_quarters": "Show Quarters",
+    "show_annual": "Show Annual",
+    "revenue": "REVENUE",
+    "operating_income": "OPERATING INCOME",
+    "net_income": "NET INCOME",
+    "gross_margin": "GROSS MARGIN",
+    "operating_margin": "OPERATING MARGIN",
+    "net_margin": "NET MARGIN",
+    "profit_margin": "PROFIT MARGIN",
+    "fcf_margin": "FCF MARGIN",
+    "empty_title": "Equity Valuation Engine",
+    "empty_desc": "Search for any publicly traded company to generate a deep-dive fundamental analysis report powered by advanced language models.",
+    "analyzing": "Analyzing {{ticker}}...",
+    "generating_report": "Generating comprehensive investment report..."
+  },
+  "company_header": {
+    "ceo": "Chief Executive Officer"
+  },
+  "company_profile": {
+    "title": "Business Strategy & Competitive Moat",
+    "moat": "COMPETITIVE MOAT",
+    "revenue_model": "REVENUE MODEL",
+    "key_risks": "KEY RISKS",
+    "leadership": "Leadership & Ownership Structure",
+    "top_investors": "MAJOR INVESTORS",
+    "live_pricing": "Live Pricing"
+  },
+  "industry_dynamics": {
+    "title": "Industry Dynamics",
+    "five_forces": "Porter's Five Forces",
+    "rivalry": "Rivalry among Competitors",
+    "suppliers": "Bargaining Power of Suppliers",
+    "customers": "Bargaining Power of Customers",
+    "entrants": "Threat of New Entrants",
+    "obsolescence": "Threat of Obsolescence",
+    "macro_factors": "Macro Factors",
+    "economic_sensitivity": "Economic Sensitivity",
+    "interest_rate": "Interest Rate Exposure"
+  },
+  "filings": {
+    "error_title": "Unable to analyze document",
+    "error_default": "Please ensure it's a valid Earnings Report PDF and try again.",
+    "results": "Analysis Results",
+    "analyze_another": "Analyze Another",
+    "core_performance": "Core Performance",
+    "adj_revenue": "Adj. Revenue",
+    "adj_eps": "Adj. EPS",
+    "gross_margin": "Gross Margin",
+    "operating_margin": "Operating Margin",
+    "ebitda_margin": "EBITDA Margin",
+    "net_margin": "Net Margin",
+    "fcf": "Free Cash Flow",
+    "capital_allocation": "Capital Allocation",
+    "share_buybacks": "Share Buybacks",
+    "dividends": "Dividends",
+    "capex": "CapEx / R&D",
+    "infra_assessment": "Infrastructure Assessment",
+    "risk_deconstruction": "Risk Deconstruction",
+    "macro_risks": "Macro / External Risks",
+    "internal_risks": "Internal / Execution Risks",
+    "forward_guidance": "Forward Guidance",
+    "moat_trajectory": "Moat Trajectory",
+    "bottom_line": "The Bottom Line"
+  },
+  "pdf_uploader": {
+    "uploading": "Analyzing Document...",
+    "extracting": "Extracting financial data and insights...",
+    "title": "Upload Earnings Report",
+    "desc": "Drag and drop your PDF here or click to browse",
+    "supported": "Supported formats: PDF (max 10MB)"
+  }
+}

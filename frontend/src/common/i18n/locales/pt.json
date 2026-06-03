@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "summary": "RESUMO",
+    "financials": "FINANCEIRO",
+    "valuation": "VALUATION",
+    "comparables": "COMPARÁVEIS",
+    "filings": "RELATÓRIOS",
+    "support": "SUPORTE",
+    "api": "API"
+  },
+  "search": {
+    "placeholder": "Pesquisar empresa...",
+    "hint": "Pressiona Enter para pesquisar",
+    "analyze": "ANALISAR"
+  },
+  "dashboard": {
+    "error_title": "A análise falhou",
+    "error_default": "Não foi possível processar o teu pedido. Por favor, tenta outra empresa.",
+    "try_again": "Tentar Novamente",
+    "sector": "SETOR",
+    "industry": "INDÚSTRIA",
+    "unknown": "Desconhecido",
+    "owned": "DETIDO",
+    "revenue_chart_annual": "Receitas Anuais vs Lucro",
+    "revenue_chart_quarterly": "Receitas Trimestrais vs Lucro",
+    "margin_chart_annual": "Evolução Anual das Margens",
+    "margin_chart_quarterly": "Evolução Trimestral das Margens",
+    "show_quarters": "Ver Trimestres",
+    "show_annual": "Ver Anual",
+    "revenue": "RECEITA",
+    "operating_income": "LUCRO OPERACIONAL",
+    "net_income": "LUCRO LÍQUIDO",
+    "gross_margin": "MARGEM BRUTA",
+    "operating_margin": "MARGEM OPERACIONAL",
+    "net_margin": "MARGEM LÍQUIDA",
+    "profit_margin": "MARGEM DE LUCRO",
+    "fcf_margin": "MARGEM DE FCF",
+    "empty_title": "Equity Valuation Engine",
+    "empty_desc": "Pesquisa qualquer empresa cotada na bolsa para gerar um relatório detalhado de análise fundamental com a ajuda de inteligência artificial.",
+    "analyzing": "A analisar a {{ticker}}...",
+    "generating_report": "A gerar relatório de investimento detalhado..."
+  },
+  "company_header": {
+    "ceo": "Diretor Executivo (CEO)"
+  },
+  "company_profile": {
+    "title": "Estratégia de Negócio & Vantagem Competitiva",
+    "moat": "VANTAGEM COMPETITIVA (MOAT)",
+    "revenue_model": "MODELO DE RECEITAS",
+    "key_risks": "PRINCIPAIS RISCOS",
+    "leadership": "Liderança & Estrutura Acionista",
+    "top_investors": "PRINCIPAIS INVESTIDORES",
+    "live_pricing": "Preços em Tempo Real"
+  },
+  "industry_dynamics": {
+    "title": "Dinâmicas da Indústria",
+    "five_forces": "As Cinco Forças de Porter",
+    "rivalry": "Rivalidade entre Concorrentes",
+    "suppliers": "Poder de Negociação dos Fornecedores",
+    "customers": "Poder de Negociação dos Clientes",
+    "entrants": "Ameaça de Novos Entrantes",
+    "obsolescence": "Ameaça de Obsolescência",
+    "macro_factors": "Fatores Macro",
+    "economic_sensitivity": "Sensibilidade Económica",
+    "interest_rate": "Exposição à Taxa de Juro"
+  },
+  "filings": {
+    "error_title": "Não foi possível analisar o documento",
+    "error_default": "Por favor, garante que é um PDF de Relatório de Contas válido e tenta novamente.",
+    "results": "Resultados da Análise",
+    "analyze_another": "Analisar Outro",
+    "core_performance": "Desempenho Principal",
+    "adj_revenue": "Receita Ajust.",
+    "adj_eps": "EPS Ajust.",
+    "gross_margin": "Margem Bruta",
+    "operating_margin": "Margem Operacional",
+    "ebitda_margin": "Margem EBITDA",
+    "net_margin": "Margem Líquida",
+    "fcf": "Free Cash Flow",
+    "capital_allocation": "Alocação de Capital",
+    "share_buybacks": "Recompra de Ações",
+    "dividends": "Dividendos",
+    "capex": "CapEx / I&D",
+    "infra_assessment": "Avaliação de Infraestrutura",
+    "risk_deconstruction": "Desconstrução de Risco",
+    "macro_risks": "Riscos Macro / Externos",
+    "internal_risks": "Riscos Internos / Execução",
+    "forward_guidance": "Projeções Futuras",
+    "moat_trajectory": "Trajetória da Vantagem Competitiva",
+    "bottom_line": "Conclusão"
+  },
+  "pdf_uploader": {
+    "uploading": "A analisar Documento...",
+    "extracting": "A extrair dados financeiros e insights...",
+    "title": "Upload do Relatório de Contas",
+    "desc": "Arrasta o teu PDF para aqui ou clica para navegar",
+    "supported": "Formatos suportados: PDF (máx 10MB)"
+  }
+}
