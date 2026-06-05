@@ -2,8 +2,9 @@
   "nav": {
     "summary": "RESUMO",
     "financials": "FINANCEIRO",
+    "thesis": "TESE DE INVESTIMENTO",
     "valuation": "VALUATION",
-    "comparables": "COMPARÁVEIS",
+    "sector": "ANÁLISE SETORIAL",
     "filings": "RELATÓRIOS",
     "support": "SUPORTE",
     "api": "API"
@@ -86,7 +87,6 @@
     "macro_risks": "Riscos Macro / Externos",
     "internal_risks": "Riscos Internos / Execução",
     "forward_guidance": "Projeções Futuras",
-    "moat_trajectory": "Trajetória da Vantagem Competitiva",
     "bottom_line": "Conclusão"
   },
   "pdf_uploader": {
@@ -95,5 +95,23 @@
     "title": "Upload do Relatório de Contas",
     "desc": "Arrasta o teu PDF para aqui ou clica para navegar",
     "supported": "Formatos suportados: PDF (máx 10MB)"
+  },
+  "thesis_view": {
+    "tab_overview": "Sumário & Estratégia",
+    "tab_moat": "Fosso Competitivo",
+    "tab_leadership": "Liderança",
+    "tab_history": "Histórico",
+    "tab_risks": "Riscos",
+    "strategy_title": "Visão Estratégica",
+    "products_title": "Produtos e Serviços",
+    "moat_title": "Vantagem Competitiva (Moat)",
+    "competitors_title": "Principais Concorrentes",
+    "leadership_title": "Liderança & Alinhamento",
+    "shareholders_title": "Estrutura Acionista",
+    "history_title": "Linha do Tempo & Histórico",
+    "crises_title": "Resiliência a Crises",
+    "risks_title": "Fatores de Risco Detalhados",
+    "moat_trajectory": "Trajetória da Vantagem Competitiva",
+    "no_data": "Dados não disponíveis para esta secção."
   }
 }

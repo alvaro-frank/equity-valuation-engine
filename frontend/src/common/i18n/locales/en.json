@@ -2,8 +2,9 @@
   "nav": {
     "summary": "SUMMARY",
     "financials": "FINANCIALS",
+    "thesis": "INVESTMENT THESIS",
     "valuation": "VALUATION",
-    "comparables": "COMPARABLES",
+    "sector": "SECTOR ANALYSIS",
     "filings": "FILINGS",
     "support": "SUPPORT",
     "api": "API"
@@ -86,7 +87,6 @@
     "macro_risks": "Macro / External Risks",
     "internal_risks": "Internal / Execution Risks",
     "forward_guidance": "Forward Guidance",
-    "moat_trajectory": "Moat Trajectory",
     "bottom_line": "The Bottom Line"
   },
   "pdf_uploader": {
@@ -95,5 +95,23 @@
     "title": "Upload Earnings Report",
     "desc": "Drag and drop your PDF here or click to browse",
     "supported": "Supported formats: PDF (max 10MB)"
+  },
+  "thesis_view": {
+    "tab_overview": "Overview & Strategy",
+    "tab_moat": "Moat & Rivals",
+    "tab_leadership": "Leadership",
+    "tab_history": "History",
+    "tab_risks": "Risks",
+    "strategy_title": "Strategic Vision",
+    "products_title": "Products & Services",
+    "moat_title": "Competitive Moat",
+    "competitors_title": "Main Competitors",
+    "leadership_title": "Leadership & Alignment",
+    "shareholders_title": "Ownership Structure",
+    "history_title": "Timeline & History",
+    "crises_title": "Crisis Resilience",
+    "risks_title": "Detailed Risk Factors",
+    "moat_trajectory": "Moat Trajectory",
+    "no_data": "Data not available for this section."
   }
 }
