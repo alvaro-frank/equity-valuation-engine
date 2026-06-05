@@ -172,7 +172,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
         <div className="bg-surface-container border border-outline-variant rounded p-4 h-full">
           <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider flex items-center mb-2">
             <span className="material-symbols-outlined text-[16px] mr-1">fort</span>
-            {t('filings.moat_trajectory')}
+            {t('thesis_view.moat_trajectory')}
           </h3>
           <p className="text-sm text-on-surface leading-relaxed">{data.moat_trajectory}</p>
         </div>
