@@ -1,0 +1,1 @@
+export { ThesisView } from './ThesisView';
