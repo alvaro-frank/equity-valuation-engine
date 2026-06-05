@@ -51,6 +51,9 @@ export interface QualitativeValuationResult {
   management_insights: string;
   risk_factors: Record<string, string>;
   historical_context_crises: string;
+  moat_trajectory?: string;
+  forward_guidance?: string;
+  bottom_line?: string;
 }
 
 export interface SectorIndustrialValuationResult {
