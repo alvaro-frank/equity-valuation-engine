@@ -116,6 +116,15 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
               <span className="text-sm text-on-surface-variant">{t('filings.capex')}</span>
               <span className="text-sm font-bold text-on-surface">{formatMoney(capital_allocation.capex_rd)}</span>
             </div>
+            
+            {capital_allocation.infrastructure_assessment && (
+              <div className="pt-2">
+                <span className="text-xs font-semibold text-primary block mb-2 uppercase tracking-wider">{t('filings.infra_assessment')}</span>
+                <p className="text-sm text-on-surface leading-relaxed">
+                  {capital_allocation.infrastructure_assessment}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
