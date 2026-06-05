@@ -186,8 +186,9 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
             {[
               { icon: 'dashboard', label: t('nav.summary'), id: 'SUMMARY', active: true },
               { icon: 'account_balance', label: t('nav.financials'), id: 'FINANCIALS' },
+              { icon: 'history_edu', label: t('nav.thesis'), id: 'THESIS' },
               { icon: 'calculate', label: t('nav.valuation'), id: 'VALUATION' },
-              { icon: 'analytics', label: t('nav.comparables'), id: 'COMPARABLES' },
+              { icon: 'analytics', label: t('nav.sector'), id: 'SECTOR' },
               { icon: 'description', label: t('nav.filings'), id: 'FILINGS' }
             ].map(item => (
               <button 
