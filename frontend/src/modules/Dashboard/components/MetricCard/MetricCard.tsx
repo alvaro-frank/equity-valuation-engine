@@ -31,7 +31,7 @@ export function MetricCard({
   };
 
   const frontFace = (
-    <div className="bg-surface-container-low border border-outline-variant p-3 flex flex-col h-full group hover:bg-surface-container transition-colors">
+    <div className="bg-surface-container-low border border-outline-variant p-3 flex flex-col h-full group hover:bg-surface-container transition-colors rounded-xl overflow-hidden">
       <div className="flex justify-between items-start">
         <span className="font-label-caps text-label-caps text-on-surface-variant">{label}</span>
         <span className="material-symbols-outlined text-outline text-[16px]">{icon}</span>
@@ -75,7 +75,7 @@ export function MetricCard({
 
         {/* Back Face */}
         <div 
-          className="[grid-area:stack] bg-primary-container border border-primary p-3 flex flex-col transition-colors shadow-md rounded-[2px]"
+          className="[grid-area:stack] bg-primary-container border border-primary p-3 flex flex-col transition-colors shadow-md rounded-xl overflow-hidden"
           style={{ 
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'

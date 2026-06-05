@@ -167,7 +167,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
         style={{ transformStyle: 'preserve-3d', transform: isQuarterly ? 'rotateY(180deg)' : 'rotateY(0)' }}
       >
         {/* Front Face: Annual */}
-        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
+        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
               {t('dashboard.margin_chart_annual')}
@@ -185,7 +185,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
         </div>
 
         {/* Back Face: Quarterly */}
-        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
               {t('dashboard.margin_chart_quarterly')}

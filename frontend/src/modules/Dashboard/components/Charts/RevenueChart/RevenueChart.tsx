@@ -130,13 +130,13 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
             wrapperStyle={{ fontSize: '11px', color: 'var(--on-surface-variant)', paddingTop: '10px' }}
           />
           <Bar dataKey="revenue" name={t('dashboard.revenue')} fill="var(--primary)" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="revenue" position="top" fill="var(--outline)" fontSize={10} formatter={(val: number | string) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+            <LabelList dataKey="revenue" position="top" fill="var(--outline)" fontSize={10} formatter={(val: unknown) => { const num = Number(val); return (!isNaN(num) && num !== 0) ? num.toFixed(1) + 'B' : ''; }} />
           </Bar>
           <Bar dataKey="operatingIncome" name={t('dashboard.operating_income')} fill="var(--secondary)" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="operatingIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: number | string) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+            <LabelList dataKey="operatingIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: unknown) => { const num = Number(val); return (!isNaN(num) && num !== 0) ? num.toFixed(1) + 'B' : ''; }} />
           </Bar>
           <Bar dataKey="netIncome" name={t('dashboard.net_income')} fill="var(--tertiary)" radius={[2, 2, 0, 0]}>
-            <LabelList dataKey="netIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: number | string) => (typeof val === 'number' && val !== 0) ? val.toFixed(1) + 'B' : ''} />
+            <LabelList dataKey="netIncome" position="top" fill="var(--outline)" fontSize={10} formatter={(val: unknown) => { const num = Number(val); return (!isNaN(num) && num !== 0) ? num.toFixed(1) + 'B' : ''; }} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -150,7 +150,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         style={{ transformStyle: 'preserve-3d', transform: isQuarterly ? 'rotateY(180deg)' : 'rotateY(0)' }}
       >
         {/* Front Face: Annual */}
-        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden' }}>
+        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden" style={{ backfaceVisibility: 'hidden' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
               {t('dashboard.revenue_chart_annual')}
@@ -168,7 +168,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         </div>
 
         {/* Back Face: Quarterly */}
-        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+        <div className="absolute inset-0 w-full h-full backface-hidden bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
           <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
               {t('dashboard.revenue_chart_quarterly')}
