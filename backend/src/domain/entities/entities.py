@@ -560,6 +560,7 @@ class CompanyProfile:
         management_insights (str): Insights on management quality and meetings.
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
+        moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
     """
     business_description: str
     company_history: str
@@ -574,6 +575,7 @@ class CompanyProfile:
     management_insights: str
     risk_factors: Dict[str, str]
     historical_context_crises: str
+    moat_trajectory: str
     
     def __post_init__(self):
         if self.ceo_ownership < 0 or self.ceo_ownership > 100:
