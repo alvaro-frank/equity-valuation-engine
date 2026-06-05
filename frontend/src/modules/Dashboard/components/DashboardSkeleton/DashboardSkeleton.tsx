@@ -23,7 +23,7 @@ export function DashboardSkeleton() {
       {/* Section 1: Fundamental KPIs (5 Cards) */}
       <section className="grid grid-cols-1 md:grid-cols-5 gap-panel-gap">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-surface-container-low border border-outline-variant p-3 flex flex-col h-28 rounded-[2px]">
+          <div key={i} className="bg-surface-container-low border border-outline-variant p-3 flex flex-col h-28 rounded-xl overflow-hidden">
             <div className="flex justify-between items-start">
               <div className="h-4 w-24 bg-surface-container-high rounded-sm"></div>
               <div className="h-4 w-4 bg-surface-container-high rounded-full"></div>
@@ -39,7 +39,7 @@ export function DashboardSkeleton() {
       {/* Section 2: Business & Moat (2/3 and 1/3) */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-panel-gap">
         {/* Left: Business Strategy */}
-        <div className="lg:col-span-2 bg-surface-container-low border border-outline-variant flex flex-col rounded-[2px]">
+        <div className="lg:col-span-2 bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant">
             <div className="h-5 w-64 bg-surface-container-high rounded-sm"></div>
           </div>
@@ -52,7 +52,7 @@ export function DashboardSkeleton() {
             
             <div className="grid grid-cols-3 gap-4 pt-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-surface-container-lowest p-3 border border-outline-variant/50 flex flex-col h-48 rounded-[2px]">
+                <div key={i} className="bg-surface-container-lowest p-3 border border-outline-variant/50 flex flex-col h-48 rounded-lg">
                   <div className="h-4 w-24 bg-surface-container-high rounded-sm mb-4"></div>
                   <div className="space-y-2">
                     <div className="h-3 w-full bg-surface-container-high rounded-sm"></div>
@@ -66,7 +66,7 @@ export function DashboardSkeleton() {
         </div>
 
         {/* Right: Leadership & Governance */}
-        <div className="bg-surface-container-low border border-outline-variant flex flex-col rounded-[2px]">
+        <div className="bg-surface-container-low border border-outline-variant flex flex-col rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant">
             <div className="h-5 w-48 bg-surface-container-high rounded-sm"></div>
           </div>
