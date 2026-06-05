@@ -304,7 +304,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 "share_buybacks": 0.0,
                 "dividends": 0.0,
                 "capex_rd": 0.0,
-                "infrastructure_assessment": "String: Assess if infrastructure investment is accelerating or decelerating"
+                "infrastructure_assessment": "String: Detailed 2-3 sentence paragraph explaining the 'why' behind the CapEx/R&D (e.g., accelerating for AI buildout, cutting back for margins). Do not just provide a single word."
             }},
             "forward_guidance": "String: Detailed 2-3 sentence analysis of management's forward-looking projections and guidance",
             "moat_trajectory": "String: Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why)",
