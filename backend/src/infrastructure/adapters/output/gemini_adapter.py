@@ -89,7 +89,8 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             "risk_factors": {{
                 "Risk Title": "Detailed impact description"
             }},
-            "historical_context_crises": "How the company navigated past major crises."
+            "historical_context_crises": "How the company navigated past major crises.",
+            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why)."
         }}
 
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
@@ -162,7 +163,8 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             competitors={c.name: c.overlap for c in schema_instance.competitors},
             management_insights=schema_instance.management_insights,
             risk_factors={r.title: r.description for r in schema_instance.risk_factors},
-            historical_context_crises=schema_instance.historical_context_crises
+            historical_context_crises=schema_instance.historical_context_crises,
+            moat_trajectory=schema_instance.moat_trajectory
         )
     
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
