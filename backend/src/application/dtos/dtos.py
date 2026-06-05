@@ -116,9 +116,9 @@ class QualitativeValuationResult(BaseModel):
         products_services (Dict[str, str]): Main products and services offered.
         competitive_advantage (str): Competitive advantage or MOAT analysis.
         competitors (Dict[str, str]): Main competitors in the industry.
-        management_insights (str): Insights on management quality and meetings.
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
+        moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
     """
     model_config = ConfigDict(frozen=True)
     
@@ -136,6 +136,7 @@ class QualitativeValuationResult(BaseModel):
     management_insights: str = Field(..., description="Insights on management quality and meetings")
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
+    moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
 
 class SectorIndustrialValuationResult(BaseModel):
     """

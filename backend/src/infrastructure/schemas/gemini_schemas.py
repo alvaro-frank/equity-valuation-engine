@@ -63,6 +63,7 @@ class CompanyProfileSchema(BaseModel):
         management_insights (str): Evaluation of the leadership team's quality and track record.
         risk_factors (List[RiskFactor]): Identified threats to the business model.
         historical_context_crises (str): How the company handled past economic downturns or internal crises.
+        moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
     """
     business_description: str
     company_history: str
@@ -77,6 +78,7 @@ class CompanyProfileSchema(BaseModel):
     management_insights: str
     risk_factors: List[RiskFactor]
     historical_context_crises: str
+    moat_trajectory: str
 
 class ForceFactor(BaseModel):
     """
