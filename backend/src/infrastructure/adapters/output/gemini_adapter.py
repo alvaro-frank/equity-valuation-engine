@@ -7,7 +7,7 @@ import json
 import re
 import asyncio
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
+from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 from typing import Optional
@@ -90,7 +90,21 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 "Risk Title": "Detailed impact description"
             }},
             "historical_context_crises": "How the company navigated past major crises.",
-            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why)."
+            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
+            "moat_sources": {{
+                "intangible_assets": 4,
+                "switching_costs": 3,
+                "network_effect": 5,
+                "cost_advantage": 2,
+                "efficient_scale": 1
+            }},
+            "quality_pillars": {{
+                "management_quality": 4,
+                "business_model_resilience": 5,
+                "pricing_power": 4,
+                "innovation_and_growth": 3,
+                "tam_expansion": 4
+            }}
         }}
 
         Do not include any markdown formatting, preamble, or conversational text. Return only the raw JSON.
@@ -164,7 +178,9 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             management_insights=schema_instance.management_insights,
             risk_factors={r.title: r.description for r in schema_instance.risk_factors},
             historical_context_crises=schema_instance.historical_context_crises,
-            moat_trajectory=schema_instance.moat_trajectory
+            moat_trajectory=schema_instance.moat_trajectory,
+            moat_sources=MoatSources(**schema_instance.moat_sources.model_dump()),
+            quality_pillars=QualityPillars(**schema_instance.quality_pillars.model_dump())
         )
     
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
