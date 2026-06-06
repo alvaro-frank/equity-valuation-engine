@@ -45,6 +45,22 @@ class RiskFactor(BaseModel):
     title: str
     description: str
 
+class MoatSourcesSchema(BaseModel):
+    """Quantitative evaluation (1-5) of moat sources."""
+    intangible_assets: int
+    switching_costs: int
+    network_effect: int
+    cost_advantage: int
+    efficient_scale: int
+
+class QualityPillarsSchema(BaseModel):
+    """Quantitative evaluation (1-5) of business quality pillars."""
+    management_quality: int
+    business_model_resilience: int
+    pricing_power: int
+    innovation_and_growth: int
+    tam_expansion: int
+
 class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
@@ -64,6 +80,8 @@ class CompanyProfileSchema(BaseModel):
         risk_factors (List[RiskFactor]): Identified threats to the business model.
         historical_context_crises (str): How the company handled past economic downturns or internal crises.
         moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
+        moat_sources (MoatSourcesSchema): Quantitative evaluation of moat sources (1-5).
+        quality_pillars (QualityPillarsSchema): Quantitative evaluation of business quality pillars (1-5).
     """
     business_description: str
     company_history: str
@@ -79,6 +97,8 @@ class CompanyProfileSchema(BaseModel):
     risk_factors: List[RiskFactor]
     historical_context_crises: str
     moat_trajectory: str
+    moat_sources: MoatSourcesSchema
+    quality_pillars: QualityPillarsSchema
 
 class ForceFactor(BaseModel):
     """
