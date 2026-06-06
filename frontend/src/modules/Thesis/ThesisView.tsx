@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
+import { MoatRadarChart } from './components/MoatRadarChart';
+import { QualityStarRating } from './components/QualityStarRating';
 
 interface ThesisViewProps {
   ticker: string;
@@ -140,6 +142,9 @@ export function ThesisView({ ticker }: ThesisViewProps) {
               </div>
 
               <div className="space-y-6">
+                {qualData.quality_pillars && (
+                  <QualityStarRating data={qualData.quality_pillars} />
+                )}
 
                 <div>
                   <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
@@ -170,8 +175,13 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                     <span className="material-symbols-outlined text-primary">fort</span>
                     {t('thesis_view.moat_title')}
                   </h3>
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50">
-                    <p>{qualData.competitive_advantage}</p>
+                  <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6 bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50 items-center">
+                    <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
+                      <p>{qualData.competitive_advantage}</p>
+                    </div>
+                    {qualData.moat_sources && (
+                      <MoatRadarChart data={qualData.moat_sources} />
+                    )}
                   </div>
                 </div>
 
