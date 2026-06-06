@@ -112,6 +112,21 @@
     "crises_title": "Resiliência a Crises",
     "risks_title": "Fatores de Risco Detalhados",
     "moat_trajectory": "Trajetória da Vantagem Competitiva",
+    "moat_sources": {
+      "intangible_assets": "Ativos Intangíveis",
+      "switching_costs": "Custos de Mudança",
+      "network_effect": "Efeito de Rede",
+      "cost_advantage": "Vantagem de Custo",
+      "efficient_scale": "Escala Eficiente"
+    },
+    "quality_pillars": {
+      "title": "5 Pilares de Qualidade",
+      "management_quality": "Equipa de Gestão",
+      "business_model_resilience": "Robustez do Negócio",
+      "pricing_power": "Poder de Preço",
+      "innovation_and_growth": "Inovação",
+      "tam_expansion": "Mercado Endereçável"
+    },
     "no_data": "Dados não disponíveis para esta secção."
   }
 }

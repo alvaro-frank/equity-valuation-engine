@@ -112,6 +112,21 @@
     "crises_title": "Crisis Resilience",
     "risks_title": "Detailed Risk Factors",
     "moat_trajectory": "Moat Trajectory",
+    "moat_sources": {
+      "intangible_assets": "Intangible Assets",
+      "switching_costs": "Switching Costs",
+      "network_effect": "Network Effect",
+      "cost_advantage": "Cost Advantage",
+      "efficient_scale": "Efficient Scale"
+    },
+    "quality_pillars": {
+      "title": "5 Quality Pillars",
+      "management_quality": "Management Quality",
+      "business_model_resilience": "Business Resilience",
+      "pricing_power": "Pricing Power",
+      "innovation_and_growth": "Innovation",
+      "tam_expansion": "TAM Potential"
+    },
     "no_data": "Data not available for this section."
   }
 }
