@@ -542,6 +542,24 @@ class EarningsReport:
     bottom_line: str
     
 @dataclass(frozen=True)
+class MoatSources:
+    """Quantitative evaluation (1-5) of moat sources."""
+    intangible_assets: int
+    switching_costs: int
+    network_effect: int
+    cost_advantage: int
+    efficient_scale: int
+
+@dataclass(frozen=True)
+class QualityPillars:
+    """Quantitative evaluation (1-5) of business quality pillars."""
+    management_quality: int
+    business_model_resilience: int
+    pricing_power: int
+    innovation_and_growth: int
+    tam_expansion: int
+
+@dataclass(frozen=True)
 class CompanyProfile:
     """
     Represents the company and company's business model details
@@ -561,6 +579,8 @@ class CompanyProfile:
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
         moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
+        moat_sources (MoatSources): Quantitative evaluation of moat sources (1-5).
+        quality_pillars (QualityPillars): Quantitative evaluation of business quality pillars (1-5).
     """
     business_description: str
     company_history: str
@@ -576,6 +596,8 @@ class CompanyProfile:
     risk_factors: Dict[str, str]
     historical_context_crises: str
     moat_trajectory: str
+    moat_sources: MoatSources
+    quality_pillars: QualityPillars
     
     def __post_init__(self):
         if self.ceo_ownership < 0 or self.ceo_ownership > 100:
