@@ -36,6 +36,22 @@ export interface QuantitativeValuationResult {
   quarterly_metrics?: Record<string, BaseMetric[]>;
 }
 
+export interface MoatSources {
+  intangible_assets: number;
+  switching_costs: number;
+  network_effect: number;
+  cost_advantage: number;
+  efficient_scale: number;
+}
+
+export interface QualityPillars {
+  management_quality: number;
+  business_model_resilience: number;
+  pricing_power: number;
+  innovation_and_growth: number;
+  tam_expansion: number;
+}
+
 export interface QualitativeValuationResult {
   ticker: TickerResult;
   business_description: string;
@@ -52,6 +68,8 @@ export interface QualitativeValuationResult {
   risk_factors: Record<string, string>;
   historical_context_crises: string;
   moat_trajectory?: string;
+  moat_sources?: MoatSources;
+  quality_pillars?: QualityPillars;
   forward_guidance?: string;
   bottom_line?: string;
 }
