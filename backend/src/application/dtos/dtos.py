@@ -100,6 +100,20 @@ class QuantitativeValuationResult(BaseModel):
     metrics: Dict[str, MetricAnalysisResult] = Field(..., description="Detailed yearly analysis per metric")
     quarterly_metrics: Optional[Dict[str, List[MetricQuarterlyResult]]] = Field(default_factory=dict, description="Detailed quarterly data per metric")
 
+class MoatSourcesResult(BaseModel):
+    intangible_assets: int = Field(..., description="Score 1-5 for Intangible Assets")
+    switching_costs: int = Field(..., description="Score 1-5 for Switching Costs")
+    network_effect: int = Field(..., description="Score 1-5 for Network Effect")
+    cost_advantage: int = Field(..., description="Score 1-5 for Cost Advantage")
+    efficient_scale: int = Field(..., description="Score 1-5 for Efficient Scale")
+
+class QualityPillarsResult(BaseModel):
+    management_quality: int = Field(..., description="Score 1-5 for Management Quality")
+    business_model_resilience: int = Field(..., description="Score 1-5 for Business Model Resilience")
+    pricing_power: int = Field(..., description="Score 1-5 for Pricing Power")
+    innovation_and_growth: int = Field(..., description="Score 1-5 for Innovation and Growth")
+    tam_expansion: int = Field(..., description="Score 1-5 for TAM Expansion")
+
 class QualitativeValuationResult(BaseModel):
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
@@ -119,6 +133,8 @@ class QualitativeValuationResult(BaseModel):
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
         moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
+        moat_sources (MoatSourcesResult): Quantitative evaluation of moat sources (1-5).
+        quality_pillars (QualityPillarsResult): Quantitative evaluation of business quality pillars (1-5).
     """
     model_config = ConfigDict(frozen=True)
     
@@ -137,6 +153,8 @@ class QualitativeValuationResult(BaseModel):
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
     moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
+    moat_sources: MoatSourcesResult = Field(..., description="Quantitative evaluation of moat sources (1-5)")
+    quality_pillars: QualityPillarsResult = Field(..., description="Quantitative evaluation of business quality pillars (1-5)")
 
 class SectorIndustrialValuationResult(BaseModel):
     """
