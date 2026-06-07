@@ -133,6 +133,52 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
         except Exception as e:
             raise TickerNotFoundError(f"Error fetching info for {symbol}: {str(e)}")
 
+    async def get_major_shareholders(self, symbol: str) -> Dict[str, float]:
+        """
+        Fetches the major institutional shareholders and their ownership percentage.
+        
+        Args:
+            symbol (str): The stock ticker symbol (e.g., "AAPL").
+            
+        Returns:
+            Dict[str, float]: Dictionary mapping shareholder name to their ownership percentage.
+        """
+        try:
+            ticker = await asyncio.to_thread(yf.Ticker, symbol)
+            institutional_holders = await asyncio.to_thread(lambda: ticker.institutional_holders)
+            
+            if institutional_holders is None or institutional_holders.empty:
+                return {}
+                
+            # Get top 5 holders by sorting by Value or just taking the top 5 (usually already sorted)
+            holders = institutional_holders.head(5)
+            
+            result = {}
+            for index, row in holders.iterrows():
+                holder_name = row.get("Holder")
+                pct_held = row.get("pctHeld") or row.get("Value")  # older versions of yfinance might have different column names
+                if hasattr(row, "pctHeld"):
+                    pct_held = row["pctHeld"]
+                elif "pctHeld" in row.keys():
+                    pct_held = row["pctHeld"]
+                elif "% Out" in row.keys():
+                    pct_held = row["% Out"]
+                else:
+                    pct_held = row.iloc[2] # Fallback to 3rd column if naming changes
+                
+                if pd.notna(holder_name) and pd.notna(pct_held):
+                    try:
+                        # yfinance returns ratio (e.g., 0.078 for 7.8%), we convert to percentage
+                        percentage = float(pct_held) * 100
+                        result[str(holder_name)] = round(percentage, 2)
+                    except ValueError:
+                        pass
+                        
+            return result
+        except Exception as e:
+            print(f"Failed to fetch major shareholders for {symbol}: {e}")
+            return {}
+
     async def get_stock_fundamental_data(self, symbol: str) -> List[FinancialYear]:
         """
         Fetches historical financial data for the past 5 years for the given symbol using yfinance.

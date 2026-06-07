@@ -57,7 +57,14 @@ class QualitativeValuationUseCase:
             industry_key=ticker_info.industry_key
         )
 
+        qual_data_dict = asdict(qual_data)
+        if "major_shareholders" in qual_data_dict:
+            del qual_data_dict["major_shareholders"]
+            
+        major_shareholders = await self.quant_adapter.get_major_shareholders(ticker_info.symbol)
+
         return QualitativeValuationResult(
             ticker=ticker_dto,
-            **asdict(qual_data)
+            major_shareholders=major_shareholders,
+            **qual_data_dict
         )

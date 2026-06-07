@@ -58,6 +58,19 @@ class QuantitativeDataPort(ABC):
             Ticker: Domain Entity containing the ticker data
         """
         pass
+    
+    @abstractmethod
+    async def get_major_shareholders(self, symbol: str) -> Dict[str, float]:
+        """
+        Fetches the major institutional shareholders and their ownership percentage.
+        
+        Args:
+            symbol (str): The stock ticker symbol.
+            
+        Returns:
+            Dict[str, float]: Dictionary mapping shareholder name to their ownership percentage (e.g. {"Vanguard": 7.8}).
+        """
+        pass
 
 class QuarterlyDataPort(ABC):
     """
