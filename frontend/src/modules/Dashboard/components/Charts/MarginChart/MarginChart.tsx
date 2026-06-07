@@ -17,6 +17,7 @@ interface MarginDataPoint {
   grossMargin: number;
   opMargin: number | null;
   netMargin: number | null;
+  isTTM?: boolean;
 }
 
 interface MarginChartProps {
@@ -35,18 +36,23 @@ export function MarginChart({ quantData }: MarginChartProps) {
     const netMarginSeries = quantData.metrics['net_margin']?.yearly_data || [];
 
     const sortedGross = [...grossMarginSeries].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => {
+        if (a.date === 'TTM') return 1;
+        if (b.date === 'TTM') return -1;
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
     );
 
     return sortedGross.map((gmItem) => {
-      const year = new Date(gmItem.date).getFullYear().toString();
+      const isTTM = gmItem.date === 'TTM';
+      const year = isTTM ? 'TTM' : new Date(gmItem.date).getFullYear().toString();
       
       const opItem = opMarginSeries.find(
-        (om) => new Date(om.date).getFullYear().toString() === year
+        (om) => om.date === gmItem.date || new Date(om.date).getFullYear().toString() === year
       );
       
       const netItem = netMarginSeries.find(
-        (nm) => new Date(nm.date).getFullYear().toString() === year
+        (nm) => nm.date === gmItem.date || new Date(nm.date).getFullYear().toString() === year
       );
 
       return {
@@ -54,6 +60,7 @@ export function MarginChart({ quantData }: MarginChartProps) {
         grossMargin: Number(gmItem.value),
         opMargin: opItem ? Number(opItem.value) : null,
         netMargin: netItem ? Number(netItem.value) : null,
+        isTTM,
       };
     });
   }, [quantData]);

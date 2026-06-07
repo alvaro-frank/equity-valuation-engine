@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
   LabelList,
+  Cell,
 } from 'recharts';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ interface RevenueDataPoint {
   revenue: number;
   operatingIncome: number;
   netIncome: number;
+  isTTM?: boolean;
 }
 
 interface RevenueChartProps {
@@ -36,16 +38,21 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
     const netIncomeSeries = quantData.metrics['net_income']?.yearly_data || [];
 
     const sortedRevenue = [...revenueSeries].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => {
+        if (a.date === 'TTM') return 1;
+        if (b.date === 'TTM') return -1;
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
     );
 
     return sortedRevenue.map((revItem) => {
-      const year = new Date(revItem.date).getFullYear().toString();
+      const isTTM = revItem.date === 'TTM';
+      const year = isTTM ? 'TTM' : new Date(revItem.date).getFullYear().toString();
       const opIncomeItem = opIncomeSeries.find(
-        (oi) => new Date(oi.date).getFullYear().toString() === year
+        (oi) => oi.date === revItem.date || new Date(oi.date).getFullYear().toString() === year
       );
       const netIncomeItem = netIncomeSeries.find(
-        (ni) => new Date(ni.date).getFullYear().toString() === year
+        (ni) => ni.date === revItem.date || new Date(ni.date).getFullYear().toString() === year
       );
 
       return {
@@ -53,6 +60,7 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         revenue: Number(revItem.value) / 1e9,
         operatingIncome: opIncomeItem ? Number(opIncomeItem.value) / 1e9 : 0,
         netIncome: netIncomeItem ? Number(netIncomeItem.value) / 1e9 : 0,
+        isTTM,
       };
     });
   }, [quantData]);

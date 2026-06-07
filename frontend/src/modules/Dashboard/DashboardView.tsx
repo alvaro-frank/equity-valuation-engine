@@ -26,7 +26,11 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
     if (!series || !series.yearly_data || series.yearly_data.length === 0) return 'N/A';
     
     // Sort by date descending and get the first one
-    const latest = [...series.yearly_data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    const latest = [...series.yearly_data].sort((a, b) => {
+      if (a.date === 'TTM') return -1;
+      if (b.date === 'TTM') return 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    })[0];
     if (latest.value == null) return 'N/A';
     
     const val = Number(latest.value);

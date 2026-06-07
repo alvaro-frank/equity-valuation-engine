@@ -2,7 +2,6 @@ import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import type { MoatSources } from '../../../common/types/valuation';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../../common/hooks/useTheme';
 
 export const MoatRadarChart: React.FC<{ data: MoatSources }> = ({ data }) => {
   const { t } = useTranslation();
@@ -36,7 +35,7 @@ export const MoatRadarChart: React.FC<{ data: MoatSources }> = ({ data }) => {
   ];
 
   const renderCustomTick = (props: any) => {
-    const { payload, x, y, textAnchor, stroke, radius } = props;
+    const { payload, x, y, textAnchor } = props;
     const words = payload.value.split(' ');
     
     let yOffset = 0;
