@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
 class TickerSearchResult(BaseModel):
     symbol: str = Field(..., description="Ticker symbol")
@@ -122,8 +122,7 @@ class QualitativeValuationResult(BaseModel):
         ticker (str): Ticker symbol.
         business_description (str): Summary of the business model.
         company_history (str): Details about foundation and milestones.
-        ceo_name (str): Name of the current CEO.
-        ceo_ownership (Decimal): Percentage of shares owned by the CEO.
+        key_executives (List[Dict[str, Any]]): List of key executives (e.g. CEO, CFO, COO) with name, title, and ownership.
         major_shareholders (Dict[str, Decimal]): List of top major shareholders.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
@@ -141,8 +140,7 @@ class QualitativeValuationResult(BaseModel):
     ticker: TickerResult
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
-    ceo_name: str = Field(..., description="Name of the current CEO")
-    ceo_ownership: Decimal = Field(..., description="Percentage of shares owned by the CEO")
+    key_executives: List[Dict[str, Any]] = Field(..., description="List of key executives with name, title, and ownership")
     major_shareholders: Dict[str, Decimal] = Field(..., description="Shareholder name mapping to their ownership type/stakes")
     revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
     strategy: str = Field(..., description="The company's core strategic focus")

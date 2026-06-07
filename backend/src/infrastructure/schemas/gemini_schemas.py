@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 class Shareholder(BaseModel):
     """
@@ -61,6 +61,14 @@ class QualityPillarsSchema(BaseModel):
     innovation_and_growth: int
     tam_expansion: int
 
+class KeyExecutive(BaseModel):
+    """
+    Details of a key executive in the company.
+    """
+    name: str
+    title: str
+    ownership: Optional[float] = None
+
 class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
@@ -68,8 +76,7 @@ class CompanyProfileSchema(BaseModel):
     Attributes:
         business_description (str): High-level overview of the company's core operations.
         company_history (str): Timeline and narrative of the company's evolution.
-        ceo_name (str): Name of the current Chief Executive Officer.
-        ceo_ownership (float): Percentage of the company owned by the CEO.
+        key_executives (List[KeyExecutive]): List of key executives with name, title, and ownership.
         major_shareholders (List[Shareholder]): List of entities holding significant equity stakes.
         revenue_model (str): Explanation of how the company generates income.
         strategy (str): The company's long-term strategic goals and roadmap.
@@ -85,8 +92,7 @@ class CompanyProfileSchema(BaseModel):
     """
     business_description: str
     company_history: str
-    ceo_name: str
-    ceo_ownership: float
+    key_executives: List[KeyExecutive]
     major_shareholders: List[Shareholder]
     revenue_model: str
     strategy: str

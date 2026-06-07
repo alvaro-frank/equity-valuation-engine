@@ -51,7 +51,8 @@ class QualitativeValuationAdapter:
         print(f"   - Evolution: {analysis.company_history}")
         
         print(f"\nLEADERSHIP AND MANAGEMENT:")
-        print(f"   - CEO: {analysis.ceo_name} (Ownership: {analysis.ceo_ownership}%)")
+        for exec in analysis.key_executives:
+            print(f"   - {exec['title']}: {exec['name']} (Ownership: {exec['ownership']}%)")
         print(f"   - Insights: {analysis.management_insights}")
         
         print(f"\nMAJOR SHAREHOLDERS:")

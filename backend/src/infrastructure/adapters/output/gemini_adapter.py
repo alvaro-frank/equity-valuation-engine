@@ -1,6 +1,7 @@
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+import fitz
 import os
 import time
 import json
@@ -64,35 +65,40 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         CRITICAL INSTRUCTIONS:
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
-        - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
+        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
         - Dictionaries: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
         - Tone: Professional, objective, and data-driven.
+        - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
         {{
-            "business_description": "A 3-4 sentence summary of core operations.",
+            "business_description": "A comprehensive 4-6 sentence deep dive into the core operations and business model.",
             "company_history": "Key milestones from foundation to present.",
-            "ceo_name": "Full name of current CEO.",
-            "ceo_ownership": 5,
+            "key_executives": [
+                {{ "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER", "ownership": 5.2 }},
+                {{ "name": "Name B", "title": "CHIEF FINANCIAL OFFICER", "ownership": 1.2 }},
+                {{ "name": "Name C", "title": "PRESIDENT & CHIEF INVESTMENT OFFICER", "ownership": 0.5 }},
+                {{ "name": "Name D", "title": "CHIEF TECHNOLOGY OFFICER", "ownership": 0.1 }}
+            ],
             "major_shareholders": {{
                 "Shareholder Name": 14.5,
                 "Other Name": 9.8
             }},
-            "revenue_model": "Detailed explanation of revenue streams.",
+            "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
             "strategy": "Core strategic focus and future outlook.",
             "products_services": {{
-                "Product/Service A": "Brief description of utility",
-                "Product/Service B": "Brief description of utility"
+                "Product/Service A": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance.",
+                "Product/Service B": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance."
             }},
-            "competitive_advantage": "Detailed MOAT analysis.",
+            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat.",
             "competitors": {{
-                "Competitor Name": "Main area of overlap/competition"
+                "Competitor Name": "Detailed 2-3 sentence analysis of competitive dynamics, market share battles, and specific overlap."
             }},
             "management_insights": "Analysis of management quality and track record.",
             "risk_factors": {{
-                "Risk Title": "Detailed impact description"
+                "Risk Title": "Detailed 2-3 sentence breakdown of the risk impact and probability."
             }},
             "historical_context_crises": "How the company navigated past major crises.",
             "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
@@ -172,8 +178,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         return CompanyProfile(
             business_description=schema_instance.business_description,
             company_history=schema_instance.company_history,
-            ceo_name=schema_instance.ceo_name,
-            ceo_ownership=Decimal(str(schema_instance.ceo_ownership)),
+            key_executives=[{"name": e.name, "title": e.title, "ownership": float(e.ownership) if e.ownership is not None else None} for e in schema_instance.key_executives],
             major_shareholders={s.name: Decimal(str(s.ownership)) for s in schema_instance.major_shareholders},
             revenue_model=schema_instance.revenue_model,
             strategy=schema_instance.strategy,
@@ -330,7 +335,8 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
         Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
-        Extract and synthesize the following fields:
+        Extract and synthesize the following fields EXACTLY as named.
+        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). For amounts, use Billions if applicable.
 
         1. period_end_date: (String) The end date of the fiscal period.
         2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
@@ -374,6 +380,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
                 file_info = await self.client.aio.files.get(name=uploaded_file.name)
                 while file_info.state.name == "PROCESSING":
+                    import asyncio
                     await asyncio.sleep(2)
                     file_info = await self.client.aio.files.get(name=uploaded_file.name)
                     

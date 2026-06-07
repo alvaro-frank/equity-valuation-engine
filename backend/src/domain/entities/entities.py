@@ -1,6 +1,6 @@
 from decimal import Decimal
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, field
+from typing import Dict, List, Any
 
 @dataclass(frozen=True)
 class Price:
@@ -35,9 +35,10 @@ class Ticker:
         pe_ratio (Decimal | None): The current, live Price-to-Earnings ratio.
         forward_pe (Decimal | None): The forecasted Forward Price-to-Earnings ratio.
         current_price (Decimal | None): The current, live stock price.
-        business_description (str | None): A long description of the company's business.
-        profit_margins (Decimal | None): The company's profit margins.
-        revenue_growth (Decimal | None): The company's revenue growth.
+        business_description (str | None): Long description of the business.
+        profit_margins (Decimal | None): Profit margin ratio.
+        revenue_growth (Decimal | None): Revenue growth ratio.
+        company_officers (List[Dict[str, Any]]): List of company officers with name and title.
     """
     symbol: str
     name: str = ""
@@ -54,6 +55,7 @@ class Ticker:
     business_description: str | None = None
     profit_margins: Decimal | None = None
     revenue_growth: Decimal | None = None
+    company_officers: List[Dict[str, Any]] = field(default_factory=list)
         
     def __str__(self):
         return f"{self.symbol} - {self.name} ({self.sector}/{self.industry})"
@@ -573,8 +575,7 @@ class CompanyProfile:
     Attributes:
         business_description (str): Summary of the business model.
         company_history (str): Details about foundation and milestones.
-        ceo_name (str): Name of the current CEO.
-        ceo_ownership (Decimal): Percentage of shares owned by the CEO.
+        key_executives (List[Dict[str, Any]]): List of key executives (e.g. CEO, CFO, COO) with name, title, and ownership.
         major_shareholders (Dict[str, Decimal]): List of top major shareholders.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
@@ -590,8 +591,7 @@ class CompanyProfile:
     """
     business_description: str
     company_history: str
-    ceo_name: str
-    ceo_ownership: Decimal
+    key_executives: List[Dict[str, Any]]
     major_shareholders: Dict[str, Decimal]
     revenue_model: str
     strategy: str
@@ -606,8 +606,10 @@ class CompanyProfile:
     quality_pillars: QualityPillars
     
     def __post_init__(self):
-        if self.ceo_ownership < 0 or self.ceo_ownership > 100:
-            raise ValueError(f"Domain Error: CEO ownership must be between 0 and 100%. Got {self.ceo_ownership}")
+        for exec in self.key_executives:
+            ownership = exec.get('ownership')
+            if ownership is not None and (ownership < 0 or ownership > 100):
+                raise ValueError(f"Domain Error: Executive ownership must be between 0 and 100%. Got {ownership}")
     
 @dataclass(frozen=True)
 class IndustrySectorDynamics:

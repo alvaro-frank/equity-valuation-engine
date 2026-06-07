@@ -34,6 +34,11 @@ class QualitativeValuationUseCase:
             context_parts.append(f"Profit Margins: {float(ticker_info.profit_margins)*100:.2f}%")
         if getattr(ticker_info, 'revenue_growth', None) is not None:
             context_parts.append(f"Revenue Growth: {float(ticker_info.revenue_growth)*100:.2f}%")
+        
+        officers = getattr(ticker_info, 'company_officers', [])
+        if officers:
+            officers_str = ", ".join([f"{o.get('name')} ({o.get('title')})" for o in officers[:10]])
+            context_parts.append(f"Current Key Executives/Officers: {officers_str}")
             
         context_str = "\n".join(context_parts)
         

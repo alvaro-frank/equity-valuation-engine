@@ -111,6 +111,8 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
             revenue_growth_raw = info.get("revenueGrowth")
             revenue_growth = Decimal(str(revenue_growth_raw)) if revenue_growth_raw is not None and not pd.isna(revenue_growth_raw) else None
             
+            company_officers = info.get("companyOfficers", [])
+            
             return Ticker(
                 symbol=info.get("symbol", symbol),
                 name=info.get("longName", info.get("shortName", "")),
@@ -125,7 +127,8 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 regular_market_change_percent=regular_market_change_percent,
                 business_description=business_description,
                 profit_margins=profit_margins,
-                revenue_growth=revenue_growth
+                revenue_growth=revenue_growth,
+                company_officers=company_officers
             )
         except Exception as e:
             raise TickerNotFoundError(f"Error fetching info for {symbol}: {str(e)}")
