@@ -82,12 +82,14 @@ class QualitativeDataPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for qualitative analysis.
     """
     @abstractmethod
-    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         """
         Fetches the qualitative data for a given stock ticker symbol.
         
         Args:
             symbol (str): The ticker symbol to be analysed
+            language (str): Target language for the analysis
+            context (str): Contextual financial data to ground the analysis and prevent hallucination
             
         Returns:
             CompanyProfile: Domain Entity containing the qualitative data of the business

@@ -44,7 +44,8 @@ class OpenRouterTranslatorAdapter(TranslationPort):
                     {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.0
+                temperature=0.0,
+                max_tokens=4000
             )
             
             result_text = response.choices[0].message.content.strip()

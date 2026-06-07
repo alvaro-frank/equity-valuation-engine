@@ -39,12 +39,14 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         self.cache_dir = os.path.join(base_dir, '.llm_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         """
-        Uses Gemini to generate qualitative analysis report. 
+        Fetches the qualitative data for a given stock ticker symbol using Google's Gemini.
         
         Args:
-            symbol(str): The ticker symbol to be analysed
+            symbol (str): The ticker symbol to be analysed
+            language (str): Target language for the analysis
+            context (str): Contextual financial data to ground the analysis and prevent hallucination
             
         Returns:
             CompanyProfile: A Domain Entity containing the qualitative data of the business
@@ -53,12 +55,15 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
 
+        context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
+
         prompt = f"""
         Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
-        Your goal is to provide a deep qualitative assessment for the company: {symbol}.
+        Your goal is to provide a deep qualitative assessment for the company: {symbol}.{context_prompt}
 
         CRITICAL INSTRUCTIONS:
-        - Accuracy: Use the most recent public information available up to your knowledge cutoff.
+        - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
+        - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
         - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
         - Dictionaries: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
         - Tone: Professional, objective, and data-driven.

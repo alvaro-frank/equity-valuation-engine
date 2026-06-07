@@ -35,6 +35,9 @@ class Ticker:
         pe_ratio (Decimal | None): The current, live Price-to-Earnings ratio.
         forward_pe (Decimal | None): The forecasted Forward Price-to-Earnings ratio.
         current_price (Decimal | None): The current, live stock price.
+        business_description (str | None): A long description of the company's business.
+        profit_margins (Decimal | None): The company's profit margins.
+        revenue_growth (Decimal | None): The company's revenue growth.
     """
     symbol: str
     name: str = ""
@@ -48,6 +51,9 @@ class Ticker:
     current_price: Decimal | None = None
     regular_market_change: Decimal | None = None
     regular_market_change_percent: Decimal | None = None
+    business_description: str | None = None
+    profit_margins: Decimal | None = None
+    revenue_growth: Decimal | None = None
         
     def __str__(self):
         return f"{self.symbol} - {self.name} ({self.sector}/{self.industry})"

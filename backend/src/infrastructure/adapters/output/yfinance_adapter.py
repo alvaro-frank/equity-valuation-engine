@@ -103,6 +103,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
             regular_market_change = Decimal(str(rmc_raw)) if rmc_raw is not None and not pd.isna(rmc_raw) else None
             regular_market_change_percent = Decimal(str(rmcp_raw)) if rmcp_raw is not None and not pd.isna(rmcp_raw) else None
             
+            business_description = info.get("longBusinessDescription")
+            
+            profit_margins_raw = info.get("profitMargins")
+            profit_margins = Decimal(str(profit_margins_raw)) if profit_margins_raw is not None and not pd.isna(profit_margins_raw) else None
+            
+            revenue_growth_raw = info.get("revenueGrowth")
+            revenue_growth = Decimal(str(revenue_growth_raw)) if revenue_growth_raw is not None and not pd.isna(revenue_growth_raw) else None
+            
             return Ticker(
                 symbol=info.get("symbol", symbol),
                 name=info.get("longName", info.get("shortName", "")),
@@ -114,7 +122,10 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 pe_ratio=pe_ratio,
                 forward_pe=forward_pe,
                 regular_market_change=regular_market_change,
-                regular_market_change_percent=regular_market_change_percent
+                regular_market_change_percent=regular_market_change_percent,
+                business_description=business_description,
+                profit_margins=profit_margins,
+                revenue_growth=revenue_growth
             )
         except Exception as e:
             raise TickerNotFoundError(f"Error fetching info for {symbol}: {str(e)}")
@@ -136,6 +147,10 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
             financials = await asyncio.to_thread(lambda: ticker.financials)
             balance_sheet = await asyncio.to_thread(lambda: ticker.balance_sheet)
             cashflow = await asyncio.to_thread(lambda: ticker.cashflow)
+            
+            quarterly_financials = await asyncio.to_thread(lambda: ticker.quarterly_financials)
+            quarterly_balance_sheet = await asyncio.to_thread(lambda: ticker.quarterly_balance_sheet)
+            quarterly_cashflow = await asyncio.to_thread(lambda: ticker.quarterly_cashflow)
             
             if financials.empty:
                 return []
@@ -246,8 +261,95 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     cash_and_equivalents=cash_and_equivalents,
                     year_end_price=year_end_price
                 ))
+            latest_annual_date = financials.columns[0] if not financials.empty else None
+            latest_quarterly_date = quarterly_financials.columns[0] if not quarterly_financials.empty else None
+
+            if latest_quarterly_date and latest_annual_date and latest_quarterly_date > latest_annual_date:
+                if len(quarterly_financials.columns) >= 4 and len(quarterly_cashflow.columns) >= 4:
+                    q_dates = quarterly_financials.columns[:4]
+                    q_cf_dates = quarterly_cashflow.columns[:4]
+
+                    def get_ttm_val(df, dates, key):
+                        if df.empty or key not in df.index:
+                            return Decimal("0")
+                        total = Decimal("0")
+                        for d in dates:
+                            if d in df.columns:
+                                val = df.loc[key, d]
+                                if not pd.isna(val):
+                                    total += Decimal(str(val))
+                        return total
+                    
+                    def get_latest_q_val(df, key):
+                        if df.empty or key not in df.index:
+                            return Decimal("0")
+                        d = df.columns[0]
+                        val = df.loc[key, d]
+                        if pd.isna(val):
+                            return Decimal("0")
+                        return Decimal(str(val))
+
+                    ttm_revenue = get_ttm_val(quarterly_financials, q_dates, 'Total Revenue')
+                    if ttm_revenue > Decimal("0"):
+                        ttm_gross_profit = get_ttm_val(quarterly_financials, q_dates, 'Gross Profit')
+                        if ttm_gross_profit == Decimal("0"):
+                            ttm_gross_profit = ttm_revenue
+                        
+                        ttm_operating_income = get_ttm_val(quarterly_financials, q_dates, 'Operating Income')
+                        if ttm_operating_income == Decimal("0"):
+                            ttm_operating_income = get_ttm_val(quarterly_financials, q_dates, 'Pretax Income')
+                        
+                        ttm_net_income = get_ttm_val(quarterly_financials, q_dates, 'Net Income')
+                        if ttm_net_income == Decimal("0"):
+                            ttm_net_income = get_ttm_val(quarterly_financials, q_dates, 'Net Income Common Stockholders')
+
+                        ttm_ebitda = get_ttm_val(quarterly_financials, q_dates, 'EBITDA')
+                        if ttm_ebitda == Decimal("0"):
+                            ttm_ebitda = ttm_operating_income + get_ttm_val(quarterly_cashflow, q_cf_dates, 'Depreciation And Amortization')
+                        
+                        ttm_operating_cash_flow = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Operating Cash Flow')
+                        ttm_capital_expenditures = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Capital Expenditure')
+                        
+                        ttm_total_assets = get_latest_q_val(quarterly_balance_sheet, 'Total Assets')
+                        ttm_total_liabilities = get_latest_q_val(quarterly_balance_sheet, 'Total Liabilities Net Minority Interest')
+                        ttm_total_debt = get_latest_q_val(quarterly_balance_sheet, 'Total Debt')
+                        ttm_short_term_debt = get_latest_q_val(quarterly_balance_sheet, 'Current Debt')
+                        ttm_long_term_debt = get_latest_q_val(quarterly_balance_sheet, 'Long Term Debt')
+                        ttm_cash_and_equivalents = get_latest_q_val(quarterly_balance_sheet, 'Cash And Cash Equivalents')
+                        
+                        ttm_shares_outstanding = get_latest_q_val(quarterly_financials, 'Basic Average Shares')
+                        if ttm_shares_outstanding == Decimal("0"):
+                            ttm_shares_outstanding = get_latest_q_val(quarterly_financials, 'Diluted Average Shares')
+                        
+                        ttm_shares_outstanding = max(ttm_shares_outstanding, Decimal("0"))
+                        ttm_total_assets = max(ttm_total_assets, Decimal("0"))
+                        ttm_total_debt = max(ttm_total_debt, Decimal("0"))
+
+                        years_data.append(FinancialYear(
+                            fiscal_date_ending="TTM",
+                            revenue=ttm_revenue,
+                            ebitda=ttm_ebitda,
+                            gross_profit=ttm_gross_profit,
+                            operating_income=ttm_operating_income,
+                            net_income=ttm_net_income,
+                            operating_cash_flow=ttm_operating_cash_flow,
+                            capital_expenditures=ttm_capital_expenditures,
+                            shares_outstanding=ttm_shares_outstanding,
+                            short_term_debt=ttm_short_term_debt,
+                            long_term_debt=ttm_long_term_debt,
+                            total_debt=ttm_total_debt,
+                            total_assets=ttm_total_assets,
+                            total_liabilities=ttm_total_liabilities,
+                            cash_and_equivalents=ttm_cash_and_equivalents,
+                            year_end_price=Decimal("0")
+                        ))
             
-            return sorted(years_data, key=lambda x: x.fiscal_date_ending)
+            sorted_years = sorted([y for y in years_data if y.fiscal_date_ending != "TTM"], key=lambda x: x.fiscal_date_ending)
+            ttm_year = next((y for y in years_data if y.fiscal_date_ending == "TTM"), None)
+            if ttm_year:
+                sorted_years.append(ttm_year)
+                
+            return sorted_years
         except Exception as e:
             raise Exception(f"Failed to fetch fundamental data from yfinance: {str(e)}")
 

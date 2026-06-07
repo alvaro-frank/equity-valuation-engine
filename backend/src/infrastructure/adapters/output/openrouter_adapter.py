@@ -58,17 +58,20 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
-    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
 
+        context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
+
         prompt = f"""
         Act as a Senior Equity Research Analyst specializing in Fundamental Analysis. 
-        Your goal is to provide a deep qualitative assessment for the company: {symbol}.
+        Your goal is to provide a deep qualitative assessment for the company: {symbol}.{context_prompt}
 
         CRITICAL INSTRUCTIONS:
-        - Accuracy: Use the most recent public information available up to your knowledge cutoff.
+        - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
+        - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
         - Data Types: 'ceo_ownership' must be a numeric representing a percentage (e.g., 3.5).
         - Lists of Objects: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
         - Tone: Professional, objective, and data-driven.
@@ -143,6 +146,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     messages=[{"role": "user", "content": prompt}],
                     response_format={"type": "json_object"},
                     temperature=0.0,
+                    max_tokens=4000,
                 )
                 
                 if not getattr(response, 'choices', None) or len(response.choices) == 0:
@@ -263,7 +267,8 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                             {"role": "user", "content": prompt_en}
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.0
+                        temperature=0.0,
+                        max_tokens=4000
                     )
                     data_en = self._get_json_from_response(response.choices[0].message.content)
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
@@ -373,6 +378,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     messages=[{"role": "user", "content": full_prompt}],
                     response_format={"type": "json_object"},
                     temperature=0.0,
+                    max_tokens=4000,
                 )
                 
                 if not getattr(response, 'choices', None) or len(response.choices) == 0:

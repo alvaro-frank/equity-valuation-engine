@@ -10,12 +10,12 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
         self.primary = primary_adapter
         self.backup = backup_adapter
 
-    async def analyse_company(self, symbol: str, language: str = "en") -> CompanyProfile:
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         try:
-            return await self.primary.analyse_company(symbol, language=language)
+            return await self.primary.analyse_company(symbol, language=language, context=context)
         except Exception as e:
             print(f"Primary adapter failed for analyse_company: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_company(symbol, language=language)
+            return await self.backup.analyse_company(symbol, language=language, context=context)
 
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
         try:

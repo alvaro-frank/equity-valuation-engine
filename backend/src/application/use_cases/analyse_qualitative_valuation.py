@@ -27,9 +27,20 @@ class QualitativeValuationUseCase:
         """
         ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
+        context_parts = []
+        if getattr(ticker_info, 'business_description', None):
+            context_parts.append(f"Business Description: {ticker_info.business_description}")
+        if getattr(ticker_info, 'profit_margins', None) is not None:
+            context_parts.append(f"Profit Margins: {float(ticker_info.profit_margins)*100:.2f}%")
+        if getattr(ticker_info, 'revenue_growth', None) is not None:
+            context_parts.append(f"Revenue Growth: {float(ticker_info.revenue_growth)*100:.2f}%")
+            
+        context_str = "\n".join(context_parts)
+        
         qual_data: CompanyProfile = await self.adapter.analyse_company(
             symbol=ticker_info.symbol,
-            language=language
+            language=language,
+            context=context_str
         )
         
         ticker_dto = TickerResult(
