@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import { useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
 import { MoatRadarChart } from './components/MoatRadarChart';
 import { QualityStarRating } from './components/QualityStarRating';
@@ -35,6 +36,14 @@ export function ThesisView({ ticker }: ThesisViewProps) {
             <div className="h-48 bg-surface-container-high rounded border border-outline-variant animate-pulse"></div>
             <div className="h-64 bg-surface-container-high rounded border border-outline-variant animate-pulse"></div>
           </div>
+        </div>
+      
+        {/* Floating Toast Notification for drafting thesis */}
+        <div className="fixed bottom-6 right-6 z-50 bg-surface-container-highest border border-outline-variant px-4 py-3 rounded shadow-lg flex items-center gap-3 animate-bounce shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
+          <span className="text-on-surface font-medium text-sm animate-pulse">
+            {i18n.language === 'pt' ? 'A redigir Tese de Investimento...' : 'Drafting Investment Thesis...'}
+          </span>
         </div>
       </div>
     );
@@ -139,13 +148,19 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                     <p>{qualData.strategy}</p>
                   </div>
                 </div>
+
+                {qualData.quality_pillars && (
+                  <div>
+                    <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[16px] text-primary">verified</span>
+                      {t('thesis_view.quality_pillars.title')}
+                    </h3>
+                    <QualityStarRating data={qualData.quality_pillars} />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-6">
-                {qualData.quality_pillars && (
-                  <QualityStarRating data={qualData.quality_pillars} />
-                )}
-
                 <div>
                   <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined text-on-surface-variant">category</span>
@@ -180,7 +195,9 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                       <p>{qualData.competitive_advantage}</p>
                     </div>
                     {qualData.moat_sources && (
-                      <MoatRadarChart data={qualData.moat_sources} />
+                      <div className="2xl:border-l 2xl:pl-6 2xl:border-t-0 border-t pt-6 2xl:pt-0 border-outline-variant/50 w-full h-full flex items-center justify-center">
+                        <MoatRadarChart data={qualData.moat_sources} />
+                      </div>
                     )}
                   </div>
                 </div>
