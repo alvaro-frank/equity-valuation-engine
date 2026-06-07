@@ -4,14 +4,14 @@ from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
 import os
 
-class OpenRouterTranslatorAdapter(TranslationPort):
+class GroqTranslatorAdapter(TranslationPort):
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
         self.client = AsyncOpenAI(
-            base_url="https://openrouter.ai/api/v1",
+            base_url="https://api.groq.com/openai/v1",
             api_key=self.api_key,
         )
-        self.model_id = os.getenv('TRANSLATOR_MODEL', 'openrouter/free')
+        self.model_id = os.getenv('TRANSLATOR_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')
         
     async def translate_json(self, data: dict, target_language: str) -> dict:
         if not data:

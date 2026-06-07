@@ -14,29 +14,29 @@ from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, Industry
 
 load_dotenv()
 
-class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort):
+class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort):
     """
-    Adapter that leverages OpenRouter to generate qualitative research.
+    Adapter that leverages Groq to generate qualitative research.
     """
     def __init__(self, api_key: Optional[str] = None, client: Optional[AsyncOpenAI] = None, translator: Optional[TranslationPort] = None):
         """
-        Initializes the OpenRouter client.
+        Initializes the Groq client.
         """
         if client:
             self.client = client
         else:
             if not api_key:
-                api_key = os.getenv("OPENROUTER_API_KEY")
+                api_key = os.getenv("GROQ_API_KEY")
                 if not api_key:
-                    raise ValueError("OPENROUTER_API_KEY is required")
+                    raise ValueError("GROQ_API_KEY is required")
             
             self.client = AsyncOpenAI(
-                base_url="https://openrouter.ai/api/v1",
+                base_url="https://api.groq.com/openai/v1",
                 api_key=api_key,
             )
             
         self.translator = translator
-        self.model_id = os.getenv('OPENROUTER_MODEL', 'openrouter/free')
+        self.model_id = os.getenv('GROQ_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')
         
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         self.cache_dir = os.path.join(base_dir, '.llm_cache')
@@ -384,7 +384,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 for page in doc:
                     md_text += page.get_text("text") + "\n\n"
             
-            # TF-IDF RAG Implementation to respect OpenRouter token limits
+            # TF-IDF RAG Implementation to respect Groq token limits
             import numpy as np
             from sklearn.feature_extraction.text import TfidfVectorizer
             
@@ -450,11 +450,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 )
                 
                 if not getattr(response, 'choices', None) or len(response.choices) == 0:
-                    raise ValueError(f"OpenRouter API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
+                    raise ValueError(f"Groq API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
                 
                 content = response.choices[0].message.content
                 if content is None:
-                    raise ValueError("OpenRouter API returned None for message content.")
+                    raise ValueError("Groq API returned None for message content.")
                 
                 data = self._get_json_from_response(content)
             
@@ -464,7 +464,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 schema_instance = EarningsReportSchema(**data)
 
             except Exception as e: 
-                raise ConnectionError(f"OpenRouter Fallback Error: {e}")
+                raise ConnectionError(f"Groq Fallback Error: {e}")
 
         # Ensure schema instance exists
         if 'schema_instance' not in locals():

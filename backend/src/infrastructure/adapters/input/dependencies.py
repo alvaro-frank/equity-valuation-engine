@@ -7,6 +7,7 @@ from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAda
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
 from infrastructure.adapters.output.openrouter_adapter import OpenRouterAdapter
+from infrastructure.adapters.output.groq_adapter import GroqAdapter
 from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeAdapter
 from infrastructure.config.settings import settings
 from typing import Union
@@ -17,14 +18,15 @@ from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort, Sec
 # As ours do not store heavy state and httpx/requests handle the pools internally,
 # instantiating them here is not a problem, but we can optimize later.
 
-from infrastructure.adapters.output.openrouter_translator import OpenRouterTranslatorAdapter
+from infrastructure.adapters.output.groq_translator import GroqTranslatorAdapter
 
-_translator = OpenRouterTranslatorAdapter()
+_translator = GroqTranslatorAdapter()
 _alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
 _yfinance_adapter = YfinanceAdapter()
 _gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
 _openrouter_adapter = OpenRouterAdapter(translator=_translator)
-_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_openrouter_adapter)
+_groq_adapter = GroqAdapter(translator=_translator)
+_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_adapter)
 
 def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]:
     """
