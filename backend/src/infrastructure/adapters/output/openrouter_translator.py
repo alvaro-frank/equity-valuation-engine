@@ -19,9 +19,13 @@ class OpenRouterTranslatorAdapter(TranslationPort):
             
         json_str = json.dumps(data)
         
+        lang_instruction = target_language
+        if target_language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms or grammar."
+
         prompt = f"""
         You are a precise JSON translation engine. 
-        Your ONLY task is to translate the string values of the following JSON object to the target language: '{target_language}'.
+        Your ONLY task is to translate the string values of the following JSON object to the target language: '{lang_instruction}'.
         
         CRITICAL RULES:
         1. DO NOT translate or modify ANY JSON keys.
