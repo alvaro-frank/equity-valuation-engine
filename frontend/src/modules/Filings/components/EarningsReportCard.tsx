@@ -22,10 +22,14 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
   const formatMoney = (value: number | string) => {
     const numValue = Number(value);
     
-    // Auto-detect if value is in millions or raw dollars.
+    // Auto-detect if value is in billions, millions, or raw dollars.
     let actualValue = numValue;
-    if (Math.abs(numValue) < 1000000) {
-      actualValue = numValue * 1000000;
+    if (Math.abs(numValue) < 1000) {
+      // The LLM is instructed to output in Billions (e.g., 5.532 for 5.532B)
+      actualValue = numValue * 1e9;
+    } else if (Math.abs(numValue) < 1000000) {
+      // Fallback: if it outputs e.g., 5532, it's likely Millions
+      actualValue = numValue * 1e6;
     }
 
     const absVal = Math.abs(actualValue);

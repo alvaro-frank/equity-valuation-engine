@@ -5,6 +5,15 @@ import { useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
 import { MoatRadarChart } from './components/MoatRadarChart';
 import { QualityStarRating } from './components/QualityStarRating';
 
+const getInitials = (name: string) => {
+  if (!name) return '?';
+  const parts = name.replace(/^(Mr\.|Ms\.|Mrs\.|Dr\.)\s+/i, '').trim().split(' ');
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 interface ThesisViewProps {
   ticker: string;
 }
@@ -245,19 +254,30 @@ export function ThesisView({ ticker }: ThesisViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1 space-y-6">
                 
-                <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl overflow-hidden">
-                  <div className="bg-surface-container-high p-4 border-b border-outline-variant/50 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-3 border border-primary/20">
-                      <span className="material-symbols-outlined text-[32px] text-primary">person</span>
-                    </div>
-                    <h3 className="font-bold text-on-surface text-lg">{qualData.ceo_name}</h3>
-                    <p className="text-xs text-on-surface-variant uppercase tracking-wider">{t('company_header.ceo')}</p>
-                  </div>
-                  <div className="p-4 flex items-center justify-between bg-primary/5">
-                    <span className="text-sm text-on-surface font-medium">Skin in the Game:</span>
-                    <span className="bg-primary text-on-primary text-xs font-bold px-2.5 py-1 rounded">
-                      {Number(qualData.ceo_ownership) < 0.1 ? Number(qualData.ceo_ownership).toFixed(2) : Number(qualData.ceo_ownership).toFixed(1)}% {t('dashboard.owned')}
-                    </span>
+                <div>
+                  <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary">groups</span>
+                    {t('company_profile.leadership')}
+                  </h3>
+                  <div className="space-y-2">
+                    {qualData?.key_executives?.map((exec, idx) => (
+                      <div key={idx} className="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant/50 hover:bg-surface-container-low transition-colors duration-200 rounded-xl group">
+                        <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 group-hover:bg-primary/20 transition-colors">
+                          {getInitials(exec.name)}
+                        </div>
+                        <div className="flex flex-col flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm text-on-surface font-bold leading-tight">{exec.name}</span>
+                            {exec.ownership != null && (
+                              <span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/20 shrink-0" title={`${t('dashboard.owned')} Shares`}>
+                                {Number(exec.ownership) < 0.1 ? Number(exec.ownership).toFixed(2) : Number(exec.ownership).toFixed(1)}% {t('dashboard.owned')}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-on-surface-variant mt-1 leading-snug">{exec.title}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

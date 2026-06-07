@@ -56,8 +56,7 @@ export interface QualitativeValuationResult {
   ticker: TickerResult;
   business_description: string;
   company_history: string;
-  ceo_name: string;
-  ceo_ownership: number;
+  key_executives: Array<{name: string; title: string; ownership: number | null}>;
   major_shareholders: Record<string, number>;
   revenue_model: string;
   strategy: string;

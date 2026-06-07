@@ -227,17 +227,26 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           </div>
           <div className="p-4 flex-1 flex flex-col space-y-6">
             <div className="flex items-center gap-4 shrink-0">
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-on-surface font-semibold line-clamp-1">{qualData?.ceo_name || 'Unknown'}</p>
-                  {qualData?.ceo_ownership != null && (
-                    <span className="bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-sm shrink-0" title="CEO Skin in the Game">
-                      {Number(qualData.ceo_ownership) < 0.1 ? Number(qualData.ceo_ownership).toFixed(2) : Number(qualData.ceo_ownership).toFixed(1)}% {t('dashboard.owned')}
-                    </span>
-                  )}
-                </div>
-                <p className="text-on-surface-variant text-[11px] uppercase tracking-tighter">{t('company_header.ceo')}</p>
-              </div>
+              {(() => {
+                const ceo = qualData?.key_executives?.find(e => 
+                  e.title.toLowerCase().includes('ceo') || 
+                  e.title.toLowerCase().includes('chief executive')
+                ) || qualData?.key_executives?.[0];
+                
+                return (
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-on-surface font-semibold line-clamp-1">{ceo?.name || 'Unknown'}</p>
+                      {ceo?.ownership != null && (
+                        <span className="bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-sm shrink-0" title={`${ceo.title} Skin in the Game`}>
+                          {Number(ceo.ownership) < 0.1 ? Number(ceo.ownership).toFixed(2) : Number(ceo.ownership).toFixed(1)}% {t('dashboard.owned')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-on-surface-variant text-[11px] uppercase tracking-tighter">{ceo?.title || t('company_header.ceo')}</p>
+                  </div>
+                );
+              })()}
             </div>
             <div className="mt-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar pr-2">
               <p className="text-body-sm text-on-surface-variant leading-relaxed mb-4" title={qualData?.management_insights}>{qualData?.management_insights || 'Analyzing leadership...'}</p>
