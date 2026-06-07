@@ -576,7 +576,6 @@ class CompanyProfile:
         business_description (str): Summary of the business model.
         company_history (str): Details about foundation and milestones.
         key_executives (List[Dict[str, Any]]): List of key executives (e.g. CEO, CFO, COO) with name, title, and ownership.
-        major_shareholders (Dict[str, Decimal]): List of top major shareholders.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
         products_services (Dict[str, str]): Main products and services offered.
@@ -592,7 +591,6 @@ class CompanyProfile:
     business_description: str
     company_history: str
     key_executives: List[Dict[str, Any]]
-    major_shareholders: Dict[str, Decimal]
     revenue_model: str
     strategy: str
     products_services: Dict[str, str]

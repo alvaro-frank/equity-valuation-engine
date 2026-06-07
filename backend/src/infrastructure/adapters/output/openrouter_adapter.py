@@ -73,11 +73,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
         - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
-        - Lists of Objects: For 'major_shareholders' include the top investors, both institutional (e.g. Vanguard) and individual/insiders (e.g. Founders, CEO) if they hold significant stakes. For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
+        - Lists of Objects: For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Language: Generate the analysis text in the following language: {lang_instruction}. 
-        - CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "business_description", "major_shareholders").
+        - CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "business_description").
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
@@ -89,10 +89,6 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 {{ "name": "Name B", "title": "CHIEF FINANCIAL OFFICER", "ownership": 1.2 }},
                 {{ "name": "Name C", "title": "PRESIDENT & CHIEF INVESTMENT OFFICER", "ownership": 0.5 }},
                 {{ "name": "Name D", "title": "CHIEF TECHNOLOGY OFFICER", "ownership": 0.1 }}
-            ],
-            "major_shareholders": [
-                {{ "name": "Shareholder Name", "ownership": 14.5 }},
-                {{ "name": "Other Name", "ownership": 9.8 }}
             ],
             "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
             "strategy": "Core strategic focus and future outlook.",
@@ -186,7 +182,6 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             business_description=schema_instance.business_description,
             company_history=schema_instance.company_history,
             key_executives=[{"name": e.name, "title": e.title, "ownership": float(e.ownership) if e.ownership is not None else None} for e in schema_instance.key_executives],
-            major_shareholders={s.name: Decimal(str(s.ownership)) for s in schema_instance.major_shareholders},
             revenue_model=schema_instance.revenue_model,
             strategy=schema_instance.strategy,
             products_services={p.name: p.description for p in schema_instance.products_services},

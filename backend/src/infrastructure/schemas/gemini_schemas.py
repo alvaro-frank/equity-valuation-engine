@@ -1,16 +1,7 @@
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 
-class Shareholder(BaseModel):
-    """
-    Represents a major shareholder of the company.
 
-    Attributes:
-        name (str): The name of the individual or institutional investor.
-        ownership (float): The percentage of total shares owned by the shareholder.
-    """
-    name: str
-    ownership: float
 
 class ProductService(BaseModel):
     """
@@ -77,7 +68,6 @@ class CompanyProfileSchema(BaseModel):
         business_description (str): High-level overview of the company's core operations.
         company_history (str): Timeline and narrative of the company's evolution.
         key_executives (List[KeyExecutive]): List of key executives with name, title, and ownership.
-        major_shareholders (List[Shareholder]): List of entities holding significant equity stakes.
         revenue_model (str): Explanation of how the company generates income.
         strategy (str): The company's long-term strategic goals and roadmap.
         products_services (List[ProductService]): Portfolio of the company's offerings.
@@ -93,7 +83,6 @@ class CompanyProfileSchema(BaseModel):
     business_description: str
     company_history: str
     key_executives: List[KeyExecutive]
-    major_shareholders: List[Shareholder]
     revenue_model: str
     strategy: str
     products_services: List[ProductService]
