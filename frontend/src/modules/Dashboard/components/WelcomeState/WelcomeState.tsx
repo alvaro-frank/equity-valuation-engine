@@ -124,7 +124,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
               // Recent Searches rendering
               <>
                 <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant flex justify-between items-center">
-                  <span>RECENT SEARCHES</span>
+                  <span>{t('search.recent_searches')}</span>
                   <button 
                     type="button"
                     onMouseDown={(e) => {
@@ -134,7 +134,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
                     }}
                     className="text-error hover:text-error/80 cursor-pointer transition-colors"
                   >
-                    Clear
+                    {t('search.clear')}
                   </button>
                 </div>
                 <div className="flex flex-col max-h-[300px] overflow-y-auto">

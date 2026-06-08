@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTrendingTickers } from '@/common/hooks/useTrendingTickers';
 import { SearchResultItem } from '@/common/components/SearchResultItem';
 
@@ -12,6 +13,7 @@ interface TrendingBadgeProps {
 }
 
 export function TrendingBadge({ label, value, type, queryKey, currentTicker, onSelectTicker }: TrendingBadgeProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,7 +87,7 @@ export function TrendingBadge({ label, value, type, queryKey, currentTicker, onS
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-72 bg-surface-container-high border border-outline-variant rounded-md shadow-lg z-50 overflow-hidden flex flex-col max-h-[400px]">
           <div className="px-3 py-2 border-b border-outline-variant bg-surface-container flex items-center justify-between">
-            <span className="text-xs font-medium text-on-surface">Trending in {value}</span>
+            <span className="text-xs font-medium text-on-surface">{t('search.trending_in', { sector: value })}</span>
             {isLoading && <span className="material-symbols-outlined text-[14px] animate-spin text-on-surface-variant">sync</span>}
           </div>
           

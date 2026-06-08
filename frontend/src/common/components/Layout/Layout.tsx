@@ -119,7 +119,7 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
                         // Recent Searches rendering
                         <>
                           <div className="px-3 py-1.5 text-[10px] font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant flex justify-between items-center">
-                            <span>RECENT SEARCHES</span>
+                            <span>{t('search.recent_searches')}</span>
                             <button 
                               onMouseDown={(e) => {
                                 e.preventDefault();
@@ -128,7 +128,7 @@ export function Layout({ children, onSearch, activeTicker, hasError, activeTab, 
                               }}
                               className="text-error hover:text-error/80 cursor-pointer transition-colors"
                             >
-                              Clear
+                              {t('search.clear')}
                             </button>
                           </div>
                           <div className="flex flex-col max-h-[300px] overflow-y-auto">
