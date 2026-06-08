@@ -6,6 +6,27 @@ import { useEarningsAnalysis } from './hooks/useEarningsAnalysis';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
+const getErrorDetails = (key: number | string, t: any) => {
+  const map: Record<number | string, { title: string, message: string, icon: string }> = {
+    429: {
+      title: t('api_errors.429_title'),
+      message: t('api_errors.429_desc'),
+      icon: "hourglass_empty"
+    },
+    503: {
+      title: t('api_errors.503_title'),
+      message: t('api_errors.503_desc'),
+      icon: "engineering"
+    },
+    DEFAULT: {
+      title: t('api_errors.default_title'),
+      message: t('api_errors.default_desc'),
+      icon: "error_outline"
+    }
+  };
+  return map[key] || map['DEFAULT'];
+};
+
 export function FilingsView({ ticker }: { ticker: string }) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
@@ -40,18 +61,32 @@ export function FilingsView({ ticker }: { ticker: string }) {
     mutate({ ticker, file });
   };
 
-  const getErrorMessage = () => {
-    if (!error) return "";
-    if (typeof error === 'object' && error !== null) {
-      const err = error as { response?: { data?: { detail?: string } }, message?: string };
-      const detail = err.response?.data?.detail;
-      if (detail === 'rate_limit_exceeded') {
-        return t('errors.rate_limit_exceeded');
-      }
-      return detail || err.message || t('filings.error_default');
-    }
-    return t('filings.error_default');
+  interface ApiError extends Error {
+    response?: {
+      status?: number;
+      data?: { detail?: string };
+    };
+  }
+
+  const getErrorState = () => {
+    if (!error) return null;
+    
+    const statusCode = (error as ApiError)?.response?.status;
+    const apiErrorMsg = (error as ApiError)?.response?.data?.detail || error.message || '';
+    
+    let errorKey: number | string = 'DEFAULT';
+    
+    if (statusCode === 429 || apiErrorMsg.includes('429') || apiErrorMsg.includes('RESOURCE_EXHAUSTED') || apiErrorMsg.toLowerCase().includes('quota') || apiErrorMsg === 'rate_limit_exceeded') errorKey = 429;
+    else if (statusCode === 503 || apiErrorMsg.includes('503') || apiErrorMsg.includes('UNAVAILABLE') || apiErrorMsg.includes('high demand')) errorKey = 503;
+
+    return {
+      key: errorKey,
+      details: getErrorDetails(errorKey, t),
+      rawMessage: apiErrorMsg
+    };
   };
+
+  const errorState = getErrorState();
 
   return (
     <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
@@ -62,16 +97,16 @@ export function FilingsView({ ticker }: { ticker: string }) {
         </div>
       )}
 
-      {error && (
+      {errorState && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-500">
           <div className="w-20 h-20 bg-error/10 border border-error/20 rounded-full flex items-center justify-center mb-6">
-            <span className="material-symbols-outlined text-[40px] text-error">error_outline</span>
+            <span className="material-symbols-outlined text-[40px] text-error">{errorState.details.icon}</span>
           </div>
           <h2 className="font-display-sm text-display-sm font-bold text-on-surface mb-2">
-            {t('filings.error_title')}
+            {errorState.key === 'DEFAULT' ? `${errorState.details.title} document` : errorState.details.title}
           </h2>
           <p className="text-body-md text-on-surface-variant max-w-md mb-8 leading-relaxed">
-            {getErrorMessage()}
+            {errorState.key === 'DEFAULT' && errorState.rawMessage ? errorState.rawMessage : errorState.details.message}
           </p>
           <button 
             onClick={handleReset}
