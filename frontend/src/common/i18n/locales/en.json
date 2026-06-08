@@ -128,5 +128,8 @@
       "tam_expansion": "TAM Potential"
     },
     "no_data": "Data not available for this section."
+  },
+  "errors": {
+    "rate_limit_exceeded": "You've reached the daily free token limit."
   }
 }

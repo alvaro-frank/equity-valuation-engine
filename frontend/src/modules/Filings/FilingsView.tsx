@@ -44,7 +44,11 @@ export function FilingsView({ ticker }: { ticker: string }) {
     if (!error) return "";
     if (typeof error === 'object' && error !== null) {
       const err = error as { response?: { data?: { detail?: string } }, message?: string };
-      return err.response?.data?.detail || err.message || t('filings.error_default');
+      const detail = err.response?.data?.detail;
+      if (detail === 'rate_limit_exceeded') {
+        return t('errors.rate_limit_exceeded');
+      }
+      return detail || err.message || t('filings.error_default');
     }
     return t('filings.error_default');
   };

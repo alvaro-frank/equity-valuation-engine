@@ -128,5 +128,8 @@
       "tam_expansion": "Potencial de Crescimento"
     },
     "no_data": "Dados não disponíveis para esta secção."
+  },
+  "errors": {
+    "rate_limit_exceeded": "Atingiste o limite diário de tokens gratuitos."
   }
 }

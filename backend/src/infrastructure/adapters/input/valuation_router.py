@@ -95,6 +95,9 @@ async def analyse_earnings_report(
         result = await use_case.analyse_earnings_report(ticker.upper(), temp_path, language=lang)
         return result
     except Exception as e:
+        error_str = str(e).lower()
+        if "429" in error_str or "rate limit" in error_str or "quota" in error_str:
+            raise HTTPException(status_code=429, detail="rate_limit_exceeded")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         # Clean up the temporary file
@@ -119,9 +122,10 @@ async def analyse_quantitative(
         return result
     except TickerNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except RateLimitExceededError as e:
-        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
+        error_str = str(e).lower()
+        if "429" in error_str or "rate limit" in error_str or "quota" in error_str:
+            raise HTTPException(status_code=429, detail="rate_limit_exceeded")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/qualitative/{ticker}", response_model=QualitativeValuationResult)
@@ -139,9 +143,10 @@ async def analyse_qualitative(
         return result
     except TickerNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except RateLimitExceededError as e:
-        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
+        error_str = str(e).lower()
+        if "429" in error_str or "rate limit" in error_str or "quota" in error_str:
+            raise HTTPException(status_code=429, detail="rate_limit_exceeded")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/sector/{ticker}", response_model=SectorIndustrialValuationResult)
@@ -159,7 +164,8 @@ async def analyse_sector(
         return result
     except TickerNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except RateLimitExceededError as e:
-        raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
+        error_str = str(e).lower()
+        if "429" in error_str or "rate limit" in error_str or "quota" in error_str:
+            raise HTTPException(status_code=429, detail="rate_limit_exceeded")
         raise HTTPException(status_code=500, detail=str(e))
