@@ -9,7 +9,8 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
   const { t } = useTranslation();
   const { core_performance, capital_allocation, risk_deconstruction } = data;
 
-  const renderMetricBadge = (value: number | string) => {
+  const renderMetricBadge = (value: number | string | null | undefined) => {
+    if (value == null) return null;
     const numValue = Number(value);
     const isPositive = numValue >= 0;
     return (
@@ -19,7 +20,8 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
     );
   };
 
-  const formatMoney = (value: number | string) => {
+  const formatMoney = (value: number | string | null | undefined) => {
+    if (value == null) return 'N/A';
     const numValue = Number(value);
     
     // Auto-detect if value is in billions, millions, or raw dollars.
@@ -61,7 +63,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.adj_eps')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">${Number(core_performance.adjusted_eps.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              <span className="text-xl font-bold text-on-surface">{core_performance.adjusted_eps.amount != null ? `$${Number(core_performance.adjusted_eps.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : 'N/A'}</span>
               {renderMetricBadge(core_performance.adjusted_eps.yoy_growth)}
             </div>
           </div>
@@ -77,7 +79,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.gross_margin')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">{Number(core_performance.adjusted_gross_margin.amount).toFixed(1)}%</span>
+              <span className="text-xl font-bold text-on-surface">{core_performance.adjusted_gross_margin.amount != null ? `${Number(core_performance.adjusted_gross_margin.amount).toFixed(1)}%` : 'N/A'}</span>
               {renderMetricBadge(core_performance.adjusted_gross_margin.yoy_growth)}
             </div>
           </div>
@@ -85,7 +87,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.operating_margin')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">{Number(core_performance.adjusted_operating_margin.amount).toFixed(1)}%</span>
+              <span className="text-xl font-bold text-on-surface">{core_performance.adjusted_operating_margin.amount != null ? `${Number(core_performance.adjusted_operating_margin.amount).toFixed(1)}%` : 'N/A'}</span>
               {renderMetricBadge(core_performance.adjusted_operating_margin.yoy_growth)}
             </div>
           </div>
@@ -93,7 +95,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.net_margin')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">{Number(core_performance.adjusted_net_margin.amount).toFixed(1)}%</span>
+              <span className="text-xl font-bold text-on-surface">{core_performance.adjusted_net_margin.amount != null ? `${Number(core_performance.adjusted_net_margin.amount).toFixed(1)}%` : 'N/A'}</span>
               {renderMetricBadge(core_performance.adjusted_net_margin.yoy_growth)}
             </div>
           </div>

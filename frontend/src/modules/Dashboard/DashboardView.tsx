@@ -233,10 +233,12 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
                   e.title.toLowerCase().includes('chief executive')
                 ) || qualData?.key_executives?.[0];
                 
+                const cleanName = ceo?.name ? ceo.name.replace(/^(Sr\.|Sra\.|Mr\.|Mrs\.|Ms\.|Miss\.|Dr\.|Prof\.)\s+/i, '') : 'Unknown';
+                
                 return (
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-on-surface font-semibold line-clamp-1">{ceo?.name || 'Unknown'}</p>
+                      <p className="text-on-surface font-semibold line-clamp-1">{cleanName}</p>
                       {ceo?.ownership != null && (
                         <span className="bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-sm shrink-0" title={`${ceo.title} Skin in the Game`}>
                           {Number(ceo.ownership) < 0.1 ? Number(ceo.ownership).toFixed(2) : Number(ceo.ownership).toFixed(1)}% {t('dashboard.owned')}

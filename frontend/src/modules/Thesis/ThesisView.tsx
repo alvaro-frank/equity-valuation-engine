@@ -143,8 +143,8 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                     <span className="material-symbols-outlined text-tertiary">payments</span>
                     {t('company_profile.revenue_model')}
                   </h3>
-                  <div className="bg-tertiary/10 border border-tertiary/20 p-5 rounded-lg">
-                    <p className="text-body-sm text-on-surface-variant leading-relaxed">{qualData.revenue_model}</p>
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/50">
+                    <p>{qualData.revenue_model}</p>
                   </div>
                 </div>
 
@@ -260,14 +260,16 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                     {t('company_profile.leadership')}
                   </h3>
                   <div className="space-y-2">
-                    {qualData?.key_executives?.map((exec, idx) => (
+                    {qualData?.key_executives?.map((exec, idx) => {
+                      const cleanName = exec.name.replace(/^(Sr\.|Sra\.|Mr\.|Mrs\.|Ms\.|Miss\.|Dr\.|Prof\.)\s+/i, '');
+                      return (
                       <div key={idx} className="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant/50 hover:bg-surface-container-low transition-colors duration-200 rounded-xl group">
                         <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 group-hover:bg-primary/20 transition-colors">
-                          {getInitials(exec.name)}
+                          {getInitials(cleanName)}
                         </div>
                         <div className="flex flex-col flex-1">
                           <div className="flex items-start justify-between gap-2">
-                            <span className="text-sm text-on-surface font-bold leading-tight">{exec.name}</span>
+                            <span className="text-sm text-on-surface font-bold leading-tight">{cleanName}</span>
                             {exec.ownership != null && (
                               <span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/20 shrink-0" title={`${t('dashboard.owned')} Shares`}>
                                 {Number(exec.ownership) < 0.1 ? Number(exec.ownership).toFixed(2) : Number(exec.ownership).toFixed(1)}% {t('dashboard.owned')}
@@ -277,7 +279,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                           <span className="text-xs text-on-surface-variant mt-1 leading-snug">{exec.title}</span>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </div>
 
