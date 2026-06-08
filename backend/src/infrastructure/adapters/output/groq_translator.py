@@ -60,3 +60,38 @@ class GroqTranslatorAdapter(TranslationPort):
         except Exception as e:
             print(f"Translation failed: {e}")
             return data # Fallback to original data if translation fails
+
+    async def translate_text(self, text: str, target_language: str) -> str:
+        if not text or target_language == "en":
+            return text
+            
+        lang_instruction = target_language
+        if target_language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms or grammar."
+
+        prompt = f"""
+        Translate the following text to {lang_instruction}.
+        
+        CRITICAL RULES:
+        1. Maintain the professional and financial tone of the original text.
+        2. Return ONLY the translated text. Do not include any conversational text, preamble, or quotes.
+        
+        Original Text:
+        {text}
+        """
+        
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model_id,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,
+                max_tokens=2000
+            )
+            
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"Text translation failed: {e}")
+            return text
+

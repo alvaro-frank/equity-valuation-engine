@@ -28,6 +28,10 @@ _openrouter_adapter = OpenRouterAdapter(translator=_translator)
 _groq_adapter = GroqAdapter(translator=_translator)
 _fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_adapter)
 
+def get_translator() -> GroqTranslatorAdapter:
+    """Provides the translator adapter instance."""
+    return _translator
+
 def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]:
     """
     Provides the Quantitative/Quarterly Data Port instance based on settings.
@@ -67,12 +71,13 @@ def get_quantitative_use_case(
 
 def get_qualitative_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
-    llm_adapter = Depends(get_llm_adapter)
+    llm_adapter = Depends(get_llm_adapter),
+    translator: TranslationPort = Depends(get_translator)
 ) -> QualitativeValuationUseCase:
     """
     Builds and provides the Qualitative Valuation Use Case via Dependency Injection.
     """
-    return QualitativeValuationUseCase(adapter=llm_adapter, quant_adapter=quant_adapter)
+    return QualitativeValuationUseCase(adapter=llm_adapter, quant_adapter=quant_adapter, translator=translator)
 
 def get_sector_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),

@@ -153,3 +153,10 @@ class TranslationPort(ABC):
         Translates the string values of a JSON dictionary to the target language, preserving keys and structure.
         """
         pass
+        
+    @abstractmethod
+    async def translate_text(self, text: str, target_language: str) -> str:
+        """
+        Translates a plain string to the target language.
+        """
+        pass

@@ -8,12 +8,13 @@ class QualitativeValuationUseCase:
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
     This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
-    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort):
+    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort, translator=None):
         """
         Initializes the QualitativeValuationUseCase with the GeminiAdapter for AI-driven analysis.
         """
         self.adapter = adapter
         self.quant_adapter = quant_adapter
+        self.translator = translator
         
     async def analyse_ticker(self, ticker_symbol: str, language: str = "en") -> QualitativeValuationResult:
         """
@@ -57,6 +58,18 @@ class QualitativeValuationUseCase:
             industry_key=ticker_info.industry_key
         )
 
+        import dataclasses
+        
+        # Inject the business description directly from yfinance
+        if getattr(ticker_info, 'business_description', None):
+            desc = ticker_info.business_description
+            if language != "en" and getattr(self, 'translator', None):
+                try:
+                    desc = await self.translator.translate_text(desc, language)
+                except Exception as e:
+                    print(f"Failed to translate business description: {e}")
+            qual_data = dataclasses.replace(qual_data, business_description=desc)
+            
         qual_data_dict = asdict(qual_data)
         if "major_shareholders" in qual_data_dict:
             del qual_data_dict["major_shareholders"]

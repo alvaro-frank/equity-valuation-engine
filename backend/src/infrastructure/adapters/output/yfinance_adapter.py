@@ -103,7 +103,11 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
             regular_market_change = Decimal(str(rmc_raw)) if rmc_raw is not None and not pd.isna(rmc_raw) else None
             regular_market_change_percent = Decimal(str(rmcp_raw)) if rmcp_raw is not None and not pd.isna(rmcp_raw) else None
             
-            business_description = info.get("longBusinessDescription")
+            business_description = info.get("longBusinessSummary")
+            if business_description:
+                sentences = business_description.split('. ')
+                if len(sentences) > 4:
+                    business_description = '. '.join(sentences[:4]) + '.'
             
             profit_margins_raw = info.get("profitMargins")
             profit_margins = Decimal(str(profit_margins_raw)) if profit_margins_raw is not None and not pd.isna(profit_margins_raw) else None
