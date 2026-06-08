@@ -148,7 +148,10 @@
     "new_entrants": "Threat of New Entrants",
     "obsolescence": "Risk of Obsolescence",
     "economic_sensitivity": "Economic Sensitivity",
-    "interest_rate": "Interest Rate Exposure"
+    "interest_rate": "Interest Rate Exposure",
+    "tab_performance": "Market Performance",
+    "market_momentum": "Relative Market Momentum (5Y)",
+    "market_momentum_desc": "Comparing Sector ETF performance vs Benchmark"
   },
   "api_errors": {
     "404_title": "Ticker Not Found",

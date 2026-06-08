@@ -148,7 +148,10 @@
     "new_entrants": "Ameaça de Novos Entrantes",
     "obsolescence": "Risco de Obsolescência",
     "economic_sensitivity": "Sensibilidade Económica",
-    "interest_rate": "Exposição a Taxas de Juro"
+    "interest_rate": "Exposição a Taxas de Juro",
+    "tab_performance": "Performance de Mercado",
+    "market_momentum": "Momentum Relativo de Mercado (5A)",
+    "market_momentum_desc": "Comparação da performance do ETF do Setor vs Benchmark"
   },
   "api_errors": {
     "404_title": "Empresa Não Encontrada",

@@ -28,10 +28,12 @@ class GroqTranslatorAdapter(TranslationPort):
         Your ONLY task is to translate the string values of the following JSON object to the target language: '{lang_instruction}'.
         
         CRITICAL RULES:
-        1. DO NOT translate or modify ANY JSON keys.
-        2. DO NOT modify numbers, booleans, or null values.
-        3. Maintain the exact same JSON structure and arrays.
-        4. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
+        1. Translate ALL string values to the target language.
+        2. DO NOT translate the main structural schema keys (e.g., sector, industry, rivalry_among_competitors, macro_risks, core_performance, etc).
+        3. If a JSON key is inside an inner dictionary and acts as a dynamic title/factor (e.g. "Intensity of Competition", "Regulatory Hurdles"), YOU MUST TRANSLATE IT to the target language.
+        4. DO NOT modify numbers, booleans, or null values.
+        5. Maintain the exact same JSON structure and arrays.
+        6. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
         
         JSON to translate:
         {json_str}
