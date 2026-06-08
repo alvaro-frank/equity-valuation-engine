@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSectorData } from '@/modules/Valuation/hooks/useValuationData';
+import { useSectorData, useSectorPerformance } from '@/modules/Valuation/hooks/useValuationData';
+import { SectorPerformanceChart } from '@/modules/Sector/components/SectorPerformanceChart';
 
 interface SectorViewProps {
   ticker: string;
@@ -9,8 +10,9 @@ interface SectorViewProps {
 export function SectorView({ ticker }: SectorViewProps) {
   const { t, i18n } = useTranslation();
   const { data: sectorData, isLoading, error, refetch } = useSectorData(ticker);
+  const { data: performanceData, isLoading: isLoadingPerf } = useSectorPerformance(ticker);
   
-  const [activeSubTab, setActiveSubTab] = useState<'competitive' | 'macro'>('competitive');
+  const [activeSubTab, setActiveSubTab] = useState<'competitive' | 'macro' | 'performance'>('competitive');
 
   const getTranslatedSector = (value?: string) => {
     if (!value) return t('dashboard.unknown');
@@ -19,8 +21,9 @@ export function SectorView({ ticker }: SectorViewProps) {
   };
 
   const subTabs = [
-    { id: 'competitive', label: t('sector_view.tab_competitive'), icon: 'query_stats' },
-    { id: 'macro', label: t('sector_view.tab_macro'), icon: 'public' }
+    { id: 'competitive', label: t('sector_view.tab_competitive', 'Competitive Dynamics'), icon: 'query_stats' },
+    { id: 'macro', label: t('sector_view.tab_macro', 'Macroeconomics'), icon: 'public' },
+    { id: 'performance', label: t('sector_view.tab_performance', 'Market Performance'), icon: 'show_chart' }
   ] as const;
 
   if (isLoading) {
@@ -212,6 +215,16 @@ export function SectorView({ ticker }: SectorViewProps) {
                 {sectorData.interest_rate_exposure}
               </p>
             </div>
+          </div>
+        )}
+
+        {activeSubTab === 'performance' && (
+          <div className="animate-in slide-in-from-bottom-4 duration-500 w-full">
+            {isLoadingPerf ? (
+              <div className="h-[400px] bg-surface-container-high rounded-xl animate-pulse"></div>
+            ) : (
+              <SectorPerformanceChart data={performanceData} />
+            )}
           </div>
         )}
       </div>

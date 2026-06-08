@@ -125,3 +125,16 @@ export interface EarningsReportResult {
   risk_deconstruction: RiskDeconstruction;
   bottom_line: string;
 }
+
+export interface SectorPerformancePoint {
+  date: string;
+  [key: string]: string | number; // Support dynamic ETF ticker and SPY keys
+}
+
+export interface SectorPerformanceData {
+  sector: string;
+  industry: string;
+  etf_ticker: string;
+  benchmark_ticker: string;
+  chart_data: SectorPerformancePoint[];
+}
