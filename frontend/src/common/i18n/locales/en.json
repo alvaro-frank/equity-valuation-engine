@@ -12,7 +12,18 @@
   "search": {
     "placeholder": "Search company...",
     "hint": "Press Enter to search",
-    "analyze": "ANALYSE"
+    "analyze": "ANALYSE",
+    "recent_searches": "RECENT SEARCHES",
+    "clear": "Clear",
+    "trending_in": "Trending in {{sector}}"
+  },
+  "sectors": {
+    "technology": "Technology",
+    "software_infrastructure": "Software - Infrastructure",
+    "healthcare": "Healthcare",
+    "financials": "Financials",
+    "consumer_cyclical": "Consumer Cyclical",
+    "industrials": "Industrials"
   },
   "dashboard": {
     "error_title": "Analysis failed",
@@ -66,8 +77,6 @@
     "interest_rate": "Interest Rate Exposure"
   },
   "filings": {
-    "error_title": "Unable to analyze document",
-    "error_default": "Please ensure it's a valid Earnings Report PDF and try again.",
     "results": "Analysis Results",
     "analyze_another": "Analyze Another",
     "core_performance": "Core Performance",
@@ -129,7 +138,14 @@
     },
     "no_data": "Data not available for this section."
   },
-  "errors": {
-    "rate_limit_exceeded": "You've reached the daily free token limit."
+  "api_errors": {
+    "404_title": "Ticker Not Found",
+    "404_desc": "We couldn't find any financial data for this ticker. Please check the spelling and try again.",
+    "429_title": "Rate Limit Exceeded",
+    "429_desc": "Our AI valuation models have reached their maximum usage limits for today.",
+    "503_title": "AI Engine Overloaded",
+    "503_desc": "Our AI valuation models are currently experiencing unusually high demand. This is typically a temporary spike. Please wait a few moments and try your analysis again.",
+    "default_title": "Unable to analyze",
+    "default_desc": "Our evaluation engine encountered a problem while processing this request. Please try again."
   }
 }

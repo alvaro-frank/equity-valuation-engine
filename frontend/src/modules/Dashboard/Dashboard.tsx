@@ -2,6 +2,7 @@ import { DashboardView } from '@/modules/Dashboard/DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { DashboardSkeleton } from '@/modules/Dashboard/components/DashboardSkeleton';
 import { useDashboard } from '@/modules/Dashboard/hooks/useDashboard';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardProps {
   ticker: string;
@@ -10,30 +11,34 @@ interface DashboardProps {
   onSearch?: (ticker: string) => void;
 }
 
-const ERROR_MAP: Record<number | string, { title: string, message: string, icon: string }> = {
-  404: {
-    title: "Ticker Not Found",
-    message: "We couldn't find any financial data for this ticker. Please check the spelling and try again.",
-    icon: "search_off"
-  },
-  429: {
-    title: "Rate Limit Exceeded",
-    message: "Our AI valuation models have reached their maximum usage limits for today.",
-    icon: "hourglass_empty"
-  },
-  503: {
-    title: "AI Engine Overloaded",
-    message: "Our AI valuation models are currently experiencing unusually high demand. This is typically a temporary spike. Please wait a few moments and try your analysis again.",
-    icon: "engineering"
-  },
-  DEFAULT: {
-    title: "Unable to analyze",
-    message: "Our evaluation engine encountered a problem while processing this report. Please try again.",
-    icon: "error_outline"
-  }
+const getErrorDetails = (key: number | string, t: any) => {
+  const map: Record<number | string, { title: string, message: string, icon: string }> = {
+    404: {
+      title: t('api_errors.404_title'),
+      message: t('api_errors.404_desc'),
+      icon: "search_off"
+    },
+    429: {
+      title: t('api_errors.429_title'),
+      message: t('api_errors.429_desc'),
+      icon: "hourglass_empty"
+    },
+    503: {
+      title: t('api_errors.503_title'),
+      message: t('api_errors.503_desc'),
+      icon: "engineering"
+    },
+    DEFAULT: {
+      title: t('api_errors.default_title'),
+      message: t('api_errors.default_desc'),
+      icon: "error_outline"
+    }
+  };
+  return map[key] || map['DEFAULT'];
 };
 
 export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: DashboardProps) {
+  const { t } = useTranslation();
   const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker, isParentError, onErrorChange);
 
   if (isLoading) {
@@ -61,7 +66,7 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: Da
     else if (statusCode === 429 || apiErrorMsg.includes('429') || apiErrorMsg.includes('RESOURCE_EXHAUSTED') || apiErrorMsg.toLowerCase().includes('quota')) errorKey = 429;
     else if (statusCode === 503 || apiErrorMsg.includes('503') || apiErrorMsg.includes('UNAVAILABLE') || apiErrorMsg.includes('high demand')) errorKey = 503;
 
-    const errorDetails = ERROR_MAP[errorKey];
+    const errorDetails = getErrorDetails(errorKey, t);
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-500">
@@ -79,7 +84,7 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: Da
           className="flex items-center gap-2 px-6 py-2.5 bg-surface-container-highest border border-outline-variant hover:border-outline text-on-surface rounded-full transition-all duration-200 font-label-lg font-medium hover:bg-surface-container-high active:scale-95"
         >
           <span className="material-symbols-outlined text-[18px]">refresh</span>
-          Try Again
+          {t('dashboard.try_again')}
         </button>
       </div>
     );

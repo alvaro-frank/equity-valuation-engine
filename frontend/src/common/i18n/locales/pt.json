@@ -12,7 +12,18 @@
   "search": {
     "placeholder": "Pesquisar empresa...",
     "hint": "Pressiona Enter para pesquisar",
-    "analyze": "ANALISAR"
+    "analyze": "ANALISAR",
+    "recent_searches": "PESQUISAS RECENTES",
+    "clear": "Limpar",
+    "trending_in": "Tendência em {{sector}}"
+  },
+  "sectors": {
+    "technology": "Tecnologia",
+    "software_infrastructure": "Software - Infraestrutura",
+    "healthcare": "Saúde",
+    "financials": "Finanças",
+    "consumer_cyclical": "Consumo Cíclico",
+    "industrials": "Indústria"
   },
   "dashboard": {
     "error_title": "A análise falhou",
@@ -66,8 +77,6 @@
     "interest_rate": "Exposição à Taxa de Juro"
   },
   "filings": {
-    "error_title": "Não foi possível analisar o documento",
-    "error_default": "Por favor, garante que é um PDF de Relatório de Contas válido e tenta novamente.",
     "results": "Resultados da Análise",
     "analyze_another": "Analisar Outro",
     "core_performance": "Desempenho Principal",
@@ -129,7 +138,14 @@
     },
     "no_data": "Dados não disponíveis para esta secção."
   },
-  "errors": {
-    "rate_limit_exceeded": "Atingiste o limite diário de tokens gratuitos."
+  "api_errors": {
+    "404_title": "Empresa Não Encontrada",
+    "404_desc": "Não conseguimos encontrar dados financeiros para este símbolo. Por favor verifica a ortografia e tenta novamente.",
+    "429_title": "Rate Limit Excedido",
+    "429_desc": "Os nossos modelos de avaliação de Inteligência Artificial atingiram o limite máximo de utilização diário.",
+    "503_title": "Motor de IA Sobrecarga",
+    "503_desc": "Os nossos modelos de IA estão a registar uma procura invulgarmente alta. Este é normalmente um pico temporário. Por favor aguarda alguns momentos e tenta novamente.",
+    "default_title": "Não foi possível analisar",
+    "default_desc": "O nosso motor de avaliação encontrou um problema ao processar este pedido. Por favor tenta novamente."
   }
 }
