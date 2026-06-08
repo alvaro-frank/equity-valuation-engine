@@ -20,6 +20,7 @@
   "sectors": {
     "technology": "Technology",
     "software_infrastructure": "Software - Infrastructure",
+    "semiconductors": "Semiconductors",
     "healthcare": "Healthcare",
     "financials": "Financials",
     "consumer_cyclical": "Consumer Cyclical",
@@ -137,6 +138,17 @@
       "tam_expansion": "TAM Potential"
     },
     "no_data": "Data not available for this section."
+  },
+  "sector_view": {
+    "tab_competitive": "COMPETITIVE DYNAMICS",
+    "tab_macro": "MACROECONOMICS & RISKS",
+    "rivalry": "Industry Rivalry",
+    "suppliers": "Power of Suppliers",
+    "customers": "Power of Customers",
+    "new_entrants": "Threat of New Entrants",
+    "obsolescence": "Risk of Obsolescence",
+    "economic_sensitivity": "Economic Sensitivity",
+    "interest_rate": "Interest Rate Exposure"
   },
   "api_errors": {
     "404_title": "Ticker Not Found",

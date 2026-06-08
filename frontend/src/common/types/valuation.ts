@@ -74,21 +74,16 @@ export interface QualitativeValuationResult {
 }
 
 export interface SectorIndustrialValuationResult {
-  ticker: {
-    symbol: string;
-    name: string;
-  };
-  sector_overview: string;
-  industry_overview: string;
-  porters_five_forces: {
-    threat_of_new_entrants: string;
-    bargaining_power_of_suppliers: string;
-    bargaining_power_of_buyers: string;
-    threat_of_substitutes: string;
-    industry_rivalry: string;
-  };
-  regulatory_environment: string;
-  technological_disruption: string;
+  ticker: TickerResult;
+  sector: string;
+  industry: string;
+  rivalry_among_competitors: Record<string, string>;
+  bargaining_power_of_suppliers: Record<string, string>;
+  bargaining_power_of_customers: Record<string, string>;
+  threat_of_new_entrants: Record<string, string>;
+  threat_of_obsolescence: Record<string, string>;
+  economic_sensitivity: string;
+  interest_rate_exposure: string;
 }
 
 export interface MetricWithGrowth {

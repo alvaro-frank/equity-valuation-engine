@@ -4,6 +4,7 @@ import { Dashboard } from '@/modules/Dashboard/Dashboard';
 import { WelcomeState } from '@/modules/Dashboard/components/WelcomeState';
 import { FilingsView } from '@/modules/Filings/FilingsView';
 import { ThesisView } from '@/modules/Thesis';
+import { SectorView } from '@/modules/Sector/SectorView';
 import { PlaceholderView } from '@/common/components/PlaceholderView';
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
           {activeTab === 'FILINGS' && <FilingsView ticker={ticker} />}
           {activeTab === 'FINANCIALS' && <PlaceholderView title="Demonstrações Financeiras" description="Acesso às tabelas completas de Balanço, Demonstração de Resultados e Fluxos de Caixa dos últimos anos." icon="account_balance" />}
           {activeTab === 'VALUATION' && <PlaceholderView title="Modelos de Valuation" description="Calculadoras interativas de valor intrínseco (DCF, Múltiplos) para determinar o preço alvo." icon="calculate" />}
-          {activeTab === 'SECTOR' && <PlaceholderView title="Análise Setorial" description="Dinâmicas da indústria, concorrência setorial e macroeconomia." icon="analytics" />}
+          {activeTab === 'SECTOR' && <SectorView ticker={ticker} />}
         </>
       )}
     </Layout>

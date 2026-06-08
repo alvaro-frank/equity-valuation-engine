@@ -20,6 +20,7 @@
   "sectors": {
     "technology": "Tecnologia",
     "software_infrastructure": "Software - Infraestrutura",
+    "semiconductors": "Semicondutores",
     "healthcare": "Saúde",
     "financials": "Finanças",
     "consumer_cyclical": "Consumo Cíclico",
@@ -106,11 +107,11 @@
     "supported": "Formatos suportados: PDF (máx 10MB)"
   },
   "thesis_view": {
-    "tab_overview": "Sumário & Estratégia",
-    "tab_moat": "Fosso Competitivo",
-    "tab_leadership": "Liderança",
-    "tab_history": "Histórico",
-    "tab_risks": "Riscos",
+    "tab_overview": "RESUMO GERAL",
+    "tab_moat": "COMPETITIVIDADE",
+    "tab_leadership": "LIDERANÇA",
+    "tab_history": "TRAJETÓRIA",
+    "tab_risks": "RISCOS",
     "strategy_title": "Visão Estratégica",
     "products_title": "Produtos e Serviços",
     "moat_title": "Vantagem Competitiva (Moat)",
@@ -137,6 +138,17 @@
       "tam_expansion": "Potencial de Crescimento"
     },
     "no_data": "Dados não disponíveis para esta secção."
+  },
+  "sector_view": {
+    "tab_competitive": "DINÂMICA COMPETITIVA",
+    "tab_macro": "MACROECONOMIA E RISCOS",
+    "rivalry": "Rivalidade na Indústria",
+    "suppliers": "Poder dos Fornecedores",
+    "customers": "Poder dos Clientes",
+    "new_entrants": "Ameaça de Novos Entrantes",
+    "obsolescence": "Risco de Obsolescência",
+    "economic_sensitivity": "Sensibilidade Económica",
+    "interest_rate": "Exposição a Taxas de Juro"
   },
   "api_errors": {
     "404_title": "Empresa Não Encontrada",
