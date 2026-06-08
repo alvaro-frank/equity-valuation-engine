@@ -160,7 +160,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           label="FREE CASH FLOW" 
           value={formatLiveCurrency(calculateFCF() ?? undefined)} 
           icon="payments" 
-          flipLabel="FCF YIELD"
+          flipLabel="FCF YIELD TTM"
           flipValue={getLatestMetric('fcf_yield', 'percent')}
         />
 

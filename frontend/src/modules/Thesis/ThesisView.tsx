@@ -101,7 +101,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
               {t('nav.thesis')}
             </span>
           </div>
-          <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
+          <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
             {getTranslatedSector(qualData.ticker.sector)} / {getTranslatedSector(qualData.ticker.industry)}
           </p>
@@ -222,7 +222,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                     <span className="material-symbols-outlined text-tertiary">trending_up</span>
                     {t('thesis_view.moat_trajectory')}
                   </h3>
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-tertiary/5 p-6 rounded-lg border border-tertiary/20">
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50">
                     <p>{qualData.moat_trajectory || t('thesis_view.no_data')}</p>
                   </div>
                 </div>
@@ -343,7 +343,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
                   <span className="material-symbols-outlined text-error">tsunami</span>
                   {t('thesis_view.crises_title')}
                 </h3>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-error/5 p-6 rounded-lg border border-error/20 h-[calc(100%-40px)]">
+                <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50 h-[calc(100%-40px)]">
                   <p>{qualData.historical_context_crises}</p>
                 </div>
               </div>
