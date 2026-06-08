@@ -19,10 +19,16 @@ interface ThesisViewProps {
 }
 
 export function ThesisView({ ticker }: ThesisViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: qualData, isLoading, error, refetch } = useQualitativeData(ticker);
   
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'moat' | 'leadership' | 'history' | 'risks'>('overview');
+
+  const getTranslatedSector = (value?: string) => {
+    if (!value) return t('dashboard.unknown');
+    const key = value.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    return i18n.exists(`sectors.${key}`) ? t(`sectors.${key}`) : value;
+  };
 
   const subTabs = [
     { id: 'overview', label: t('thesis_view.tab_overview'), icon: 'lightbulb' },
@@ -97,7 +103,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {qualData.ticker.sector} / {qualData.ticker.industry}
+            {getTranslatedSector(qualData.ticker.sector)} / {getTranslatedSector(qualData.ticker.industry)}
           </p>
         </div>
       </div>

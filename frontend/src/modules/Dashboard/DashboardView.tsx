@@ -14,7 +14,13 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ ticker, quantData, qualData, onSearch }: DashboardViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const getTranslatedSector = (value?: string) => {
+    if (!value) return t('dashboard.unknown');
+    const key = value.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    return i18n.exists(`sectors.${key}`) ? t(`sectors.${key}`) : value;
+  };
 
   // Helper to safely extract the latest value of a metric by key
   const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' = 'number') => {
@@ -101,7 +107,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
               <TrendingBadge
                 type="sector"
                 label={t('dashboard.sector')}
-                value={qualData?.ticker?.sector || t('dashboard.unknown')}
+                value={getTranslatedSector(qualData?.ticker?.sector)}
                 queryKey={qualData?.ticker?.sector_key || quantData?.ticker?.sector_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
@@ -109,7 +115,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
               <TrendingBadge
                 type="industry"
                 label={t('dashboard.industry')}
-                value={qualData?.ticker?.industry || t('dashboard.unknown')}
+                value={getTranslatedSector(qualData?.ticker?.industry)}
                 queryKey={qualData?.ticker?.industry_key || quantData?.ticker?.industry_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
