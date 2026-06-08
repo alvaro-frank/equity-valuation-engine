@@ -76,6 +76,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         - Lists of Objects: For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
+        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
         - Language: Generate the analysis text in the following language: {lang_instruction}. 
         - CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "business_description").
 
@@ -92,15 +93,22 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             "revenue_model": "MINIMUM 100 WORDS, 3-5 sentences. Highly detailed explanation of all major revenue streams, pricing power, and monetization strategy.",
             "strategy": "MINIMUM 100 WORDS, 3-5 sentences. Core strategic focus and future outlook.",
             "products_services": [
-                {{ "name": "Product/Service A", "description": "MINIMUM 60 WORDS. Comprehensive explanation of the utility, market fit, and strategic importance." }}
+                {{ "name": "Product/Service 1", "description": "MINIMUM 60 WORDS. Comprehensive explanation of the utility, market fit, and strategic importance." }},
+                {{ "name": "Product/Service 2", "description": "MINIMUM 60 WORDS. Comprehensive explanation..." }},
+                {{ "name": "Product/Service 3", "description": "MINIMUM 60 WORDS. Comprehensive explanation..." }}
             ],
             "competitive_advantage": "MINIMUM 100 WORDS, 4-5 sentences. Deep analysis defending the existence, strength, and durability of the Moat.",
             "competitors": [
-                {{ "name": "Competitor Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis of competitive dynamics, market share battles, and specific overlap." }}
+                {{ "name": "Competitor 1 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis of competitive dynamics, market share battles, and specific overlap." }},
+                {{ "name": "Competitor 2 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }},
+                {{ "name": "Competitor 3 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }}
             ],
             "management_insights": "MINIMUM 80 WORDS. Analysis of management quality and track record.",
             "risk_factors": [
-                {{ "title": "Risk Title", "description": "MINIMUM 60 WORDS. Detailed breakdown of the risk impact and probability." }}
+                {{ "title": "Risk 1 Title (e.g. Geopolitical)", "description": "MINIMUM 60 WORDS. Detailed breakdown of the risk impact and probability." }},
+                {{ "title": "Risk 2 Title (e.g. Competitive)", "description": "MINIMUM 60 WORDS. Detailed breakdown..." }},
+                {{ "title": "Risk 3 Title (e.g. Internal)", "description": "MINIMUM 60 WORDS. Detailed breakdown..." }},
+                {{ "title": "Risk 4 Title (e.g. Macro)", "description": "MINIMUM 60 WORDS. Detailed breakdown..." }}
             ],
             "historical_context_crises": "MINIMUM 80 WORDS. How the company navigated past major crises.",
             "moat_trajectory": "MINIMUM 60 WORDS. Detailed analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
@@ -252,8 +260,9 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
+                    IndustrySectorDynamicsSchema(**data)
                 except Exception:
-                    pass
+                    data = None
 
         if not data:
             data_en = None
@@ -262,8 +271,9 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     try:
                         with open(cache_path_en, 'r', encoding='utf-8') as f:
                             data_en = json.load(f)
+                        IndustrySectorDynamicsSchema(**data_en)
                     except Exception:
-                        pass
+                        data_en = None
 
             if not data_en:
                 # Force English for base extraction

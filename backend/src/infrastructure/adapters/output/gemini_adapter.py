@@ -69,6 +69,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         - Dictionaries: For 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
+        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
         - Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         REQUIRED JSON STRUCTURE:
@@ -84,16 +85,22 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
             "strategy": "Core strategic focus and future outlook.",
             "products_services": {{
-                "Product/Service A": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance.",
-                "Product/Service B": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance."
+                "Product/Service 1": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance.",
+                "Product/Service 2": "Comprehensive 2-3 sentence description...",
+                "Product/Service 3": "Comprehensive 2-3 sentence description..."
             }},
             "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat.",
             "competitors": {{
-                "Competitor Name": "Detailed 2-3 sentence analysis of competitive dynamics, market share battles, and specific overlap."
+                "Competitor 1 Name": "Detailed 2-3 sentence analysis of competitive dynamics, market share battles, and specific overlap.",
+                "Competitor 2 Name": "Detailed 2-3 sentence analysis...",
+                "Competitor 3 Name": "Detailed 2-3 sentence analysis..."
             }},
             "management_insights": "Analysis of management quality and track record.",
             "risk_factors": {{
-                "Risk Title": "Detailed 2-3 sentence breakdown of the risk impact and probability."
+                "Risk 1 Title (e.g. Geopolitical)": "Detailed 2-3 sentence breakdown of the risk impact and probability.",
+                "Risk 2 Title (e.g. Competitive)": "Detailed 2-3 sentence breakdown...",
+                "Risk 3 Title (e.g. Internal)": "Detailed 2-3 sentence breakdown...",
+                "Risk 4 Title (e.g. Macro)": "Detailed 2-3 sentence breakdown..."
             }},
             "historical_context_crises": "How the company navigated past major crises.",
             "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
@@ -254,8 +261,9 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
+                    IndustrySectorDynamicsSchema(**data)
                 except Exception:
-                    pass
+                    data = None
 
         if not data:
             data_en = None
@@ -264,8 +272,9 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     try:
                         with open(cache_path_en, 'r', encoding='utf-8') as f:
                             data_en = json.load(f)
+                        IndustrySectorDynamicsSchema(**data_en)
                     except Exception:
-                        pass
+                        data_en = None
 
             if not data_en:
                 # Force English for base extraction
