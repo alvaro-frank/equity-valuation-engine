@@ -3,6 +3,7 @@ from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
+from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
@@ -86,4 +87,13 @@ def get_sector_use_case(
     """
     Builds and provides the Sector Industrial Valuation Use Case via Dependency Injection.
     """
-    return SectorIndustrialValuationUseCase(quant_port=quant_adapter, sector_industrial_port=llm_adapter)
+    return SectorIndustrialValuationUseCase(
+        quant_port=quant_adapter,
+        sector_industrial_port=llm_adapter
+    )
+
+def get_sector_performance_use_case() -> GetSectorPerformanceUseCase:
+    """
+    Builds and provides the Sector Performance Use Case via Dependency Injection.
+    """
+    return GetSectorPerformanceUseCase()

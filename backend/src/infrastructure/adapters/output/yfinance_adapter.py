@@ -583,3 +583,44 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
         except Exception as e:
             print(f"Error fetching trending industry {industry_key}: {e}")
             return []
+
+    async def get_historical_performance_chart(self, tickers: List[str], period: str = "5y") -> List[Dict]:
+        """
+        Fetches historical closing prices for multiple tickers and normalizes them 
+        into a percentage return from day 1.
+
+        Returns:
+            List[Dict]: [{'date': '2020-01-01', 'SMH': 0.0, 'SPY': 0.0}, ...]
+        """
+        try:
+            # Download all tickers at once
+            data = await asyncio.to_thread(yf.download, tickers, period=period, interval="1wk", auto_adjust=True)
+            
+            if data.empty:
+                return []
+                
+            # Extract 'Close' prices
+            if isinstance(data.columns, pd.MultiIndex):
+                close_data = data['Close']
+            else:
+                close_data = pd.DataFrame(data['Close'])
+                close_data.columns = tickers
+
+            # Clean data
+            close_data = close_data.dropna(how='all').ffill()
+            
+            # Normalize to percentage return
+            returns = ((close_data / close_data.iloc[0]) - 1) * 100
+            
+            result = []
+            for date, row in returns.iterrows():
+                point = {"date": date.strftime("%Y-%m-%d")}
+                for ticker in tickers:
+                    val = row.get(ticker)
+                    point[ticker] = float(val) if pd.notna(val) else 0.0
+                result.append(point)
+                
+            return result
+        except Exception as e:
+            print(f"Error fetching performance for {tickers}: {e}")
+            return []
