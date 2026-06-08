@@ -192,8 +192,8 @@ class MetricWithGrowthResult(BaseModel):
         yoy_growth (Decimal): The Year-over-Year growth percentage.
     """
     model_config = ConfigDict(frozen=True)
-    amount: Decimal = Field(..., description="The absolute value or margin of the metric")
-    yoy_growth: Decimal = Field(..., description="The Year-over-Year growth percentage")
+    amount: Optional[Decimal] = Field(None, description="The absolute value or margin of the metric")
+    yoy_growth: Optional[Decimal] = Field(None, description="The Year-over-Year growth percentage")
 
 class CorePerformanceResult(BaseModel):
     """

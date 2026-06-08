@@ -36,7 +36,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
             )
             
         self.translator = translator
-        self.model_id = os.getenv('GROQ_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')
+        self.model_id = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
         
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         self.cache_dir = os.path.join(base_dir, '.llm_cache')
@@ -82,29 +82,28 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
         {{
-            "business_description": "A comprehensive 4-6 sentence deep dive into the core operations and business model.",
-            "company_history": "Key milestones from foundation to present.",
+            "company_history": "MINIMUM 80 WORDS. Key milestones from foundation to present.",
             "key_executives": [
                 {{ "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER", "ownership": 5.2 }},
                 {{ "name": "Name B", "title": "CHIEF FINANCIAL OFFICER", "ownership": 1.2 }},
                 {{ "name": "Name C", "title": "PRESIDENT & CHIEF INVESTMENT OFFICER", "ownership": 0.5 }},
                 {{ "name": "Name D", "title": "CHIEF TECHNOLOGY OFFICER", "ownership": 0.1 }}
             ],
-            "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
-            "strategy": "Core strategic focus and future outlook.",
+            "revenue_model": "MINIMUM 100 WORDS, 3-5 sentences. Highly detailed explanation of all major revenue streams, pricing power, and monetization strategy.",
+            "strategy": "MINIMUM 100 WORDS, 3-5 sentences. Core strategic focus and future outlook.",
             "products_services": [
-                {{ "name": "Product/Service A", "description": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance." }}
+                {{ "name": "Product/Service A", "description": "MINIMUM 60 WORDS. Comprehensive explanation of the utility, market fit, and strategic importance." }}
             ],
-            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat.",
+            "competitive_advantage": "MINIMUM 100 WORDS, 4-5 sentences. Deep analysis defending the existence, strength, and durability of the Moat.",
             "competitors": [
-                {{ "name": "Competitor Name", "overlap": "Detailed 2-3 sentence analysis of competitive dynamics, market share battles, and specific overlap." }}
+                {{ "name": "Competitor Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis of competitive dynamics, market share battles, and specific overlap." }}
             ],
-            "management_insights": "Analysis of management quality and track record.",
+            "management_insights": "MINIMUM 80 WORDS. Analysis of management quality and track record.",
             "risk_factors": [
-                {{ "title": "Risk Title", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability." }}
+                {{ "title": "Risk Title", "description": "MINIMUM 60 WORDS. Detailed breakdown of the risk impact and probability." }}
             ],
-            "historical_context_crises": "How the company navigated past major crises.",
-            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
+            "historical_context_crises": "MINIMUM 80 WORDS. How the company navigated past major crises.",
+            "moat_trajectory": "MINIMUM 60 WORDS. Detailed analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
             "moat_sources": {{
                 "intangible_assets": 4,
                 "switching_costs": 3,
@@ -155,7 +154,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                         model=self.model_id,
                         messages=[{"role": "user", "content": prompt_en}],
                         response_format={"type": "json_object"},
-                        temperature=0.0,
+                        temperature=0.3,
                         max_tokens=8000,
                     )
                     content = response.choices[0].message.content
@@ -179,7 +178,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         schema_instance = CompanyProfileSchema(**data)
         
         return CompanyProfile(
-            business_description=schema_instance.business_description,
+            business_description="", # Injected later by UseCase
             company_history=schema_instance.company_history,
             key_executives=[{"name": e.name, "title": e.title, "ownership": float(e.ownership) if e.ownership is not None else None} for e in schema_instance.key_executives],
             revenue_model=schema_instance.revenue_model,
@@ -227,13 +226,13 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         {{
             "sector": "{sector}",
             "industry": "{industry}",
-            "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "bargaining_power_of_suppliers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "bargaining_power_of_customers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "economic_sensitivity": "Detailed narrative about economic cycles.",
-            "interest_rate_exposure": "Detailed narrative about rate impacts."
+            "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "MINIMUM 60 WORDS. Detailed professional analysis..." }} ],
+            "bargaining_power_of_suppliers": [ {{ "factor": "Key Factor", "analysis": "MINIMUM 60 WORDS. Detailed professional analysis..." }} ],
+            "bargaining_power_of_customers": [ {{ "factor": "Key Factor", "analysis": "MINIMUM 60 WORDS. Detailed professional analysis..." }} ],
+            "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "MINIMUM 60 WORDS. Detailed professional analysis..." }} ],
+            "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "MINIMUM 60 WORDS. Detailed professional analysis..." }} ],
+            "economic_sensitivity": "MINIMUM 100 WORDS. Detailed narrative about economic cycles.",
+            "interest_rate_exposure": "MINIMUM 100 WORDS. Detailed narrative about rate impacts."
         }}
 
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
@@ -277,7 +276,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                             {"role": "user", "content": prompt_en}
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.0,
+                        temperature=0.3,
                         max_tokens=1500
                     )
                     data_en = self._get_json_from_response(response.choices[0].message.content)
@@ -321,7 +320,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "core_performance", "adjusted_revenue").
 
         Extract and synthesize the following fields EXACTLY as named.
-        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). For amounts, use Billions if applicable.
+        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). For amounts, use Billions if applicable. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null. However, if a metric is simply missing but can be calculated from the data (e.g., Net Margin = Net Income / Revenue), you MUST calculate it yourself rather than outputting null.
 
         {{
             "ticker": "String: The stock ticker symbol",
@@ -465,34 +464,26 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         if 'schema_instance' not in locals():
             schema_instance = EarningsReportSchema(**data)
 
+        def to_dec(val):
+            return Decimal(str(val)) if val is not None else None
+
+        def get_metric(metric_schema):
+            if metric_schema is None:
+                return MetricWithGrowth(amount=None, yoy_growth=None)
+            return MetricWithGrowth(
+                amount=to_dec(metric_schema.amount),
+                yoy_growth=to_dec(metric_schema.yoy_growth)
+            )
+
         return EarningsReport(
             period_end_date=schema_instance.period_end_date,
             core_performance=CorePerformance(
-                adjusted_revenue=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_revenue.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_revenue.yoy_growth))
-                ),
-                adjusted_eps=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_eps.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_eps.yoy_growth))
-                ),
-
-                adjusted_gross_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.yoy_growth))
-                ),
-                adjusted_operating_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.yoy_growth))
-                ),
-                adjusted_net_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_net_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_net_margin.yoy_growth))
-                ),
-                free_cash_flow=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.free_cash_flow.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.free_cash_flow.yoy_growth))
-                )
+                adjusted_revenue=get_metric(schema_instance.core_performance.adjusted_revenue),
+                adjusted_eps=get_metric(schema_instance.core_performance.adjusted_eps),
+                adjusted_gross_margin=get_metric(schema_instance.core_performance.adjusted_gross_margin),
+                adjusted_operating_margin=get_metric(schema_instance.core_performance.adjusted_operating_margin),
+                adjusted_net_margin=get_metric(schema_instance.core_performance.adjusted_net_margin),
+                free_cash_flow=get_metric(schema_instance.core_performance.free_cash_flow)
             ),
             capital_allocation=CapitalAllocation(
                 share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)),

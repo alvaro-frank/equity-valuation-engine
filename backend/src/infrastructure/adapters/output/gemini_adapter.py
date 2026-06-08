@@ -74,7 +74,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
         {{
-            "business_description": "A comprehensive 4-6 sentence deep dive into the core operations and business model.",
             "company_history": "Key milestones from foundation to present.",
             "key_executives": [
                 {{ "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER", "ownership": 5.2 }},
@@ -172,7 +171,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         schema_instance = CompanyProfileSchema(**data)
         
         return CompanyProfile(
-            business_description=schema_instance.business_description,
+            business_description="", # Injected later by UseCase
             company_history=schema_instance.company_history,
             key_executives=[{"name": e.name, "title": e.title, "ownership": float(e.ownership) if e.ownership is not None else None} for e in schema_instance.key_executives],
             revenue_model=schema_instance.revenue_model,
@@ -331,7 +330,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
 
         Extract and synthesize the following fields EXACTLY as named.
-        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). For amounts, use Billions if applicable.
+        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). For amounts, use Billions if applicable. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null. However, if a metric is simply missing but can be calculated from the data (e.g., Net Margin = Net Income / Revenue), you MUST calculate it yourself rather than outputting null.
 
         1. period_end_date: (String) The end date of the fiscal period.
         2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
@@ -409,34 +408,26 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
 
         schema_instance = EarningsReportSchema(**data)
 
+        def to_dec(val):
+            return Decimal(str(val)) if val is not None else None
+
+        def get_metric(metric_schema):
+            if metric_schema is None:
+                return MetricWithGrowth(amount=None, yoy_growth=None)
+            return MetricWithGrowth(
+                amount=to_dec(metric_schema.amount),
+                yoy_growth=to_dec(metric_schema.yoy_growth)
+            )
+
         return EarningsReport(
             period_end_date=schema_instance.period_end_date,
             core_performance=CorePerformance(
-                adjusted_revenue=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_revenue.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_revenue.yoy_growth))
-                ),
-                adjusted_eps=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_eps.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_eps.yoy_growth))
-                ),
-
-                adjusted_gross_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_gross_margin.yoy_growth))
-                ),
-                adjusted_operating_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_operating_margin.yoy_growth))
-                ),
-                adjusted_net_margin=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.adjusted_net_margin.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.adjusted_net_margin.yoy_growth))
-                ),
-                free_cash_flow=MetricWithGrowth(
-                    amount=Decimal(str(schema_instance.core_performance.free_cash_flow.amount)),
-                    yoy_growth=Decimal(str(schema_instance.core_performance.free_cash_flow.yoy_growth))
-                )
+                adjusted_revenue=get_metric(schema_instance.core_performance.adjusted_revenue),
+                adjusted_eps=get_metric(schema_instance.core_performance.adjusted_eps),
+                adjusted_gross_margin=get_metric(schema_instance.core_performance.adjusted_gross_margin),
+                adjusted_operating_margin=get_metric(schema_instance.core_performance.adjusted_operating_margin),
+                adjusted_net_margin=get_metric(schema_instance.core_performance.adjusted_net_margin),
+                free_cash_flow=get_metric(schema_instance.core_performance.free_cash_flow)
             ),
             capital_allocation=CapitalAllocation(
                 share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)),

@@ -473,11 +473,11 @@ class MetricWithGrowth:
     Represents a financial metric with its corresponding Year-over-Year (YoY) growth.
     
     Attributes:
-        amount (Decimal): The absolute value or margin of the metric (e.g., revenue amount, EPS value, or margin percentage).
-        yoy_growth (Decimal): The Year-over-Year growth rate as a percentage.
+        amount (Optional[Decimal]): The absolute value or margin of the metric (e.g., revenue amount, EPS value, or margin percentage).
+        yoy_growth (Optional[Decimal]): The year-over-year growth percentage.
     """
-    amount: Decimal
-    yoy_growth: Decimal
+    amount: Optional[Decimal] = None
+    yoy_growth: Optional[Decimal] = None
 
 @dataclass(frozen=True)
 class CorePerformance:

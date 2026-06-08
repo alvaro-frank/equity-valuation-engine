@@ -65,7 +65,6 @@ class CompanyProfileSchema(BaseModel):
     Comprehensive profile and business model analysis of a specific company.
 
     Attributes:
-        business_description (str): High-level overview of the company's core operations.
         company_history (str): Timeline and narrative of the company's evolution.
         key_executives (List[KeyExecutive]): List of key executives with name, title, and ownership.
         revenue_model (str): Explanation of how the company generates income.
@@ -80,7 +79,6 @@ class CompanyProfileSchema(BaseModel):
         moat_sources (MoatSourcesSchema): Quantitative evaluation of moat sources (1-5).
         quality_pillars (QualityPillarsSchema): Quantitative evaluation of business quality pillars (1-5).
     """
-    business_description: str
     company_history: str
     key_executives: List[KeyExecutive]
     revenue_model: str
@@ -136,11 +134,11 @@ class MetricWithGrowthSchema(BaseModel):
     Represents a financial metric with its year-over-year growth percentage.
     
     Attributes:
-        amount (float): The absolute value or margin of the metric.
-        yoy_growth (float): The Year-over-Year growth percentage.
+        amount (Optional[float]): The absolute value or margin of the metric.
+        yoy_growth (Optional[float]): The year-over-year growth percentage.
     """
-    amount: float
-    yoy_growth: float
+    amount: Optional[float] = None
+    yoy_growth: Optional[float] = None
 
 class CorePerformanceSchema(BaseModel):
     """
@@ -154,12 +152,12 @@ class CorePerformanceSchema(BaseModel):
         adjusted_net_margin (MetricWithGrowthSchema): Adjusted Net Margin with YoY growth.
         free_cash_flow (MetricWithGrowthSchema): Free Cash Flow with YoY growth.
     """
-    adjusted_revenue: MetricWithGrowthSchema
-    adjusted_eps: MetricWithGrowthSchema
-    adjusted_gross_margin: MetricWithGrowthSchema
-    adjusted_operating_margin: MetricWithGrowthSchema
-    adjusted_net_margin: MetricWithGrowthSchema
-    free_cash_flow: MetricWithGrowthSchema
+    adjusted_revenue: Optional[MetricWithGrowthSchema] = None
+    adjusted_eps: Optional[MetricWithGrowthSchema] = None
+    adjusted_gross_margin: Optional[MetricWithGrowthSchema] = None
+    adjusted_operating_margin: Optional[MetricWithGrowthSchema] = None
+    adjusted_net_margin: Optional[MetricWithGrowthSchema] = None
+    free_cash_flow: Optional[MetricWithGrowthSchema] = None
 
 class CapitalAllocationSchema(BaseModel):
     """
