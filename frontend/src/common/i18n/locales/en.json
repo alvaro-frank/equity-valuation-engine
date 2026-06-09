@@ -140,8 +140,8 @@
     "no_data": "Data not available for this section."
   },
   "sector_view": {
-    "tab_competitive": "COMPETITIVE DYNAMICS",
-    "tab_macro": "MACROECONOMICS & RISKS",
+    "tab_competitive": "Competitive Dynamics",
+    "tab_macro": "Macroeconomics & Risks",
     "rivalry": "Industry Rivalry",
     "suppliers": "Power of Suppliers",
     "customers": "Power of Customers",
