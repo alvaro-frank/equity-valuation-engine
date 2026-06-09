@@ -101,9 +101,17 @@ class FinancialYear:
     long_term_debt: Decimal
     total_debt: Decimal
     
-    total_assets: Decimal
+    accounts_payable: Decimal
+    current_liabilities: Decimal
     total_liabilities: Decimal
+    
     cash_and_equivalents: Decimal
+    accounts_receivable: Decimal
+    inventory: Decimal
+    current_assets: Decimal
+    net_ppe: Decimal
+    intangible_assets: Decimal
+    total_assets: Decimal
     
     year_end_price: Decimal
     
@@ -257,6 +265,16 @@ class FinancialYear:
         return round(self.market_cap / self.revenue, 2)
 
     @property
+    def free_cash_flow(self) -> Decimal:
+        """
+        Calculates the Free Cash Flow (FCF) by subtracting capital expenditures from operating cash flow.
+        
+        Returns:
+            Decimal: The absolute Free Cash Flow.
+        """
+        return self.operating_cash_flow - abs(self.capital_expenditures)
+
+    @property
     def fcf_yield(self) -> Decimal | None:
         """
         Calculates the Free Cash Flow Yield as a percentage.
@@ -268,6 +286,18 @@ class FinancialYear:
             return None
         fcf = self.operating_cash_flow - abs(self.capital_expenditures)
         return round((fcf / self.market_cap) * 100, 2)
+
+    @property
+    def eps(self) -> Decimal | None:
+        """
+        Calculates the Earnings Per Share (EPS).
+        
+        Returns:
+            Decimal | None: EPS rounded to two decimal places, or None if shares outstanding is zero.
+        """
+        if self.shares_outstanding == Decimal("0"):
+            return None
+        return round(self.net_income / self.shares_outstanding, 2)
 
 @dataclass(frozen=True)
 class FinancialQuarter:
@@ -310,11 +340,19 @@ class FinancialQuarter:
     long_term_debt: Decimal
     total_debt: Decimal
     
-    total_assets: Decimal
+    accounts_payable: Decimal
+    current_liabilities: Decimal
     total_liabilities: Decimal
-    cash_and_equivalents: Decimal
     
-    year_end_price: Decimal
+    cash_and_equivalents: Decimal
+    accounts_receivable: Decimal
+    inventory: Decimal
+    current_assets: Decimal
+    net_ppe: Decimal
+    intangible_assets: Decimal
+    total_assets: Decimal
+    
+    quarter_end_price: Decimal
     
     def __post_init__(self):
         if self.shares_outstanding < 0:
@@ -415,7 +453,7 @@ class FinancialQuarter:
         Returns:
             Decimal: The product of shares outstanding and year-end price.
         """
-        return self.shares_outstanding * self.year_end_price
+        return self.shares_outstanding * self.quarter_end_price
 
     @property
     def pe_ratio(self) -> Decimal | None:
@@ -455,6 +493,16 @@ class FinancialQuarter:
         return round(self.market_cap / self.revenue, 2)
 
     @property
+    def free_cash_flow(self) -> Decimal:
+        """
+        Calculates the Free Cash Flow (FCF) by subtracting capital expenditures from operating cash flow.
+        
+        Returns:
+            Decimal: The absolute Free Cash Flow.
+        """
+        return self.operating_cash_flow - abs(self.capital_expenditures)
+
+    @property
     def fcf_yield(self) -> Decimal | None:
         """
         Calculates the Free Cash Flow Yield as a percentage.
@@ -466,6 +514,18 @@ class FinancialQuarter:
             return None
         fcf = self.operating_cash_flow - abs(self.capital_expenditures)
         return round((fcf / self.market_cap) * 100, 2)
+
+    @property
+    def eps(self) -> Decimal | None:
+        """
+        Calculates the Earnings Per Share (EPS).
+        
+        Returns:
+            Decimal | None: EPS rounded to two decimal places, or None if shares outstanding is zero.
+        """
+        if self.shares_outstanding == Decimal("0"):
+            return None
+        return round(self.net_income / self.shares_outstanding, 2)
 
 @dataclass(frozen=True)
 class MetricWithGrowth:

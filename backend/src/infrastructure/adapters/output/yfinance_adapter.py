@@ -270,6 +270,22 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 long_term_debt = get_val(balance_sheet, 'Long Term Debt')
                 cash_and_equivalents = get_val(balance_sheet, 'Cash And Cash Equivalents')
                 
+                accounts_payable = get_val(balance_sheet, 'Accounts Payable')
+                if accounts_payable == Decimal("0"):
+                    accounts_payable = get_val(balance_sheet, 'Payables')
+                current_liabilities = get_val(balance_sheet, 'Current Liabilities')
+                
+                accounts_receivable = get_val(balance_sheet, 'Accounts Receivable')
+                if accounts_receivable == Decimal("0"):
+                    accounts_receivable = get_val(balance_sheet, 'Receivables')
+                inventory = get_val(balance_sheet, 'Inventory')
+                current_assets = get_val(balance_sheet, 'Current Assets')
+                net_ppe = get_val(balance_sheet, 'Net PPE')
+                
+                intangible_assets = get_val(balance_sheet, 'Goodwill And Other Intangible Assets')
+                if intangible_assets == Decimal("0"):
+                    intangible_assets = get_val(balance_sheet, 'Other Intangible Assets') + get_val(balance_sheet, 'Goodwill')
+                
                 # Extract cashflow
                 operating_cash_flow = get_val(cashflow, 'Operating Cash Flow')
                 capital_expenditures = get_val(cashflow, 'Capital Expenditure')
@@ -309,9 +325,16 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     short_term_debt=short_term_debt,
                     long_term_debt=long_term_debt,
                     total_debt=total_debt,
-                    total_assets=total_assets,
+                    accounts_payable=accounts_payable,
+                    current_liabilities=current_liabilities,
                     total_liabilities=total_liabilities,
                     cash_and_equivalents=cash_and_equivalents,
+                    accounts_receivable=accounts_receivable,
+                    inventory=inventory,
+                    current_assets=current_assets,
+                    net_ppe=net_ppe,
+                    intangible_assets=intangible_assets,
+                    total_assets=total_assets,
                     year_end_price=year_end_price
                 ))
             latest_annual_date = financials.columns[0] if not financials.empty else None
@@ -370,6 +393,22 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                         ttm_long_term_debt = get_latest_q_val(quarterly_balance_sheet, 'Long Term Debt')
                         ttm_cash_and_equivalents = get_latest_q_val(quarterly_balance_sheet, 'Cash And Cash Equivalents')
                         
+                        ttm_accounts_payable = get_latest_q_val(quarterly_balance_sheet, 'Accounts Payable')
+                        if ttm_accounts_payable == Decimal("0"):
+                            ttm_accounts_payable = get_latest_q_val(quarterly_balance_sheet, 'Payables')
+                        ttm_current_liabilities = get_latest_q_val(quarterly_balance_sheet, 'Current Liabilities')
+                        
+                        ttm_accounts_receivable = get_latest_q_val(quarterly_balance_sheet, 'Accounts Receivable')
+                        if ttm_accounts_receivable == Decimal("0"):
+                            ttm_accounts_receivable = get_latest_q_val(quarterly_balance_sheet, 'Receivables')
+                        ttm_inventory = get_latest_q_val(quarterly_balance_sheet, 'Inventory')
+                        ttm_current_assets = get_latest_q_val(quarterly_balance_sheet, 'Current Assets')
+                        ttm_net_ppe = get_latest_q_val(quarterly_balance_sheet, 'Net PPE')
+                        
+                        ttm_intangible_assets = get_latest_q_val(quarterly_balance_sheet, 'Goodwill And Other Intangible Assets')
+                        if ttm_intangible_assets == Decimal("0"):
+                            ttm_intangible_assets = get_latest_q_val(quarterly_balance_sheet, 'Other Intangible Assets') + get_latest_q_val(quarterly_balance_sheet, 'Goodwill')
+                        
                         ttm_shares_outstanding = get_latest_q_val(quarterly_financials, 'Basic Average Shares')
                         if ttm_shares_outstanding == Decimal("0"):
                             ttm_shares_outstanding = get_latest_q_val(quarterly_financials, 'Diluted Average Shares')
@@ -391,9 +430,16 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                             short_term_debt=ttm_short_term_debt,
                             long_term_debt=ttm_long_term_debt,
                             total_debt=ttm_total_debt,
-                            total_assets=ttm_total_assets,
+                            accounts_payable=ttm_accounts_payable,
+                            current_liabilities=ttm_current_liabilities,
                             total_liabilities=ttm_total_liabilities,
                             cash_and_equivalents=ttm_cash_and_equivalents,
+                            accounts_receivable=ttm_accounts_receivable,
+                            inventory=ttm_inventory,
+                            current_assets=ttm_current_assets,
+                            net_ppe=ttm_net_ppe,
+                            intangible_assets=ttm_intangible_assets,
+                            total_assets=ttm_total_assets,
                             year_end_price=Decimal("0")
                         ))
             
@@ -487,6 +533,22 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 long_term_debt = get_val(balance_sheet, 'Long Term Debt')
                 cash_and_equivalents = get_val(balance_sheet, 'Cash And Cash Equivalents')
                 
+                accounts_payable = get_val(balance_sheet, 'Accounts Payable')
+                if accounts_payable == Decimal("0"):
+                    accounts_payable = get_val(balance_sheet, 'Payables')
+                current_liabilities = get_val(balance_sheet, 'Current Liabilities')
+                
+                accounts_receivable = get_val(balance_sheet, 'Accounts Receivable')
+                if accounts_receivable == Decimal("0"):
+                    accounts_receivable = get_val(balance_sheet, 'Receivables')
+                inventory = get_val(balance_sheet, 'Inventory')
+                current_assets = get_val(balance_sheet, 'Current Assets')
+                net_ppe = get_val(balance_sheet, 'Net PPE')
+                
+                intangible_assets = get_val(balance_sheet, 'Goodwill And Other Intangible Assets')
+                if intangible_assets == Decimal("0"):
+                    intangible_assets = get_val(balance_sheet, 'Other Intangible Assets') + get_val(balance_sheet, 'Goodwill')
+                
                 # Extract cashflow
                 operating_cash_flow = get_val(cashflow, 'Operating Cash Flow')
                 capital_expenditures = get_val(cashflow, 'Capital Expenditure')
@@ -526,10 +588,17 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     short_term_debt=short_term_debt,
                     long_term_debt=long_term_debt,
                     total_debt=total_debt,
-                    total_assets=total_assets,
+                    accounts_payable=accounts_payable,
+                    current_liabilities=current_liabilities,
                     total_liabilities=total_liabilities,
                     cash_and_equivalents=cash_and_equivalents,
-                    year_end_price=quarter_end_price
+                    accounts_receivable=accounts_receivable,
+                    inventory=inventory,
+                    current_assets=current_assets,
+                    net_ppe=net_ppe,
+                    intangible_assets=intangible_assets,
+                    total_assets=total_assets,
+                    quarter_end_price=quarter_end_price
                 ))
             
             return sorted(quarters_data, key=lambda x: x.fiscal_date_ending)
