@@ -52,13 +52,18 @@ class QuantitativeValuationUseCase:
             financial_years = await self.adapter.get_stock_fundamental_data(ticker_symbol)
             financial_quarters = []
             
+        if financial_years:
+            ttm_idx = next((i for i, y in enumerate(financial_years) if y.fiscal_date_ending == "TTM"), None)
+            if ttm_idx is not None:
+                financial_years[ttm_idx] = dataclasses.replace(financial_years[ttm_idx], year_end_price=current_price_obj.amount)
+            
         all_fields = [f.name for f in fields(FinancialYear)]
-        excluded_fields = ["fiscal_date_ending"]
+        excluded_fields = ["fiscal_date_ending", "year_end_price", "quarter_end_price"]
         
         ratio_fields = [
             "total_equity", "gross_margin", "operating_margin", 
             "net_margin", "roe", "roic", "debt_to_equity",
-            "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "fcf_yield"
+            "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "free_cash_flow", "fcf_yield", "eps"
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
@@ -118,11 +123,11 @@ class QuantitativeValuationUseCase:
         """
         Calculates the Compound Annual Growth Rate (CAGR) over a specified period of time.
         
-        The calculation assumes the list is ordered from most recent (index 0) to oldest (last index).
+        The calculation assumes the list is ordered chronologically from oldest (index 0) to most recent (last index).
         The formula used is: 
         
         Args:
-            values (List[Decimal]): A list of financial values, ordered from newest to oldest.
+            values (List[Decimal]): A list of financial values, ordered from oldest to newest.
             
         Raises:
             ArithmeticError: If a mathematical error occurs during the exponentiation or division.
@@ -135,13 +140,18 @@ class QuantitativeValuationUseCase:
         if len(values) < 2:
             return None
             
-        begin_val = values[-1]
-        end_val = values[0]
+        # The data is ordered chronologically: oldest (index 0) to most recent (last index)
+        begin_val = values[0]
+        end_val = values[-1]
         
         if begin_val is None or end_val is None:
             return None
         
-        if begin_val <= Decimal("0") or end_val <= Decimal("0"):
+        if begin_val == Decimal("0") or end_val == Decimal("0"):
+            return None
+        
+        # Cannot calculate standard CAGR if signs are different
+        if (begin_val < Decimal("0") and end_val > Decimal("0")) or (begin_val > Decimal("0") and end_val < Decimal("0")):
             return None
         
         periods = len(values) - 1
