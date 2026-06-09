@@ -1,5 +1,6 @@
 import type { EarningsReportResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
+import { formatLargeCurrency, formatPercentage } from '@/common/utils/formatters';
 
 interface EarningsReportCardProps {
   data: EarningsReportResult;
@@ -20,28 +21,6 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
     );
   };
 
-  const formatMoney = (value: number | string | null | undefined) => {
-    if (value == null) return 'N/A';
-    const numValue = Number(value);
-    
-    // Auto-detect if value is in billions, millions, or raw dollars.
-    let actualValue = numValue;
-    if (Math.abs(numValue) < 1000) {
-      // The LLM is instructed to output in Billions (e.g., 5.532 for 5.532B)
-      actualValue = numValue * 1e9;
-    } else if (Math.abs(numValue) < 1000000) {
-      // Fallback: if it outputs e.g., 5532, it's likely Millions
-      actualValue = numValue * 1e6;
-    }
-
-    const absVal = Math.abs(actualValue);
-    const sign = actualValue < 0 ? '-' : '';
-    if (absVal >= 1e12) return `${sign}$${(absVal / 1e12).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}T`;
-    if (absVal >= 1e9) return `${sign}$${(absVal / 1e9).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}B`;
-    if (absVal >= 1e6) return `${sign}$${(absVal / 1e6).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}M`;
-    return `${sign}$${absVal.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}`;
-  };
-
   return (
     <div className="space-y-6 mt-6 animate-fade-in">
       {/* 1. Core Performance Grid */}
@@ -55,7 +34,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.adj_revenue')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">{formatMoney(core_performance.adjusted_revenue.amount)}</span>
+              <span className="text-xl font-bold text-on-surface">{formatLargeCurrency(core_performance.adjusted_revenue.amount)}</span>
               {renderMetricBadge(core_performance.adjusted_revenue.yoy_growth)}
             </div>
           </div>
@@ -71,7 +50,7 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4">
             <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{t('filings.fcf')}</span>
             <div className="flex items-center">
-              <span className="text-xl font-bold text-on-surface">{formatMoney(core_performance.free_cash_flow.amount)}</span>
+              <span className="text-xl font-bold text-on-surface">{formatLargeCurrency(core_performance.free_cash_flow.amount)}</span>
               {renderMetricBadge(core_performance.free_cash_flow.yoy_growth)}
             </div>
           </div>
@@ -112,15 +91,15 @@ export function EarningsReportCard({ data }: EarningsReportCardProps) {
           <div className="bg-surface-container border border-outline-variant rounded p-4 space-y-4 flex-1">
             <div className="flex justify-between border-b border-outline-variant pb-2">
               <span className="text-sm text-on-surface-variant">{t('filings.share_buybacks')}</span>
-              <span className="text-sm font-bold text-on-surface">{formatMoney(capital_allocation.share_buybacks)}</span>
+              <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(capital_allocation.share_buybacks)}</span>
             </div>
             <div className="flex justify-between border-b border-outline-variant pb-2">
               <span className="text-sm text-on-surface-variant">{t('filings.dividends')}</span>
-              <span className="text-sm font-bold text-on-surface">{formatMoney(capital_allocation.dividends)}</span>
+              <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(capital_allocation.dividends)}</span>
             </div>
             <div className="flex justify-between border-b border-outline-variant pb-2">
               <span className="text-sm text-on-surface-variant">{t('filings.capex')}</span>
-              <span className="text-sm font-bold text-on-surface">{formatMoney(capital_allocation.capex_rd)}</span>
+              <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(capital_allocation.capex_rd)}</span>
             </div>
             
             {capital_allocation.infrastructure_assessment && (
