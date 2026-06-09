@@ -104,6 +104,14 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
                 total_liabilities=parse_decimal(balance_report.get("totalLiabilities", "0"), "totalLiabilities"),
                 cash_and_equivalents=parse_decimal(balance_report.get("cashAndCashEquivalentsAtCarryingValue", "0"), "cashAndCashEquivalentsAtCarryingValue"),
                 
+                accounts_payable=parse_decimal(balance_report.get("currentAccountsPayable", "0"), "currentAccountsPayable"),
+                current_liabilities=parse_decimal(balance_report.get("totalCurrentLiabilities", "0"), "totalCurrentLiabilities"),
+                accounts_receivable=parse_decimal(balance_report.get("currentNetReceivables", "0"), "currentNetReceivables"),
+                inventory=parse_decimal(balance_report.get("inventory", "0"), "inventory"),
+                current_assets=parse_decimal(balance_report.get("totalCurrentAssets", "0"), "totalCurrentAssets"),
+                net_ppe=parse_decimal(balance_report.get("propertyPlantEquipment", "0"), "propertyPlantEquipment"),
+                intangible_assets=parse_decimal(balance_report.get("intangibleAssets", "0"), "intangibleAssets"),
+                
                 # Market Price at Year End
                 year_end_price=year_end_price
             )
@@ -157,7 +165,14 @@ def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: L
                 total_assets=parse_decimal(balance_report.get("totalAssets", "0"), "totalAssets"),
                 total_liabilities=parse_decimal(balance_report.get("totalLiabilities", "0"), "totalLiabilities"),
                 cash_and_equivalents=parse_decimal(balance_report.get("cashAndCashEquivalentsAtCarryingValue", "0"), "cashAndCashEquivalentsAtCarryingValue"),
-                year_end_price=year_end_price
+                accounts_payable=parse_decimal(balance_report.get("currentAccountsPayable", "0"), "currentAccountsPayable"),
+                current_liabilities=parse_decimal(balance_report.get("totalCurrentLiabilities", "0"), "totalCurrentLiabilities"),
+                accounts_receivable=parse_decimal(balance_report.get("currentNetReceivables", "0"), "currentNetReceivables"),
+                inventory=parse_decimal(balance_report.get("inventory", "0"), "inventory"),
+                current_assets=parse_decimal(balance_report.get("totalCurrentAssets", "0"), "totalCurrentAssets"),
+                net_ppe=parse_decimal(balance_report.get("propertyPlantEquipment", "0"), "propertyPlantEquipment"),
+                intangible_assets=parse_decimal(balance_report.get("intangibleAssets", "0"), "intangibleAssets"),
+                quarter_end_price=year_end_price
             )
             
             quarters.append(quarter_data)
