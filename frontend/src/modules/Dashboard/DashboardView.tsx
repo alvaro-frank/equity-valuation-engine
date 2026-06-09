@@ -1,10 +1,11 @@
-
 import { MetricCard } from '@/modules/Dashboard/components/MetricCard';
 import { RevenueChart } from '@/modules/Dashboard/components/Charts/RevenueChart';
 import { MarginChart } from '@/modules/Dashboard/components/Charts/MarginChart';
 import { TrendingBadge } from '@/common/components/TrendingBadge';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
+import { formatCurrency, formatLargeCurrency, formatMultiplier, formatPercentage } from '@/common/utils/formatters';
+import { translateSector } from '@/common/utils/translations';
 
 interface DashboardViewProps {
   ticker: string;
@@ -14,13 +15,7 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ ticker, quantData, qualData, onSearch }: DashboardViewProps) {
-  const { t, i18n } = useTranslation();
-
-  const getTranslatedSector = (value?: string) => {
-    if (!value) return t('dashboard.unknown');
-    const key = value.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-    return i18n.exists(`sectors.${key}`) ? t(`sectors.${key}`) : value;
-  };
+  const { t } = useTranslation();
 
   // Helper to safely extract the latest value of a metric by key
   const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' = 'number') => {
@@ -43,32 +38,10 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
     if (isNaN(val)) return 'N/A';
 
     if (formatAs === 'currency') {
-      const absVal = Math.abs(val);
-      const sign = val < 0 ? '-' : '';
-      if (absVal >= 1e12) return `${sign}$${(absVal / 1e12).toFixed(2)}T`;
-      if (absVal >= 1e9) return `${sign}$${(absVal / 1e9).toFixed(2)}B`;
-      if (absVal >= 1e6) return `${sign}$${(absVal / 1e6).toFixed(2)}M`;
-      return `${sign}$${absVal.toFixed(2)}`;
+      return formatLargeCurrency(val);
     }
-    if (formatAs === 'percent') return `${val.toFixed(1)}%`;
-    return val.toFixed(1) + 'x';
-  };
-
-  // Helper for live ticker values
-  const formatLiveCurrency = (rawVal?: number | string) => {
-    if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
-    const val = Number(rawVal);
-    const absVal = Math.abs(val);
-    const sign = val < 0 ? '-' : '';
-    if (absVal >= 1e12) return `${sign}$${(absVal / 1e12).toFixed(2)}T`;
-    if (absVal >= 1e9) return `${sign}$${(absVal / 1e9).toFixed(2)}B`;
-    if (absVal >= 1e6) return `${sign}$${(absVal / 1e6).toFixed(2)}M`;
-    return `${sign}$${absVal.toFixed(2)}`;
-  };
-
-  const formatLiveNumber = (rawVal?: number | string) => {
-    if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
-    return Number(rawVal).toFixed(1) + 'x';
+    if (formatAs === 'percent') return formatPercentage(val);
+    return formatMultiplier(val);
   };
 
   const getRawLatestMetric = (metricKey: string) => {
@@ -107,7 +80,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
               <TrendingBadge
                 type="sector"
                 label={t('dashboard.sector')}
-                value={getTranslatedSector(qualData?.ticker?.sector)}
+                value={translateSector(qualData?.ticker?.sector)}
                 queryKey={qualData?.ticker?.sector_key || quantData?.ticker?.sector_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
@@ -115,7 +88,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
               <TrendingBadge
                 type="industry"
                 label={t('dashboard.industry')}
-                value={getTranslatedSector(qualData?.ticker?.industry)}
+                value={translateSector(qualData?.ticker?.industry)}
                 queryKey={qualData?.ticker?.industry_key || quantData?.ticker?.industry_key}
                 currentTicker={ticker}
                 onSelectTicker={onSearch || (() => {})}
@@ -124,7 +97,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           </div>
         </div>
           <div className="text-right flex flex-col items-end justify-center">
-            <span className="font-display-lg text-3xl font-bold text-primary leading-none">{formatLiveCurrency(quantData?.ticker?.current_price)}</span>
+            <span className="font-display-lg text-3xl font-bold text-primary leading-none">{formatCurrency(quantData?.ticker?.current_price)}</span>
             {quantData?.ticker?.regular_market_change != null ? (
               <span className={`text-[12px] font-bold mt-1.5 flex items-center gap-0.5 ${quantData.ticker.regular_market_change >= 0 ? 'text-green-500' : 'text-error'}`}>
                 <span className="material-symbols-outlined text-[14px]">
@@ -142,23 +115,23 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
       <section className="grid grid-cols-1 md:grid-cols-5 gap-panel-gap">
         <MetricCard 
           label="MARKET CAP" 
-          value={formatLiveCurrency(quantData?.ticker?.market_cap)} 
+          value={formatLargeCurrency(quantData?.ticker?.market_cap)} 
           icon="public"
           flipLabel="ENTERPRISE VALUE"
-          flipValue={formatLiveCurrency(calculateEV() ?? undefined)} 
+          flipValue={formatLargeCurrency(calculateEV() ?? undefined)} 
         />
 
         <MetricCard 
           label="P/E RATIO TTM" 
-          value={formatLiveNumber(quantData?.ticker?.pe_ratio)} 
+          value={formatMultiplier(quantData?.ticker?.pe_ratio)} 
           icon="monitoring" 
           flipLabel="FORWARD P/E"
-          flipValue={formatLiveNumber(quantData?.ticker?.forward_pe)}
+          flipValue={formatMultiplier(quantData?.ticker?.forward_pe)}
         />
         
         <MetricCard 
           label="FREE CASH FLOW" 
-          value={formatLiveCurrency(calculateFCF() ?? undefined)} 
+          value={formatLargeCurrency(calculateFCF() ?? undefined)} 
           icon="payments" 
           flipLabel="FCF YIELD TTM"
           flipValue={getLatestMetric('fcf_yield', 'percent')}
@@ -177,7 +150,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           value={getLatestMetric('debt_to_equity', 'number')} 
           icon="balance"
           flipLabel="CASH & EQUIVALENTS"
-          flipValue={formatLiveCurrency(getRawLatestMetric('cash_and_equivalents') ?? undefined)}
+          flipValue={formatLargeCurrency(getRawLatestMetric('cash_and_equivalents') ?? undefined)}
         />
       </section>
 

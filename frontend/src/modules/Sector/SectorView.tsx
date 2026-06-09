@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSectorData, useSectorPerformance } from '@/modules/Valuation/hooks/useValuationData';
 import { SectorPerformanceChart } from '@/modules/Sector/components/SectorPerformanceChart';
+import { SubNav } from '@/common/components/SubNav';
+import { translateSector } from '@/common/utils/translations';
 
 interface SectorViewProps {
   ticker: string;
@@ -13,12 +15,6 @@ export function SectorView({ ticker }: SectorViewProps) {
   const { data: performanceData, isLoading: isLoadingPerf } = useSectorPerformance(ticker);
   
   const [activeSubTab, setActiveSubTab] = useState<'competitive' | 'macro' | 'performance'>('competitive');
-
-  const getTranslatedSector = (value?: string) => {
-    if (!value) return t('dashboard.unknown');
-    const key = value.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-    return i18n.exists(`sectors.${key}`) ? t(`sectors.${key}`) : value;
-  };
 
   const subTabs = [
     { id: 'competitive', label: t('sector_view.tab_competitive', 'Competitive Dynamics'), icon: 'query_stats' },
@@ -77,30 +73,19 @@ export function SectorView({ ticker }: SectorViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {getTranslatedSector(sectorData.sector)} / {getTranslatedSector(sectorData.industry)}
+            {translateSector(sectorData.sector)} / {translateSector(sectorData.industry)}
           </p>
         </div>
       </div>
 
       {/* Internal Sub-Navigation */}
-      <nav className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 custom-scrollbar">
-        {subTabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap
-              ${activeSubTab === tab.id 
-                ? 'bg-primary text-on-primary shadow-sm' 
-                : 'bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
-              }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      <SubNav 
+        tabs={subTabs} 
+        activeTabId={activeSubTab} 
+        onTabChange={setActiveSubTab} 
+      />
 
-      {/* Tab Content */}
+      {/* Dynamic Content */}
       <div className="space-y-6">
         {activeSubTab === 'competitive' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-500">

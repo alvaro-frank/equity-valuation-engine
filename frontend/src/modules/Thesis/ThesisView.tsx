@@ -4,6 +4,8 @@ import i18n from 'i18next';
 import { useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
 import { MoatRadarChart } from './components/MoatRadarChart';
 import { QualityStarRating } from './components/QualityStarRating';
+import { SubNav } from '@/common/components/SubNav';
+import { translateSector } from '@/common/utils/translations';
 
 const getInitials = (name: string) => {
   if (!name) return '?';
@@ -23,12 +25,6 @@ export function ThesisView({ ticker }: ThesisViewProps) {
   const { data: qualData, isLoading, error, refetch } = useQualitativeData(ticker);
   
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'moat' | 'leadership' | 'history' | 'risks'>('overview');
-
-  const getTranslatedSector = (value?: string) => {
-    if (!value) return t('dashboard.unknown');
-    const key = value.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-    return i18n.exists(`sectors.${key}`) ? t(`sectors.${key}`) : value;
-  };
 
   const subTabs = [
     { id: 'overview', label: t('thesis_view.tab_overview'), icon: 'lightbulb' },
@@ -103,28 +99,17 @@ export function ThesisView({ ticker }: ThesisViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {getTranslatedSector(qualData.ticker.sector)} / {getTranslatedSector(qualData.ticker.industry)}
+            {translateSector(qualData.ticker.sector)} / {translateSector(qualData.ticker.industry)}
           </p>
         </div>
       </div>
 
       {/* Internal Sub-Navigation */}
-      <nav className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 custom-scrollbar">
-        {subTabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-              activeSubTab === tab.id 
-                ? 'bg-secondary-container text-on-secondary-container shadow-sm border border-secondary-container/50' 
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      <SubNav 
+        tabs={subTabs} 
+        activeTabId={activeSubTab} 
+        onTabChange={setActiveSubTab} 
+      />
 
       {/* Content Area */}
       <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6 min-h-[500px]">
