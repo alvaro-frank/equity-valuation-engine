@@ -51,12 +51,12 @@ class GroqTranslatorAdapter(TranslationPort):
             )
             
             result_text = response.choices[0].message.content.strip()
-            if result_text.startswith("```json"):
-                result_text = result_text[7:]
-            if result_text.startswith("```"):
-                result_text = result_text[3:]
-            if result_text.endswith("```"):
-                result_text = result_text[:-3]
+            
+            # Robust JSON extraction
+            start_idx = result_text.find('{')
+            end_idx = result_text.rfind('}')
+            if start_idx != -1 and end_idx != -1:
+                result_text = result_text[start_idx:end_idx+1]
                 
             return json.loads(result_text.strip())
         except Exception as e:
