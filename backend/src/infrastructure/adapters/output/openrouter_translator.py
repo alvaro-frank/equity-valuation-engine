@@ -44,6 +44,7 @@ class OpenRouterTranslatorAdapter(TranslationPort):
                     {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
+                response_format={"type": "json_object"},
                 temperature=0.0,
                 max_tokens=8000
             )
