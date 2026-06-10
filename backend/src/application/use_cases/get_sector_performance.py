@@ -3,22 +3,22 @@ import asyncio
 import yfinance as yf
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 
-# Static mapping for common sectors and industries to their representative ETFs
 SECTOR_ETF_MAP = {
     "technology": "XLK",
     "software-infrastructure": "IGV",
     "semiconductors": "SMH",
     "healthcare": "XLV",
-    "financials": "XLF",
+    "financial-services": "XLF",
     "consumer-cyclical": "XLY",
     "industrials": "XLI",
     "energy": "XLE",
     "utilities": "XLU",
     "real-estate": "XLRE",
-    "materials": "XLB",
+    "basic-materials": "XLB",
     "consumer-defensive": "XLP",
     "communication-services": "XLC"
 }
+
 
 class GetSectorPerformanceUseCase:
     """
