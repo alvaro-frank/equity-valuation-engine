@@ -1,5 +1,5 @@
 import { SubNav } from '@/common/components/SubNav';
-import { translateSector } from '@/common/utils/translations';
+import { translateSector, translateIndustry } from '@/common/utils/translations';
 import { useSectorView } from './hooks/useSectorView';
 
 import { CompetitiveDynamicsTab } from './components/CompetitiveDynamicsTab';
@@ -76,7 +76,7 @@ export function SectorView({ ticker }: SectorViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {translateSector(sectorData.sector)} / {translateSector(sectorData.industry)}
+            {translateSector(sectorData.sector)} / {translateIndustry(sectorData.industry)}
           </p>
         </div>
       </div>

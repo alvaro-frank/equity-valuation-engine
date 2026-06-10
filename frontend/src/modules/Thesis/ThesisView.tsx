@@ -1,5 +1,5 @@
 import { SubNav } from '@/common/components/SubNav';
-import { translateSector } from '@/common/utils/translations';
+import { translateSector, translateIndustry } from '@/common/utils/translations';
 import { useThesisView } from './hooks/useThesisView';
 
 import { OverviewTab } from './components/OverviewTab';
@@ -90,7 +90,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {translateSector(qualData.ticker.sector)} / {translateSector(qualData.ticker.industry)}
+            {translateSector(qualData.ticker.sector)} / {translateIndustry(qualData.ticker.industry)}
           </p>
         </div>
       </div>

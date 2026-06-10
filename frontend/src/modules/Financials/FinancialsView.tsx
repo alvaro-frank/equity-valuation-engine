@@ -1,6 +1,7 @@
 import { SubNav } from '@/common/components/SubNav';
 import { FinancialTable } from './components/FinancialTable';
 import { useFinancialsView } from './hooks/useFinancialsView';
+import { translateSector, translateIndustry } from '@/common/utils/translations';
 
 interface FinancialsViewProps {
   ticker: string;
@@ -60,7 +61,7 @@ export function FinancialsView({ ticker }: FinancialsViewProps) {
           </div>
           <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            {getTranslatedSector(quantData.ticker.sector)} / {getTranslatedSector(quantData.ticker.industry)}
+            {translateSector(quantData.ticker.sector)} / {translateIndustry(quantData.ticker.industry)}
           </p>
         </div>
         
