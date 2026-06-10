@@ -1,4 +1,3 @@
-import React from 'react';
 import { SubNav } from '@/common/components/SubNav';
 import { FinancialTable } from './components/FinancialTable';
 import { useFinancialsView } from './hooks/useFinancialsView';
