@@ -15,7 +15,8 @@
     "analyze": "ANALYSE",
     "recent_searches": "RECENT SEARCHES",
     "clear": "Clear",
-    "trending_in": "Trending in {{sector}}"
+    "trending_in": "Trending in {{sector}}",
+    "trending_tickers": "TRENDING TICKERS"
   },
   "sectors": {
     "technology": "Technology",

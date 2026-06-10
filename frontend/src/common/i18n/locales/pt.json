@@ -15,7 +15,8 @@
     "analyze": "ANALISAR",
     "recent_searches": "PESQUISAS RECENTES",
     "clear": "Limpar",
-    "trending_in": "Tendência em {{sector}}"
+    "trending_in": "Tendência em {{sector}}",
+    "trending_tickers": "TENDÊNCIAS DE PESQUISA"
   },
   "sectors": {
     "technology": "Tecnologia",
