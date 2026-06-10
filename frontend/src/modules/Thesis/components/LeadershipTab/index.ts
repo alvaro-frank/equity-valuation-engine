@@ -1,0 +1,1 @@
+export { LeadershipTab } from './LeadershipTab';

@@ -1,0 +1,1 @@
+export { RisksTab } from './RisksTab';

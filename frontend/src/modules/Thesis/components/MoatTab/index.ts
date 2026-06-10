@@ -1,0 +1,1 @@
+export { MoatTab } from './MoatTab';
