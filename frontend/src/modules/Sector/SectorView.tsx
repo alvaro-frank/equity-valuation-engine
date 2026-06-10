@@ -1,26 +1,29 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSectorData, useSectorPerformance } from '@/modules/Valuation/hooks/useValuationData';
-import { SectorPerformanceChart } from '@/modules/Sector/components/SectorPerformanceChart';
 import { SubNav } from '@/common/components/SubNav';
 import { translateSector } from '@/common/utils/translations';
+import { useSectorView } from './hooks/useSectorView';
+
+import { CompetitiveDynamicsTab } from './components/CompetitiveDynamicsTab';
+import { MacroeconomicsTab } from './components/MacroeconomicsTab';
+import { MarketPerformanceTab } from './components/MarketPerformanceTab';
 
 interface SectorViewProps {
   ticker: string;
 }
 
 export function SectorView({ ticker }: SectorViewProps) {
-  const { t, i18n } = useTranslation();
-  const { data: sectorData, isLoading, error, refetch } = useSectorData(ticker);
-  const { data: performanceData, isLoading: isLoadingPerf } = useSectorPerformance(ticker);
-  
-  const [activeSubTab, setActiveSubTab] = useState<'competitive' | 'macro' | 'performance'>('competitive');
-
-  const subTabs = [
-    { id: 'competitive', label: t('sector_view.tab_competitive', 'Competitive Dynamics'), icon: 'query_stats' },
-    { id: 'macro', label: t('sector_view.tab_macro', 'Macroeconomics'), icon: 'public' },
-    { id: 'performance', label: t('sector_view.tab_performance', 'Market Performance'), icon: 'show_chart' }
-  ] as const;
+  const { 
+    t, 
+    i18n, 
+    sectorData, 
+    isLoading, 
+    error, 
+    refetch, 
+    performanceData,
+    isLoadingPerf,
+    activeSubTab, 
+    setActiveSubTab, 
+    subTabs 
+  } = useSectorView(ticker);
 
   if (isLoading) {
     return (
@@ -80,137 +83,17 @@ export function SectorView({ ticker }: SectorViewProps) {
 
       {/* Internal Sub-Navigation */}
       <SubNav 
-        tabs={subTabs} 
+        tabs={subTabs as any} 
         activeTabId={activeSubTab} 
-        onTabChange={setActiveSubTab} 
+        onTabChange={setActiveSubTab as any} 
       />
 
       {/* Dynamic Content */}
       <div className="space-y-6">
-        {activeSubTab === 'competitive' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-500">
-            {/* Rivalry */}
-            <div className="bg-surface-container border border-outline-variant p-6 rounded flex flex-col gap-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-outline-variant">
-                <span className="material-symbols-outlined text-primary text-[28px]">swords</span>
-                <h3 className="font-display-sm text-xl text-on-surface">{t('sector_view.rivalry')}</h3>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(sectorData.rivalry_among_competitors).map(([factor, analysis]) => (
-                  <div key={factor}>
-                    <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{analysis}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Threat of New Entrants */}
-            <div className="bg-surface-container border border-outline-variant p-6 rounded flex flex-col gap-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-outline-variant">
-                <span className="material-symbols-outlined text-primary text-[28px]">shield</span>
-                <h3 className="font-display-sm text-xl text-on-surface">{t('sector_view.new_entrants')}</h3>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(sectorData.threat_of_new_entrants).map(([factor, analysis]) => (
-                  <div key={factor}>
-                    <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{analysis}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Obsolescence */}
-            <div className="bg-surface-container border border-outline-variant p-6 rounded flex flex-col gap-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-outline-variant">
-                <span className="material-symbols-outlined text-primary text-[28px]">hourglass_empty</span>
-                <h3 className="font-display-sm text-xl text-on-surface">{t('sector_view.obsolescence')}</h3>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(sectorData.threat_of_obsolescence).map(([factor, analysis]) => (
-                  <div key={factor}>
-                    <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{analysis}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Suppliers */}
-            <div className="bg-surface-container border border-outline-variant p-6 rounded flex flex-col gap-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-outline-variant">
-                <span className="material-symbols-outlined text-primary text-[28px]">inventory</span>
-                <h3 className="font-display-sm text-xl text-on-surface">{t('sector_view.suppliers')}</h3>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(sectorData.bargaining_power_of_suppliers).map(([factor, analysis]) => (
-                  <div key={factor}>
-                    <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{analysis}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Customers */}
-            <div className="bg-surface-container border border-outline-variant p-6 rounded flex flex-col gap-4 md:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-3 pb-3 border-b border-outline-variant">
-                <span className="material-symbols-outlined text-primary text-[28px]">shopping_cart</span>
-                <h3 className="font-display-sm text-xl text-on-surface">{t('sector_view.customers')}</h3>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(sectorData.bargaining_power_of_customers).map(([factor, analysis]) => (
-                  <div key={factor}>
-                    <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{analysis}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeSubTab === 'macro' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full">
-            {/* Economic Sensitivity */}
-            <div className="bg-surface-container border border-outline-variant p-8 rounded flex flex-col gap-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <span className="material-symbols-outlined text-[120px]">trending_up</span>
-              </div>
-              <div className="flex items-center gap-3 pb-4 border-b border-outline-variant relative z-10">
-                <span className="material-symbols-outlined text-primary text-[32px]">query_stats</span>
-                <h3 className="font-display-sm text-2xl text-on-surface">{t('sector_view.economic_sensitivity')}</h3>
-              </div>
-              <p className="text-on-surface-variant text-base leading-relaxed whitespace-pre-wrap relative z-10 mt-2">
-                {sectorData.economic_sensitivity}
-              </p>
-            </div>
-
-            {/* Interest Rate Exposure */}
-            <div className="bg-surface-container border border-outline-variant p-8 rounded flex flex-col gap-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <span className="material-symbols-outlined text-[120px]">account_balance</span>
-              </div>
-              <div className="flex items-center gap-3 pb-4 border-b border-outline-variant relative z-10">
-                <span className="material-symbols-outlined text-primary text-[32px]">percent</span>
-                <h3 className="font-display-sm text-2xl text-on-surface">{t('sector_view.interest_rate')}</h3>
-              </div>
-              <p className="text-on-surface-variant text-base leading-relaxed whitespace-pre-wrap relative z-10 mt-2">
-                {sectorData.interest_rate_exposure}
-              </p>
-            </div>
-          </div>
-        )}
-
+        {activeSubTab === 'competitive' && <CompetitiveDynamicsTab sectorData={sectorData} />}
+        {activeSubTab === 'macro' && <MacroeconomicsTab sectorData={sectorData} />}
         {activeSubTab === 'performance' && (
-          <div className="animate-in slide-in-from-bottom-4 duration-500 w-full">
-            {isLoadingPerf ? (
-              <div className="h-[400px] bg-surface-container-high rounded-xl animate-pulse"></div>
-            ) : (
-              <SectorPerformanceChart data={performanceData} />
-            )}
-          </div>
+          <MarketPerformanceTab performanceData={performanceData} isLoadingPerf={isLoadingPerf} />
         )}
       </div>
     </div>

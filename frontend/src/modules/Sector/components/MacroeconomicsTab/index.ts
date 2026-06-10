@@ -1,0 +1,1 @@
+export { MacroeconomicsTab } from './MacroeconomicsTab';

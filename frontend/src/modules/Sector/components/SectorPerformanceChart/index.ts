@@ -1,0 +1,1 @@
+export { SectorPerformanceChart } from './SectorPerformanceChart';
