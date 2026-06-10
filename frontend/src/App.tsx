@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Layout } from '@/common/components/Layout';
 import { Dashboard } from '@/modules/Dashboard/Dashboard';
-import { WelcomeState } from '@/modules/Dashboard/components/WelcomeState';
+import { HomeView } from '@/modules/Home';
 import { FilingsView } from '@/modules/Filings/FilingsView';
 import { ThesisView } from '@/modules/Thesis';
 import { SectorView } from '@/modules/Sector/SectorView';
@@ -22,7 +22,7 @@ function App() {
       onTabChange={setActiveTab}
     >
       {!ticker ? (
-        <WelcomeState onSearch={(t) => { setTicker(t); setHasError(false); setActiveTab('SUMMARY'); }} />
+        <HomeView onSearch={(t) => { setTicker(t); setHasError(false); setActiveTab('SUMMARY'); }} />
       ) : (
         <>
           {activeTab === 'SUMMARY' && <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} onSearch={(t) => { setTicker(t); setHasError(false); }} />}

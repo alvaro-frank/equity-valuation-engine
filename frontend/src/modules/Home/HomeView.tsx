@@ -4,11 +4,11 @@ import { SearchResultItem } from '@/common/components/SearchResultItem';
 import { useSearchBox } from '@/common/hooks/useSearchBox';
 import { useTranslation } from 'react-i18next';
 
-interface WelcomeStateProps {
+interface HomeViewProps {
   onSearch: (ticker: string) => void;
 }
 
-export function WelcomeState({ onSearch }: WelcomeStateProps) {
+export function HomeView({ onSearch }: HomeViewProps) {
   const {
     searchTerm,
     setSearchTerm,
@@ -159,7 +159,7 @@ export function WelcomeState({ onSearch }: WelcomeStateProps) {
       {/* Suggested Tickers */}
       <div className="mt-12 w-full">
         <p className="text-on-surface-variant font-label-caps text-label-caps mb-4 text-center">
-          TRENDING TICKERS
+          {t('search.trending_tickers')}
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {suggestedTickers.map((ticker) => (

@@ -1,6 +1,7 @@
 import { DashboardView } from '@/modules/Dashboard/DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { DashboardSkeleton } from '@/modules/Dashboard/components/DashboardSkeleton';
+import { DashboardErrorState, type DashboardErrorDetails } from '@/modules/Dashboard/components/DashboardErrorState';
 import { useDashboard } from '@/modules/Dashboard/hooks/useDashboard';
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +38,13 @@ const getErrorDetails = (key: number | string, t: any) => {
   return map[key] || map['DEFAULT'];
 };
 
+interface ApiError extends Error {
+  response?: {
+    status?: number;
+    data?: { detail?: string };
+  };
+}
+
 export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: DashboardProps) {
   const { t } = useTranslation();
   const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker, isParentError, onErrorChange);
@@ -50,12 +58,6 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: Da
   }
 
   if (hasError) {
-    interface ApiError extends Error {
-      response?: {
-        status?: number;
-        data?: { detail?: string };
-      };
-    }
     const getStatusCode = (err: unknown) => (err as ApiError)?.response?.status;
     const statusCode = getStatusCode(errorQuant) || getStatusCode(errorQual);
     const apiErrorMsg = (errorQuant as ApiError)?.response?.data?.detail || (errorQual as ApiError)?.response?.data?.detail || errorQuant?.message || errorQual?.message || '';
@@ -66,28 +68,14 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: Da
     else if (statusCode === 429 || apiErrorMsg.includes('429') || apiErrorMsg.includes('RESOURCE_EXHAUSTED') || apiErrorMsg.toLowerCase().includes('quota')) errorKey = 429;
     else if (statusCode === 503 || apiErrorMsg.includes('503') || apiErrorMsg.includes('UNAVAILABLE') || apiErrorMsg.includes('high demand')) errorKey = 503;
 
-    const errorDetails = getErrorDetails(errorKey, t);
+    const errorState: DashboardErrorDetails = {
+      key: errorKey,
+      details: getErrorDetails(errorKey, t),
+      rawMessage: apiErrorMsg,
+      ticker
+    };
 
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-500">
-        <div className="w-20 h-20 bg-error/10 border border-error/20 rounded-full flex items-center justify-center mb-6">
-          <span className="material-symbols-outlined text-[40px] text-error">{errorDetails.icon}</span>
-        </div>
-        <h2 className="font-display-sm text-display-sm font-bold text-on-surface mb-2">
-          {errorKey === 'DEFAULT' ? `${errorDetails.title} ${ticker}` : errorDetails.title}
-        </h2>
-        <p className="text-body-md text-on-surface-variant max-w-md mb-8 leading-relaxed">
-          {errorKey === 'DEFAULT' && apiErrorMsg ? apiErrorMsg : errorDetails.message}
-        </p>
-        <button 
-          onClick={retry}
-          className="flex items-center gap-2 px-6 py-2.5 bg-surface-container-highest border border-outline-variant hover:border-outline text-on-surface rounded-full transition-all duration-200 font-label-lg font-medium hover:bg-surface-container-high active:scale-95"
-        >
-          <span className="material-symbols-outlined text-[18px]">refresh</span>
-          {t('dashboard.try_again')}
-        </button>
-      </div>
-    );
+    return <DashboardErrorState errorState={errorState} onRetry={retry} />;
   }
 
   return (
