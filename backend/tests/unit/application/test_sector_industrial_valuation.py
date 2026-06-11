@@ -28,7 +28,8 @@ class TestSectorIndustrialValuationUseCase:
     @pytest.mark.anyio
     async def test_evaluate_industry_by_ticker_happy_path(self, use_case, mock_quant_port, mock_sector_port):
         mock_quant_port.get_ticker_info.return_value = Ticker(
-            symbol="TSLA", name="Tesla", sector="Consumer Cyclical", industry="Auto Manufacturers"
+            symbol="TSLA", name="Tesla", sector="Consumer Cyclical", industry="Auto Manufacturers",
+            sector_key="Consumer Cyclical", industry_key="Auto Manufacturers"
         )
         
         mock_sector_port.analyse_industry.return_value = IndustrySectorDynamics(
@@ -53,8 +54,9 @@ class TestSectorIndustrialValuationUseCase:
 
         mock_quant_port.get_ticker_info.assert_called_once_with("TSLA")
         mock_sector_port.analyse_industry.assert_called_once_with(
-            sector="Consumer Cyclical", 
-            industry="Auto Manufacturers"
+            sector="Consumer Cyclical",
+            industry="Auto Manufacturers",
+            language="en"
         )
 
     @pytest.mark.anyio

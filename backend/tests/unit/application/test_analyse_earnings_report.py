@@ -32,7 +32,9 @@ class TestEarningsReportUseCase:
             core_performance=CorePerformance(
                 adjusted_revenue=MetricWithGrowth(amount=Decimal("50000"), yoy_growth=Decimal("15")),
                 adjusted_eps=MetricWithGrowth(amount=Decimal("5"), yoy_growth=Decimal("10")),
-                adjusted_ebitda_margin=MetricWithGrowth(amount=Decimal("40"), yoy_growth=Decimal("2")),
+                adjusted_gross_margin=MetricWithGrowth(amount=Decimal("60"), yoy_growth=Decimal("1")),
+                adjusted_operating_margin=MetricWithGrowth(amount=Decimal("40"), yoy_growth=Decimal("2")),
+                adjusted_net_margin=MetricWithGrowth(amount=Decimal("30"), yoy_growth=Decimal("1")),
                 free_cash_flow=MetricWithGrowth(amount=Decimal("15000"), yoy_growth=Decimal("5"))
             ),
             capital_allocation=CapitalAllocation(

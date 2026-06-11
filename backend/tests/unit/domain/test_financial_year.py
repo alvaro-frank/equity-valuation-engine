@@ -21,6 +21,13 @@ class TestFinancialYearEntity:
             "total_assets": Decimal("500"),
             "total_liabilities": Decimal("300"),
             "cash_and_equivalents": Decimal("50"),
+            "accounts_payable": Decimal("20"),
+            "current_liabilities": Decimal("100"),
+            "accounts_receivable": Decimal("30"),
+            "inventory": Decimal("40"),
+            "current_assets": Decimal("120"),
+            "net_ppe": Decimal("300"),
+            "intangible_assets": Decimal("80"),
             "year_end_price": Decimal("10")
         }
 

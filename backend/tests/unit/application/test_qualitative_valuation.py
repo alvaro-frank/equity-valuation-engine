@@ -35,8 +35,7 @@ class TestQualitativeValuationUseCase:
         mock_qual_adapter.analyse_company.return_value = CompanyProfile(
             business_description="Tech giant",
             company_history="Founded 1975",
-            ceo_name="Satya Nadella",
-            ceo_ownership=Decimal("0.15"),
+            key_executives=[{"name": "Satya Nadella", "title": "CEO", "ownership": Decimal("0.15")}],
             major_shareholders={"Vanguard": Decimal("8.5")},
             revenue_model="Cloud",
             strategy="AI",
@@ -45,14 +44,17 @@ class TestQualitativeValuationUseCase:
             competitors={"AWS": "Cloud"},
             management_insights="Strong",
             risk_factors={"Risk": "Desc"},
-            historical_context_crises="None"
+            historical_context_crises="None",
+            moat_trajectory="Expanding",
+            moat_sources={"intangible_assets": 4, "switching_costs": 3, "network_effect": 5, "cost_advantage": 2, "efficient_scale": 1},
+            quality_pillars={"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 3, "tam_expansion": 4}
         )
 
         result = await use_case.analyse_ticker("MSFT")
 
         assert isinstance(result, QualitativeValuationResult)
         assert result.ticker.symbol == "MSFT"
-        assert result.ceo_name == "Satya Nadella"
+        assert result.key_executives[0]["name"] == "Satya Nadella"
         
         mock_quant_adapter.get_ticker_info.assert_called_once_with("MSFT")
         mock_qual_adapter.analyse_company.assert_called_once_with(symbol="MSFT")

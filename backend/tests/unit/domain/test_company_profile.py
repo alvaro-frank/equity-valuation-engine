@@ -8,8 +8,7 @@ class TestCompanyProfileEntity:
         return {
             "business_description": "Tech company",
             "company_history": "Founded in 1976",
-            "ceo_name": "Tim Cook",
-            "ceo_ownership": Decimal("0.5"),
+            "key_executives": [{"name": "Tim Cook", "title": "CEO", "ownership": Decimal("0.5")}],
             "major_shareholders": {"Vanguard": Decimal("8.0")},
             "revenue_model": "Hardware and Services",
             "strategy": "Innovation",
@@ -18,7 +17,10 @@ class TestCompanyProfileEntity:
             "competitors": {"Samsung": "Hardware"},
             "management_insights": "Good",
             "risk_factors": {"Supply Chain": "Dependence on Asia"},
-            "historical_context_crises": "Survived 2008 crisis"
+            "historical_context_crises": "Survived 2008 crisis",
+            "moat_trajectory": "Expanding",
+            "moat_sources": {"intangible_assets": 4, "switching_costs": 3, "network_effect": 5, "cost_advantage": 2, "efficient_scale": 1},
+            "quality_pillars": {"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 3, "tam_expansion": 4}
         }
 
     @pytest.mark.parametrize("ownership", [
@@ -28,9 +30,9 @@ class TestCompanyProfileEntity:
     ])
     def test_valid_ceo_ownership_boundaries(self, valid_profile_data, ownership):
         data = valid_profile_data.copy()
-        data["ceo_ownership"] = ownership
+        data["key_executives"][0]["ownership"] = ownership
         profile = CompanyProfile(**data)
-        assert profile.ceo_ownership == ownership
+        assert profile.key_executives[0]["ownership"] == ownership
 
     @pytest.mark.parametrize("invalid_ownership", [
         Decimal("-0.1"),  
@@ -39,6 +41,6 @@ class TestCompanyProfileEntity:
     ])
     def test_invalid_ceo_ownership_raises_error(self, valid_profile_data, invalid_ownership):
         data = valid_profile_data.copy()
-        data["ceo_ownership"] = invalid_ownership
-        with pytest.raises(ValueError, match="CEO ownership must be between 0 and 100%"):
+        data["key_executives"][0]["ownership"] = invalid_ownership
+        with pytest.raises(ValueError, match="Executive ownership must be between 0 and 100%"):
             CompanyProfile(**data)

@@ -34,7 +34,9 @@ class TestQuantitativeValuationUseCase:
             operating_cash_flow=Decimal("0"), capital_expenditures=Decimal("0"), 
             shares_outstanding=Decimal("10"), short_term_debt=Decimal("0"), 
             long_term_debt=Decimal("0"), total_debt=Decimal("0"), total_assets=Decimal("100"),
-            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("150")
+            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("150"),
+            accounts_payable=Decimal("0"), current_liabilities=Decimal("0"), accounts_receivable=Decimal("0"),
+            inventory=Decimal("0"), current_assets=Decimal("0"), net_ppe=Decimal("0"), intangible_assets=Decimal("0")
         )
         fy_old = FinancialYear(
             fiscal_date_ending="2022-12-31", revenue=Decimal("100"), ebitda=Decimal("0"),
@@ -42,7 +44,9 @@ class TestQuantitativeValuationUseCase:
             operating_cash_flow=Decimal("0"), capital_expenditures=Decimal("0"), 
             shares_outstanding=Decimal("10"), short_term_debt=Decimal("0"), 
             long_term_debt=Decimal("0"), total_debt=Decimal("0"), total_assets=Decimal("100"),
-            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("140")
+            total_liabilities=Decimal("0"), cash_and_equivalents=Decimal("0"), year_end_price=Decimal("140"),
+            accounts_payable=Decimal("0"), current_liabilities=Decimal("0"), accounts_receivable=Decimal("0"),
+            inventory=Decimal("0"), current_assets=Decimal("0"), net_ppe=Decimal("0"), intangible_assets=Decimal("0")
         )
 
         mock_quant_adapter.get_stock_fundamental_data.return_value = [fy_recent, fy_old]
@@ -61,7 +65,7 @@ class TestQuantitativeValuationUseCase:
         mock_quant_adapter.get_stock_fundamental_data.assert_called_once_with("AAPL")
         
     def test_calculate_cagr_happy_path(self):
-        values = [Decimal("121"), Decimal("110"), Decimal("100")]
+        values = [Decimal("100"), Decimal("110"), Decimal("121")]
         cagr = QuantitativeValuationUseCase.calculate_cagr(values)
         assert cagr == Decimal("10.00")
 
