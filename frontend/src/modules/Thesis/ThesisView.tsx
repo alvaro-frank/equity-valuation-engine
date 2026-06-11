@@ -4,6 +4,8 @@ import { useThesisView } from './hooks/useThesisView';
 import { ApiErrorState } from '@/common/components/ApiErrorState';
 import { parseApiError } from '@/common/utils/apiErrors';
 import { useTranslation } from 'react-i18next';
+import type { QualitativeValuationResult, TickerResult } from '@/common/types/valuation';
+import type { SubNavTab } from '@/common/components/SubNav';
 
 import { OverviewTab } from './components/OverviewTab';
 import { MoatTab } from './components/MoatTab';
@@ -15,7 +17,7 @@ import { ThesisSkeleton } from './components/ThesisSkeleton';
 
 // --- Sub-Components (Rule 2.11, 2.23) ---
 
-function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: Record<string, unknown>; ticker: string }) {
+function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: TickerResult; ticker: string }) {
   const { t } = useTranslation();
   return (
     <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant mb-6">
@@ -35,7 +37,7 @@ function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: Record<string, unkno
   );
 }
 
-function TabContent({ activeSubTab, qualData }: { activeSubTab: string; qualData: Record<string, unknown> }) {
+function TabContent({ activeSubTab, qualData }: { activeSubTab: string; qualData: QualitativeValuationResult }) {
   switch (activeSubTab) {
     case 'overview': return <OverviewTab qualData={qualData} />;
     case 'moat': return <MoatTab qualData={qualData} />;
@@ -78,7 +80,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
       <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker} />
 
       <SubNav 
-        tabs={subTabs as Array<{id: string, label: string, icon?: string}>} 
+        tabs={subTabs as SubNavTab[]} 
         activeTabId={activeSubTab} 
         onTabChange={setActiveSubTab as (id: string) => void} 
       />

@@ -1,4 +1,5 @@
 import { SubNav } from '@/common/components/SubNav';
+import type { SubNavTab } from '@/common/components/SubNav';
 import { translateSector, translateIndustry } from '@/common/utils/translations';
 import { useSectorView } from './hooks/useSectorView';
 import { ApiErrorState } from '@/common/components/ApiErrorState';
@@ -39,21 +40,14 @@ function SectorHeader({ ticker, name, sector, industry }: SectorHeaderProps) {
   );
 }
 
-interface TabContentProps {
-  activeTab: string;
-  sectorData: Record<string, unknown>;
-  perfData: unknown;
-  isLoadingPerf: boolean;
-}
-
-function TabContent({ activeTab, sectorData, perfData, isLoadingPerf }: TabContentProps) {
+function TabContent({ activeTab, sectorData, perfData, isLoadingPerf }: { activeTab: string; sectorData: unknown; perfData: unknown; isLoadingPerf: boolean }) {
   switch (activeTab) {
     case 'competitive':
-      return <CompetitiveDynamicsTab sectorData={sectorData} />;
+      return <CompetitiveDynamicsTab sectorData={sectorData as SectorIndustrialValuationResult} />;
     case 'macro':
-      return <MacroeconomicsTab sectorData={sectorData} />;
+      return <MacroeconomicsTab sectorData={sectorData as SectorIndustrialValuationResult} />;
     case 'performance':
-      return <MarketPerformanceTab performanceData={perfData} isLoadingPerf={isLoadingPerf} />;
+      return <MarketPerformanceTab performanceData={perfData as SectorPerformanceData | undefined} isLoading={isLoadingPerf} />;
     default:
       return null;
   }
@@ -99,7 +93,7 @@ export function SectorView({ ticker }: SectorViewProps) {
       />
 
       <SubNav 
-        tabs={subTabs as Array<{id: string, label: string, icon?: string}>} 
+        tabs={subTabs as SubNavTab[]} 
         activeTabId={activeSubTab} 
         onTabChange={setActiveSubTab as (id: string) => void} 
       />

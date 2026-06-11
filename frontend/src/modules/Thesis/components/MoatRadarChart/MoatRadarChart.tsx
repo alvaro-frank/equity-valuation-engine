@@ -8,7 +8,7 @@ interface CustomTickProps {
   payload: { value: string; index: number };
   x: number;
   y: number;
-  textAnchor: string;
+  textAnchor: "inherit" | "end" | "middle" | "start" | undefined;
 }
 
 function CustomTick(props: CustomTickProps) {

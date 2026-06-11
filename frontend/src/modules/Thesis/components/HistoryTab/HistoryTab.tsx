@@ -25,8 +25,10 @@ function HistoryCard({ icon, iconColor, title, content }: HistoryCardProps) {
 
 // --- Main Component ---
 
+import type { QualitativeValuationResult } from '@/common/types/valuation';
+
 interface HistoryTabProps {
-  qualData: Record<string, unknown>;
+  qualData: QualitativeValuationResult;
 }
 
 export function HistoryTab({ qualData }: HistoryTabProps) {

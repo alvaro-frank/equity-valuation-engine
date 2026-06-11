@@ -3,7 +3,9 @@ import { MoatRadarChart } from '../MoatRadarChart';
 
 // --- Sub-Components (Rule 2.23, Rule 2.30) ---
 
-function MoatOverview({ content, moatSources }: { content: string; moatSources: Record<string, unknown> }) {
+import type { MoatSources, QualitativeValuationResult } from '@/common/types/valuation';
+
+function MoatOverview({ content, moatSources }: { content: string; moatSources: MoatSources | undefined }) {
   const { t } = useTranslation();
   return (
     <div>
@@ -25,7 +27,7 @@ function MoatOverview({ content, moatSources }: { content: string; moatSources: 
   );
 }
 
-function MoatTrajectory({ content }: { content: string }) {
+function MoatTrajectory({ content }: { content: string | undefined }) {
   const { t } = useTranslation();
   return (
     <div>
@@ -79,8 +81,9 @@ function CompetitorsList({ competitors }: { competitors: Record<string, string> 
 
 // --- Main Component ---
 
+
 interface MoatTabProps {
-  qualData: Record<string, unknown>;
+  qualData: QualitativeValuationResult;
 }
 
 export function MoatTab({ qualData }: MoatTabProps) {

@@ -30,8 +30,10 @@ function MacroCard({ bgIcon, icon, title, text }: MacroCardProps) {
 
 // --- Main Component ---
 
+import type { SectorIndustrialValuationResult } from '@/common/types/valuation';
+
 interface MacroeconomicsTabProps {
-  sectorData: Record<string, unknown>;
+  sectorData: SectorIndustrialValuationResult;
 }
 
 export function MacroeconomicsTab({ sectorData }: MacroeconomicsTabProps) {

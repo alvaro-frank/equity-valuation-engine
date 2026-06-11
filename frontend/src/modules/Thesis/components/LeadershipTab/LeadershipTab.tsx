@@ -104,8 +104,10 @@ function LeadershipInsights({ content }: { content: string }) {
 
 // --- Main Component ---
 
+import type { QualitativeValuationResult } from '@/common/types/valuation';
+
 interface LeadershipTabProps {
-  qualData: Record<string, unknown>;
+  qualData: QualitativeValuationResult;
 }
 
 export function LeadershipTab({ qualData }: LeadershipTabProps) {

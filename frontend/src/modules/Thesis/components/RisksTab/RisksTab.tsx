@@ -35,8 +35,10 @@ function RisksList({ risks }: { risks: Record<string, string> }) {
 
 // --- Main Component ---
 
+import type { QualitativeValuationResult } from '@/common/types/valuation';
+
 interface RisksTabProps {
-  qualData: Record<string, unknown>;
+  qualData: QualitativeValuationResult;
 }
 
 export function RisksTab({ qualData }: RisksTabProps) {

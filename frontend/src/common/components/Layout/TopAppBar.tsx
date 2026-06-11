@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { TickerSearchResult } from '@/common/hooks/useSearchTickers';
 
 import { useSearchBox } from '@/common/hooks/useSearchBox';
 import { SearchResultItem } from '@/common/components/SearchResultItem';
@@ -7,7 +8,7 @@ import { ThemeToggle } from '@/common/components/ThemeToggle/ThemeToggle';
 
 // --- Sub-Components (Rule 2.12, 2.23, 2.31) ---
 
-function SearchResultsList({ searchResults, selectedIndex, handleSearch, setSelectedIndex, isSearchingAPI }: { searchResults: unknown[]; selectedIndex: number; handleSearch: (ticker: string) => void; setSelectedIndex: (idx: number) => void; isSearchingAPI: boolean }) {
+function SearchResultsList({ searchResults, selectedIndex, handleSearch, setSelectedIndex, isSearchingAPI }: { searchResults: TickerSearchResult[]; selectedIndex: number; handleSearch: (ticker: string) => void; setSelectedIndex: (idx: number) => void; isSearchingAPI: boolean }) {
   if (!searchResults || searchResults.length === 0) {
     return (
       <div className="px-3 py-3 text-xs text-on-surface-variant flex items-center gap-2">
@@ -53,7 +54,7 @@ function SearchDropdown({
   handleSearch,
   clearHistory,
   t
-}: { searchTerm: string; filteredHistory: unknown[]; searchResults: unknown[]; selectedIndex: number; setSelectedIndex: (idx: number) => void; isSearchingAPI: boolean; handleSearch: (ticker: string) => void; clearHistory: () => void; t: (key: string) => string }) {
+}: { searchTerm: string; filteredHistory: Array<{ ticker: string; name?: string }>; searchResults: TickerSearchResult[]; selectedIndex: number; setSelectedIndex: (idx: number) => void; isSearchingAPI: boolean; handleSearch: (ticker: string) => void; clearHistory: () => void; t: (key: string) => string }) {
   const hasSearchTerm = searchTerm.trim().length > 0;
 
   if (hasSearchTerm) {
@@ -170,7 +171,7 @@ export function TopAppBar({ onSearch, activeTicker }: TopAppBarProps) {
               <SearchDropdown 
                 searchTerm={searchTerm}
                 filteredHistory={filteredHistory}
-                searchResults={searchResults}
+                searchResults={searchResults || []}
                 selectedIndex={selectedIndex}
                 setSelectedIndex={setSelectedIndex}
                 isSearchingAPI={isSearchingAPI}

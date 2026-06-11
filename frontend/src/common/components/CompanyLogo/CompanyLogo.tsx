@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CompanyLogoProps {
   ticker?: string;
@@ -11,12 +11,10 @@ const LOGO_BASE_URL = 'https://img.logo.dev/ticker';
 export function CompanyLogo({ ticker, className = "w-8 h-8", fallbackLetter }: CompanyLogoProps) {
   const [hasError, setHasError] = useState(false);
 
-  const [prevTicker, setPrevTicker] = useState(ticker);
-
-  if (ticker !== prevTicker) {
-    setPrevTicker(ticker);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasError(false);
-  }
+  }, [ticker]);
 
   const token = import.meta.env.VITE_LOGODEV_API_KEY;
   

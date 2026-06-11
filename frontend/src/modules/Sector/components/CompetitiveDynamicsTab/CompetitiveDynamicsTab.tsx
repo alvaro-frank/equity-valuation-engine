@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 interface CompetitiveForceCardProps {
   icon: string;
   title: string;
-  data: Record<string, unknown>;
+  data: Record<string, string>;
   className?: string;
 }
 
@@ -32,8 +32,10 @@ function CompetitiveForceCard({ icon, title, data, className = '' }: Competitive
 
 // --- Main Component ---
 
+import type { SectorIndustrialValuationResult } from '@/common/types/valuation';
+
 interface CompetitiveDynamicsTabProps {
-  sectorData: Record<string, unknown>;
+  sectorData: SectorIndustrialValuationResult;
 }
 
 export function CompetitiveDynamicsTab({ sectorData }: CompetitiveDynamicsTabProps) {

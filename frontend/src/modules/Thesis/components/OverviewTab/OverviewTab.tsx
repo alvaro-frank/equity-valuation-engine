@@ -17,7 +17,9 @@ function TextSection({ icon, iconColor, title, content }: { icon: string; iconCo
   );
 }
 
-function QualitySection({ qualityPillars }: { qualityPillars: Record<string, unknown> }) {
+import type { QualityPillars } from '@/common/types/valuation';
+
+function QualitySection({ qualityPillars }: { qualityPillars: QualityPillars | undefined }) {
   const { t } = useTranslation();
   if (!qualityPillars) return null;
 
@@ -60,8 +62,10 @@ function ProductsList({ products }: { products: Record<string, string> }) {
 
 // --- Main Component ---
 
+import type { QualitativeValuationResult } from '@/common/types/valuation';
+
 interface OverviewTabProps {
-  qualData: Record<string, unknown>;
+  qualData: QualitativeValuationResult;
 }
 
 export function OverviewTab({ qualData }: OverviewTabProps) {

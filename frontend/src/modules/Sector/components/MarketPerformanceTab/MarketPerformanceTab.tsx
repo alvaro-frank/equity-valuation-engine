@@ -12,8 +12,10 @@ function MarketPerformanceSkeleton() {
 
 // --- Main Component ---
 
+import type { SectorPerformanceData } from '@/common/types/valuation';
+
 interface MarketPerformanceTabProps {
-  performanceData: unknown;
+  performanceData: SectorPerformanceData | undefined;
   isLoadingPerf: boolean;
 }
 
