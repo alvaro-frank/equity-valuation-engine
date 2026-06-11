@@ -266,11 +266,11 @@
     "invalid_pdf": "Por favor, faça upload de um ficheiro PDF."
   },
   "thesis_view": {
-    "tab_overview": "RESUMO GERAL",
-    "tab_moat": "COMPETITIVIDADE",
-    "tab_leadership": "LIDERANÇA",
-    "tab_history": "TRAJETÓRIA",
-    "tab_risks": "RISCOS",
+    "tab_overview": "Resumo Geral",
+    "tab_moat": "Competitividade",
+    "tab_leadership": "Liderança",
+    "tab_history": "Trajetória",
+    "tab_risks": "Riscos",
     "strategy_title": "Visão Estratégica",
     "products_title": "Produtos e Serviços",
     "moat_title": "Vantagem Competitiva (Moat)",
