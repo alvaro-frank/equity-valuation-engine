@@ -1,11 +1,14 @@
-import { PdfUploader } from '@/common/components/PdfUploader/PdfUploader';
+
+import { PdfUploader } from './components/PdfUploader';
 import { EarningsReportCard } from './components/EarningsReportCard';
-import { FilingsErrorState } from './components/FilingsErrorState';
+import { ApiErrorState } from '@/common/components/ApiErrorState';
 import { useFilingsView } from './hooks/useFilingsView';
+import { FilingsResultsHeader } from './components/FilingsResultsHeader';
+
+// --- Main Component ---
 
 export function FilingsView({ ticker }: { ticker: string }) {
   const { 
-    t, 
     activeData, 
     isPending, 
     errorState, 
@@ -13,35 +16,29 @@ export function FilingsView({ ticker }: { ticker: string }) {
     handleReset 
   } = useFilingsView(ticker);
 
-  return (
-    <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
-      
-      {!activeData && !errorState && (
+  // 1. Error State
+  if (errorState) {
+    return <ApiErrorState errorState={errorState} onRetry={handleReset} />;
+  }
+
+  // 2. Empty / Upload State
+  if (!activeData) {
+    return (
+      <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
         <div className="flex-1 mt-12">
           <PdfUploader onFileSelect={handleFileSelect} isUploading={isPending} />
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {errorState && (
-        <FilingsErrorState errorState={errorState} onReset={handleReset} />
-      )}
-
-      {activeData && (
-        <div className="flex-1 pb-10">
-          <div className="flex items-center gap-3 mb-4">
-            <h3 className="text-lg font-bold text-on-surface">{t('filings.results')}</h3>
-            <button 
-              onClick={handleReset} 
-              className="p-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant transition-colors flex items-center justify-center"
-              title={t('filings.analyze_another')}
-            >
-              <span className="material-symbols-outlined text-[18px]">refresh</span>
-            </button>
-          </div>
-          <EarningsReportCard data={activeData} />
-        </div>
-      )}
-      
+  // 3. Success / Results State
+  return (
+    <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
+      <div className="flex-1 pb-10">
+        <FilingsResultsHeader onReset={handleReset} />
+        <EarningsReportCard data={activeData} />
+      </div>
     </div>
   );
 }

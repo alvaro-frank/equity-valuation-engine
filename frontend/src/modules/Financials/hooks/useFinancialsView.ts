@@ -23,10 +23,7 @@ export function useFinancialsView(ticker: string) {
     { id: 'ratios', label: t('financials.tabs.ratios'), icon: 'percent' },
   ];
 
-  const getTranslatedSector = (value?: string) => {
-    if (!value) return '';
-    return t(`sectors.${value.toLowerCase().replace(/ /g, '_')}`, { defaultValue: value });
-  };
+
 
   const getRowsForActiveTab = () => {
     switch (activeTab) {
@@ -50,7 +47,6 @@ export function useFinancialsView(ticker: string) {
     isQuarterly,
     setIsQuarterly,
     tabs,
-    getTranslatedSector,
     currentRows: getRowsForActiveTab(),
   };
 }
