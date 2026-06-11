@@ -60,6 +60,13 @@ class QuantitativeDataPort(ABC):
         pass
     
     @abstractmethod
+    async def get_historical_performance_chart(self, symbols: List[str], period: str = "5y") -> List[Dict]:
+        """
+        Fetches historical performance data for multiple symbols to compare them.
+        """
+        pass
+    
+    @abstractmethod
     async def get_major_shareholders(self, symbol: str) -> Dict[str, float]:
         """
         Fetches the major institutional shareholders and their ownership percentage.

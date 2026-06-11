@@ -265,6 +265,14 @@ class AlphaVantageAdapter(QuantitativeDataPort, QuarterlyDataPort):
             print(f"Failed to fetch major shareholders for {symbol}: {e}")
             return {}
 
+    async def get_historical_performance_chart(self, symbols: List[str], period: str = "5y") -> List[Dict]:
+        """
+        Fetches historical performance data for multiple symbols to compare them.
+        AlphaVantage doesn't natively support downloading multiple tickers at once for comparison easily in the free tier.
+        Returning empty list.
+        """
+        return []
+
     async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
         """
         Fetches the fundamental financial data for a given stock ticker symbol from Alpha Vantage.

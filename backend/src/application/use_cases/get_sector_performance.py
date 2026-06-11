@@ -1,7 +1,6 @@
 from typing import Dict, Any
 import asyncio
-import yfinance as yf
-from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
+from application.ports.ports import QuantitativeDataPort
 
 SECTOR_ETF_MAP = {
     "technology": "XLK",
@@ -25,16 +24,18 @@ class GetSectorPerformanceUseCase:
     Use case for fetching the relative performance of a company's sector 
     compared to the S&P 500 (SPY).
     """
-    def __init__(self):
-        self.yfinance_adapter = YfinanceAdapter()
+    def __init__(self, quant_port: QuantitativeDataPort):
+        self.quant_port = quant_port
 
     async def execute(self, ticker: str) -> Dict[str, Any]:
         # 1. Fetch basic info to determine sector/industry
         try:
-            yf_ticker = await asyncio.to_thread(yf.Ticker, ticker)
-            info = await asyncio.to_thread(lambda: yf_ticker.info)
-            sector = info.get("sector", "").lower().replace(" ", "-")
-            industry = info.get("industry", "").lower().replace(" ", "-")
+            ticker_info = await self.quant_port.get_ticker_info(ticker)
+            sector = ticker_info.sector_key or ticker_info.sector or ""
+            industry = ticker_info.industry_key or ticker_info.industry or ""
+            
+            sector = sector.lower().replace(" ", "-")
+            industry = industry.lower().replace(" ", "-")
         except Exception as e:
             print(f"Failed to get sector info for {ticker}: {e}")
             sector = ""
@@ -52,7 +53,7 @@ class GetSectorPerformanceUseCase:
         tickers_to_fetch = [etf_ticker, benchmark_ticker]
 
         # 3. Fetch historical performance data (last 5 years)
-        chart_data = await self.yfinance_adapter.get_historical_performance_chart(tickers_to_fetch, period="5y")
+        chart_data = await self.quant_port.get_historical_performance_chart(tickers_to_fetch, period="5y")
 
         return {
             "sector": sector,

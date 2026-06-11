@@ -92,8 +92,10 @@ def get_sector_use_case(
         sector_industrial_port=llm_adapter
     )
 
-def get_sector_performance_use_case() -> GetSectorPerformanceUseCase:
+def get_sector_performance_use_case(
+    yfinance_adapter: YfinanceAdapter = Depends(get_yfinance_adapter)
+) -> GetSectorPerformanceUseCase:
     """
     Builds and provides the Sector Performance Use Case via Dependency Injection.
     """
-    return GetSectorPerformanceUseCase()
+    return GetSectorPerformanceUseCase(quant_port=yfinance_adapter)
