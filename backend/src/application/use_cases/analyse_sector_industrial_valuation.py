@@ -32,8 +32,8 @@ class SectorIndustrialValuationUseCase:
         ticker_info = await self.quant_port.get_ticker_info(ticker_symbol)
         
         analysis: IndustrySectorDynamics = await self.sector_industrial_port.analyse_industry(
-            sector=ticker_info.sector_key,
-            industry=ticker_info.industry_key,
+            sector=ticker_info.sector_key or ticker_info.sector,
+            industry=ticker_info.industry_key or ticker_info.industry,
             language=language
         )
         
