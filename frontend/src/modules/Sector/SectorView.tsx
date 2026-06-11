@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { CompetitiveDynamicsTab } from './components/CompetitiveDynamicsTab';
 import { MacroeconomicsTab } from './components/MacroeconomicsTab';
 import { MarketPerformanceTab } from './components/MarketPerformanceTab';
+import type { SectorIndustrialValuationResult, SectorPerformanceData } from '@/common/types/valuation';
 import { SectorSkeleton } from './components/SectorSkeleton';
 
 // --- Sub-Components (Rule 2.23, Rule 2.8, Rule 2.11) ---
@@ -47,7 +48,7 @@ function TabContent({ activeTab, sectorData, perfData, isLoadingPerf }: { active
     case 'macro':
       return <MacroeconomicsTab sectorData={sectorData as SectorIndustrialValuationResult} />;
     case 'performance':
-      return <MarketPerformanceTab performanceData={perfData as SectorPerformanceData | undefined} isLoading={isLoadingPerf} />;
+      return <MarketPerformanceTab performanceData={perfData as SectorPerformanceData | undefined} isLoadingPerf={isLoadingPerf} />;
     default:
       return null;
   }

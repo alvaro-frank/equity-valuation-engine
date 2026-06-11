@@ -6,8 +6,8 @@ import { useMoatRadarChart } from './useMoatRadarChart';
 
 interface CustomTickProps {
   payload: { value: string; index: number };
-  x: number;
-  y: number;
+  x: number | string;
+  y: number | string;
   textAnchor: "inherit" | "end" | "middle" | "start" | undefined;
 }
 
@@ -28,7 +28,7 @@ function CustomTick(props: CustomTickProps) {
   }
 
   return (
-    <text x={x} y={y + yOffset} textAnchor={textAnchor} fill="var(--on-surface-variant)" fontSize={10}>
+    <text x={x} y={Number(y) + yOffset} textAnchor={textAnchor} fill="var(--on-surface-variant)" fontSize={10}>
       {words.map((word: string, index: number) => (
         <tspan x={x} dy={index === 0 ? 0 : 12} key={index}>
           {word}
