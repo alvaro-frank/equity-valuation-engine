@@ -16,7 +16,9 @@
     "recent_searches": "RECENT SEARCHES",
     "clear": "Clear",
     "trending_in": "Trending in {{sector}}",
-    "trending_tickers": "TRENDING TICKERS"
+    "trending_tickers": "TRENDING TICKERS",
+    "error_trending": "Failed to load trending companies.",
+    "empty_trending": "No trending data found."
   },
   "sectors": {
     "technology": "Technology",
@@ -206,7 +208,8 @@
     "empty_title": "Equity Valuation Engine",
     "empty_desc": "Search for any publicly traded company to generate a deep-dive fundamental analysis report powered by advanced language models.",
     "analyzing": "Analyzing {{ticker}}...",
-    "generating_report": "Generating comprehensive investment report..."
+    "generating_report": "Generating comprehensive investment report...",
+    "loading_filings": "Parsing SEC filings & reports..."
   },
   "company_header": {
     "ceo": "Chief Executive Officer"
@@ -259,7 +262,8 @@
     "extracting": "Extracting financial data and insights...",
     "title": "Upload Earnings Report",
     "desc": "Drag and drop your PDF here or click to browse",
-    "supported": "Supported formats: PDF (max 10MB)"
+    "supported": "Supported formats: PDF (max 10MB)",
+    "invalid_pdf": "Please upload a PDF file."
   },
   "thesis_view": {
     "tab_overview": "Overview & Strategy",
@@ -365,6 +369,8 @@
     "503_title": "AI Engine Overloaded",
     "503_desc": "Our AI valuation models are currently experiencing unusually high demand. This is typically a temporary spike. Please wait a few moments and try your analysis again.",
     "default_title": "Unable to analyze",
-    "default_desc": "Our evaluation engine encountered a problem while processing this request. Please try again."
+    "default_desc": "Our evaluation engine encountered a problem while processing this request. Please try again.",
+    "js_crash_title": "Unexpected Application Error",
+    "js_crash_desc": "An internal error occurred while rendering the screen. Our team has been notified."
   }
 }

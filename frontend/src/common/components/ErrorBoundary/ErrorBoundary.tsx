@@ -1,8 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { ApiErrorState } from '@/common/components/ApiErrorState';
+import i18n from '@/common/i18n/i18n';
 
 interface Props {
   children?: ReactNode;
-  fallback?: ReactNode;
 }
 
 interface State {
@@ -25,22 +26,30 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('Uncaught error in Boundary:', error, errorInfo);
   }
 
+  private getErrorState() {
+    return {
+      key: 'JS_CRASH',
+      details: {
+        title: i18n.t('api_errors.js_crash_title', 'Unexpected Application Error'),
+        message: i18n.t('api_errors.js_crash_desc', 'An internal error occurred while rendering the screen. Our team has been notified.'),
+        icon: "bug_report"
+      },
+      rawMessage: this.state.error?.message
+    };
+  }
+
   public render() {
+    const { children } = this.props;
+
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
       return (
-        <div className="bg-error-container/20 border border-error-container p-4 rounded-md flex items-center gap-3">
-          <span className="material-symbols-outlined text-error">warning</span>
-          <div>
-            <h2 className="text-error font-bold font-header-sm">Something went wrong.</h2>
-            <p className="text-on-surface-variant text-body-sm">{this.state.error?.message}</p>
-          </div>
-        </div>
+        <ApiErrorState 
+          errorState={this.getErrorState()} 
+          onRetry={() => window.location.reload()} 
+        />
       );
     }
 
-    return this.props.children;
+    return children;
   }
 }

@@ -27,9 +27,9 @@ export function SearchResultItem({ symbol, name, exchange, isSelected, onSelect,
           <span className="font-data-mono text-sm font-semibold text-on-surface">{symbol}</span>
           <span className="text-[10px] text-on-surface-variant truncate">{name}</span>
         </div>
-        {exchange && (
+        {exchange ? (
           <span className="ml-auto text-[9px] text-outline px-1 rounded bg-surface-container-low uppercase whitespace-nowrap shrink-0">{exchange}</span>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -16,7 +16,9 @@
     "recent_searches": "PESQUISAS RECENTES",
     "clear": "Limpar",
     "trending_in": "Tendência em {{sector}}",
-    "trending_tickers": "TENDÊNCIAS DE PESQUISA"
+    "trending_tickers": "TENDÊNCIAS DE PESQUISA",
+    "error_trending": "Falha ao carregar tendências.",
+    "empty_trending": "Não foram encontradas tendências."
   },
   "sectors": {
     "technology": "Tecnologia",
@@ -206,7 +208,8 @@
     "empty_title": "Equity Valuation Engine",
     "empty_desc": "Pesquisa qualquer empresa cotada na bolsa para gerar um relatório detalhado de análise fundamental com a ajuda de inteligência artificial.",
     "analyzing": "A analisar a {{ticker}}...",
-    "generating_report": "A gerar relatório de investimento detalhado..."
+    "generating_report": "A gerar relatório de investimento completo...",
+    "loading_filings": "A analisar demonstrações financeiras..."
   },
   "company_header": {
     "ceo": "Diretor Executivo (CEO)"
@@ -259,7 +262,8 @@
     "extracting": "A extrair dados financeiros e insights...",
     "title": "Upload do Relatório de Contas",
     "desc": "Arrasta o teu PDF para aqui ou clica para navegar",
-    "supported": "Formatos suportados: PDF (máx 10MB)"
+    "supported": "Formatos suportados: PDF (máx 10MB)",
+    "invalid_pdf": "Por favor, faça upload de um ficheiro PDF."
   },
   "thesis_view": {
     "tab_overview": "RESUMO GERAL",
@@ -360,13 +364,15 @@
     }
   },
   "api_errors": {
-    "404_title": "Empresa Não Encontrada",
-    "404_desc": "Não conseguimos encontrar dados financeiros para este símbolo. Por favor verifica a ortografia e tenta novamente.",
-    "429_title": "Rate Limit Excedido",
-    "429_desc": "Os nossos modelos de avaliação de Inteligência Artificial atingiram o limite máximo de utilização diário.",
-    "503_title": "Motor de IA Sobrecarga",
-    "503_desc": "Os nossos modelos de IA estão a registar uma procura invulgarmente alta. Este é normalmente um pico temporário. Por favor aguarda alguns momentos e tenta novamente.",
-    "default_title": "Não foi possível analisar",
-    "default_desc": "O nosso motor de avaliação encontrou um problema ao processar este pedido. Por favor tenta novamente."
+    "404_title": "Ticker Não Encontrado",
+    "404_desc": "Não encontrámos dados financeiros para este ticker. Por favor verifica a ortografia e tenta novamente.",
+    "429_title": "Demasiados Pedidos",
+    "429_desc": "Estamos a ter tráfego elevado. Por favor aguarda um momento e tenta novamente.",
+    "503_title": "Serviço Indisponível",
+    "503_desc": "O serviço de avaliação está temporariamente em baixo. Por favor tenta novamente mais tarde.",
+    "default_title": "A análise falhou",
+    "default_desc": "Não foi possível processar o teu pedido. Por favor, tenta outra empresa.",
+    "js_crash_title": "Erro Inesperado na Aplicação",
+    "js_crash_desc": "Ocorreu um erro interno ao processar o ecrã. A nossa equipa foi notificada."
   }
 }

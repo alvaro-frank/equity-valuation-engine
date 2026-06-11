@@ -65,3 +65,17 @@ export const formatMultiplier = (rawVal?: number | string | null): string => {
   if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
   return `${Number(rawVal).toFixed(1)}x`;
 };
+
+export type FormatType = 'currency' | 'small_currency' | 'percent' | 'multiplier' | 'raw' | 'number';
+
+export const formatFinancialMetric = (val: number | null | undefined, formatAs?: FormatType): string => {
+  if (val == null) return '-';
+  switch (formatAs) {
+    case 'currency': return formatLargeCurrency(val);
+    case 'small_currency': return `$${val.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
+    case 'number': return formatLargeNumber(val);
+    case 'percent': return formatPercentage(val);
+    case 'multiplier': return formatMultiplier(val);
+    default: return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
+};
