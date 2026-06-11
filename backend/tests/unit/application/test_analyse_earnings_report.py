@@ -63,4 +63,4 @@ class TestEarningsReportUseCase:
         assert result.risk_deconstruction.macro_risks[0] == "Interest rates"
         
         quant_port.get_ticker_info.assert_called_once_with("MSFT")
-        qual_port.analyse_earnings_report.assert_called_once_with("MSFT", "dummy.pdf")
+        qual_port.analyse_earnings_report.assert_called_once_with(symbol="MSFT", pdf_file_path="dummy.pdf", language="en")

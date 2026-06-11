@@ -65,7 +65,7 @@ class TestQuantitativeValuationUseCase:
         mock_quant_adapter.get_stock_fundamental_data.assert_called_once_with("AAPL")
         
     def test_calculate_cagr_happy_path(self):
-        values = [Decimal("100"), Decimal("110"), Decimal("121")]
+        values = [Decimal("121"), Decimal("110"), Decimal("100")]
         cagr = QuantitativeValuationUseCase.calculate_cagr(values)
         assert cagr == Decimal("10.00")
 

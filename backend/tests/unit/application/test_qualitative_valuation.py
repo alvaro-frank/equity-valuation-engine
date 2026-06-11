@@ -2,7 +2,7 @@ import pytest
 from decimal import Decimal
 
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
-from domain.entities.entities import Ticker, CompanyProfile
+from domain.entities.entities import Ticker, CompanyProfile, MoatSources, QualityPillars
 from application.dtos.dtos import QualitativeValuationResult
 
 class TestQualitativeValuationUseCase:
@@ -17,6 +17,7 @@ class TestQualitativeValuationUseCase:
     def mock_quant_adapter(self, mocker):
         mock = mocker.MagicMock()
         mock.get_ticker_info = mocker.AsyncMock()
+        mock.get_major_shareholders = mocker.AsyncMock()
         return mock
 
     @pytest.fixture
@@ -31,12 +32,12 @@ class TestQualitativeValuationUseCase:
         mock_quant_adapter.get_ticker_info.return_value = Ticker(
             symbol="MSFT", name="Microsoft", sector="Tech", industry="Software"
         )
+        mock_quant_adapter.get_major_shareholders.return_value = {"Vanguard": Decimal("8.5")}
         
         mock_qual_adapter.analyse_company.return_value = CompanyProfile(
             business_description="Tech giant",
             company_history="Founded 1975",
             key_executives=[{"name": "Satya Nadella", "title": "CEO", "ownership": Decimal("0.15")}],
-            major_shareholders={"Vanguard": Decimal("8.5")},
             revenue_model="Cloud",
             strategy="AI",
             products_services={"Azure": "Cloud"},
@@ -46,8 +47,8 @@ class TestQualitativeValuationUseCase:
             risk_factors={"Risk": "Desc"},
             historical_context_crises="None",
             moat_trajectory="Expanding",
-            moat_sources={"intangible_assets": 4, "switching_costs": 3, "network_effect": 5, "cost_advantage": 2, "efficient_scale": 1},
-            quality_pillars={"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 3, "tam_expansion": 4}
+            moat_sources=MoatSources(**{"intangible_assets": 4, "switching_costs": 3, "network_effect": 5, "cost_advantage": 2, "efficient_scale": 1}),
+            quality_pillars=QualityPillars(**{"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 3, "tam_expansion": 4})
         )
 
         result = await use_case.analyse_ticker("MSFT")
@@ -57,7 +58,8 @@ class TestQualitativeValuationUseCase:
         assert result.key_executives[0]["name"] == "Satya Nadella"
         
         mock_quant_adapter.get_ticker_info.assert_called_once_with("MSFT")
-        mock_qual_adapter.analyse_company.assert_called_once_with(symbol="MSFT")
+        from unittest.mock import ANY
+        mock_qual_adapter.analyse_company.assert_called_once_with(symbol="MSFT", language="en", context=ANY)
 
     @pytest.mark.anyio
     async def test_analyse_ticker_propagates_adapter_errors(self, use_case, mock_quant_adapter):

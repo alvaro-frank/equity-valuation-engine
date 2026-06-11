@@ -19,6 +19,7 @@ class TestGeminiAdapter:
         mock.aio.models.generate_content = mocker.AsyncMock()
         mock.aio.files = mocker.MagicMock()
         mock.aio.files.upload = mocker.AsyncMock()
+        mock.aio.files.get = mocker.AsyncMock()
         return mock
 
     @pytest.fixture
@@ -34,9 +35,7 @@ class TestGeminiAdapter:
         json_ficticio = {
             "business_description": "Tech giant",
             "company_history": "Founded in 1975",
-            "ceo_name": "Satya Nadella",
-            "ceo_ownership": 0.15,
-            "major_shareholders": [{"name": "Vanguard", "ownership": 8.5}],
+            "key_executives": [{"name": "Satya Nadella", "title": "CEO", "ownership": 0.15}],
             "revenue_model": "Software and Cloud",
             "strategy": "AI First",
             "products_services": [{"name": "Azure", "description": "Cloud platform"}],
@@ -44,16 +43,18 @@ class TestGeminiAdapter:
             "competitors": [{"name": "AWS", "overlap": "Cloud"}],
             "management_insights": "Strong execution",
             "risk_factors": [{"title": "Regulation", "description": "Antitrust scrutiny"}],
-            "historical_context_crises": "Survived dot-com bubble"
+            "historical_context_crises": "Survived dot-com bubble",
+            "moat_trajectory": "Expanding",
+            "moat_sources": {"intangible_assets": 4, "switching_costs": 5, "network_effect": 5, "cost_advantage": 3, "efficient_scale": 2},
+            "quality_pillars": {"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 4, "tam_expansion": 4}
         }
         mock_response.text = json.dumps(json_ficticio)
 
         profile = await adapter.analyse_company("MSFT")
 
         assert isinstance(profile, CompanyProfile)
-        assert profile.ceo_name == "Satya Nadella"
-        assert profile.ceo_ownership == Decimal("0.15")
-        assert profile.major_shareholders["Vanguard"] == Decimal("8.5")
+        assert profile.key_executives[0]["name"] == "Satya Nadella"
+        assert profile.key_executives[0]["ownership"] == 0.15
         assert profile.products_services["Azure"] == "Cloud platform"
         assert profile.competitors["AWS"] == "Cloud"
         
@@ -104,7 +105,9 @@ class TestGeminiAdapter:
             "core_performance": {
                 "adjusted_revenue": {"amount": 50000.0, "yoy_growth": 15.0},
                 "adjusted_eps": {"amount": 5.0, "yoy_growth": 10.0},
-                "adjusted_ebitda_margin": {"amount": 40.0, "yoy_growth": 2.0},
+                "adjusted_gross_margin": {"amount": 60.0, "yoy_growth": 1.0},
+                "adjusted_operating_margin": {"amount": 40.0, "yoy_growth": 2.0},
+                "adjusted_net_margin": {"amount": 30.0, "yoy_growth": 1.0},
                 "free_cash_flow": {"amount": 15000.0, "yoy_growth": 5.0}
             },
             "capital_allocation": {
@@ -123,7 +126,7 @@ class TestGeminiAdapter:
         }
         mock_response.text = json.dumps(json_earnings)
 
-        mock_open = mocker.patch("builtins.open", mocker.mock_open())
+        mock_open = mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
 
         report = await adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
 
@@ -141,6 +144,7 @@ class TestGeminiAdapter:
     @pytest.mark.anyio
     async def test_analyse_earnings_report_handles_api_failure(self, adapter, mock_client, mocker):
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
+        mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
         mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
         with pytest.raises(ConnectionError, match="Connection Error"):

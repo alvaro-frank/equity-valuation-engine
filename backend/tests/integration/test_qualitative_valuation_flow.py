@@ -44,9 +44,7 @@ class TestQualitativeIntegrationFlow:
         json_ficticio = {
             "business_description": "Tech giant",
             "company_history": "Founded in 1975",
-            "ceo_name": "Satya Nadella",
-            "ceo_ownership": 0.15,
-            "major_shareholders": [{"name": "Vanguard", "ownership": 8.5}],
+            "key_executives": [{"name": "Satya Nadella", "title": "CEO", "ownership": 0.15}],
             "revenue_model": "Software and Cloud",
             "strategy": "AI First",
             "products_services": [{"name": "Azure", "description": "Cloud platform"}],
@@ -54,7 +52,10 @@ class TestQualitativeIntegrationFlow:
             "competitors": [{"name": "AWS", "overlap": "Cloud"}],
             "management_insights": "Strong execution",
             "risk_factors": [{"title": "Regulation", "description": "Antitrust"}],
-            "historical_context_crises": "Survived dot-com bubble"
+            "historical_context_crises": "Survived dot-com bubble",
+            "moat_trajectory": "Expanding",
+            "moat_sources": {"intangible_assets": 4, "switching_costs": 5, "network_effect": 5, "cost_advantage": 3, "efficient_scale": 2},
+            "quality_pillars": {"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 4, "tam_expansion": 4}
         }
         mock_response.text = json.dumps(json_ficticio)
         return client
@@ -75,8 +76,7 @@ class TestQualitativeIntegrationFlow:
 
         assert result.ticker.symbol == "MSFT"
         assert result.ticker.name == "Microsoft Corporation"
-        assert result.ceo_name == "Satya Nadella"
-        assert result.ceo_ownership == Decimal("0.15")
-        assert result.major_shareholders["Vanguard"] == Decimal("8.5")
+        assert result.key_executives[0]["name"] == "Satya Nadella"
+        assert result.key_executives[0]["ownership"] == 0.15
         assert result.products_services["Azure"] == "Cloud platform"
         assert result.competitors["AWS"] == "Cloud"

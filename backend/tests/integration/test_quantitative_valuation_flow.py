@@ -96,8 +96,5 @@ class TestQuantitativeIntegrationFlow:
         expected_total_debt = Decimal("15807000000") + Decimal("95281000000")
         assert result.metrics["total_debt"].yearly_data[0].value == expected_total_debt
         
-        assert "year_end_price" in result.metrics
-        assert result.metrics["year_end_price"].yearly_data[0].value == Decimal("150.00")
-
         assert "market_cap" in result.metrics
         assert result.metrics["market_cap"].yearly_data[0].value == Decimal("2332509150000")

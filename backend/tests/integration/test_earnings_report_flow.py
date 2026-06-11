@@ -13,7 +13,7 @@ class TestEarningsIntegrationFlow:
         mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.asyncio.sleep", return_value=None)
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
         mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
-        mocker.patch("builtins.open", mocker.mock_open())
+        mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
 
     @pytest.fixture
     def mock_session(self, mocker):
@@ -43,6 +43,7 @@ class TestEarningsIntegrationFlow:
         client.aio.models.generate_content = mocker.AsyncMock()
         client.aio.files = mocker.MagicMock()
         client.aio.files.upload = mocker.AsyncMock()
+        client.aio.files.get = mocker.AsyncMock()
         
         mock_response = client.aio.models.generate_content.return_value
         
@@ -52,7 +53,9 @@ class TestEarningsIntegrationFlow:
             "core_performance": {
                 "adjusted_revenue": {"amount": 50000.0, "yoy_growth": 15.0},
                 "adjusted_eps": {"amount": 5.0, "yoy_growth": 10.0},
-                "adjusted_ebitda_margin": {"amount": 40.0, "yoy_growth": 2.0},
+                "adjusted_gross_margin": {"amount": 60.0, "yoy_growth": 1.0},
+                "adjusted_operating_margin": {"amount": 40.0, "yoy_growth": 2.0},
+                "adjusted_net_margin": {"amount": 30.0, "yoy_growth": 1.0},
                 "free_cash_flow": {"amount": 15000.0, "yoy_growth": 5.0}
             },
             "capital_allocation": {
