@@ -29,8 +29,26 @@ class QualitativeValuationUseCase:
         ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
         context_parts = []
+        
+        import datetime
+        context_parts.append(f"Current Date: {datetime.date.today()}")
+        
         if getattr(ticker_info, 'business_description', None):
             context_parts.append(f"Business Description: {ticker_info.business_description}")
+            
+        if getattr(ticker_info, 'market_cap', None):
+            mc = float(ticker_info.market_cap)
+            if mc >= 1e12:
+                mc_str = f"${mc/1e12:.2f} Trillion"
+            elif mc >= 1e9:
+                mc_str = f"${mc/1e9:.2f} Billion"
+            else:
+                mc_str = f"${mc:,.0f}"
+            context_parts.append(f"Current Market Cap: {mc_str}")
+            
+        if getattr(ticker_info, 'current_price', None):
+            context_parts.append(f"Current Stock Price: ${float(ticker_info.current_price):.2f}")
+            
         if getattr(ticker_info, 'profit_margins', None) is not None:
             context_parts.append(f"Profit Margins: {float(ticker_info.profit_margins)*100:.2f}%")
         if getattr(ticker_info, 'revenue_growth', None) is not None:
