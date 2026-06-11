@@ -53,6 +53,8 @@ export const CASH_FLOW_ROWS: FinancialTableRow[] = [
 export const RATIOS_ROWS: FinancialTableRow[] = [
   { key: 'roe', labelKey: 'financials.metrics.roe', formatAs: 'percent' },
   { key: 'roic', labelKey: 'financials.metrics.roic', formatAs: 'percent' },
+  { key: 'current_ratio', labelKey: 'financials.metrics.current_ratio', formatAs: 'multiplier' },
+  { key: 'ev_to_ebitda', labelKey: 'financials.metrics.ev_to_ebitda', formatAs: 'multiplier' },
   { key: 'debt_to_equity', labelKey: 'financials.metrics.debt_to_equity', formatAs: 'multiplier' },
   { key: 'pe_ratio', labelKey: 'financials.metrics.pe_ratio', formatAs: 'multiplier' },
   { key: 'pb_ratio', labelKey: 'financials.metrics.pb_ratio', formatAs: 'multiplier' },

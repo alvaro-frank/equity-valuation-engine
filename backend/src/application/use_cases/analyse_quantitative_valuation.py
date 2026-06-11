@@ -63,7 +63,8 @@ class QuantitativeValuationUseCase:
         ratio_fields = [
             "total_equity", "gross_margin", "operating_margin", 
             "net_margin", "roe", "roic", "debt_to_equity",
-            "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "free_cash_flow", "fcf_yield", "eps"
+            "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "free_cash_flow", "fcf_yield", "eps",
+            "current_ratio", "ev_to_ebitda"
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
@@ -123,11 +124,11 @@ class QuantitativeValuationUseCase:
         """
         Calculates the Compound Annual Growth Rate (CAGR) over a specified period of time.
         
-        The calculation assumes the list is ordered chronologically from oldest (index 0) to most recent (last index).
+        The calculation assumes the list is ordered chronologically from most recent (index 0) to oldest (last index).
         The formula used is: 
         
         Args:
-            values (List[Decimal]): A list of financial values, ordered from oldest to newest.
+            values (List[Decimal]): A list of financial values, ordered from newest to oldest.
             
         Raises:
             ArithmeticError: If a mathematical error occurs during the exponentiation or division.
@@ -140,9 +141,9 @@ class QuantitativeValuationUseCase:
         if len(values) < 2:
             return None
             
-        # The data is ordered chronologically: oldest (index 0) to most recent (last index)
-        begin_val = values[0]
-        end_val = values[-1]
+        # The data is ordered chronologically: most recent (index 0) to oldest (last index)
+        begin_val = values[-1]
+        end_val = values[0]
         
         if begin_val is None or end_val is None:
             return None

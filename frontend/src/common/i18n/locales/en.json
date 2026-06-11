@@ -358,6 +358,8 @@
       "net_financing_cash_flow": "Net Financing Cash Flow",
       "free_cash_flow": "Free Cash Flow (FCF)",
       "roe": "ROE",
+      "ev_to_ebitda": "EV / EBITDA",
+      "current_ratio": "Current Ratio",
       "roic": "ROIC",
       "debt_to_equity": "Debt / Equity",
       "shares_outstanding": "Shares Outstanding",

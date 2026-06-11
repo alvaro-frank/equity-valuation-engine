@@ -255,6 +255,31 @@ class FinancialYear:
         return round(self.market_cap / self.net_income, 2)
 
     @property
+    def current_ratio(self) -> Decimal | None:
+        """
+        Calculates the Current Ratio (Current Assets / Current Liabilities).
+        """
+        if self.current_liabilities <= Decimal("0"):
+            return None
+        return round(self.current_assets / self.current_liabilities, 2)
+
+    @property
+    def enterprise_value(self) -> Decimal:
+        """
+        Calculates the Enterprise Value (Market Cap + Total Debt - Cash & Equivalents).
+        """
+        return self.market_cap + self.total_debt - self.cash_and_equivalents
+
+    @property
+    def ev_to_ebitda(self) -> Decimal | None:
+        """
+        Calculates the EV/EBITDA ratio.
+        """
+        if self.ebitda <= Decimal("0"):
+            return None
+        return round(self.enterprise_value / self.ebitda, 2)
+
+    @property
     def pb_ratio(self) -> Decimal | None:
         """
         Calculates the Price-to-Book (P/B) Ratio.
@@ -496,6 +521,31 @@ class FinancialQuarter:
         if self.net_income <= Decimal("0"):
             return None
         return round(self.market_cap / self.net_income, 2)
+
+    @property
+    def current_ratio(self) -> Decimal | None:
+        """
+        Calculates the Current Ratio (Current Assets / Current Liabilities).
+        """
+        if self.current_liabilities <= Decimal("0"):
+            return None
+        return round(self.current_assets / self.current_liabilities, 2)
+
+    @property
+    def enterprise_value(self) -> Decimal:
+        """
+        Calculates the Enterprise Value (Market Cap + Total Debt - Cash & Equivalents).
+        """
+        return self.market_cap + self.total_debt - self.cash_and_equivalents
+
+    @property
+    def ev_to_ebitda(self) -> Decimal | None:
+        """
+        Calculates the EV/EBITDA ratio.
+        """
+        if self.ebitda <= Decimal("0"):
+            return None
+        return round(self.enterprise_value / self.ebitda, 2)
 
     @property
     def pb_ratio(self) -> Decimal | None:
