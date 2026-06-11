@@ -1,65 +1,51 @@
-import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import type { MoatSources } from '../../../common/types/valuation';
-import { useTranslation } from 'react-i18next';
+import type { MoatSources } from '@/common/types/valuation';
+import { useMoatRadarChart } from './useMoatRadarChart';
 
-export const MoatRadarChart: React.FC<{ data: MoatSources }> = ({ data }) => {
-  const { t } = useTranslation();
+// --- Sub-Components (Rule 2.23) ---
 
-  const chartData = [
-    {
-      subject: t('thesis_view.moat_sources.switching_costs'),
-      score: data.switching_costs,
-      fullMark: 5,
-    },
-    {
-      subject: t('thesis_view.moat_sources.intangible_assets'),
-      score: data.intangible_assets,
-      fullMark: 5,
-    },
-    {
-      subject: t('thesis_view.moat_sources.network_effect'),
-      score: data.network_effect,
-      fullMark: 5,
-    },
-    {
-      subject: t('thesis_view.moat_sources.cost_advantage'),
-      score: data.cost_advantage,
-      fullMark: 5,
-    },
-    {
-      subject: t('thesis_view.moat_sources.efficient_scale'),
-      score: data.efficient_scale,
-      fullMark: 5,
-    },
-  ];
+interface CustomTickProps {
+  payload: { value: string; index: number };
+  x: number;
+  y: number;
+  textAnchor: string;
+}
 
-  const renderCustomTick = (props: any) => {
-    const { payload, x, y, textAnchor } = props;
-    const words = payload.value.split(' ');
-    
-    let yOffset = 0;
-    if (payload.index === 0) {
-      // Top label: shift UP so all lines are above the point
-      yOffset = -((words.length - 1) * 12) - 5;
-    } else if (payload.index === 2 || payload.index === 3) {
-      // Bottom labels: shift DOWN so they start below the point
-      yOffset = 12;
-    } else {
-      // Side labels: center vertically
-      yOffset = -((words.length - 1) * 6);
-    }
+function CustomTick(props: CustomTickProps) {
+  const { payload, x, y, textAnchor } = props;
+  const words = payload.value.split(' ');
+  
+  let yOffset;
+  if (payload.index === 0) {
+    // Top label: shift UP so all lines are above the point
+    yOffset = -((words.length - 1) * 12) - 5;
+  } else if (payload.index === 2 || payload.index === 3) {
+    // Bottom labels: shift DOWN so they start below the point
+    yOffset = 12;
+  } else {
+    // Side labels: center vertically
+    yOffset = -((words.length - 1) * 6);
+  }
 
-    return (
-      <text x={x} y={y + yOffset} textAnchor={textAnchor} fill="var(--on-surface-variant)" fontSize={10}>
-        {words.map((word: string, index: number) => (
-          <tspan x={x} dy={index === 0 ? 0 : 12} key={index}>
-            {word}
-          </tspan>
-        ))}
-      </text>
-    );
-  };
+  return (
+    <text x={x} y={y + yOffset} textAnchor={textAnchor} fill="var(--on-surface-variant)" fontSize={10}>
+      {words.map((word: string, index: number) => (
+        <tspan x={x} dy={index === 0 ? 0 : 12} key={index}>
+          {word}
+        </tspan>
+      ))}
+    </text>
+  );
+}
+
+// --- Main Component (Rule 2.18) ---
+
+interface MoatRadarChartProps {
+  data: MoatSources;
+}
+
+export function MoatRadarChart({ data }: MoatRadarChartProps) {
+  const chartData = useMoatRadarChart(data);
 
   return (
     <div className="w-full h-72 flex items-center justify-center">
@@ -68,23 +54,23 @@ export const MoatRadarChart: React.FC<{ data: MoatSources }> = ({ data }) => {
           <PolarGrid stroke="var(--on-surface-variant)" strokeOpacity={0.2} />
           <PolarAngleAxis 
             dataKey="subject" 
-            tick={renderCustomTick}
+            tick={CustomTick}
           />
           <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#1A1D20', borderColor: '#2D3135', color: '#E3E3E3', fontSize: '12px' }}
-            itemStyle={{ color: '#F2C94C' }}
+            contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderColor: 'var(--outline-variant)', color: 'var(--on-surface)', fontSize: '12px' }}
+            itemStyle={{ color: 'var(--primary)' }}
             formatter={(value) => [`${value} / 5`, 'Score']}
           />
           <Radar
             name="Moat Score"
             dataKey="score"
-            stroke="#F2C94C"
-            fill="#F2C94C"
+            stroke="var(--primary)"
+            fill="var(--primary)"
             fillOpacity={0.4}
           />
         </RadarChart>
       </ResponsiveContainer>
     </div>
   );
-};
+}
