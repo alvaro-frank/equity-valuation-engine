@@ -74,6 +74,13 @@ class FinancialYear:
         net_income (Decimal): Net income for the year.
         operating_cash_flow (Decimal): Operating cash flow for the year.
         capital_expenditures (Decimal): Capital expenditures for the year.
+        depreciation_and_amortization (Decimal | None): D&A for the year.
+        stock_based_compensation (Decimal | None): SBC for the year.
+        net_investing_cash_flow (Decimal | None): Net cash from investing activities.
+        dividends_paid (Decimal | None): Dividends paid.
+        stock_repurchases (Decimal | None): Stock repurchases.
+        net_debt_issued (Decimal | None): Net debt issued or repaid.
+        net_financing_cash_flow (Decimal | None): Net cash from financing activities.
         shares_outstanding (Decimal): Shares outstanding at fiscal year end.
         short_term_debt (Decimal): Short-term debt at fiscal year end.
         long_term_debt (Decimal): Long-term debt at fiscal year end.
@@ -114,6 +121,14 @@ class FinancialYear:
     total_assets: Decimal
     
     year_end_price: Decimal
+    
+    depreciation_and_amortization: Decimal | None = None
+    stock_based_compensation: Decimal | None = None
+    net_investing_cash_flow: Decimal | None = None
+    dividends_paid: Decimal | None = None
+    stock_repurchases: Decimal | None = None
+    net_debt_issued: Decimal | None = None
+    net_financing_cash_flow: Decimal | None = None
     
     def __post_init__(self):
         if self.shares_outstanding < 0:
@@ -313,6 +328,13 @@ class FinancialQuarter:
         net_income (Decimal): Net income for the quarter.
         operating_cash_flow (Decimal): Operating cash flow for the quarter.
         capital_expenditures (Decimal): Capital expenditures for the quarter.
+        depreciation_and_amortization (Decimal | None): D&A for the quarter.
+        stock_based_compensation (Decimal | None): SBC for the quarter.
+        net_investing_cash_flow (Decimal | None): Net cash from investing activities.
+        dividends_paid (Decimal | None): Dividends paid.
+        stock_repurchases (Decimal | None): Stock repurchases.
+        net_debt_issued (Decimal | None): Net debt issued or repaid.
+        net_financing_cash_flow (Decimal | None): Net cash from financing activities.
         shares_outstanding (Decimal): Shares outstanding at fiscal quarter end.
         short_term_debt (Decimal): Short-term debt at fiscal quarter end.
         long_term_debt (Decimal): Long-term debt at fiscal quarter end.
@@ -353,6 +375,14 @@ class FinancialQuarter:
     total_assets: Decimal
     
     quarter_end_price: Decimal
+    
+    depreciation_and_amortization: Decimal | None = None
+    stock_based_compensation: Decimal | None = None
+    net_investing_cash_flow: Decimal | None = None
+    dividends_paid: Decimal | None = None
+    stock_repurchases: Decimal | None = None
+    net_debt_issued: Decimal | None = None
+    net_financing_cash_flow: Decimal | None = None
     
     def __post_init__(self):
         if self.shares_outstanding < 0:

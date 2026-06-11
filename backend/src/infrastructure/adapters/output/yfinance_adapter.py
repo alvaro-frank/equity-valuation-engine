@@ -288,7 +288,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 
                 # Extract cashflow
                 operating_cash_flow = get_val(cashflow, 'Operating Cash Flow')
+                depreciation_and_amortization = get_val(cashflow, 'Depreciation And Amortization')
+                stock_based_compensation = get_val(cashflow, 'Stock Based Compensation')
                 capital_expenditures = get_val(cashflow, 'Capital Expenditure')
+                net_investing_cash_flow = get_val(cashflow, 'Investing Cash Flow')
+                dividends_paid = get_val(cashflow, 'Cash Dividends Paid')
+                stock_repurchases = get_val(cashflow, 'Repurchase Of Capital Stock')
+                net_debt_issued = get_val(cashflow, 'Net Issuance Payments Of Debt')
+                net_financing_cash_flow = get_val(cashflow, 'Financing Cash Flow')
                 
                 # Historical Price for year end
                 year_end_price = Decimal("0")
@@ -320,7 +327,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     operating_income=operating_income,
                     net_income=net_income,
                     operating_cash_flow=operating_cash_flow,
+                    depreciation_and_amortization=depreciation_and_amortization,
+                    stock_based_compensation=stock_based_compensation,
                     capital_expenditures=capital_expenditures,
+                    net_investing_cash_flow=net_investing_cash_flow,
+                    dividends_paid=dividends_paid,
+                    stock_repurchases=stock_repurchases,
+                    net_debt_issued=net_debt_issued,
+                    net_financing_cash_flow=net_financing_cash_flow,
                     shares_outstanding=shares_outstanding,
                     short_term_debt=short_term_debt,
                     long_term_debt=long_term_debt,
@@ -384,7 +398,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                             ttm_ebitda = ttm_operating_income + get_ttm_val(quarterly_cashflow, q_cf_dates, 'Depreciation And Amortization')
                         
                         ttm_operating_cash_flow = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Operating Cash Flow')
+                        ttm_depreciation_and_amortization = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Depreciation And Amortization')
+                        ttm_stock_based_compensation = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Stock Based Compensation')
                         ttm_capital_expenditures = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Capital Expenditure')
+                        ttm_net_investing_cash_flow = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Investing Cash Flow')
+                        ttm_dividends_paid = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Cash Dividends Paid')
+                        ttm_stock_repurchases = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Repurchase Of Capital Stock')
+                        ttm_net_debt_issued = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Net Issuance Payments Of Debt')
+                        ttm_net_financing_cash_flow = get_ttm_val(quarterly_cashflow, q_cf_dates, 'Financing Cash Flow')
                         
                         ttm_total_assets = get_latest_q_val(quarterly_balance_sheet, 'Total Assets')
                         ttm_total_liabilities = get_latest_q_val(quarterly_balance_sheet, 'Total Liabilities Net Minority Interest')
@@ -425,7 +446,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                             operating_income=ttm_operating_income,
                             net_income=ttm_net_income,
                             operating_cash_flow=ttm_operating_cash_flow,
+                            depreciation_and_amortization=ttm_depreciation_and_amortization,
+                            stock_based_compensation=ttm_stock_based_compensation,
                             capital_expenditures=ttm_capital_expenditures,
+                            net_investing_cash_flow=ttm_net_investing_cash_flow,
+                            dividends_paid=ttm_dividends_paid,
+                            stock_repurchases=ttm_stock_repurchases,
+                            net_debt_issued=ttm_net_debt_issued,
+                            net_financing_cash_flow=ttm_net_financing_cash_flow,
                             shares_outstanding=ttm_shares_outstanding,
                             short_term_debt=ttm_short_term_debt,
                             long_term_debt=ttm_long_term_debt,
@@ -551,7 +579,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                 
                 # Extract cashflow
                 operating_cash_flow = get_val(cashflow, 'Operating Cash Flow')
+                depreciation_and_amortization = get_val(cashflow, 'Depreciation And Amortization')
+                stock_based_compensation = get_val(cashflow, 'Stock Based Compensation')
                 capital_expenditures = get_val(cashflow, 'Capital Expenditure')
+                net_investing_cash_flow = get_val(cashflow, 'Investing Cash Flow')
+                dividends_paid = get_val(cashflow, 'Cash Dividends Paid')
+                stock_repurchases = get_val(cashflow, 'Repurchase Of Capital Stock')
+                net_debt_issued = get_val(cashflow, 'Net Issuance Payments Of Debt')
+                net_financing_cash_flow = get_val(cashflow, 'Financing Cash Flow')
                 
                 # Historical Price for quarter end
                 quarter_end_price = Decimal("0")
@@ -583,7 +618,14 @@ class YfinanceAdapter(QuantitativeDataPort, QuarterlyDataPort):
                     operating_income=operating_income,
                     net_income=net_income,
                     operating_cash_flow=operating_cash_flow,
+                    depreciation_and_amortization=depreciation_and_amortization,
+                    stock_based_compensation=stock_based_compensation,
                     capital_expenditures=capital_expenditures,
+                    net_investing_cash_flow=net_investing_cash_flow,
+                    dividends_paid=dividends_paid,
+                    stock_repurchases=stock_repurchases,
+                    net_debt_issued=net_debt_issued,
+                    net_financing_cash_flow=net_financing_cash_flow,
                     shares_outstanding=shares_outstanding,
                     short_term_debt=short_term_debt,
                     long_term_debt=long_term_debt,

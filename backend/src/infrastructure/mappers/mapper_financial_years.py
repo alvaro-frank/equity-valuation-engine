@@ -84,7 +84,11 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
                 
                 # Cash Flow
                 operating_cash_flow=parse_decimal(cash_report.get("operatingCashflow", "0"), "operatingCashflow"),
+                depreciation_and_amortization=parse_decimal(cash_report.get("depreciationDepletionAndAmortization", "0"), "depreciationDepletionAndAmortization"),
                 capital_expenditures=parse_decimal(cash_report.get("capitalExpenditures", "0"), "capitalExpenditures"),
+                net_investing_cash_flow=parse_decimal(cash_report.get("cashflowFromInvestment", "0"), "cashflowFromInvestment"),
+                dividends_paid=parse_decimal(cash_report.get("dividendPayout", "0"), "dividendPayout"),
+                net_financing_cash_flow=parse_decimal(cash_report.get("cashflowFromFinancing", "0"), "cashflowFromFinancing"),
                 
                 # Shares Outstanding
                 shares_outstanding=parse_decimal(balance_report.get("commonStockSharesOutstanding", "0"), "commonStockSharesOutstanding"),
@@ -154,7 +158,11 @@ def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: L
                 operating_income=parse_decimal(income_report.get("operatingIncome", "0"), "operatingIncome"),
                 net_income=parse_decimal(income_report.get("netIncome", "0"), "netIncome"),
                 operating_cash_flow=parse_decimal(cash_report.get("operatingCashflow", "0"), "operatingCashflow"),
+                depreciation_and_amortization=parse_decimal(cash_report.get("depreciationDepletionAndAmortization", "0"), "depreciationDepletionAndAmortization"),
                 capital_expenditures=parse_decimal(cash_report.get("capitalExpenditures", "0"), "capitalExpenditures"),
+                net_investing_cash_flow=parse_decimal(cash_report.get("cashflowFromInvestment", "0"), "cashflowFromInvestment"),
+                dividends_paid=parse_decimal(cash_report.get("dividendPayout", "0"), "dividendPayout"),
+                net_financing_cash_flow=parse_decimal(cash_report.get("cashflowFromFinancing", "0"), "cashflowFromFinancing"),
                 shares_outstanding=parse_decimal(balance_report.get("commonStockSharesOutstanding", "0"), "commonStockSharesOutstanding"),
                 short_term_debt=parse_decimal(balance_report.get("shortTermDebt", "0"), "shortTermDebt"),
                 long_term_debt=parse_decimal(balance_report.get("longTermDebt", "0"), "longTermDebt"),

@@ -31,8 +31,22 @@ export const BALANCE_SHEET_ROWS: FinancialTableRow[] = [
 ];
 
 export const CASH_FLOW_ROWS: FinancialTableRow[] = [
+  // --- Operating ---
   { key: 'operating_cash_flow', labelKey: 'financials.metrics.operating_cash_flow', formatAs: 'currency' },
+  { key: 'depreciation_and_amortization', labelKey: 'financials.metrics.depreciation_and_amortization', formatAs: 'currency' },
+  { key: 'stock_based_compensation', labelKey: 'financials.metrics.stock_based_compensation', formatAs: 'currency' },
+  
+  // --- Investing ---
   { key: 'capital_expenditures', labelKey: 'financials.metrics.capital_expenditures', formatAs: 'currency' },
+  { key: 'net_investing_cash_flow', labelKey: 'financials.metrics.net_investing_cash_flow', formatAs: 'currency' },
+  
+  // --- Financing ---
+  { key: 'dividends_paid', labelKey: 'financials.metrics.dividends_paid', formatAs: 'currency' },
+  { key: 'stock_repurchases', labelKey: 'financials.metrics.stock_repurchases', formatAs: 'currency' },
+  { key: 'net_debt_issued', labelKey: 'financials.metrics.net_debt_issued', formatAs: 'currency' },
+  { key: 'net_financing_cash_flow', labelKey: 'financials.metrics.net_financing_cash_flow', formatAs: 'currency' },
+  
+  // --- Summary ---
   { key: 'free_cash_flow', labelKey: 'financials.metrics.free_cash_flow', formatAs: 'currency' },
 ];
 
