@@ -4,6 +4,8 @@ from application.use_cases.analyse_quantitative_valuation import QuantitativeVal
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
+from application.use_cases.search_tickers import SearchTickersUseCase
+from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
@@ -12,7 +14,7 @@ from infrastructure.adapters.output.groq_adapter import GroqAdapter
 from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeAdapter
 from infrastructure.config.settings import settings
 from typing import Union
-from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort, SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.ports import QuantitativeDataPort, SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, OwnershipDataPort, SearchDataPort, PerformanceDataPort, TrendingDataPort
 
 # In a real production environment, these adapters can be maintained as global variables (Singletons)
 # or constructed per request, depending on whether they store state (ex: DB sessions).
@@ -33,18 +35,24 @@ def get_translator() -> GroqTranslatorAdapter:
     """Provides the translator adapter instance."""
     return _translator
 
-def get_quantitative_adapter() -> Union[QuantitativeDataPort, QuarterlyDataPort]:
+def get_quantitative_adapter() -> Union[QuantitativeDataPort, OwnershipDataPort]:
     """
-    Provides the Quantitative/Quarterly Data Port instance based on settings.
+    Provides the Quantitative Data Port instance based on settings.
     """
     if settings.data_provider.upper() == "YFINANCE":
         return _yfinance_adapter
     return _alpha_adapter
 
-def get_yfinance_adapter() -> YfinanceAdapter:
-    """
-    Provides the direct YfinanceAdapter instance for specific yfinance endpoints (like trending).
-    """
+def get_search_adapter() -> SearchDataPort:
+    """Provides the Search Data Port instance."""
+    return _yfinance_adapter
+
+def get_performance_adapter() -> PerformanceDataPort:
+    """Provides the Performance Data Port instance."""
+    return _yfinance_adapter
+
+def get_trending_adapter() -> TrendingDataPort:
+    """Provides the Trending Data Port instance."""
     return _yfinance_adapter
 
 def get_llm_adapter() -> Union[SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort]:
@@ -68,17 +76,17 @@ def get_quantitative_use_case(
     """
     Builds and provides the Quantitative Valuation Use Case via Dependency Injection.
     """
-    return QuantitativeValuationUseCase(adapter=quant_adapter, quarterly_adapter=quant_adapter)
+    return QuantitativeValuationUseCase(adapter=quant_adapter)
 
 def get_qualitative_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
     llm_adapter = Depends(get_llm_adapter),
-    translator: TranslationPort = Depends(get_translator)
+    translator = Depends(get_translator)
 ) -> QualitativeValuationUseCase:
     """
     Builds and provides the Qualitative Valuation Use Case via Dependency Injection.
     """
-    return QualitativeValuationUseCase(adapter=llm_adapter, quant_adapter=quant_adapter, translator=translator)
+    return QualitativeValuationUseCase(adapter=llm_adapter, quant_adapter=quant_adapter, ownership_adapter=quant_adapter, translator=translator)
 
 def get_sector_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
@@ -93,9 +101,26 @@ def get_sector_use_case(
     )
 
 def get_sector_performance_use_case(
-    yfinance_adapter: YfinanceAdapter = Depends(get_yfinance_adapter)
+    quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
+    performance_adapter: PerformanceDataPort = Depends(get_performance_adapter)
 ) -> GetSectorPerformanceUseCase:
     """
     Builds and provides the Sector Performance Use Case via Dependency Injection.
     """
-    return GetSectorPerformanceUseCase(quant_port=yfinance_adapter)
+    return GetSectorPerformanceUseCase(quant_port=quant_adapter, performance_port=performance_adapter)
+
+def get_search_tickers_use_case(
+    search_adapter: SearchDataPort = Depends(get_search_adapter)
+) -> SearchTickersUseCase:
+    """
+    Builds and provides the Search Tickers Use Case via Dependency Injection.
+    """
+    return SearchTickersUseCase(search_port=search_adapter)
+
+def get_trending_tickers_use_case(
+    trending_adapter: TrendingDataPort = Depends(get_trending_adapter)
+) -> GetTrendingTickersUseCase:
+    """
+    Builds and provides the Trending Tickers Use Case via Dependency Injection.
+    """
+    return GetTrendingTickersUseCase(trending_port=trending_adapter)

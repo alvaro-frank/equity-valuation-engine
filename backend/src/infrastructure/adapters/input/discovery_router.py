@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
 
-from application.dtos.dtos import TrendingTickersResponse, TrendingTickerDTO
-from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
-from infrastructure.adapters.input.dependencies import get_yfinance_adapter
+from application.dtos.dtos import TrendingTickersResponse
+from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
+from infrastructure.adapters.input.dependencies import get_trending_tickers_use_case
 
 router = APIRouter(
     prefix="/api/v1/discovery",
@@ -13,29 +12,25 @@ router = APIRouter(
 @router.get("/sector/{sector_key}/trending", response_model=TrendingTickersResponse)
 async def get_trending_sector(
     sector_key: str,
-    yfinance_adapter: YfinanceAdapter = Depends(get_yfinance_adapter)
+    use_case: GetTrendingTickersUseCase = Depends(get_trending_tickers_use_case)
 ):
     """
     Fetches the top trending companies for a specific sector.
     """
     try:
-        results = await yfinance_adapter.get_trending_by_sector(sector_key)
-        dtos = [TrendingTickerDTO(**r) for r in results]
-        return TrendingTickersResponse(results=dtos)
+        return await use_case.execute(sector_key=sector_key)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/industry/{industry_key}/trending", response_model=TrendingTickersResponse)
 async def get_trending_industry(
     industry_key: str,
-    yfinance_adapter: YfinanceAdapter = Depends(get_yfinance_adapter)
+    use_case: GetTrendingTickersUseCase = Depends(get_trending_tickers_use_case)
 ):
     """
     Fetches the top trending companies for a specific industry.
     """
     try:
-        results = await yfinance_adapter.get_trending_by_industry(industry_key)
-        dtos = [TrendingTickerDTO(**r) for r in results]
-        return TrendingTickersResponse(results=dtos)
+        return await use_case.execute(industry_key=industry_key)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
