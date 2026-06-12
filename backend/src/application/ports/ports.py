@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Any
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker, CompanyProfile, IndustrySectorDynamics, EarningsReport
 
 class QuantitativeDataPort(ABC):
@@ -58,14 +58,35 @@ class QuantitativeDataPort(ABC):
             Ticker: Domain Entity containing the ticker data
         """
         pass
+
+    @abstractmethod
+    async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
+        """
+        Fetches the fundamental financial data for a given stock ticker symbol on a quarterly basis.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch the fundamental data.
+            
+        Returns:
+            List[FinancialQuarter]: List containing the fundamental data for each Financial Quarter.
+        """
+        pass
     
+class PerformanceDataPort(ABC):
+    """
+    Interface for fetching historical performance charts.
+    """
     @abstractmethod
     async def get_historical_performance_chart(self, symbols: List[str], period: str = "5y") -> List[Dict]:
         """
         Fetches historical performance data for multiple symbols to compare them.
         """
         pass
-    
+
+class OwnershipDataPort(ABC):
+    """
+    Interface for fetching major institutional shareholders.
+    """
     @abstractmethod
     async def get_major_shareholders(self, symbol: str) -> Dict[str, float]:
         """
@@ -79,22 +100,36 @@ class QuantitativeDataPort(ABC):
         """
         pass
 
-class QuarterlyDataPort(ABC):
+class SearchDataPort(ABC):
     """
-    Interface for fetching quarterly quantitative data.
+    Interface for searching tickers.
     """
     @abstractmethod
-    async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
+    async def search_tickers(self, query: str) -> List[Dict[str, str]]:
         """
-        Fetches the fundamental financial data for a given stock ticker symbol on a quarterly basis.
+        Searches for tickers matching the query.
         
         Args:
-            symbol (str): The stock ticker symbol to fetch the fundamental data.
+            query (str): The search term.
             
         Returns:
-            List[FinancialQuarter]: List containing the fundamental data for each Financial Quarter.
+            List[Dict[str, str]]: A list of dictionaries containing symbol, name, and exchange.
         """
         pass
+
+class TrendingDataPort(ABC):
+    """
+    Interface for fetching trending tickers by sector or industry.
+    """
+    @abstractmethod
+    async def get_trending_by_sector(self, sector_key: str) -> List[Dict[str, Any]]:
+        pass
+        
+    @abstractmethod
+    async def get_trending_by_industry(self, industry_key: str) -> List[Dict[str, Any]]:
+        pass
+
+
     
 class QualitativeDataPort(ABC):
     """
