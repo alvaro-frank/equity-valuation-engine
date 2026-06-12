@@ -27,7 +27,7 @@ export function FinancialsHeader({ ticker, quantData, activeTab, isQuarterly, on
         </p>
       </div>
       
-      {activeTab !== 'ratios' && (
+      {activeTab !== 'ratios' ? (
         <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
           <button
             onClick={() => onToggleQuarterly(false)}
@@ -42,7 +42,7 @@ export function FinancialsHeader({ ticker, quantData, activeTab, isQuarterly, on
             {t('financials.quarterly')}
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

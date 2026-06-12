@@ -34,8 +34,7 @@ function EmptyState({ searchTerm }: { searchTerm: string }) {
   );
 }
 
-function SearchResultsList(props: SearchDropdownProps) {
-  const { searchResults, isFetching, searchTerm, selectedIndex, onSelect, onHover } = props;
+function SearchResultsList({ searchResults, isFetching, searchTerm, selectedIndex, onSelect, onHover }: SearchDropdownProps) {
   
   if (isFetching && (!searchResults || searchResults.length === 0)) {
     return <LoadingState />;
@@ -63,21 +62,31 @@ function SearchResultsList(props: SearchDropdownProps) {
   );
 }
 
-function SearchResultsSection(props: SearchDropdownProps) {
+function SearchResultsSection({ searchResults, isFetching, searchTerm, selectedIndex, onSelect, onHover, show, filteredHistory, onClearHistory }: SearchDropdownProps) {
   return (
     <>
       <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant uppercase tracking-wider flex justify-between items-center">
         <span>SEARCH RESULTS</span>
-        {props.isFetching ? <span className="material-symbols-outlined animate-spin text-[14px]">refresh</span> : null}
+        {isFetching ? <span className="material-symbols-outlined animate-spin text-[14px]">refresh</span> : null}
       </div>
       <div className="flex flex-col max-h-[300px] overflow-y-auto">
-        <SearchResultsList {...props} />
+        <SearchResultsList 
+          searchResults={searchResults}
+          isFetching={isFetching}
+          searchTerm={searchTerm}
+          selectedIndex={selectedIndex}
+          onSelect={onSelect}
+          onHover={onHover}
+          show={show}
+          filteredHistory={filteredHistory}
+          onClearHistory={onClearHistory}
+        />
       </div>
     </>
   );
 }
 
-function RecentSearchesSection(props: SearchDropdownProps) {
+function RecentSearchesSection({ onClearHistory, filteredHistory, selectedIndex, onSelect, onHover }: SearchDropdownProps) {
   const { t } = useTranslation();
   return (
     <>
@@ -88,7 +97,7 @@ function RecentSearchesSection(props: SearchDropdownProps) {
           onMouseDown={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            props.onClearHistory();
+            onClearHistory();
           }}
           className="text-error hover:text-error/80 cursor-pointer transition-colors"
         >
@@ -96,14 +105,14 @@ function RecentSearchesSection(props: SearchDropdownProps) {
         </button>
       </div>
       <div className="flex flex-col max-h-[300px] overflow-y-auto">
-        {props.filteredHistory.map((item, index) => (
+        {filteredHistory.map((item, index) => (
           <SearchHistoryItem
             key={item.ticker}
             ticker={item.ticker}
             name={item.name}
-            isSelected={index === props.selectedIndex}
-            onSelect={() => props.onSelect(item.ticker, item.name)}
-            onHover={() => props.onHover(index)}
+            isSelected={index === selectedIndex}
+            onSelect={() => onSelect(item.ticker, item.name)}
+            onHover={() => onHover(index)}
             className="px-4 py-3 text-base"
           />
         ))}
@@ -115,17 +124,38 @@ function RecentSearchesSection(props: SearchDropdownProps) {
 // --- Main Component ---
 
 export function SearchDropdown(props: SearchDropdownProps) {
-  const hasSearchTerm = props.searchTerm.trim().length > 0;
+  const { show, searchTerm, filteredHistory, searchResults, isFetching, selectedIndex, onSelect, onHover, onClearHistory } = props;
+  const hasSearchTerm = searchTerm.trim().length > 0;
   
-  if (!props.show) return null;
-  if (!hasSearchTerm && props.filteredHistory.length === 0) return null;
+  if (!show) return null;
+  if (!hasSearchTerm && filteredHistory.length === 0) return null;
 
   return (
     <div className="absolute top-[110%] left-0 w-full bg-surface-container-high border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
       {hasSearchTerm ? (
-        <SearchResultsSection {...props} />
+        <SearchResultsSection 
+          show={show} 
+          searchTerm={searchTerm} 
+          filteredHistory={filteredHistory}
+          searchResults={searchResults}
+          isFetching={isFetching}
+          selectedIndex={selectedIndex}
+          onSelect={onSelect}
+          onHover={onHover}
+          onClearHistory={onClearHistory}
+        />
       ) : (
-        <RecentSearchesSection {...props} />
+        <RecentSearchesSection 
+          show={show} 
+          searchTerm={searchTerm} 
+          filteredHistory={filteredHistory}
+          searchResults={searchResults}
+          isFetching={isFetching}
+          selectedIndex={selectedIndex}
+          onSelect={onSelect}
+          onHover={onHover}
+          onClearHistory={onClearHistory}
+        />
       )}
     </div>
   );

@@ -22,7 +22,8 @@ export function CompanyLogo({ ticker, className = "w-8 h-8", fallbackLetter }: C
   const containerClasses = `flex items-center justify-center rounded-md shrink-0 border border-outline-variant shadow-sm ${className}`;
   
   if (!ticker || hasError) {
-    const letter = fallbackLetter || (ticker ? ticker[0].toUpperCase() : 'T');
+    const defaultLetter = ticker ? ticker[0].toUpperCase() : 'T';
+    const letter = fallbackLetter || defaultLetter;
     return (
       <div className={`${containerClasses} bg-surface-container-highest text-on-surface font-bold`}>
         {letter}

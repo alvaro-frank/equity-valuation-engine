@@ -10,8 +10,17 @@ export function ApiErrorState({ errorState, onRetry }: ApiErrorStateProps) {
   const { t } = useTranslation();
   const { key, details, rawMessage, ticker } = errorState;
 
-  const title = key === 'DEFAULT' ? `${details.title} ${ticker || ''}` : details.title;
-  const message = (key === 'DEFAULT' && rawMessage) ? rawMessage : details.message;
+  let title = details.title;
+  let message = details.message;
+
+  if (key === 'DEFAULT') {
+    if (ticker) {
+      title = `${details.title} ${ticker}`;
+    }
+    if (rawMessage) {
+      message = rawMessage;
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-500">
