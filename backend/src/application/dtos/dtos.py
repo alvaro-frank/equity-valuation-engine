@@ -19,6 +19,16 @@ class TrendingTickerDTO(BaseModel):
 class TrendingTickersResponse(BaseModel):
     results: List[TrendingTickerDTO] = Field(..., description="List of trending tickers")
 
+class SectorPerformanceResult(BaseModel):
+    """
+    Data Transfer Object representing the sector performance relative to a benchmark.
+    """
+    sector: str = Field(..., description="The sector name")
+    industry: str = Field(..., description="The industry name")
+    etf_ticker: str = Field(..., description="The ETF ticker used for comparison")
+    benchmark_ticker: str = Field(..., description="The benchmark ticker (e.g., SPY)")
+    chart_data: List[Dict[str, Any]] = Field(..., description="Historical chart data")
+
 class TickerResult(BaseModel):
     """
     Data Transfer Object representing the ticker information of a stock, including symbol, name, sector, and industry.

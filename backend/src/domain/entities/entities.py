@@ -61,34 +61,10 @@ class Ticker:
         return f"{self.symbol} - {self.name} ({self.sector}/{self.industry})"
 
 @dataclass(frozen=True)
-class FinancialYear:
+class BaseFinancialPeriod:
     """
-    Represents the financial data for a specific fiscal year, including various financial metrics.
-    
-    Attributes:
-        fiscal_date_ending (str): The fiscal year end date.
-        revenue (Decimal): Total revenue for the year.
-        ebitda (Decimal): EBITDA for the year.
-        gross_profit (Decimal): Gross profit for the year.
-        operating_income (Decimal): Operating income for the year.
-        net_income (Decimal): Net income for the year.
-        operating_cash_flow (Decimal): Operating cash flow for the year.
-        capital_expenditures (Decimal): Capital expenditures for the year.
-        depreciation_and_amortization (Decimal | None): D&A for the year.
-        stock_based_compensation (Decimal | None): SBC for the year.
-        net_investing_cash_flow (Decimal | None): Net cash from investing activities.
-        dividends_paid (Decimal | None): Dividends paid.
-        stock_repurchases (Decimal | None): Stock repurchases.
-        net_debt_issued (Decimal | None): Net debt issued or repaid.
-        net_financing_cash_flow (Decimal | None): Net cash from financing activities.
-        shares_outstanding (Decimal): Shares outstanding at fiscal year end.
-        short_term_debt (Decimal): Short-term debt at fiscal year end.
-        long_term_debt (Decimal): Long-term debt at fiscal year end.
-        total_debt (Decimal): Total debt at fiscal year end.
-        total_assets (Decimal): Total assets at fiscal year end.
-        total_liabilities (Decimal): Total liabilities at fiscal year end.
-        cash_and_equivalents (Decimal): Cash and equivalents at fiscal year end.
-        year_end_price (Decimal): The close price at fiscal year end
+    Base class representing the financial data for a specific fiscal period.
+    Contains all shared metrics and properties between Years and Quarters.
     """
     fiscal_date_ending: str
     
@@ -119,8 +95,6 @@ class FinancialYear:
     net_ppe: Decimal
     intangible_assets: Decimal
     total_assets: Decimal
-    
-    year_end_price: Decimal
     
     depreciation_and_amortization: Decimal | None = None
     stock_based_compensation: Decimal | None = None
@@ -137,424 +111,83 @@ class FinancialYear:
             raise ValueError(f"Domain Error: Total assets cannot be negative. Got {self.total_assets}")
         if self.total_debt < 0:
             raise ValueError(f"Domain Error: Total debt cannot be negative. Got {self.total_debt}")
-        
-    @property
-    def total_equity(self) -> Decimal:
-        """
-        Calculates the total shareholder equity by subtracting total liabilities from total assets.
-
-        Returns:
-            Decimal: The total equity of the business.
-        """
-        return self.total_assets - self.total_liabilities
-    
-    @property
-    def gross_margin(self) -> Decimal:
-        """
-        Calculates the gross profit margin as a percentage of total revenue.
-
-        Returns:
-            Decimal: The gross margin percentage, rounded to two decimal places.
-        """
-        if self.revenue == Decimal("0"):
-            return Decimal("0")
-        
-        return round((self.gross_profit / self.revenue) * 100, 2)
-    
-    @property
-    def operating_margin(self) -> Decimal:
-        """
-        Calculates the operating profit margin, representing the percentage of revenue remaining after operating expenses.
-
-        Returns:
-            Decimal: The operating margin percentage, rounded to two decimal places.
-        """
-        if self.revenue == Decimal("0"):
-            return Decimal("0")
-        
-        return round((self.operating_income / self.revenue) * 100, 2)
-    
-    @property
-    def net_margin(self) -> Decimal:
-        """
-        Calculates the net profit margin, representing the percentage of revenue that results in net income.
-
-        Returns:
-            Decimal: The net margin percentage, rounded to two decimal places.
-        """
-        if self.revenue == Decimal("0"):
-            return Decimal("0")
-        
-        return round((self.net_income / self.revenue) * 100, 2)
-    
-    @property
-    def roe(self) -> Decimal | None:
-        """
-        Calculates the Return on Equity (ROE), measuring profitability relative to shareholder equity.
-
-        Returns:
-            Decimal: The ROE percentage, rounded to two decimal places.
-        """
-        equity = self.total_equity
-        
-        if equity <= Decimal("0"):
-            return None
-        
-        return round((self.net_income / equity) * 100, 2)
-    
-    @property
-    def roic(self) -> Decimal | None:
-        """
-        Calculates the Return on Invested Capital (ROIC) using net income over the sum of debt and equity.
-
-        Returns:
-            Decimal: The ROIC percentage, rounded to two decimal places.
-        """
-        invested_capital = self.total_debt + self.total_equity
-        
-        if invested_capital <= Decimal("0"):
-            return None
-        
-        return round((self.net_income / invested_capital) * 100, 2)
-    
-    @property
-    def debt_to_equity(self) -> Decimal | None:
-        """
-        Calculates the debt-to-equity ratio, indicating the relative proportion of shareholder equity and debt used to finance assets.
-
-        Returns:
-            Decimal: The debt-to-equity ratio, rounded to two decimal places.
-        """
-        equity = self.total_equity
-        
-        if equity <= Decimal("0"):
-            return None
-        
-        return round(self.total_debt / equity, 2)
-    
-    @property
-    def market_cap(self) -> Decimal:
-        """
-        Calculates the Market Capitalization based on year-end price and shares outstanding.
-        
-        Returns:
-            Decimal: The total market value of the company's outstanding shares.
-        """
-        return self.year_end_price * self.shares_outstanding
 
     @property
-    def pe_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Earnings (P/E) Ratio.
-        
-        Returns:
-            Decimal | None: The P/E ratio rounded to two decimal places, or None if net income is zero or negative.
-        """
-        if self.net_income <= Decimal("0"):
-            return None
-        return round(self.market_cap / self.net_income, 2)
-
-    @property
-    def current_ratio(self) -> Decimal | None:
-        """
-        Calculates the Current Ratio (Current Assets / Current Liabilities).
-        """
-        if self.current_liabilities <= Decimal("0"):
-            return None
-        return round(self.current_assets / self.current_liabilities, 2)
-
-    @property
-    def enterprise_value(self) -> Decimal:
-        """
-        Calculates the Enterprise Value (Market Cap + Total Debt - Cash & Equivalents).
-        """
-        return self.market_cap + self.total_debt - self.cash_and_equivalents
-
-    @property
-    def ev_to_ebitda(self) -> Decimal | None:
-        """
-        Calculates the EV/EBITDA ratio.
-        """
-        if self.ebitda <= Decimal("0"):
-            return None
-        return round(self.enterprise_value / self.ebitda, 2)
-
-    @property
-    def pb_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Book (P/B) Ratio.
-        
-        Returns:
-            Decimal | None: The P/B ratio rounded to two decimal places, or None if total equity is zero or negative.
-        """
-        equity = self.total_equity
-        if equity <= Decimal("0"):
-            return None
-        return round(self.market_cap / equity, 2)
-
-    @property
-    def ps_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Sales (P/S) Ratio.
-        
-        Returns:
-            Decimal | None: The P/S ratio rounded to two decimal places, or None if revenue is zero or negative.
-        """
-        if self.revenue <= Decimal("0"):
-            return None
-        return round(self.market_cap / self.revenue, 2)
-
-    @property
-    def free_cash_flow(self) -> Decimal:
-        """
-        Calculates the Free Cash Flow (FCF) by subtracting capital expenditures from operating cash flow.
-        
-        Returns:
-            Decimal: The absolute Free Cash Flow.
-        """
-        return self.operating_cash_flow - abs(self.capital_expenditures)
-
-    @property
-    def fcf_yield(self) -> Decimal | None:
-        """
-        Calculates the Free Cash Flow Yield as a percentage.
-        
-        Returns:
-            Decimal | None: The FCF yield percentage rounded to two decimal places, or None if market cap is zero.
-        """
-        if self.market_cap == Decimal("0"):
-            return None
-        fcf = self.operating_cash_flow - abs(self.capital_expenditures)
-        return round((fcf / self.market_cap) * 100, 2)
-
-    @property
-    def eps(self) -> Decimal | None:
-        """
-        Calculates the Earnings Per Share (EPS).
-        
-        Returns:
-            Decimal | None: EPS rounded to two decimal places, or None if shares outstanding is zero.
-        """
-        if self.shares_outstanding == Decimal("0"):
-            return None
-        return round(self.net_income / self.shares_outstanding, 2)
-
-@dataclass(frozen=True)
-class FinancialQuarter:
-    """
-    Represents the financial data for a specific fiscal quarter, including various financial metrics.
-    
-    Attributes:
-        fiscal_date_ending (str): The fiscal quarter end date.
-        revenue (Decimal): Total revenue for the quarter.
-        ebitda (Decimal): EBITDA for the quarter.
-        gross_profit (Decimal): Gross profit for the quarter.
-        operating_income (Decimal): Operating income for the quarter.
-        net_income (Decimal): Net income for the quarter.
-        operating_cash_flow (Decimal): Operating cash flow for the quarter.
-        capital_expenditures (Decimal): Capital expenditures for the quarter.
-        depreciation_and_amortization (Decimal | None): D&A for the quarter.
-        stock_based_compensation (Decimal | None): SBC for the quarter.
-        net_investing_cash_flow (Decimal | None): Net cash from investing activities.
-        dividends_paid (Decimal | None): Dividends paid.
-        stock_repurchases (Decimal | None): Stock repurchases.
-        net_debt_issued (Decimal | None): Net debt issued or repaid.
-        net_financing_cash_flow (Decimal | None): Net cash from financing activities.
-        shares_outstanding (Decimal): Shares outstanding at fiscal quarter end.
-        short_term_debt (Decimal): Short-term debt at fiscal quarter end.
-        long_term_debt (Decimal): Long-term debt at fiscal quarter end.
-        total_debt (Decimal): Total debt at fiscal quarter end.
-        total_assets (Decimal): Total assets at fiscal quarter end.
-        total_liabilities (Decimal): Total liabilities at fiscal quarter end.
-        cash_and_equivalents (Decimal): Cash and equivalents at fiscal quarter end.
-        year_end_price (Decimal): The close price at fiscal quarter end
-    """
-    fiscal_date_ending: str
-    
-    revenue: Decimal
-    ebitda: Decimal
-    
-    gross_profit: Decimal
-    operating_income: Decimal
-    net_income: Decimal
-    
-    operating_cash_flow: Decimal
-    capital_expenditures: Decimal
-    
-    shares_outstanding: Decimal
-    
-    short_term_debt: Decimal
-    long_term_debt: Decimal
-    total_debt: Decimal
-    
-    accounts_payable: Decimal
-    current_liabilities: Decimal
-    total_liabilities: Decimal
-    
-    cash_and_equivalents: Decimal
-    accounts_receivable: Decimal
-    inventory: Decimal
-    current_assets: Decimal
-    net_ppe: Decimal
-    intangible_assets: Decimal
-    total_assets: Decimal
-    
-    quarter_end_price: Decimal
-    
-    depreciation_and_amortization: Decimal | None = None
-    stock_based_compensation: Decimal | None = None
-    net_investing_cash_flow: Decimal | None = None
-    dividends_paid: Decimal | None = None
-    stock_repurchases: Decimal | None = None
-    net_debt_issued: Decimal | None = None
-    net_financing_cash_flow: Decimal | None = None
-    
-    def __post_init__(self):
-        if self.shares_outstanding < 0:
-            raise ValueError(f"Domain Error: Shares outstanding cannot be negative. Got {self.shares_outstanding}")
+    def period_end_price(self) -> Decimal:
+        """To be implemented by subclasses"""
+        raise NotImplementedError
 
     @property
     def total_equity(self) -> Decimal:
-        """
-        Calculates the total equity.
-        
-        Returns:
-            Decimal: The difference between total assets and total liabilities.
-        """
         return self.total_assets - self.total_liabilities
 
     @property
     def gross_margin(self) -> Decimal | None:
-        """
-        Calculates the gross margin percentage.
-        
-        Returns:
-            Decimal | None: The gross margin percentage rounded to two decimal places, or None if revenue is zero.
-        """
         if self.revenue == Decimal("0"):
             return None
         return round((self.gross_profit / self.revenue) * 100, 2)
 
     @property
     def operating_margin(self) -> Decimal | None:
-        """
-        Calculates the operating margin percentage.
-        
-        Returns:
-            Decimal | None: The operating margin percentage rounded to two decimal places, or None if revenue is zero.
-        """
         if self.revenue == Decimal("0"):
             return None
         return round((self.operating_income / self.revenue) * 100, 2)
 
     @property
     def net_margin(self) -> Decimal | None:
-        """
-        Calculates the net margin percentage.
-        
-        Returns:
-            Decimal | None: The net margin percentage rounded to two decimal places, or None if revenue is zero.
-        """
         if self.revenue == Decimal("0"):
             return None
         return round((self.net_income / self.revenue) * 100, 2)
 
     @property
     def roe(self) -> Decimal | None:
-        """
-        Calculates the Return on Equity (ROE) as a percentage.
-        
-        Returns:
-            Decimal | None: The ROE percentage rounded to two decimal places, or None if total equity is zero.
-        """
         equity = self.total_equity
-        if equity == Decimal("0"):
+        if equity <= Decimal("0"):
             return None
         return round((self.net_income / equity) * 100, 2)
 
     @property
     def roic(self) -> Decimal | None:
-        """
-        Calculates the Return on Invested Capital (ROIC) as a percentage.
-        
-        Returns:
-            Decimal | None: The ROIC percentage rounded to two decimal places, or None if invested capital is zero.
-        """
-        invested_capital = self.total_assets - self.total_liabilities + self.short_term_debt + self.long_term_debt - self.cash_and_equivalents
-        if invested_capital == Decimal("0"):
+        invested_capital = self.total_debt + self.total_equity
+        if invested_capital <= Decimal("0"):
             return None
-        
-        nopat = self.operating_income * Decimal("0.8") # Assumes 20% tax rate
-        return round((nopat / invested_capital) * 100, 2)
+        return round((self.net_income / invested_capital) * 100, 2)
 
     @property
     def debt_to_equity(self) -> Decimal | None:
-        """
-        Calculates the Debt-to-Equity ratio.
-        
-        Returns:
-            Decimal | None: The Debt-to-Equity ratio rounded to two decimal places, or None if total equity is zero.
-        """
         equity = self.total_equity
-        if equity == Decimal("0"):
+        if equity <= Decimal("0"):
             return None
         return round(self.total_debt / equity, 2)
 
     @property
     def market_cap(self) -> Decimal:
-        """
-        Calculates the market capitalization at fiscal quarter end.
-        
-        Returns:
-            Decimal: The product of shares outstanding and year-end price.
-        """
-        return self.shares_outstanding * self.quarter_end_price
+        return self.shares_outstanding * self.period_end_price
 
     @property
     def pe_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Earnings (P/E) ratio.
-        
-        Returns:
-            Decimal | None: The P/E ratio rounded to two decimal places, or None if net income is zero or negative.
-        """
         if self.net_income <= Decimal("0"):
             return None
         return round(self.market_cap / self.net_income, 2)
 
     @property
     def current_ratio(self) -> Decimal | None:
-        """
-        Calculates the Current Ratio (Current Assets / Current Liabilities).
-        """
         if self.current_liabilities <= Decimal("0"):
             return None
         return round(self.current_assets / self.current_liabilities, 2)
 
     @property
     def enterprise_value(self) -> Decimal:
-        """
-        Calculates the Enterprise Value (Market Cap + Total Debt - Cash & Equivalents).
-        """
         return self.market_cap + self.total_debt - self.cash_and_equivalents
 
     @property
     def ev_to_ebitda(self) -> Decimal | None:
-        """
-        Calculates the EV/EBITDA ratio.
-        """
         if self.ebitda <= Decimal("0"):
             return None
         return round(self.enterprise_value / self.ebitda, 2)
 
     @property
     def pb_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Book (P/B) ratio.
-        
-        Returns:
-            Decimal | None: The P/B ratio rounded to two decimal places, or None if total equity is zero or negative.
-        """
         equity = self.total_equity
         if equity <= Decimal("0"):
             return None
@@ -562,34 +195,16 @@ class FinancialQuarter:
 
     @property
     def ps_ratio(self) -> Decimal | None:
-        """
-        Calculates the Price-to-Sales (P/S) ratio.
-        
-        Returns:
-            Decimal | None: The P/S ratio rounded to two decimal places, or None if revenue is zero or negative.
-        """
         if self.revenue <= Decimal("0"):
             return None
         return round(self.market_cap / self.revenue, 2)
 
     @property
     def free_cash_flow(self) -> Decimal:
-        """
-        Calculates the Free Cash Flow (FCF) by subtracting capital expenditures from operating cash flow.
-        
-        Returns:
-            Decimal: The absolute Free Cash Flow.
-        """
         return self.operating_cash_flow - abs(self.capital_expenditures)
 
     @property
     def fcf_yield(self) -> Decimal | None:
-        """
-        Calculates the Free Cash Flow Yield as a percentage.
-        
-        Returns:
-            Decimal | None: The FCF yield percentage rounded to two decimal places, or None if market cap is zero.
-        """
         if self.market_cap == Decimal("0"):
             return None
         fcf = self.operating_cash_flow - abs(self.capital_expenditures)
@@ -597,15 +212,36 @@ class FinancialQuarter:
 
     @property
     def eps(self) -> Decimal | None:
-        """
-        Calculates the Earnings Per Share (EPS).
-        
-        Returns:
-            Decimal | None: EPS rounded to two decimal places, or None if shares outstanding is zero.
-        """
         if self.shares_outstanding == Decimal("0"):
             return None
         return round(self.net_income / self.shares_outstanding, 2)
+
+@dataclass(frozen=True)
+class FinancialYear(BaseFinancialPeriod):
+    """Represents the financial data for a specific fiscal year."""
+    year_end_price: Decimal = Decimal("0")
+
+    @property
+    def period_end_price(self) -> Decimal:
+        return self.year_end_price
+
+@dataclass(frozen=True)
+class FinancialQuarter(BaseFinancialPeriod):
+    """Represents the financial data for a specific fiscal quarter."""
+    quarter_end_price: Decimal = Decimal("0")
+
+    @property
+    def period_end_price(self) -> Decimal:
+        return self.quarter_end_price
+
+    @property
+    def roic(self) -> Decimal | None:
+        """Override ROIC to use NOPAT for quarters."""
+        invested_capital = self.total_assets - self.total_liabilities + self.short_term_debt + self.long_term_debt - self.cash_and_equivalents
+        if invested_capital == Decimal("0"):
+            return None
+        nopat = self.operating_income * Decimal("0.8") # Assumes 20% tax rate
+        return round((nopat / invested_capital) * 100, 2)
 
 @dataclass(frozen=True)
 class MetricWithGrowth:
