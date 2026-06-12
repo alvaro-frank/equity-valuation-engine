@@ -1,5 +1,4 @@
 import json
-import asyncio
 from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
 import os

@@ -10,12 +10,12 @@ from dotenv import load_dotenv
 
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from domain.exceptions import TickerNotFoundError, RateLimitExceededError
-from application.ports.ports import QuantitativeDataPort, QuarterlyDataPort
+from application.ports.ports import QuantitativeDataPort, OwnershipDataPort
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years, map_to_financial_quarters
 
 load_dotenv()
 
-class AlphaVantageAdapter(QuantitativeDataPort, QuarterlyDataPort):
+class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
     """
     Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataPort interface.
     This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
@@ -265,13 +265,7 @@ class AlphaVantageAdapter(QuantitativeDataPort, QuarterlyDataPort):
             print(f"Failed to fetch major shareholders for {symbol}: {e}")
             return {}
 
-    async def get_historical_performance_chart(self, symbols: List[str], period: str = "5y") -> List[Dict]:
-        """
-        Fetches historical performance data for multiple symbols to compare them.
-        AlphaVantage doesn't natively support downloading multiple tickers at once for comparison easily in the free tier.
-        Returning empty list.
-        """
-        return []
+
 
     async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
         """

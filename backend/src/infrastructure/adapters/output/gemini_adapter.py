@@ -1,12 +1,10 @@
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-import fitz
 import os
 import time
 import json
 import re
-import asyncio
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
