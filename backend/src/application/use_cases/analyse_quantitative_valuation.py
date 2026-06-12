@@ -57,6 +57,9 @@ class QuantitativeValuationUseCase:
             if ttm_idx is not None:
                 financial_years[ttm_idx] = dataclasses.replace(financial_years[ttm_idx], year_end_price=current_price_obj.amount)
             
+            # Enforce sorting: Newest first (Descending). TTM is treated as the most recent date possible.
+            financial_years.sort(key=lambda x: "9999-12-31" if x.fiscal_date_ending == "TTM" else x.fiscal_date_ending, reverse=True)
+            
         all_fields = [f.name for f in fields(FinancialYear)]
         excluded_fields = ["fiscal_date_ending", "year_end_price", "quarter_end_price"]
         
