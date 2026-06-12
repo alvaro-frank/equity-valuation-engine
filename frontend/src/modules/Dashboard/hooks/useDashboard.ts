@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useQuantitativeData, useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
+import { useQuantitativeData } from '@/common/hooks/useQuantitativeData';
+import { useQualitativeData } from '@/common/hooks/useQualitativeData';
 import { useSearchHistory } from '@/common/hooks/useSearchHistory';
 
 export function useDashboard(ticker: string, isParentError?: boolean, onErrorChange?: (hasError: boolean) => void) {

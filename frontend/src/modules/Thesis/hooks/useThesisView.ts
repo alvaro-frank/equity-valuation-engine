@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQualitativeData } from '@/modules/Valuation/hooks/useValuationData';
+import { useQualitativeData } from '@/common/hooks/useQualitativeData';
 
 export type ThesisTab = 'overview' | 'moat' | 'leadership' | 'history' | 'risks';
 
