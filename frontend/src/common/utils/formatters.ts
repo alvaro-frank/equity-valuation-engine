@@ -56,6 +56,12 @@ export const formatCurrency = (rawVal?: number | string | null): string => {
   return `${sign}$${absVal.toFixed(2)}`;
 };
 
+export const formatStockPrice = (rawVal?: number | string | null): string => {
+  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  return `$${Number(rawVal).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
+};
+
+
 export const formatPercentage = (rawVal?: number | string | null): string => {
   if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
   return `${Number(rawVal).toFixed(1)}%`;

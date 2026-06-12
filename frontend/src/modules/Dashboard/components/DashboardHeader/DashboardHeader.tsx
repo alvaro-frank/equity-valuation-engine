@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { TrendingBadge } from '../TrendingBadge';
 import { translateSector, translateIndustry } from '@/common/utils/translations';
-import { formatLargeCurrency } from '@/common/utils/formatters';
+import { formatStockPrice } from '@/common/utils/formatters';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
 interface DashboardHeaderProps {
@@ -43,7 +43,7 @@ export function DashboardHeader({ ticker, quantData, qualData, onSearch }: Dashb
       </div>
       <div className="text-right flex flex-col items-end justify-center">
         <span className="font-display-lg text-3xl font-bold text-primary leading-none">
-          {formatLargeCurrency(quantData?.ticker?.current_price)}
+          {formatStockPrice(quantData?.ticker?.current_price)}
         </span>
         {quantData?.ticker?.regular_market_change != null ? (
           <span className={`text-[12px] font-bold mt-1.5 flex items-center gap-0.5 ${quantData.ticker.regular_market_change >= 0 ? 'text-green-500' : 'text-error'}`}>
