@@ -1,19 +1,23 @@
 from domain.entities.entities import CompanyProfile
-from application.ports.ports import QualitativeDataPort, QuantitativeDataPort
+from application.ports.ports import QualitativeDataPort, QuantitativeDataPort, OwnershipDataPort
 from application.dtos.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
+import dataclasses
+import datetime
+import logging
 
 class QualitativeValuationUseCase:
     """
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
     This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
-    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort, translator=None):
+    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort, ownership_adapter: OwnershipDataPort, translator=None):
         """
         Initializes the QualitativeValuationUseCase with the GeminiAdapter for AI-driven analysis.
         """
         self.adapter = adapter
         self.quant_adapter = quant_adapter
+        self.ownership_adapter = ownership_adapter
         self.translator = translator
         
     async def analyse_ticker(self, ticker_symbol: str, language: str = "en") -> QualitativeValuationResult:
@@ -30,7 +34,6 @@ class QualitativeValuationUseCase:
         
         context_parts = []
         
-        import datetime
         context_parts.append(f"Current Date: {datetime.date.today()}")
         
         if getattr(ticker_info, 'business_description', None):
@@ -76,8 +79,6 @@ class QualitativeValuationUseCase:
             industry_key=ticker_info.industry_key
         )
 
-        import dataclasses
-        
         # Inject the business description directly from yfinance
         if getattr(ticker_info, 'business_description', None):
             desc = ticker_info.business_description
@@ -85,14 +86,14 @@ class QualitativeValuationUseCase:
                 try:
                     desc = await self.translator.translate_text(desc, language)
                 except Exception as e:
-                    print(f"Failed to translate business description: {e}")
+                    logging.warning(f"Failed to translate business description: {e}")
             qual_data = dataclasses.replace(qual_data, business_description=desc)
             
         qual_data_dict = asdict(qual_data)
         if "major_shareholders" in qual_data_dict:
             del qual_data_dict["major_shareholders"]
             
-        major_shareholders = await self.quant_adapter.get_major_shareholders(ticker_info.symbol)
+        major_shareholders = await self.ownership_adapter.get_major_shareholders(ticker_info.symbol)
 
         return QualitativeValuationResult(
             ticker=ticker_dto,

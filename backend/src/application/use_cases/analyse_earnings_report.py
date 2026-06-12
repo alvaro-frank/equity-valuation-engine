@@ -4,8 +4,8 @@ from dataclasses import asdict
 
 class EarningsReportUseCase:
     """
-    Service responsible for performing stock earnings report analysis based on the provided stock data.
-    This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
+    Service responsible for performing stock earnings report analysis based on the provided PDF file.
+    This service takes in a PDF file and a Ticker, extracts the financial performance data using AI, and returns a DTO containing the structured earnings report data.
     """
     def __init__(self, adapter: EarningsReportPort, quant_adapter: QuantitativeDataPort):
         """

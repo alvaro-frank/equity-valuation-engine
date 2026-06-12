@@ -13,8 +13,8 @@ class SectorIndustrialValuationUseCase:
         Initializes the service with qualitative (AI) and quantitative (Financial Data) ports.
         
         Args:
-            qual_port (QualitativeDataPort): Port for AI industry analysis.
             quant_port (QuantitativeDataPort): Port for ticker and sector metadata.
+            sector_industrial_port (SectorIndustrialDataPort): Port for AI industry analysis.
         """
         self.quant_port = quant_port
         self.sector_industrial_port = sector_industrial_port

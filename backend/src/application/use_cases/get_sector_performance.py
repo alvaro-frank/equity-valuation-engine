@@ -1,6 +1,6 @@
-from typing import Dict, Any
-import asyncio
-from application.ports.ports import QuantitativeDataPort
+import logging
+from application.ports.ports import QuantitativeDataPort, PerformanceDataPort
+from application.dtos.dtos import SectorPerformanceResult
 
 SECTOR_ETF_MAP = {
     "technology": "XLK",
@@ -24,10 +24,11 @@ class GetSectorPerformanceUseCase:
     Use case for fetching the relative performance of a company's sector 
     compared to the S&P 500 (SPY).
     """
-    def __init__(self, quant_port: QuantitativeDataPort):
+    def __init__(self, quant_port: QuantitativeDataPort, performance_port: PerformanceDataPort):
         self.quant_port = quant_port
+        self.performance_port = performance_port
 
-    async def execute(self, ticker: str) -> Dict[str, Any]:
+    async def execute(self, ticker: str) -> SectorPerformanceResult:
         # 1. Fetch basic info to determine sector/industry
         try:
             ticker_info = await self.quant_port.get_ticker_info(ticker)
@@ -37,7 +38,7 @@ class GetSectorPerformanceUseCase:
             sector = sector.lower().replace(" ", "-")
             industry = industry.lower().replace(" ", "-")
         except Exception as e:
-            print(f"Failed to get sector info for {ticker}: {e}")
+            logging.warning(f"Failed to get sector info for {ticker}: {e}")
             sector = ""
             industry = ""
 
@@ -53,12 +54,12 @@ class GetSectorPerformanceUseCase:
         tickers_to_fetch = [etf_ticker, benchmark_ticker]
 
         # 3. Fetch historical performance data (last 5 years)
-        chart_data = await self.quant_port.get_historical_performance_chart(tickers_to_fetch, period="5y")
+        chart_data = await self.performance_port.get_historical_performance_chart(tickers_to_fetch, period="5y")
 
-        return {
-            "sector": sector,
-            "industry": industry,
-            "etf_ticker": etf_ticker,
-            "benchmark_ticker": benchmark_ticker,
-            "chart_data": chart_data
-        }
+        return SectorPerformanceResult(
+            sector=sector,
+            industry=industry,
+            benchmark_ticker="SPY",
+            etf_ticker=etf_ticker,
+            chart_data=chart_data
+        )
