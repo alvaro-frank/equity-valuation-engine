@@ -1,22 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../utils/api';
 
-export interface TickerSearchResult {
+export interface TickerSearchDTO {
   symbol: string;
   name: string;
   exchange: string;
 }
 
-export interface TickerSearchResponse {
-  results: TickerSearchResult[];
+export interface TickerSearchResult {
+  results: TickerSearchDTO[];
 }
 
 export function useSearchTickers(query: string) {
   return useQuery({
     queryKey: ['search', query],
-    queryFn: async (): Promise<TickerSearchResult[]> => {
+    queryFn: async (): Promise<TickerSearchDTO[]> => {
       if (!query) return [];
-      const response = await api.get<TickerSearchResponse>(`/valuation/search?q=${encodeURIComponent(query)}`);
+      const response = await api.get<TickerSearchResult>(`/valuation/search?q=${encodeURIComponent(query)}`);
       return response.data.results;
     },
     enabled: query.length > 0,
