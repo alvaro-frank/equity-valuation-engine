@@ -23,7 +23,7 @@ from application.dtos.dtos import (
     QuantitativeValuationResult,
     QualitativeValuationResult,
     SectorIndustrialValuationResult,
-    TickerSearchResponse
+    TickerSearchResult
 )
 
 def handle_router_error(e: Exception):
@@ -37,7 +37,7 @@ router = APIRouter(
     tags=["Valuation"]
 )
 
-@router.get("/search", response_model=TickerSearchResponse)
+@router.get("/search", response_model=TickerSearchResult)
 async def search_ticker(
     q: str = Query(..., description="Search query for ticker or company name"),
     use_case: SearchTickersUseCase = Depends(get_search_tickers_use_case)
@@ -46,13 +46,13 @@ async def search_ticker(
     Searches for a ticker or company name.
     """
     if not q or len(q) < 1:
-        return TickerSearchResponse(results=[])
+        return TickerSearchResult(results=[])
         
     try:
         return await use_case.execute(q)
     except Exception:
         # Silently fail for autocomplete
-        return TickerSearchResponse(results=[])
+        return TickerSearchResult(results=[])
 
 @router.post("/earnings/{ticker}", response_model=EarningsReportResult)
 async def analyse_earnings_report(

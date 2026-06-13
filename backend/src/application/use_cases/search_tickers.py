@@ -1,5 +1,5 @@
 from application.ports.ports import SearchDataPort
-from application.dtos.dtos import TickerSearchResponse, TickerSearchResult
+from application.dtos.dtos import TickerSearchResult, TickerSearchDTO
 
 class SearchTickersUseCase:
     """
@@ -8,7 +8,7 @@ class SearchTickersUseCase:
     def __init__(self, search_port: SearchDataPort):
         self.search_port = search_port
 
-    async def execute(self, query: str) -> TickerSearchResponse:
+    async def execute(self, query: str) -> TickerSearchResult:
         """
         Searches for tickers matching the query.
         
@@ -16,12 +16,12 @@ class SearchTickersUseCase:
             query (str): The search term.
             
         Returns:
-            TickerSearchResponse: DTO containing the search results.
+            TickerSearchResult: DTO containing the search results.
         """
         results = await self.search_port.search_tickers(query)
         
         dto_results = [
-            TickerSearchResult(
+            TickerSearchDTO(
                 symbol=r["symbol"],
                 name=r["name"],
                 exchange=r.get("exchange", "")
@@ -29,4 +29,4 @@ class SearchTickersUseCase:
             for r in results
         ]
         
-        return TickerSearchResponse(results=dto_results)
+        return TickerSearchResult(results=dto_results)

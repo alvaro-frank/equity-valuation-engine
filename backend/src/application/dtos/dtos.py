@@ -2,13 +2,13 @@ from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Optional, Dict, List, Any
 
-class TickerSearchResult(BaseModel):
+class TickerSearchDTO(BaseModel):
     symbol: str = Field(..., description="Ticker symbol")
     name: str = Field(..., description="Company name")
     exchange: str = Field(..., description="Exchange name")
 
-class TickerSearchResponse(BaseModel):
-    results: List[TickerSearchResult] = Field(..., description="List of search results")
+class TickerSearchResult(BaseModel):
+    results: List[TickerSearchDTO] = Field(..., description="List of search results")
 
 class TrendingTickerDTO(BaseModel):
     symbol: str = Field(..., description="Ticker symbol")
@@ -16,7 +16,7 @@ class TrendingTickerDTO(BaseModel):
     rating: Optional[str] = Field(None, description="Analyst rating")
     weight: Optional[float] = Field(None, description="Market weight in sector/industry")
 
-class TrendingTickersResponse(BaseModel):
+class TrendingTickerResult(BaseModel):
     results: List[TrendingTickerDTO] = Field(..., description="List of trending tickers")
 
 class SectorPerformanceResult(BaseModel):
