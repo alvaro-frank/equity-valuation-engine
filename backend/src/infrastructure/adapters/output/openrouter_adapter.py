@@ -9,6 +9,7 @@ from decimal import Decimal
 from typing import Optional
 
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
+from domain.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
@@ -28,7 +29,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             if not api_key:
                 api_key = os.getenv("OPENROUTER_API_KEY")
                 if not api_key:
-                    raise ValueError("OPENROUTER_API_KEY is required")
+                    raise ConfigurationError("OPENROUTER_API_KEY is required")
             
             self.client = AsyncOpenAI(
                 base_url="https://openrouter.ai/api/v1",
@@ -51,12 +52,12 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         if start_idx != -1 and end_idx != -1 and end_idx >= start_idx:
             text = text[start_idx:end_idx+1]
         else:
-            raise ValueError("No JSON object found in response.")
+            raise LLMParsingError("No JSON object found in response.")
         
         try:
             return json.loads(text)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse JSON: {e}. Raw text: {text}")
+            raise LLMParsingError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
     async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         lang_instruction = language
@@ -170,7 +171,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
-                    raise ConnectionError(f"Connection Error: {e}")
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                        raise RateLimitExceededError(f"OpenRouter Rate Limit: {e}")
+                    raise ExternalServiceError(f"OpenRouter API Error: {e}")
             
             if language != "en" and self.translator:
                 try:
@@ -293,7 +297,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
-                    raise ConnectionError(f"Connection Error: {e}")
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                        raise RateLimitExceededError(f"OpenRouter Rate Limit: {e}")
+                    raise ExternalServiceError(f"OpenRouter API Error: {e}")
             
             if language != "en" and self.translator:
                 data = await self.translator.translate_json(data_en, language)
@@ -453,12 +460,12 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     max_tokens=4000,
                 )
                 
-                if not getattr(response, 'choices', None) or len(response.choices) == 0:
-                    raise ValueError(f"OpenRouter API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
+                if not response.choices:
+                    raise ExternalServiceError(f"OpenRouter API returned no choices. Response: {getattr(response, 'model_dump_json', lambda: str(response))()}")
                 
                 content = response.choices[0].message.content
-                if content is None:
-                    raise ValueError("OpenRouter API returned None for message content.")
+                if not content:
+                    raise LLMParsingError("OpenRouter API returned None for message content.")
                 
                 data = self._get_json_from_response(content)
             
@@ -468,7 +475,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 schema_instance = EarningsReportSchema(**data)
 
             except Exception as e: 
-                raise ConnectionError(f"OpenRouter Fallback Error: {e}")
+                error_str = str(e).lower()
+                if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                    raise RateLimitExceededError(f"OpenRouter Fallback Rate Limit: {e}")
+                raise ExternalServiceError(f"OpenRouter Fallback Error: {e}")
 
         # Ensure schema instance exists
         if 'schema_instance' not in locals():

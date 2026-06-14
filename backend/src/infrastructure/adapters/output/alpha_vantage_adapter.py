@@ -9,8 +9,8 @@ from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
-from domain.exceptions import TickerNotFoundError, RateLimitExceededError
 from application.ports.ports import QuantitativeDataPort, OwnershipDataPort
+from domain.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years, map_to_financial_quarters
 
 load_dotenv()
@@ -27,7 +27,7 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
         Initializes the adapter, setting up the API key and cache directory.
         """
         if not api_key:
-            raise ValueError("Alpha Vantage API Key is required")
+            raise ConfigurationError("Alpha Vantage API Key is required")
         
         self.api_key = api_key.strip()
         self.client = client
@@ -79,7 +79,7 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
                     response = await client.get(self.BASE_URL, params=params, timeout=15)
             response.raise_for_status()
         except httpx.HTTPError as e: 
-            raise ConnectionError(f"Connection Error: {e}")
+            raise ExternalServiceError(f"Connection Error: {e}")
         else:
             data = response.json()
             

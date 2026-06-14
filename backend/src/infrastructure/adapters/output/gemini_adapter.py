@@ -5,6 +5,7 @@ import os
 import time
 import json
 import re
+from domain.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
@@ -28,7 +29,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             self.client = client
         else:
             if not api_key:
-                raise ValueError("Gemini API Key is required")
+                raise ConfigurationError("Gemini API Key is required")
             self.client = genai.Client(api_key=api_key)
             
         self.model_id = 'gemini-2.5-flash'
@@ -163,7 +164,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
-                    raise ConnectionError(f"Connection Error: {e}")
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                        raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+                    raise ExternalServiceError(f"Gemini API Error: {e}")
             
             if language != "en" and self.translator:
                 data = await self.translator.translate_json(data_en, language)
@@ -293,7 +297,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
-                    raise ConnectionError(f"Connection Error: {e}")
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                        raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+                    raise ExternalServiceError(f"Gemini API Error: {e}")
             
             if language != "en" and self.translator:
                 data = await self.translator.translate_json(data_en, language)
@@ -388,7 +395,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     file_info = await self.client.aio.files.get(name=uploaded_file.name)
                     
                 if file_info.state.name == "FAILED":
-                    raise ValueError("Gemini failed to process the uploaded PDF document.")
+                    raise InvalidDocumentFormatError("Gemini failed to process the uploaded PDF document.")
 
                 prompt_en = prompt.replace(lang_instruction, "English")
                 try:
@@ -405,7 +412,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
-                    raise ConnectionError(f"Connection Error: {e}")
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                        raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+                    raise ExternalServiceError(f"Gemini API Error: {e}")
 
             if language != "en" and self.translator:
                 data = await self.translator.translate_json(data_en, language)

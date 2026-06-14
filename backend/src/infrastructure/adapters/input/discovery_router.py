@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from application.dtos.dtos import TrendingTickerResult
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.input.dependencies import get_trending_tickers_use_case
+from infrastructure.adapters.input.valuation_router import handle_domain_error
 
 router = APIRouter(
     prefix="/api/v1/discovery",
@@ -20,7 +21,7 @@ async def get_trending_sector(
     try:
         return await use_case.execute(sector_key=sector_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        handle_domain_error(e)
 
 @router.get("/industry/{industry_key}/trending", response_model=TrendingTickerResult)
 async def get_trending_industry(
@@ -33,4 +34,4 @@ async def get_trending_industry(
     try:
         return await use_case.execute(industry_key=industry_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        handle_domain_error(e)

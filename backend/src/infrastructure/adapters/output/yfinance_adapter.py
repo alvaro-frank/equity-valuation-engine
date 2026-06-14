@@ -6,7 +6,7 @@ import pandas as pd
 import httpx
 
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
-from domain.exceptions import TickerNotFoundError
+from domain.exceptions import TickerNotFoundError, DataFetchError
 from application.ports.ports import QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort
 
 class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort):
@@ -30,6 +30,7 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             Price: An object containing the current price and currency.
         """
         try:
+                
             # Run yfinance blocking calls in a threadpool
             ticker = await asyncio.to_thread(yf.Ticker, symbol)
             fast_info = await asyncio.to_thread(lambda: ticker.fast_info)
@@ -42,7 +43,14 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
         except TickerNotFoundError:
             raise
         except Exception as e:
-            raise TickerNotFoundError(f"Error fetching current price for {symbol}: {str(e)}")
+            # yfinance's fast_info evaluates properties lazily and throws
+            # bizarre internal exceptions (e.g., AttributeError on '_dividends') instead of a clean 404
+            # when a ticker doesn't exist or is delisted. We parse the string to catch these 
+            # specific cases quickly without making slower history() requests.
+            error_msg = str(e).lower()
+            if "no attribute" in error_msg or "delisted" in error_msg or "no data found" in error_msg:
+                raise TickerNotFoundError(f"Price data not found or delisted for {symbol}")
+            raise DataFetchError(f"Error fetching current price for {symbol}: {str(e)}")
 
     async def get_historical_prices(self, symbol: str) -> Dict[str, Price]:
         """
@@ -135,7 +143,7 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                 company_officers=company_officers
             )
         except Exception as e:
-            raise TickerNotFoundError(f"Error fetching info for {symbol}: {str(e)}")
+            raise DataFetchError(f"Error fetching info for {symbol}: {str(e)}")
 
     async def get_major_shareholders(self, symbol: str) -> Dict[str, float]:
         """
@@ -515,7 +523,7 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                 
             return sorted_years
         except Exception as e:
-            raise Exception(f"Failed to fetch fundamental data from yfinance: {str(e)}")
+            raise DataFetchError(f"Failed to fetch fundamental data from yfinance: {str(e)}")
 
     async def get_stock_quarterly_data(self, symbol: str) -> List[FinancialQuarter]:
         """
@@ -558,7 +566,7 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             
             return sorted(quarters_data, key=lambda x: x.fiscal_date_ending)
         except Exception as e:
-            raise Exception(f"Failed to fetch quarterly data from yfinance: {str(e)}")
+            raise DataFetchError(f"Failed to fetch quarterly data from yfinance: {str(e)}")
 
     async def get_trending_by_sector(self, sector_key: str) -> List[Dict]:
         """

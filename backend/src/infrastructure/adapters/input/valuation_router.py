@@ -7,7 +7,16 @@ from application.use_cases.analyse_qualitative_valuation import QualitativeValua
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
-from domain.exceptions import TickerNotFoundError
+from domain.exceptions import (
+    TickerNotFoundError,
+    RateLimitExceededError,
+    ConfigurationError,
+    ExternalServiceError,
+    LLMParsingError,
+    InvalidDocumentFormatError,
+    DataFetchError,
+    DomainValidationError
+)
 
 from infrastructure.adapters.input.dependencies import (
     get_earnings_report_use_case,
@@ -15,8 +24,10 @@ from infrastructure.adapters.input.dependencies import (
     get_qualitative_use_case,
     get_sector_use_case,
     get_sector_performance_use_case,
-    get_search_tickers_use_case
+    get_search_tickers_use_case,
+    get_quantitative_adapter
 )
+from application.ports.ports import QuantitativeDataPort
 
 from application.dtos.dtos import (
     EarningsReportResult,
@@ -26,16 +37,39 @@ from application.dtos.dtos import (
     TickerSearchResult
 )
 
-def handle_router_error(e: Exception):
-    error_str = str(e).lower()
-    if "429" in error_str or "rate limit" in error_str or "quota" in error_str:
+def handle_domain_error(e: Exception):
+    if isinstance(e, TickerNotFoundError):
+        raise HTTPException(status_code=404, detail=str(e))
+    elif isinstance(e, RateLimitExceededError):
         raise HTTPException(status_code=429, detail="rate_limit_exceeded")
-    raise HTTPException(status_code=500, detail=str(e))
+    elif isinstance(e, (InvalidDocumentFormatError, DomainValidationError)):
+        raise HTTPException(status_code=400, detail=str(e))
+    elif isinstance(e, (ExternalServiceError, DataFetchError, LLMParsingError)):
+        raise HTTPException(status_code=502, detail=str(e))
+    elif isinstance(e, ConfigurationError):
+        raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 router = APIRouter(
     prefix="/api/v1/valuation",
     tags=["Valuation"]
 )
+
+@router.get("/validate/{ticker}")
+async def validate_ticker(
+    ticker: str,
+    adapter: QuantitativeDataPort = Depends(get_quantitative_adapter)
+):
+    """
+    Validates if a ticker exists by quickly fetching its current price.
+    Returns 200 OK with {"valid": true} if it exists, otherwise 404.
+    """
+    try:
+        await adapter.get_stock_current_price(ticker.upper())
+        return {"valid": True}
+    except Exception as e:
+        handle_domain_error(e)
 
 @router.get("/search", response_model=TickerSearchResult)
 async def search_ticker(
@@ -66,7 +100,7 @@ async def analyse_earnings_report(
     Returns a structured DTO with Core Performance, Capital Allocation, and Risk Deconstruction.
     """
     if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+        raise InvalidDocumentFormatError("Only PDF files are supported.")
         
     import tempfile
     import shutil
@@ -80,7 +114,7 @@ async def analyse_earnings_report(
         result = await use_case.analyse_earnings_report(ticker.upper(), temp_path, language=lang)
         return result
     except Exception as e:
-        handle_router_error(e)
+        handle_domain_error(e)
     finally:
         # Clean up the temporary file
         if 'temp_path' in locals() and os.path.exists(temp_path):
@@ -102,10 +136,8 @@ async def analyse_quantitative(
     try:
         result = await use_case.evaluate_ticker(ticker.upper(), years)
         return result
-    except TickerNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        handle_router_error(e)
+        handle_domain_error(e)
 
 @router.get("/qualitative/{ticker}", response_model=QualitativeValuationResult)
 async def analyse_qualitative(
@@ -120,10 +152,8 @@ async def analyse_qualitative(
     try:
         result = await use_case.analyse_ticker(ticker.upper(), language=lang)
         return result
-    except TickerNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        handle_router_error(e)
+        handle_domain_error(e)
 
 @router.get("/sector/{ticker}", response_model=SectorIndustrialValuationResult)
 async def analyse_sector(
@@ -135,13 +165,11 @@ async def analyse_sector(
     Analyses the sector and industry dynamics (Porter's Five Forces, etc.) for a given ticker.
     Returns a structured DTO with the industry structural analysis.
     """
-    try:
+    try:    
         result = await use_case.evaluate_industry_by_ticker(ticker.upper(), language=lang)
         return result
-    except TickerNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        handle_router_error(e)
+        handle_domain_error(e)
 
 @router.get("/sector-performance/{ticker}")
 async def get_sector_performance(
@@ -155,7 +183,5 @@ async def get_sector_performance(
     try:
         result = await use_case.execute(ticker.upper())
         return result
-    except TickerNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        handle_router_error(e)
+        handle_domain_error(e)

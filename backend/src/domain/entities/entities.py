@@ -1,6 +1,7 @@
 from decimal import Decimal
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
+from domain.exceptions import DomainValidationError
 
 @dataclass(frozen=True)
 class Price:
@@ -16,7 +17,7 @@ class Price:
     
     def __post_init__(self):
         if self.amount < 0:
-            raise ValueError(f"Domain Error: Price amount cannot be negative. Got {self.amount}")
+            raise DomainValidationError(f"Price amount cannot be negative. Got {self.amount}")
         
     def __str__(self):
         return f"{self.amount:.2f} {self.currency}"
@@ -30,7 +31,9 @@ class Ticker:
         symbol (str): The stock ticker symbol (e.g., AAPL).
         name (str): The company name associated with the ticker.
         sector (str): The sector in which the company operates.
+        sector_key (str | None): A normalized key for the sector, used for mapping to ETFs.
         industry (str): The industry classification of the company.
+        industry_key (str | None): A normalized key for the industry, used for mapping to ETFs.
         market_cap (Decimal | None): The current, live market capitalization of the company.
         pe_ratio (Decimal | None): The current, live Price-to-Earnings ratio.
         forward_pe (Decimal | None): The forecasted Forward Price-to-Earnings ratio.
@@ -65,6 +68,29 @@ class BaseFinancialPeriod:
     """
     Base class representing the financial data for a specific fiscal period.
     Contains all shared metrics and properties between Years and Quarters.
+    
+    Attributes:
+        fiscal_date_ending (str): The end date of the fiscal period.
+        revenue (Decimal): Total revenue for the period.
+        ebitda (Decimal): Earnings Before Interest, Taxes, Depreciation, and Amortization.
+        gross_profit (Decimal): Gross profit for the period.
+        operating_income (Decimal): Operating income for the period.
+        net_income (Decimal): Net income for the period.
+        operating_cash_flow (Decimal): Cash flow from operations.
+        capital_expenditures (Decimal): Capital expenditures for the period.
+        shares_outstanding (Decimal): Total shares outstanding during the period.
+        short_term_debt (Decimal): Short-term debt at the end of the period.
+        long_term_debt (Decimal): Long-term debt at the end of the period.
+        total_debt (Decimal): Total debt at the end of the period.
+        accounts_payable (Decimal): Accounts payable at the end of the period.
+        current_liabilities (Decimal): Current liabilities at the end of the period.
+        total_liabilities (Decimal): Total liabilities at the end of the period.
+        cash_and_equivalents (Decimal): Cash and cash equivalents at the end of the period.
+        accounts_receivable (Decimal): Accounts receivable at the end of the period.
+        inventory (Decimal): Inventory value at the end of the period.
+        current_assets (Decimal): Current assets at the end of the period.
+        net_ppe (Decimal): Net property, plant, and equipment at the end of the period.
+        intangible_assets (Decimal): Intangible assets at the end of the period.
     """
     fiscal_date_ending: str
     
@@ -106,11 +132,11 @@ class BaseFinancialPeriod:
     
     def __post_init__(self):
         if self.shares_outstanding < 0:
-            raise ValueError(f"Domain Error: Shares outstanding cannot be negative. Got {self.shares_outstanding}")
+            raise DomainValidationError(f"Shares outstanding cannot be negative. Got {self.shares_outstanding}")
         if self.total_assets < 0:
-            raise ValueError(f"Domain Error: Total assets cannot be negative. Got {self.total_assets}")
+            raise DomainValidationError(f"Total assets cannot be negative. Got {self.total_assets}")
         if self.total_debt < 0:
-            raise ValueError(f"Domain Error: Total debt cannot be negative. Got {self.total_debt}")
+            raise DomainValidationError(f"Total debt cannot be negative. Got {self.total_debt}")
 
     @property
     def period_end_price(self) -> Decimal:
@@ -119,28 +145,33 @@ class BaseFinancialPeriod:
 
     @property
     def total_equity(self) -> Decimal:
+        """Calculates total equity as total assets minus total liabilities."""
         return self.total_assets - self.total_liabilities
 
     @property
     def gross_margin(self) -> Decimal | None:
+        """Calculates gross margin as (gross profit / revenue) * 100."""
         if self.revenue == Decimal("0"):
             return None
         return round((self.gross_profit / self.revenue) * 100, 2)
 
     @property
     def operating_margin(self) -> Decimal | None:
+        """Calculates operating margin as (operating income / revenue) * 100."""
         if self.revenue == Decimal("0"):
             return None
         return round((self.operating_income / self.revenue) * 100, 2)
 
     @property
     def net_margin(self) -> Decimal | None:
+        """Calculates net margin as (net income / revenue) * 100."""
         if self.revenue == Decimal("0"):
             return None
         return round((self.net_income / self.revenue) * 100, 2)
 
     @property
     def roe(self) -> Decimal | None:
+        """Calculates Return on Equity (ROE) as (net income / total equity) * 100."""
         equity = self.total_equity
         if equity <= Decimal("0"):
             return None
@@ -148,6 +179,7 @@ class BaseFinancialPeriod:
 
     @property
     def roic(self) -> Decimal | None:
+        """Calculates Return on Invested Capital (ROIC) as (net income / invested capital) * 100."""
         invested_capital = self.total_debt + self.total_equity
         if invested_capital <= Decimal("0"):
             return None
@@ -155,6 +187,7 @@ class BaseFinancialPeriod:
 
     @property
     def debt_to_equity(self) -> Decimal | None:
+        """Calculates Debt-to-Equity ratio as total debt divided by total equity."""
         equity = self.total_equity
         if equity <= Decimal("0"):
             return None
@@ -162,32 +195,38 @@ class BaseFinancialPeriod:
 
     @property
     def market_cap(self) -> Decimal:
+        """Calculates market capitalization as shares outstanding multiplied by the period end price."""
         return self.shares_outstanding * self.period_end_price
 
     @property
     def pe_ratio(self) -> Decimal | None:
+        """Calculates Price-to-Earnings (P/E) ratio as market capitalization divided by net income."""
         if self.net_income <= Decimal("0"):
             return None
         return round(self.market_cap / self.net_income, 2)
 
     @property
     def current_ratio(self) -> Decimal | None:
+        """Calculates current ratio as current assets divided by current liabilities."""
         if self.current_liabilities <= Decimal("0"):
             return None
         return round(self.current_assets / self.current_liabilities, 2)
 
     @property
     def enterprise_value(self) -> Decimal:
+        """Calculates enterprise value as market capitalization plus total debt minus cash and equivalents."""
         return self.market_cap + self.total_debt - self.cash_and_equivalents
 
     @property
     def ev_to_ebitda(self) -> Decimal | None:
+        """Calculates EV/EBITDA ratio as enterprise value divided by EBITDA."""
         if self.ebitda <= Decimal("0"):
             return None
         return round(self.enterprise_value / self.ebitda, 2)
 
     @property
     def pb_ratio(self) -> Decimal | None:
+        """Calculates Price-to-Book (P/B) ratio as market capitalization divided by total equity."""
         equity = self.total_equity
         if equity <= Decimal("0"):
             return None
@@ -195,16 +234,19 @@ class BaseFinancialPeriod:
 
     @property
     def ps_ratio(self) -> Decimal | None:
+        """Calculates Price-to-Sales (P/S) ratio as market capitalization divided by revenue."""
         if self.revenue <= Decimal("0"):
             return None
         return round(self.market_cap / self.revenue, 2)
 
     @property
     def free_cash_flow(self) -> Decimal:
+        """Calculates free cash flow as operating cash flow minus capital expenditures."""
         return self.operating_cash_flow - abs(self.capital_expenditures)
 
     @property
     def fcf_yield(self) -> Decimal | None:
+        """Calculates free cash flow yield as (free cash flow / market capitalization) * 100."""
         if self.market_cap == Decimal("0"):
             return None
         fcf = self.operating_cash_flow - abs(self.capital_expenditures)
@@ -212,13 +254,19 @@ class BaseFinancialPeriod:
 
     @property
     def eps(self) -> Decimal | None:
+        """Calculates earnings per share (EPS) as net income divided by shares outstanding."""
         if self.shares_outstanding == Decimal("0"):
             return None
         return round(self.net_income / self.shares_outstanding, 2)
 
 @dataclass(frozen=True)
 class FinancialYear(BaseFinancialPeriod):
-    """Represents the financial data for a specific fiscal year."""
+    """
+    Represents the financial data for a specific fiscal year.
+    
+    Attributes:
+        year_end_price (Decimal): The stock price at the end of the fiscal year.
+    """
     year_end_price: Decimal = Decimal("0")
 
     @property
@@ -227,16 +275,22 @@ class FinancialYear(BaseFinancialPeriod):
 
 @dataclass(frozen=True)
 class FinancialQuarter(BaseFinancialPeriod):
-    """Represents the financial data for a specific fiscal quarter."""
+    """
+    Represents the financial data for a specific fiscal quarter.
+    
+    Attributes:
+        quarter_end_price (Decimal): The stock price at the end of the fiscal quarter.
+    """
     quarter_end_price: Decimal = Decimal("0")
 
     @property
     def period_end_price(self) -> Decimal:
+        """Returns the stock price at the end of the fiscal quarter."""
         return self.quarter_end_price
 
     @property
     def roic(self) -> Decimal | None:
-        """Override ROIC to use NOPAT for quarters."""
+        """Calculates Return on Invested Capital (ROIC) as (NOPAT / invested capital) * 100."""
         invested_capital = self.total_assets - self.total_liabilities + self.short_term_debt + self.long_term_debt - self.cash_and_equivalents
         if invested_capital == Decimal("0"):
             return None
@@ -327,7 +381,16 @@ class EarningsReport:
     
 @dataclass(frozen=True)
 class MoatSources:
-    """Quantitative evaluation (1-5) of moat sources."""
+    """
+    Quantitative evaluation (1-5) of moat sources.
+    
+    Attributes:
+        intangible_assets (int): Evaluation of intangible assets as a moat source.
+        switching_costs (int): Evaluation of switching costs as a moat source.
+        network_effect (int): Evaluation of network effects as a moat source.
+        cost_advantage (int): Evaluation of cost advantage as a moat source.
+        efficient_scale (int): Evaluation of efficient scale as a moat source.
+    """
     intangible_assets: int
     switching_costs: int
     network_effect: int
@@ -336,7 +399,16 @@ class MoatSources:
 
 @dataclass(frozen=True)
 class QualityPillars:
-    """Quantitative evaluation (1-5) of business quality pillars."""
+    """
+    Quantitative evaluation (1-5) of business quality pillars.
+    
+    Attributes:
+        management_quality (int): Evaluation of management quality.
+        business_model_resilience (int): Evaluation of business model resilience.
+        pricing_power (int): Evaluation of pricing power.
+        innovation_and_growth (int): Evaluation of innovation and growth.
+        tam_expansion (int): Evaluation of total addressable market expansion.
+    """
     management_quality: int
     business_model_resilience: int
     pricing_power: int
@@ -383,7 +455,7 @@ class CompanyProfile:
         for exec in self.key_executives:
             ownership = exec.get('ownership')
             if ownership is not None and (ownership < 0 or ownership > 100):
-                raise ValueError(f"Domain Error: Executive ownership must be between 0 and 100%. Got {ownership}")
+                raise DomainValidationError(f"Executive ownership must be between 0 and 100%. Got {ownership}")
     
 @dataclass(frozen=True)
 class IndustrySectorDynamics:
