@@ -1,6 +1,6 @@
 from decimal import Decimal
 from dataclasses import dataclass, field
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 @dataclass(frozen=True)
 class Price:

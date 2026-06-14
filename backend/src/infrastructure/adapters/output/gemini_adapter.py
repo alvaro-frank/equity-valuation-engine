@@ -242,6 +242,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             "interest_rate_exposure": "Detailed narrative about rate impacts."
         }}
 
+        CRITICAL: YOU MUST INCLUDE ALL FIELDS IN THE OUTPUT. DO NOT OMIT 'interest_rate_exposure'. 
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
         """
         
@@ -285,6 +286,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                             response_mime_type="application/json",
                             response_schema=IndustrySectorDynamicsSchema,
                             temperature=0.0,
+                            max_output_tokens=8192
                         )
                     )
                     data_en = json.loads(response.text)

@@ -1,4 +1,5 @@
 import json
+import re
 from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
 import os
@@ -31,8 +32,11 @@ class GroqTranslatorAdapter(TranslationPort):
         2. DO NOT translate the main structural schema keys (e.g., sector, industry, rivalry_among_competitors, macro_risks, core_performance, etc).
         3. If a JSON key is inside an inner dictionary and acts as a dynamic title/factor (e.g. "Intensity of Competition", "Regulatory Hurdles"), YOU MUST TRANSLATE IT to the target language.
         4. DO NOT modify numbers, booleans, or null values.
-        5. Maintain the exact same JSON structure and arrays.
-        6. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
+        5. BE EXTREMELY CAREFUL with JSON syntax. Do not add stray brackets or commas.
+        6. Maintain the exact same JSON structure and arrays. Ensure every array and object is properly closed.
+        7. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
+        8. CAUTION: 'economic_sensitivity' and 'interest_rate_exposure' are STRING fields, not arrays! DO NOT add a closing bracket ']' or '],' after their values. 
+        9. DO NOT omit 'interest_rate_exposure' or any other field. YOU MUST RETURN THE EXACT SAME NUMBER OF KEYS.
         
         JSON to translate:
         {json_str}
@@ -45,7 +49,6 @@ class GroqTranslatorAdapter(TranslationPort):
                     {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                response_format={"type": "json_object"},
                 temperature=0.0,
                 max_tokens=8000
             )
@@ -58,7 +61,23 @@ class GroqTranslatorAdapter(TranslationPort):
             if start_idx != -1 and end_idx != -1:
                 result_text = result_text[start_idx:end_idx+1]
                 
-            return json.loads(result_text.strip())
+            # Auto-repair common hallucination: '],' after a string field
+            result_text = re.sub(r'\]\s*,\s*"interest_rate_exposure"', ',\n"interest_rate_exposure"', result_text)
+                
+            translated_dict = json.loads(result_text.strip())
+            
+            # Re-inject original structural keys to prevent frontend dictionary misses
+            if "sector" in data:
+                translated_dict["sector"] = data["sector"]
+            if "industry" in data:
+                translated_dict["industry"] = data["industry"]
+            if "ticker" in data and isinstance(data["ticker"], dict):
+                if "sector" in data["ticker"]:
+                    translated_dict["ticker"]["sector"] = data["ticker"]["sector"]
+                if "industry" in data["ticker"]:
+                    translated_dict["ticker"]["industry"] = data["ticker"]["industry"]
+                    
+            return translated_dict
         except Exception as e:
             print(f"Translation failed: {e}")
             return data # Fallback to original data if translation fails

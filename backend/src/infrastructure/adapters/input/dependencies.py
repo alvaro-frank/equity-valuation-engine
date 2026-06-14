@@ -29,7 +29,8 @@ _yfinance_adapter = YfinanceAdapter()
 _gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
 _openrouter_adapter = OpenRouterAdapter(translator=_translator)
 _groq_adapter = GroqAdapter(translator=_translator)
-_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_adapter)
+_groq_fallback_to_openrouter = FallbackQualitativeAdapter(primary_adapter=_groq_adapter, backup_adapter=_openrouter_adapter)
+_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_fallback_to_openrouter)
 
 def get_translator() -> GroqTranslatorAdapter:
     """Provides the translator adapter instance."""

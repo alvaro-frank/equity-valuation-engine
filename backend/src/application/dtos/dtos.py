@@ -23,9 +23,11 @@ class SectorPerformanceResult(BaseModel):
     """
     Data Transfer Object representing the sector performance relative to a benchmark.
     """
+    company_ticker: str = Field(..., description="The ticker of the company being analyzed")
     sector: str = Field(..., description="The sector name")
     industry: str = Field(..., description="The industry name")
-    etf_ticker: str = Field(..., description="The ETF ticker used for comparison")
+    sector_etf: str = Field(..., description="The Sector ETF ticker")
+    industry_etf: Optional[str] = Field(None, description="The Industry ETF ticker (if available)")
     benchmark_ticker: str = Field(..., description="The benchmark ticker (e.g., SPY)")
     chart_data: List[Dict[str, Any]] = Field(..., description="Historical chart data")
 

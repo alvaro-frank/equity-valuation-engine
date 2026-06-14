@@ -1,4 +1,5 @@
 import json
+import re
 from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
 import os
@@ -10,7 +11,7 @@ class OpenRouterTranslatorAdapter(TranslationPort):
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
         )
-        self.model_id = os.getenv('TRANSLATOR_MODEL', 'openrouter/free')
+        self.model_id = os.getenv('TRANSLATOR_MODEL', 'google/gemini-2.5-flash-api')
         
     async def translate_json(self, data: dict, target_language: str) -> dict:
         if not data:
@@ -29,8 +30,11 @@ class OpenRouterTranslatorAdapter(TranslationPort):
         CRITICAL RULES:
         1. DO NOT translate or modify ANY JSON keys.
         2. DO NOT modify numbers, booleans, or null values.
-        3. Maintain the exact same JSON structure and arrays.
-        4. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
+        3. BE EXTREMELY CAREFUL with JSON syntax. Do not add stray brackets or commas.
+        4. Maintain the exact same JSON structure and arrays. Ensure every array and object is properly closed.
+        5. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
+        6. CAUTION: 'economic_sensitivity' and 'interest_rate_exposure' are STRING fields, not arrays! DO NOT add a closing bracket ']' or '],' after their values. 
+        7. DO NOT omit 'interest_rate_exposure' or any other field. YOU MUST RETURN THE EXACT SAME NUMBER OF KEYS.
         
         JSON to translate:
         {json_str}
@@ -43,7 +47,6 @@ class OpenRouterTranslatorAdapter(TranslationPort):
                     {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                response_format={"type": "json_object"},
                 temperature=0.0,
                 max_tokens=8000
             )
@@ -56,7 +59,23 @@ class OpenRouterTranslatorAdapter(TranslationPort):
             if result_text.endswith("```"):
                 result_text = result_text[:-3]
                 
-            return json.loads(result_text.strip())
+            # Auto-repair common hallucination: '],' after a string field
+            result_text = re.sub(r'\]\s*,\s*"interest_rate_exposure"', ',\n"interest_rate_exposure"', result_text)
+            
+            translated_dict = json.loads(result_text.strip())
+            
+            # Re-inject original structural keys to prevent frontend dictionary misses
+            if "sector" in data:
+                translated_dict["sector"] = data["sector"]
+            if "industry" in data:
+                translated_dict["industry"] = data["industry"]
+            if "ticker" in data and isinstance(data["ticker"], dict):
+                if "sector" in data["ticker"]:
+                    translated_dict["ticker"]["sector"] = data["ticker"]["sector"]
+                if "industry" in data["ticker"]:
+                    translated_dict["ticker"]["industry"] = data["ticker"]["industry"]
+                    
+            return translated_dict
         except Exception as e:
             print(f"Translation failed: {e}")
             return data # Fallback to original data if translation fails
