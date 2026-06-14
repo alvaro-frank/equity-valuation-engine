@@ -4,15 +4,7 @@ export const formatLargeCurrency = (rawVal?: number | string | null): string => 
   const val = Number(rawVal);
   let actualValue = val;
   
-  // Auto-detect if value is likely in raw dollars or already scaled.
-  // We assume if it's less than 1,000,000, it's probably already scaled down to Millions by some LLM output.
-  // But for raw quant data from yfinance, it's usually raw numbers (e.g. 198270000000.0)
-  // We'll trust the raw number first. If it's suspiciously small for a company (e.g. < 1000) we can scale it.
-  if (Math.abs(val) > 0 && Math.abs(val) < 1000) {
-    actualValue = val * 1e9; // Treat as Billions
-  } else if (Math.abs(val) >= 1000 && Math.abs(val) < 1000000) {
-    actualValue = val * 1e6; // Treat as Millions
-  }
+
 
   const absVal = Math.abs(actualValue);
   const sign = actualValue < 0 ? '-' : '';
@@ -28,12 +20,7 @@ export const formatLargeNumber = (rawVal?: number | string | null): string => {
   
   const val = Number(rawVal);
   let actualValue = val;
-  
-  if (Math.abs(val) > 0 && Math.abs(val) < 1000) {
-    actualValue = val * 1e9; // Treat as Billions
-  } else if (Math.abs(val) >= 1000 && Math.abs(val) < 1000000) {
-    actualValue = val * 1e6; // Treat as Millions
-  }
+
 
   const absVal = Math.abs(actualValue);
   const sign = actualValue < 0 ? '-' : '';

@@ -1,5 +1,12 @@
 import { t } from 'i18next';
 
+const formatDefault = (val: string): string => {
+  return val
+    .split(/[-_]/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export const translateSector = (value?: string): string => {
   if (!value) return '';
   const key = value.toLowerCase()
@@ -9,7 +16,7 @@ export const translateSector = (value?: string): string => {
     .replace(/,/g, '')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
-  return t(`sectors.${key}`, { defaultValue: value });
+  return t(`sectors.${key}`, { defaultValue: formatDefault(value) });
 };
 
 export const translateIndustry = (value?: string): string => {
@@ -21,5 +28,5 @@ export const translateIndustry = (value?: string): string => {
     .replace(/,/g, '')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
-  return t(`industries.${key}`, { defaultValue: value });
+  return t(`industries.${key}`, { defaultValue: formatDefault(value) });
 };
