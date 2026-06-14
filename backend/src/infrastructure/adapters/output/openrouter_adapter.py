@@ -313,15 +313,15 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         schema_instance = IndustrySectorDynamicsSchema(**data)
         
         return IndustrySectorDynamics(
-            sector=sector,
-            industry=industry,
-            rivalry_among_competitors=[ForceFactor(**f) for f in data.get("rivalry_among_competitors", [])],
-            bargaining_power_of_suppliers=[ForceFactor(**f) for f in data.get("bargaining_power_of_suppliers", [])],
-            bargaining_power_of_customers=[ForceFactor(**f) for f in data.get("bargaining_power_of_customers", [])],
-            threat_of_new_entrants=[ForceFactor(**f) for f in data.get("threat_of_new_entrants", [])],
-            threat_of_obsolescence=[ForceFactor(**f) for f in data.get("threat_of_obsolescence", [])],
-            economic_sensitivity=data.get("economic_sensitivity", ""),
-            interest_rate_exposure=data.get("interest_rate_exposure", "")
+            sector=schema_instance.sector,
+            industry=schema_instance.industry,
+            rivalry_among_competitors={f.factor: f.analysis for f in schema_instance.rivalry_among_competitors},
+            bargaining_power_of_suppliers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_suppliers},
+            bargaining_power_of_customers={f.factor: f.analysis for f in schema_instance.bargaining_power_of_customers},
+            threat_of_new_entrants={f.factor: f.analysis for f in schema_instance.threat_of_new_entrants},
+            threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
+            economic_sensitivity=schema_instance.economic_sensitivity,
+            interest_rate_exposure=schema_instance.interest_rate_exposure
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
