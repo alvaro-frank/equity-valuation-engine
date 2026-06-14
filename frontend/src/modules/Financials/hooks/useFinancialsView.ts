@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuantitativeData } from '@/common/hooks/useQuantitativeData';
+import { useTickerValidation } from '@/common/hooks/useTickerValidation';
 import type { SubNavTab } from '@/common/components/SubNav';
 import { 
   INCOME_STATEMENT_ROWS, 
@@ -11,7 +12,9 @@ import {
 
 export function useFinancialsView(ticker: string) {
   const { t, i18n } = useTranslation();
-  const { data: quantData, isLoading, error, refetch } = useQuantitativeData(ticker);
+  const { isSuccess: isValid, isLoading: isVerifying, error: validationError, refetch: refetchValidation } = useTickerValidation(ticker);
+  
+  const { data: quantData, isLoading, error, refetch: refetchQuant } = useQuantitativeData(ticker, isValid);
   
   const [activeTab, setActiveTab] = useState<string>('income_statement');
   const [isQuarterly, setIsQuarterly] = useState<boolean>(false);
@@ -39,9 +42,12 @@ export function useFinancialsView(ticker: string) {
     t,
     i18n,
     quantData,
-    isLoading,
-    error,
-    refetch,
+    isLoading: isVerifying || isLoading,
+    error: validationError || error,
+    refetch: () => {
+      if (validationError) refetchValidation();
+      if (error) refetchQuant();
+    },
     activeTab,
     setActiveTab,
     isQuarterly,

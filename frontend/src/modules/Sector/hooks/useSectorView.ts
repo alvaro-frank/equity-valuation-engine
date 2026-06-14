@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSectorData } from '@/common/hooks/useSectorData';
 import { useSectorPerformance } from '@/common/hooks/useSectorPerformance';
+import { useTickerValidation } from '@/common/hooks/useTickerValidation';
 
 export type SectorTab = 'competitive' | 'macro' | 'performance';
 
 export function useSectorView(ticker: string) {
   const { t, i18n } = useTranslation();
-  const { data: sectorData, isLoading, error, refetch } = useSectorData(ticker);
+  const { isSuccess: isValid, isLoading: isVerifying, error: validationError, refetch: refetchValidation } = useTickerValidation(ticker);
+  
+  const { data: sectorData, isLoading, error, refetch: refetchSector } = useSectorData(ticker, isValid);
   const { data: performanceData, isLoading: isLoadingPerf } = useSectorPerformance(ticker);
   
   const [activeSubTab, setActiveSubTab] = useState<SectorTab>('competitive');
@@ -22,9 +25,12 @@ export function useSectorView(ticker: string) {
     t,
     i18n,
     sectorData,
-    isLoading,
-    error,
-    refetch,
+    isLoading: isVerifying || isLoading,
+    error: validationError || error,
+    refetch: () => {
+      if (validationError) refetchValidation();
+      if (error) refetchSector();
+    },
     performanceData,
     isLoadingPerf,
     activeSubTab,

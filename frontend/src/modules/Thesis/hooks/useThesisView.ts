@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQualitativeData } from '@/common/hooks/useQualitativeData';
+import { useTickerValidation } from '@/common/hooks/useTickerValidation';
 
 export type ThesisTab = 'overview' | 'moat' | 'leadership' | 'history' | 'risks';
 
 export function useThesisView(ticker: string) {
   const { t, i18n } = useTranslation();
-  const { data: qualData, isLoading, error, refetch } = useQualitativeData(ticker);
+  const { isSuccess: isValid, isLoading: isVerifying, error: validationError, refetch: refetchValidation } = useTickerValidation(ticker);
+
+  const { data: qualData, isLoading, error, refetch: refetchQual } = useQualitativeData(ticker, isValid);
   const [activeSubTab, setActiveSubTab] = useState<ThesisTab>('overview');
 
   const subTabs = [
@@ -21,9 +24,12 @@ export function useThesisView(ticker: string) {
     t,
     i18n,
     qualData,
-    isLoading,
-    error,
-    refetch,
+    isLoading: isVerifying || isLoading,
+    error: validationError || error,
+    refetch: () => {
+      if (validationError) refetchValidation();
+      if (error) refetchQual();
+    },
     activeSubTab,
     setActiveSubTab,
     subTabs
