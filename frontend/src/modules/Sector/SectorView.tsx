@@ -58,9 +58,10 @@ function TabContent({ activeTab, sectorData, perfData, isLoadingPerf, companyNam
 
 interface SectorViewProps {
   ticker: string;
+  onHome?: () => void;
 }
 
-export function SectorView({ ticker }: SectorViewProps) {
+export function SectorView({ ticker, onHome }: SectorViewProps) {
   const { 
     t, 
     i18n, 
@@ -81,7 +82,7 @@ export function SectorView({ ticker }: SectorViewProps) {
 
   if (error || !sectorData) {
     const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
+    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
   }
 
   return (

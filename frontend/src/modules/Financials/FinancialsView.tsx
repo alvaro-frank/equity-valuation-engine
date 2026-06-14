@@ -10,9 +10,10 @@ import { FinancialsHeader } from './components/FinancialsHeader';
 
 interface FinancialsViewProps {
   ticker: string;
+  onHome?: () => void;
 }
 
-export function FinancialsView({ ticker }: FinancialsViewProps) {
+export function FinancialsView({ ticker, onHome }: FinancialsViewProps) {
   const { 
     t, 
     quantData, 
@@ -33,7 +34,7 @@ export function FinancialsView({ ticker }: FinancialsViewProps) {
 
   if (error || !quantData) {
     const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
+    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
   }
 
   return (

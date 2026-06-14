@@ -12,25 +12,25 @@ import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 interface TabContentProps {
   activeTab: string;
   ticker: string;
-  hasError: boolean;
   setHasError: (val: boolean) => void;
   setTicker: (val: string) => void;
+  onHome: () => void;
 }
 
-function TabContent({ activeTab, ticker, hasError, setHasError, setTicker }: TabContentProps) {
+function TabContent({ activeTab, ticker, hasError, setHasError, setTicker, onHome }: TabContentProps) {
   switch (activeTab) {
     case 'SUMMARY':
-      return <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} onSearch={(t) => { setTicker(t); setHasError(false); }} />;
+      return <Dashboard ticker={ticker} isParentError={hasError} onErrorChange={setHasError} onSearch={(t) => { setTicker(t); setHasError(false); }} onHome={onHome} />;
     case 'THESIS':
-      return <ThesisView ticker={ticker} />;
+      return <ThesisView ticker={ticker} onHome={onHome} />;
     case 'FILINGS':
       return <FilingsView ticker={ticker} />;
     case 'FINANCIALS':
-      return <FinancialsView ticker={ticker} />;
+      return <FinancialsView ticker={ticker} onHome={onHome} />;
     case 'VALUATION':
       return <PlaceholderView title="Modelos de Valuation" description="Calculadoras interativas de valor intrínseco (DCF, Múltiplos) para determinar o preço alvo." icon="calculate" />;
     case 'SECTOR':
-      return <SectorView ticker={ticker} />;
+      return <SectorView ticker={ticker} onHome={onHome} />;
     default:
       return null;
   }
@@ -59,6 +59,7 @@ function App() {
             hasError={hasError} 
             setHasError={setHasError} 
             setTicker={setTicker} 
+            onHome={() => { setTicker(''); setHasError(false); setActiveTab('SUMMARY'); }}
           />
         )}
       </ErrorBoundary>

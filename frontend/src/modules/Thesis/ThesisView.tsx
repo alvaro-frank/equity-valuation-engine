@@ -52,9 +52,10 @@ function TabContent({ activeSubTab, qualData }: { activeSubTab: string; qualData
 
 interface ThesisViewProps {
   ticker: string;
+  onHome?: () => void;
 }
 
-export function ThesisView({ ticker }: ThesisViewProps) {
+export function ThesisView({ ticker, onHome }: ThesisViewProps) {
   const { 
     t, 
     qualData, 
@@ -72,7 +73,7 @@ export function ThesisView({ ticker }: ThesisViewProps) {
 
   if (error || !qualData) {
     const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
+    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
   }
 
   return (

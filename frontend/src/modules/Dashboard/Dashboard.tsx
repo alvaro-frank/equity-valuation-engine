@@ -11,9 +11,10 @@ interface DashboardProps {
   isParentError?: boolean;
   onErrorChange?: (hasError: boolean) => void;
   onSearch?: (ticker: string) => void;
+  onHome?: () => void;
 }
 
-export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: DashboardProps) {
+export function Dashboard({ ticker, isParentError, onErrorChange, onSearch, onHome }: DashboardProps) {
   const { t } = useTranslation();
   const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker, isParentError, onErrorChange);
 
@@ -28,7 +29,7 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch }: Da
   if (hasError) {
     const activeError = errorQuant || errorQual;
     const errorState = parseApiError(activeError, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={retry} />;
+    return <ApiErrorState errorState={errorState} onRetry={retry} onHome={onHome} />;
   }
 
   return (
