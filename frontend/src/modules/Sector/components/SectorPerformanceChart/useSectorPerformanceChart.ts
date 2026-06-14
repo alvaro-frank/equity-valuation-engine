@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { SectorPerformanceData } from '@/common/types/valuation';
 
 export function useSectorPerformanceChart(data?: SectorPerformanceData) {
@@ -22,8 +22,24 @@ export function useSectorPerformanceChart(data?: SectorPerformanceData) {
   }, [data]);
 
   const hasData = !!data && formattedData.length > 0;
-  const etfTicker = data?.etf_ticker || '';
+  const companyTicker = data?.company_ticker || '';
+  const sector = data?.sector || '';
+  const industry = data?.industry || '';
+  const sectorEtf = data?.sector_etf || '';
+  const industryEtf = data?.industry_etf;
   const benchmarkTicker = data?.benchmark_ticker || '';
 
-  return { formattedData, hasData, etfTicker, benchmarkTicker };
+  const [hiddenLines, setHiddenLines] = useState<Record<string, boolean>>({});
+
+  const handleLegendClick = useCallback((e: any) => {
+    const dataKey = e.dataKey;
+    if (dataKey) {
+      setHiddenLines(prev => ({
+        ...prev,
+        [dataKey]: !prev[dataKey]
+      }));
+    }
+  }, []);
+
+  return { formattedData, hasData, companyTicker, sector, industry, sectorEtf, industryEtf, benchmarkTicker, hiddenLines, handleLegendClick };
 }

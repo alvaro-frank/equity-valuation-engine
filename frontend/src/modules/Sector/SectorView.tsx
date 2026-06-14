@@ -41,14 +41,14 @@ function SectorHeader({ ticker, name, sector, industry }: SectorHeaderProps) {
   );
 }
 
-function TabContent({ activeTab, sectorData, perfData, isLoadingPerf }: { activeTab: string; sectorData: unknown; perfData: unknown; isLoadingPerf: boolean }) {
+function TabContent({ activeTab, sectorData, perfData, isLoadingPerf, companyName }: { activeTab: string; sectorData: unknown; perfData: unknown; isLoadingPerf: boolean; companyName?: string }) {
   switch (activeTab) {
     case 'competitive':
       return <CompetitiveDynamicsTab sectorData={sectorData as SectorIndustrialValuationResult} />;
     case 'macro':
       return <MacroeconomicsTab sectorData={sectorData as SectorIndustrialValuationResult} />;
     case 'performance':
-      return <MarketPerformanceTab performanceData={perfData as SectorPerformanceData | undefined} isLoadingPerf={isLoadingPerf} />;
+      return <MarketPerformanceTab performanceData={perfData as SectorPerformanceData | undefined} isLoadingPerf={isLoadingPerf} companyName={companyName} />;
     default:
       return null;
   }
@@ -105,6 +105,7 @@ export function SectorView({ ticker }: SectorViewProps) {
           sectorData={sectorData} 
           perfData={performanceData} 
           isLoadingPerf={isLoadingPerf} 
+          companyName={sectorData.ticker.name}
         />
       </div>
     </div>

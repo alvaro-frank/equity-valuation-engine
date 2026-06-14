@@ -51,6 +51,7 @@
     --on-tertiary-fixed-variant: #723600;
     --error: #ef4444;
     --inverse-primary: #005ac2;
+    --chart-benchmark: var(--secondary);
 }
 
 .dark {

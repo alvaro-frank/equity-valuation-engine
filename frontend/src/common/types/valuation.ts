@@ -132,9 +132,11 @@ export interface SectorPerformancePoint {
 }
 
 export interface SectorPerformanceData {
+  company_ticker: string;
   sector: string;
   industry: string;
-  etf_ticker: string;
+  sector_etf: string;
+  industry_etf?: string;
   benchmark_ticker: string;
-  chart_data: SectorPerformancePoint[];
+  chart_data: Array<Record<string, number | string>>;
 }
