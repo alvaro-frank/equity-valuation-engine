@@ -2,6 +2,7 @@ import json
 import re
 from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
+from infrastructure.utils.llm_utils import extract_json_from_response
 import os
 
 class OpenRouterTranslatorAdapter(TranslationPort):
@@ -81,7 +82,7 @@ class OpenRouterTranslatorAdapter(TranslationPort):
             # Auto-repair common hallucination: '],' after a string field
             result_text = re.sub(r'\]\s*,\s*"interest_rate_exposure"', ',\n"interest_rate_exposure"', result_text)
             
-            translated_dict = json.loads(result_text.strip())
+            translated_dict = extract_json_from_response(result_text)
             
             # Re-inject original structural keys to prevent frontend dictionary misses
             if "sector" in data:
@@ -98,3 +99,47 @@ class OpenRouterTranslatorAdapter(TranslationPort):
         except Exception as e:
             print(f"Translation failed: {e}")
             return data # Fallback to original data if translation fails
+
+    async def translate_text(self, text: str, target_language: str) -> str:
+        """
+        Translates a text string to the target language.
+
+        Args:
+            text (str): The text to be translated.
+            target_language (str): The language to translate the text into.
+
+        Returns:
+            str: The translated text.
+        """
+        if not text or target_language == "en":
+            return text
+            
+        lang_instruction = target_language
+        if target_language == "pt":
+            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms or grammar."
+
+        prompt = f"""
+        Translate the following text to {lang_instruction}.
+        
+        CRITICAL RULES:
+        1. Maintain the professional and financial tone of the original text.
+        2. Return ONLY the translated text. Do not include any conversational text, preamble, or quotes.
+        
+        Original Text:
+        {text}
+        """
+        
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model_id,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,
+                max_tokens=2000
+            )
+            
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"Text translation failed: {e}")
+            return text

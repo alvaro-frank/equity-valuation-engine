@@ -2,6 +2,7 @@ import json
 import re
 from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
+from infrastructure.utils.llm_utils import extract_json_from_response
 import os
 
 class GroqTranslatorAdapter(TranslationPort):
@@ -74,16 +75,10 @@ class GroqTranslatorAdapter(TranslationPort):
             
             result_text = response.choices[0].message.content.strip()
             
-            # Robust JSON extraction
-            start_idx = result_text.find('{')
-            end_idx = result_text.rfind('}')
-            if start_idx != -1 and end_idx != -1:
-                result_text = result_text[start_idx:end_idx+1]
-                
             # Auto-repair common hallucination: '],' after a string field
             result_text = re.sub(r'\]\s*,\s*"interest_rate_exposure"', ',\n"interest_rate_exposure"', result_text)
-                
-            translated_dict = json.loads(result_text.strip())
+            
+            translated_dict = extract_json_from_response(result_text)
             
             # Re-inject original structural keys to prevent frontend dictionary misses
             if "sector" in data:

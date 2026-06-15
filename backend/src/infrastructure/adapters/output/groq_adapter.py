@@ -10,8 +10,9 @@ from typing import Optional
 
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
+from infrastructure.utils.llm_utils import extract_json_from_response
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
-from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
+from infrastructure.schemas.llm_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
 load_dotenv()
 
@@ -48,29 +49,6 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         self.cache_dir = os.path.join(base_dir, '.llm_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    def _get_json_from_response(self, text: str) -> dict:
-        """
-        Helper to extract json from markdown response.
-        
-        Args:
-            text (str): The raw text response from the LLM, which may contain markdown formatting or extraneous text.
-        
-        Returns:
-            dict: The extracted JSON object parsed into a Python dictionary.
-        """
-        text = text.strip()
-        # Find the first { and the last }
-        start_idx = text.find('{')
-        end_idx = text.rfind('}')
-        if start_idx != -1 and end_idx != -1 and end_idx >= start_idx:
-            text = text[start_idx:end_idx+1]
-        else:
-            raise LLMParsingError("No JSON object found in response.")
-        
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            raise LLMParsingError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
     async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
         """
@@ -191,7 +169,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                         max_tokens=8000,
                     )
                     content = response.choices[0].message.content
-                    data_en = self._get_json_from_response(content)
+                    data_en = extract_json_from_response(content)
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
@@ -328,7 +306,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                         temperature=0.3,
                         max_tokens=4000
                     )
-                    data_en = self._get_json_from_response(response.choices[0].message.content)
+                    data_en = extract_json_from_response(response.choices[0].message.content)
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
@@ -513,7 +491,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                 if not content:
                     raise LLMParsingError("Groq API returned None for message content.")
                 
-                data = self._get_json_from_response(content)
+                data = extract_json_from_response(content)
             
                 with open(cache_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4)
