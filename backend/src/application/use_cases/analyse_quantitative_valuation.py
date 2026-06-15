@@ -126,10 +126,6 @@ class QuantitativeValuationUseCase:
         Args:
             values (List[Decimal]): A list of financial values, ordered from newest to oldest.
             
-        Raises:
-            ArithmeticError: If a mathematical error occurs during the exponentiation or division.
-            Exception: For any other unexpected calculation errors handled by the safe-guard block.
-            
         Returns:
             Decimal | None: The CAGR percentage rounded to two decimal places, 
                            or None if the calculation is not possible (e.g., non-positive values or insufficient data).

@@ -6,10 +6,6 @@ from typing import List, Optional
 class ProductService(BaseModel):
     """
     Represents a specific product or service offered by the company.
-
-    Attributes:
-        name (str): The official name of the product or service line.
-        description (str): A brief overview of what the product/service does and its market value.
     """
     name: str
     description: str
@@ -17,10 +13,6 @@ class ProductService(BaseModel):
 class Competitor(BaseModel):
     """
     Details regarding a direct or indirect competitor in the market.
-
-    Attributes:
-        name (str): The name of the competing company.
-        overlap (str): Description of the market segments or products where competition is most intense.
     """
     name: str
     overlap: str
@@ -28,10 +20,6 @@ class Competitor(BaseModel):
 class RiskFactor(BaseModel):
     """
     A specific risk that could materially affect the company's performance or operations.
-
-    Attributes:
-        title (str): The category or name of the risk (e.g., Regulatory, Supply Chain).
-        description (str): Detailed explanation of the potential impact and likelihood.
     """
     title: str
     description: str
@@ -63,21 +51,6 @@ class KeyExecutive(BaseModel):
 class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
-
-    Attributes:
-        company_history (str): Timeline and narrative of the company's evolution.
-        key_executives (List[KeyExecutive]): List of key executives with name, title, and ownership.
-        revenue_model (str): Explanation of how the company generates income.
-        strategy (str): The company's long-term strategic goals and roadmap.
-        products_services (List[ProductService]): Portfolio of the company's offerings.
-        competitive_advantage (str): The company's 'moat' or unique strengths (e.g., brand, scale).
-        competitors (List[Competitor]): Analysis of the competitive landscape.
-        management_insights (str): Evaluation of the leadership team's quality and track record.
-        risk_factors (List[RiskFactor]): Identified threats to the business model.
-        historical_context_crises (str): How the company handled past economic downturns or internal crises.
-        moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
-        moat_sources (MoatSourcesSchema): Quantitative evaluation of moat sources (1-5).
-        quality_pillars (QualityPillarsSchema): Quantitative evaluation of business quality pillars (1-5).
     """
     company_history: str
     key_executives: List[KeyExecutive]
@@ -96,10 +69,6 @@ class CompanyProfileSchema(BaseModel):
 class ForceFactor(BaseModel):
     """
     An individual analytical component of an industry force (e.g., Porter's Five Forces).
-
-    Attributes:
-        factor (str): The specific element being analyzed (e.g., Switching Costs).
-        analysis (str): Qualitative evaluation of how this factor impacts the industry.
     """
     factor: str
     analysis: str
@@ -107,17 +76,6 @@ class ForceFactor(BaseModel):
 class IndustrySectorDynamicsSchema(BaseModel):
     """
     Schema for comprehensive industry and sector analysis.
-
-    Attributes:
-        sector (str): The broad economic sector (e.g., Technology).
-        industry (str): The specific industry classification (e.g., Consumer Electronics).
-        rivalry_among_competitors (List[ForceFactor]): Analysis of competition intensity and key players.
-        bargaining_power_of_suppliers (List[ForceFactor]): Evaluation of supplier influence on pricing and terms.
-        bargaining_power_of_customers (List[ForceFactor]): Evaluation of customer influence on pricing and terms.
-        threat_of_new_entrants (List[ForceFactor]): Barriers to entry and threat from new market participants.
-        threat_of_obsolescence (List[ForceFactor]): Risks from technological shifts or alternative products.
-        economic_sensitivity (str): How much the business is affected by economic cycles (Cyclical vs defensive).
-        interest_rate_exposure (str): Impact of interest rate fluctuations on the industry's profitability.
     """
     sector: str
     industry: str
@@ -132,10 +90,6 @@ class IndustrySectorDynamicsSchema(BaseModel):
 class MetricWithGrowthSchema(BaseModel):
     """
     Represents a financial metric with its year-over-year growth percentage.
-    
-    Attributes:
-        amount (Optional[float]): The absolute value or margin of the metric.
-        yoy_growth (Optional[float]): The year-over-year growth percentage.
     """
     amount: Optional[float] = None
     yoy_growth: Optional[float] = None
@@ -143,14 +97,6 @@ class MetricWithGrowthSchema(BaseModel):
 class CorePerformanceSchema(BaseModel):
     """
     Represents the core non-GAAP performance metrics of the company.
-    
-    Attributes:
-        adjusted_revenue (MetricWithGrowthSchema): Adjusted Revenue with YoY growth.
-        adjusted_eps (MetricWithGrowthSchema): Adjusted EPS with YoY growth.
-        adjusted_gross_margin (MetricWithGrowthSchema): Adjusted Gross Margin with YoY growth.
-        adjusted_operating_margin (MetricWithGrowthSchema): Adjusted Operating Margin with YoY growth.
-        adjusted_net_margin (MetricWithGrowthSchema): Adjusted Net Margin with YoY growth.
-        free_cash_flow (MetricWithGrowthSchema): Free Cash Flow with YoY growth.
     """
     adjusted_revenue: Optional[MetricWithGrowthSchema] = None
     adjusted_eps: Optional[MetricWithGrowthSchema] = None
@@ -162,12 +108,6 @@ class CorePerformanceSchema(BaseModel):
 class CapitalAllocationSchema(BaseModel):
     """
     Represents the capital allocation of the company.
-    
-    Attributes:
-        share_buybacks (float): Amount spent on Share Buybacks.
-        dividends (float): Amount spent on Dividends.
-        capex_rd (float): Amount spent on CapEx/R&D.
-        infrastructure_assessment (str): Assessment of infrastructure investment (accelerating/decelerating).
     """
     share_buybacks: float
     dividends: float
@@ -177,10 +117,6 @@ class CapitalAllocationSchema(BaseModel):
 class RiskDeconstructionSchema(BaseModel):
     """
     Represents the risk deconstruction of the company.
-    
-    Attributes:
-        macro_risks (List[str]): List of external/macro risks.
-        internal_risks (List[str]): List of internal/execution risks.
     """
     macro_risks: List[str]
     internal_risks: List[str]

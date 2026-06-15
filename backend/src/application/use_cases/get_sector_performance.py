@@ -91,10 +91,26 @@ class GetSectorPerformanceUseCase:
     compared to the S&P 500 (SPY).
     """
     def __init__(self, quant_port: QuantitativeDataPort, performance_port: PerformanceDataPort):
+        """
+        Initializes the use case with the necessary ports.
+        
+        Args:
+            quant_port (QuantitativeDataPort): Port for fetching ticker and sector information.
+            performance_port (PerformanceDataPort): Port for fetching historical performance data.
+        """
         self.quant_port = quant_port
         self.performance_port = performance_port
 
     async def execute(self, ticker: str) -> SectorPerformanceResult:
+        """
+        Executes the sector performance analysis for a given ticker.
+        
+        Args:
+            ticker (str): The stock ticker symbol to analyze.
+            
+        Returns:
+            SectorPerformanceResult: A result object containing the performance data.
+        """
         # 1. Fetch basic info to determine sector/industry
         try:
             ticker_info = await self.quant_port.get_ticker_info(ticker)

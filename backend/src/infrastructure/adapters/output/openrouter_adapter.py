@@ -9,7 +9,7 @@ from decimal import Decimal
 from typing import Optional
 
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
-from domain.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
+from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
@@ -22,6 +22,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
     def __init__(self, api_key: Optional[str] = None, client: Optional[AsyncOpenAI] = None, translator: Optional[TranslationPort] = None):
         """
         Initializes the OpenRouter client.
+        
+        Args:
+            api_key (Optional[str]): The API key for authenticating with the OpenRouter API. Required if no client is provided.
+            client (Optional[AsyncOpenAI]): An optional pre-initialized AsyncOpenAI client configured for OpenRouter. If not provided, a new client will be created using the api_key.
+            translator (Optional[TranslationPort]): An optional translation port to handle translations of the generated content. If not provided, no translation will be performed.
         """
         if client:
             self.client = client
@@ -44,7 +49,15 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         os.makedirs(self.cache_dir, exist_ok=True)
 
     def _get_json_from_response(self, text: str) -> dict:
-        """Helper to extract json from markdown response."""
+        """
+        Helper to extract json from markdown response.
+        
+        Args:
+            text (str): The raw text response from the LLM, which may contain markdown formatting or extraneous text.
+            
+        Returns:
+            dict: The extracted JSON object parsed into a Python dictionary.
+        """
         text = text.strip()
         # Find the first { and the last }
         start_idx = text.find('{')
@@ -60,6 +73,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
             raise LLMParsingError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
     async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
+        """
+        Analyze a company based on its symbol and provide a detailed profile.
+        
+        Args:
+            symbol (str): The stock ticker symbol to be analysed.
+            language (str): Target language for the analysis.
+            context (str): Contextual financial data to ground the analysis and prevent hallucination.
+            
+        Returns:
+            CompanyProfile: A Domain Entity containing the qualitative data of the business.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
@@ -207,6 +231,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         )
 
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+        """
+        Analyze the industry dynamics for a given sector and industry, providing insights on competitive forces, economic sensitivity, and more.
+        
+        Args:
+            sector (str): The sector to be analysed.
+            industry (str): The industry to be analysed.
+            language (str): Target language for the analysis.
+            
+        Returns:  
+            IndustrySectorDynamics: A Domain Entity containing the industry and sector dynamics data.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
@@ -325,6 +360,17 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+        """
+        Analyze an earnings report PDF for a given company symbol, extracting key financial metrics, capital allocation decisions, forward guidance, and qualitative insights.
+        
+        Args:
+            symbol (str): The stock ticker symbol to fetch fundamental data for.
+            pdf_file_path (str): The path to the PDF file containing the earnings report.
+            language (str): Target language for the analysis.
+        
+        Returns:
+            EarningsReport: A Domain Entity containing the earnings report analysis.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."

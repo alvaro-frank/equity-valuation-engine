@@ -12,9 +12,6 @@ def parse_decimal(value: Any, field_name: str) -> Decimal:
         Args:
             value (str): The string value to parse.
             
-        Raises:
-            ValueError: If the value cannot be parsed to a Decimal and is not None or "None".
-            
         Returns:
             Decimal: The parsed decimal value, or 0 if the input is invalid.
         """
@@ -38,10 +35,6 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
             balance_list (List[Dict]): List of dictionaries representing yearly Balance Sheets.
             cash_list (List[Dict]): List of dictionaries representing yearly Cash Flow Statements.
             historical_prices (Dict[str, Price]): Dictionary mapping YYYY-MM to the closing Price entity.
-
-        Raises:
-            ValueError: If a corresponding Balance Sheet or Cash Flow report is missing for a 
-                        date found in the Income Statements.
 
         Returns:
             List[FinancialYear]: A list of domain entities containing consolidated financial data.
@@ -127,6 +120,12 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
 def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: List[Dict[str, Any]], cash_list: List[Dict[str, Any]], historical_prices: Dict[str, Price]) -> List[FinancialQuarter]:
         """
         Merges financial reports from three different accounting statements based on their fiscal ending date.
+        
+        Args:
+            income_list (List[Dict]): List of dictionaries representing quarterly Income Statements.
+            
+        Returns:
+            List[FinancialQuarter]: A list of domain entities containing consolidated financial data for each quarter.
         """
         from domain.entities.entities import FinancialQuarter
         quarters = []

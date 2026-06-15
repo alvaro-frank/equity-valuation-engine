@@ -7,16 +7,16 @@ from application.use_cases.analyse_qualitative_valuation import QualitativeValua
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
-from domain.exceptions import (
+from application.exceptions.exceptions import (
     TickerNotFoundError,
     RateLimitExceededError,
     ConfigurationError,
     ExternalServiceError,
     LLMParsingError,
     InvalidDocumentFormatError,
-    DataFetchError,
-    DomainValidationError
+    DataFetchError
 )
+from domain.exceptions.exceptions import DomainValidationError
 
 from infrastructure.adapters.input.dependencies import (
     get_earnings_report_use_case,
@@ -38,6 +38,9 @@ from application.dtos.dtos import (
 )
 
 def handle_domain_error(e: Exception):
+    """
+    Maps domain exceptions to appropriate HTTP responses.
+    """
     if isinstance(e, TickerNotFoundError):
         raise HTTPException(status_code=404, detail=str(e))
     elif isinstance(e, RateLimitExceededError):

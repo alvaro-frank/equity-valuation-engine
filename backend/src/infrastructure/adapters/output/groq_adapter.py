@@ -9,7 +9,7 @@ from decimal import Decimal
 from typing import Optional
 
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
-from domain.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
+from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from infrastructure.schemas.gemini_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
@@ -22,6 +22,11 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
     def __init__(self, api_key: Optional[str] = None, client: Optional[AsyncOpenAI] = None, translator: Optional[TranslationPort] = None):
         """
         Initializes the Groq client.
+        
+        Args:
+            api_key (Optional[str]): The API key for authenticating with the Groq API. Required if no client is provided.
+            client (Optional[AsyncOpenAI]): An optional pre-initialized AsyncOpenAI client configured for Groq. If not provided, a new client will be created using the api_key.
+            translator (Optional[TranslationPort]): An optional translation port to handle translations of the generated content. If not provided, no translation will be performed.
         """
         if client:
             self.client = client
@@ -44,7 +49,15 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         os.makedirs(self.cache_dir, exist_ok=True)
 
     def _get_json_from_response(self, text: str) -> dict:
-        """Helper to extract json from markdown response."""
+        """
+        Helper to extract json from markdown response.
+        
+        Args:
+            text (str): The raw text response from the LLM, which may contain markdown formatting or extraneous text.
+        
+        Returns:
+            dict: The extracted JSON object parsed into a Python dictionary.
+        """
         text = text.strip()
         # Find the first { and the last }
         start_idx = text.find('{')
@@ -60,6 +73,17 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
             raise LLMParsingError(f"Failed to parse JSON: {e}. Raw text: {text}")
 
     async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
+        """
+        Analyze a company's profile using the Groq API.
+
+        Args:
+            symbol (str): The stock ticker symbol of the company to analyze.
+            language (str): The language in which to generate the analysis.
+            context (str): Additional real-world context for the analysis.
+
+        Returns:
+            CompanyProfile: A domain entity containing the analyzed company profile.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
@@ -207,6 +231,17 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         )
 
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+        """
+        Analyze the dynamics of a specific industry within a given sector.
+
+        Args:
+            sector (str): The sector to analyze.
+            industry (str): The industry to analyze.
+            language (str): The language in which to generate the analysis.
+
+        Returns:
+            IndustrySectorDynamics: A domain entity containing the analyzed industry dynamics.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
@@ -325,6 +360,17 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+        """
+        Analyze a company's earnings report using the Groq API.
+
+        Args:
+            symbol (str): The stock ticker symbol of the company to analyze.
+            pdf_file_path (str): The path to the PDF file containing the earnings report.
+            language (str): The language in which to generate the analysis.
+
+        Returns:
+            EarningsReport: A domain entity containing the analyzed earnings report.
+        """
         lang_instruction = language
         if language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."

@@ -5,7 +5,16 @@ from application.ports.ports import TranslationPort
 import os
 
 class GroqTranslatorAdapter(TranslationPort):
+    """
+    A translation adapter for translating JSON data using the Groq API.
+    """
     def __init__(self, api_key: str = None):
+        """
+        Initializes the Groq client with the provided API key or environment variable.
+        
+        Args:
+            api_key (str): The API key for authenticating with the Groq API. If
+        """
         self.api_key = api_key or os.getenv("GROQ_API_KEY")
         self.client = AsyncOpenAI(
             base_url="https://api.groq.com/openai/v1",
@@ -14,6 +23,16 @@ class GroqTranslatorAdapter(TranslationPort):
         self.model_id = os.getenv('TRANSLATOR_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')
         
     async def translate_json(self, data: dict, target_language: str) -> dict:
+        """
+        Translates the string values of a JSON object to the target language.
+        
+        Args:
+            data (dict): The JSON data to be translated.
+            target_language (str): The language to translate the text into (e.g., 'en' for English, 'es' for Spanish).
+            
+        Returns:
+            dict: A new dictionary with the same structure but with all string values translated to the target
+        """
         if not data:
             return data
             
@@ -83,6 +102,16 @@ class GroqTranslatorAdapter(TranslationPort):
             return data # Fallback to original data if translation fails
 
     async def translate_text(self, text: str, target_language: str) -> str:
+        """
+        Translates a text string to the target language.
+
+        Args:
+            text (str): The text to be translated.
+            target_language (str): The language to translate the text into.
+
+        Returns:
+            str: The translated text.
+        """
         if not text or target_language == "en":
             return text
             

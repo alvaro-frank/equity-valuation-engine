@@ -6,6 +6,12 @@ class SearchTickersUseCase:
     Service responsible for searching tickers matching a specific query.
     """
     def __init__(self, search_port: SearchDataPort):
+        """
+        Initializes the use case with the necessary port.
+        
+        Args:
+            search_port (SearchDataPort): Port for searching tickers.
+        """
         self.search_port = search_port
 
     async def execute(self, query: str) -> TickerSearchResult:

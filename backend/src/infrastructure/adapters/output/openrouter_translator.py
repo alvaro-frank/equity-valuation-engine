@@ -5,7 +5,16 @@ from application.ports.ports import TranslationPort
 import os
 
 class OpenRouterTranslatorAdapter(TranslationPort):
+    """
+    A translation adapter for translating JSON data using the OpenRouter API.
+    """
     def __init__(self, api_key: str = None):
+        """
+        Initializes the OpenRouter client with the provided API key or environment variable.
+        
+        Args:
+            api_key (str): The API key for authenticating with the OpenRouter API. If not provided, it will be read from the OPENROUTER_API_KEY environment variable.
+        """
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
         self.client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
@@ -14,6 +23,16 @@ class OpenRouterTranslatorAdapter(TranslationPort):
         self.model_id = os.getenv('TRANSLATOR_MODEL', 'google/gemini-2.5-flash-api')
         
     async def translate_json(self, data: dict, target_language: str) -> dict:
+        """
+        Translates the string values of a JSON object to the target language using the OpenRouter API.
+        
+        Args:
+            data (dict): The JSON data to be translated.
+            target_language (str): The language to translate the text into (e.g., 'en' for English, 'es' for Spanish).
+            
+        Returns:
+            dict: A new dictionary with the same structure but with all string values translated to the target
+        """
         if not data:
             return data
             

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from application.ports.ports import QuantitativeDataPort, OwnershipDataPort
-from domain.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
+from application.exceptions.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
 from infrastructure.mappers.mapper_financial_years import map_to_financial_years, map_to_financial_quarters
 
 load_dotenv()
@@ -25,6 +25,9 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
     def __init__(self, api_key: Optional[str] = None, client: Optional[httpx.AsyncClient] = None):
         """
         Initializes the adapter, setting up the API key and cache directory.
+        
+        Args:
+            api_key (Optional[str]): The API key for Alpha Vantage. If not provided,
         """
         if not api_key:
             raise ConfigurationError("Alpha Vantage API Key is required")
@@ -44,10 +47,6 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
         Args:
             function (str): The Alpha Vantage API function to call (e.g., "OVERVIEW", "INCOME_STATEMENT").
             symbol (str): The stock ticker symbol to fetch data for.
-            
-        Raises:
-            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
-            ValueError: If the API returns an error message or if the expected data is not found in the response.
             
         Returns:
             dict: The JSON response from the Alpha Vantage API as a dictionary.
@@ -108,10 +107,6 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
         Args:
             symbol (str): The stock ticker symbol to fetch the price for.
             
-        Raises:
-            ValueError: If the price data is not found for the given symbol or if the API returns an error message.
-            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
-            
         Returns:
             Price: Domain Entity containing the current price and currency.
         """
@@ -162,10 +157,6 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
         
         Args:
             symbol (str): The stock ticker symbol to fetch fundamental data for.
-            
-        Raises:
-            ValueError: If no fundamental data is available for the given symbol.
-            ConnectionError: If there are issues connecting to the Alpha Vantage API or if rate limits are exceeded.
             
         Returns:
             List[FinancialYear]: List containing the fundamental stock data for each Financial Year.

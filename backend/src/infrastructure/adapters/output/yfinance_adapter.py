@@ -6,7 +6,7 @@ import pandas as pd
 import httpx
 
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
-from domain.exceptions import TickerNotFoundError, DataFetchError
+from application.exceptions.exceptions import TickerNotFoundError, DataFetchError
 from application.ports.ports import QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort
 
 class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort):
@@ -194,6 +194,12 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
     async def search_tickers(self, query: str) -> List[Dict[str, str]]:
         """
         Searches for a ticker or company name using Yahoo Finance autocomplete API.
+        
+        Args:
+            query (str): The search term (e.g., "Apple").
+        
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries containing symbol, name, and exchange.
         """
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={query}"
         headers = {'User-Agent': 'Mozilla/5.0'}
@@ -224,6 +230,21 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             return []
 
     def _parse_financial_period(self, date_str: str, date, financials, balance_sheet, cashflow, ticker, is_quarter: bool = False):
+        """
+        Parses the financial data for a specific period (year or quarter) and returns a FinancialYear or FinancialQuarter object.
+        
+        Args:
+            date_str (str): The date string in "YYYY-MM-DD" format.
+            date: The pandas Timestamp object for the date.
+            financials: The financials DataFrame from yfinance.
+            balance_sheet: The balance sheet DataFrame from yfinance.
+            cashflow: The cash flow DataFrame from yfinance.
+            ticker: The yfinance Ticker object.
+            is_quarter (bool): Whether the period is a quarter (True) or a year (False).
+            
+        Returns:
+            FinancialYear or FinancialQuarter: The parsed financial data object for the period.
+        """
         def get_val(df, key):
             if df.empty or date not in df.columns or key not in df.index:
                 return Decimal("0")
@@ -571,6 +592,12 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
     async def get_trending_by_sector(self, sector_key: str) -> List[Dict]:
         """
         Fetches the top trending companies for a given sector using yfinance.
+        
+        Args:
+            sector_key (str): The sector key (e.g., "technology").
+            
+        Returns:
+            List[Dict]: A list of dictionaries containing symbol, name, rating, and market weight
         """
         try:
             sector = await asyncio.to_thread(yf.Sector, sector_key)
@@ -595,6 +622,12 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
     async def get_trending_by_industry(self, industry_key: str) -> List[Dict]:
         """
         Fetches the top trending companies for a given industry using yfinance.
+        
+        Args:
+            industry_key (str): The industry key (e.g., "semiconductors").
+            
+        Returns:
+            List[Dict]: A list of dictionaries containing symbol, name, rating, and market weight
         """
         try:
             industry = await asyncio.to_thread(yf.Industry, industry_key)
@@ -620,6 +653,10 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
         """
         Fetches historical closing prices for multiple tickers and normalizes them 
         into a percentage return from day 1.
+
+        Args:
+            tickers (List[str]): A list of stock ticker symbols.
+            period (str): The time period for which to fetch data (e.g., "5y").
 
         Returns:
             List[Dict]: [{'date': '2020-01-01', 'SMH': 0.0, 'SPY': 0.0}, ...]

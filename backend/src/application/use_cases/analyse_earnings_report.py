@@ -21,6 +21,7 @@ class EarningsReportUseCase:
         Args:
             ticker_symbol (str): The ticker symbol of the company
             pdf_file_path (str): The path to the PDF file to be analysed
+            language (str): Target language for the analysis
             
         Returns:
             EarningsReportResult: DTO containing the data given the PDF file

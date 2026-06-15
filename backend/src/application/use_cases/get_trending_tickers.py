@@ -7,6 +7,12 @@ class GetTrendingTickersUseCase:
     Service responsible for fetching trending tickers by sector or industry.
     """
     def __init__(self, trending_port: TrendingDataPort):
+        """
+        Initializes the use case with the necessary port.
+        
+        Args:
+            trending_port (TrendingDataPort): Port for fetching trending tickers by sector or industry.
+        """
         self.trending_port = trending_port
 
     async def execute(self, sector_key: Optional[str] = None, industry_key: Optional[str] = None) -> TrendingTickerResult:

@@ -26,6 +26,7 @@ class QualitativeValuationUseCase:
         
         Args:
             ticker_symbol (str): The stock ticker symbol to analyse.
+            language (str): Target language for the analysis
             
         Returns:
             QualitativeValuationResult: a DTO containing all information about the Qualitative data of the business.

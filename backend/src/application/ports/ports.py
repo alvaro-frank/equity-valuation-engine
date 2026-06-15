@@ -80,6 +80,13 @@ class PerformanceDataPort(ABC):
     async def get_historical_performance_chart(self, symbols: List[str], period: str = "5y") -> List[Dict]:
         """
         Fetches historical performance data for multiple symbols to compare them.
+        
+        Args:
+            symbols (List[str]): List of stock ticker symbols.
+            period (str): The time period for the performance data.
+            
+        Returns:
+            List[Dict]: List of dictionaries containing the performance data.
         """
         pass
 
@@ -123,10 +130,28 @@ class TrendingDataPort(ABC):
     """
     @abstractmethod
     async def get_trending_by_sector(self, sector_key: str) -> List[Dict[str, Any]]:
+        """
+        Fetches trending tickers by sector.
+        
+        Args:
+            sector_key (str): The sector key.
+        
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing symbol, name, rating
+        """
         pass
         
     @abstractmethod
     async def get_trending_by_industry(self, industry_key: str) -> List[Dict[str, Any]]:
+        """
+        Fetches trending tickers by industry.
+        
+        Args:
+            industry_key (str): The industry key.
+        
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing symbol, name, rating
+        """
         pass
 
 
@@ -164,6 +189,7 @@ class EarningsReportPort(ABC):
         Args:
             symbol (str): The stock ticker symbol of the company
             pdf_file_path (str): The path to the PDF file to be analysed
+            language (str): Target language for the analysis
             
         Returns:
             EarningsReport: Domain Entity containing the data given the PDF file
@@ -179,6 +205,7 @@ class SectorIndustrialDataPort(ABC):
         Args:
             sector (str): The sector to be analysed
             industry (str): The industry to be analysed
+            language (str): Target language for the analysis
         
         Returns:
             IndustrySectorDynamics: Domain Entity containing the data given the sector and industry
@@ -193,6 +220,13 @@ class TranslationPort(ABC):
     async def translate_json(self, data: dict, target_language: str) -> dict:
         """
         Translates the string values of a JSON dictionary to the target language, preserving keys and structure.
+        
+        Args:            
+            data (dict): The JSON data to be translated.
+            target_language (str): The language to translate the text into (e.g., 'en' for English, 'es' for Spanish).
+        
+        Returns:
+            dict: A new dictionary with the same structure but with all string values translated to the target
         """
         pass
         
@@ -200,5 +234,12 @@ class TranslationPort(ABC):
     async def translate_text(self, text: str, target_language: str) -> str:
         """
         Translates a plain string to the target language.
+        
+        Args:
+            text (str): The text to be translated.
+            target_language (str): The language to translate the text into (e.g., 'en' for English, 'es' for Spanish).
+        
+        Returns:
+            str: The translated text.
         """
         pass

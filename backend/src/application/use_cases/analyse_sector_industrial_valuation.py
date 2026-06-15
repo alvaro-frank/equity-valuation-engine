@@ -25,6 +25,7 @@ class SectorIndustrialValuationUseCase:
         
         Args:
             ticker_symbol (str): The stock ticker to identify the sector and industry.
+            language (str): Target language for the analysis
             
         Returns:
             SectorIndustrialValuationResult: a DTO containing all information about the Industry and Sector.

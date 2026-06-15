@@ -5,7 +5,7 @@ import os
 import time
 import json
 import re
-from domain.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
+from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
@@ -24,6 +24,11 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
     def __init__(self, api_key: Optional[str] = None, client: Optional[genai.Client] = None, translator: Optional[TranslationPort] = None):
         """
         Initializes the Gemini client.
+        
+        Args:
+            api_key (Optional[str]): The API key for authenticating with the Gemini API. Required if no client is provided.
+            client (Optional[genai.Client]): An optional pre-initialized Gemini client. If not provided, a new client will be created using the api_key.
+            translator (Optional[TranslationPort]): An optional translation port to handle translations of the generated content. If not provided, no translation will be performed.
         """
         if client:
             self.client = client
@@ -203,6 +208,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Args:
             sector (str): The sector to be analysed
             industry (str): The industry to be analysed
+            language (str): Target language for the analysis
         
         Returns:
             IndustrySectorDynamics: A Domain Entity containing the data given the sector and industry
@@ -331,6 +337,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Args:
             symbol (str): The stock ticker symbol to fetch fundamental data for.
             pdf_file_path (str): The path to the PDF file containing the earnings report.
+            language (str): Target language for the analysis
             
         Returns:
             EarningsReport: A Domain Entity containing the earnings report analysis.
