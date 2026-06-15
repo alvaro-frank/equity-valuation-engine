@@ -42,7 +42,7 @@ function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_perfor
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <PerformanceMetric 
           label={t('filings.adj_revenue')} 
-          value={formatLargeCurrency(data.adjusted_revenue.amount)} 
+          value={formatLargeCurrency(data.adjusted_revenue.amount * 1e9)} 
           growth={data.adjusted_revenue.yoy_growth} 
         />
         <PerformanceMetric 
@@ -52,7 +52,7 @@ function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_perfor
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
-          value={formatLargeCurrency(data.free_cash_flow.amount)} 
+          value={formatLargeCurrency(data.free_cash_flow.amount * 1e9)} 
           growth={data.free_cash_flow.yoy_growth} 
         />
         <PerformanceMetric 
@@ -86,15 +86,15 @@ function CapitalAllocationPanel({ data }: { data: EarningsReportResult['capital_
       <div className="bg-surface-container border border-outline-variant rounded p-4 space-y-4 flex-1">
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.share_buybacks')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.share_buybacks)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.share_buybacks * 1e9)}</span>
         </div>
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.dividends')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.dividends)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.dividends * 1e9)}</span>
         </div>
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.capex')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.capex_rd)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.capex_rd * 1e9)}</span>
         </div>
         
         {data.infrastructure_assessment ? (
