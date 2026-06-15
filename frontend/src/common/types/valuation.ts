@@ -122,6 +122,8 @@ export interface EarningsReportResult {
   ticker: {
     symbol: string;
     name?: string;
+    sector?: string;
+    industry?: string;
   };
   period_end_date: string;
   core_performance: CorePerformance;
@@ -130,6 +132,7 @@ export interface EarningsReportResult {
   moat_trajectory: string;
   risk_deconstruction: RiskDeconstruction;
   bottom_line: string;
+  sources: Record<string, string>;
 }
 
 export interface SectorPerformancePoint {

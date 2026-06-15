@@ -1,6 +1,7 @@
 import type { EarningsReportResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
 import { formatLargeCurrency, formatPercentage } from '@/common/utils/formatters';
+import { CitedText } from '@/common/components/CitedText/CitedText';
 
 // --- Sub-Components (Rules 2.1, 2.21, 2.23, 2.30, 2.31) ---
 
@@ -75,7 +76,7 @@ function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_perfor
   );
 }
 
-function CapitalAllocationPanel({ data }: { data: EarningsReportResult['capital_allocation'] }) {
+function CapitalAllocationPanel({ data, sources }: { data: EarningsReportResult['capital_allocation'], sources: EarningsReportResult['sources'] }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col h-full">
@@ -101,7 +102,7 @@ function CapitalAllocationPanel({ data }: { data: EarningsReportResult['capital_
           <div className="pt-2">
             <span className="text-xs font-semibold text-primary block mb-2 uppercase tracking-wider">{t('filings.infra_assessment')}</span>
             <p className="text-sm text-on-surface leading-relaxed">
-              {data.infrastructure_assessment}
+              <CitedText text={data.infrastructure_assessment} sources={sources} />
             </p>
           </div>
         ) : null}
@@ -110,7 +111,7 @@ function CapitalAllocationPanel({ data }: { data: EarningsReportResult['capital_
   );
 }
 
-function RiskDeconstructionPanel({ data }: { data: EarningsReportResult['risk_deconstruction'] }) {
+function RiskDeconstructionPanel({ data, sources }: { data: EarningsReportResult['risk_deconstruction'], sources: EarningsReportResult['sources'] }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col h-full">
@@ -126,7 +127,7 @@ function RiskDeconstructionPanel({ data }: { data: EarningsReportResult['risk_de
               data.macro_risks.map((risk, i) => (
                 <li key={i} className="text-sm text-on-surface flex items-start">
                   <span className="mr-2 text-tertiary">•</span>
-                  <span>{risk}</span>
+                  <span><CitedText text={risk} sources={sources} /></span>
                 </li>
               ))
             ) : (
@@ -143,7 +144,7 @@ function RiskDeconstructionPanel({ data }: { data: EarningsReportResult['risk_de
               data.internal_risks.map((risk, i) => (
                 <li key={i} className="text-sm text-on-surface flex items-start">
                   <span className="mr-2 text-tertiary">•</span>
-                  <span>{risk}</span>
+                  <span><CitedText text={risk} sources={sources} /></span>
                 </li>
               ))
             ) : (
@@ -158,34 +159,40 @@ function RiskDeconstructionPanel({ data }: { data: EarningsReportResult['risk_de
   );
 }
 
-function TextualAnalysisPanel({ forwardGuidance, moatTrajectory }: { forwardGuidance: string; moatTrajectory: string }) {
+function TextualAnalysisPanel({ forwardGuidance, moatTrajectory, sources }: { forwardGuidance: string; moatTrajectory: string, sources: EarningsReportResult['sources'] }) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-surface-container border border-outline-variant rounded p-4 h-full">
-        <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider flex items-center mb-2">
-          <span className="material-symbols-outlined text-[16px] mr-1">trending_up</span>
+      <div className="bg-surface-container border border-outline-variant rounded p-4 flex-1 flex flex-col">
+        <span className="text-xs font-semibold text-tertiary block mb-2 uppercase tracking-wider flex items-center gap-2">
+          <span className="material-symbols-outlined text-[16px]">trending_up</span>
           {t('filings.forward_guidance')}
-        </h3>
-        <p className="text-sm text-on-surface leading-relaxed">{forwardGuidance}</p>
+        </span>
+        <p className="text-sm text-on-surface leading-relaxed mt-1 flex-1">
+          <CitedText text={forwardGuidance} sources={sources} />
+        </p>
       </div>
-      <div className="bg-surface-container border border-outline-variant rounded p-4 h-full">
-        <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider flex items-center mb-2">
-          <span className="material-symbols-outlined text-[16px] mr-1">fort</span>
-          {t('thesis_view.moat_trajectory')}
-        </h3>
-        <p className="text-sm text-on-surface leading-relaxed">{moatTrajectory}</p>
+      <div className="bg-surface-container border border-outline-variant rounded p-4 flex-1 flex flex-col">
+        <span className="text-xs font-semibold text-tertiary block mb-2 uppercase tracking-wider flex items-center gap-2">
+          <span className="material-symbols-outlined text-[16px]">castle</span>
+          {t('filings.moat')}
+        </span>
+        <p className="text-sm text-on-surface leading-relaxed mt-1 flex-1">
+          <CitedText text={moatTrajectory} sources={sources} />
+        </p>
       </div>
     </div>
   );
 }
 
-function BottomLinePanel({ text }: { text: string }) {
+function BottomLinePanel({ text, sources }: { text: string, sources: EarningsReportResult['sources'] }) {
   const { t } = useTranslation();
   return (
     <div className="bg-surface-container-high border-l-4 border-primary rounded p-4 shadow-sm">
       <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">{t('filings.bottom_line')}</h3>
-      <p className="text-sm text-on-surface font-medium leading-relaxed">{text}</p>
+      <p className="text-sm text-on-surface font-medium leading-relaxed">
+        <CitedText text={text} sources={sources} />
+      </p>
     </div>
   );
 }
@@ -197,23 +204,24 @@ interface EarningsReportCardProps {
 }
 
 export function EarningsReportCard({ data }: EarningsReportCardProps) {
-  const { core_performance, capital_allocation, risk_deconstruction } = data;
+  const { core_performance, capital_allocation, risk_deconstruction, sources } = data;
 
   return (
     <div className="space-y-6 mt-6 animate-fade-in">
       <CorePerformanceGrid data={core_performance} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CapitalAllocationPanel data={capital_allocation} />
-        <RiskDeconstructionPanel data={risk_deconstruction} />
+        <CapitalAllocationPanel data={capital_allocation} sources={sources} />
+        <RiskDeconstructionPanel data={risk_deconstruction} sources={sources} />
       </div>
 
       <TextualAnalysisPanel 
         forwardGuidance={data.forward_guidance} 
         moatTrajectory={data.moat_trajectory} 
+        sources={sources}
       />
 
-      <BottomLinePanel text={data.bottom_line} />
+      <BottomLinePanel text={data.bottom_line} sources={sources} />
     </div>
   );
 }
