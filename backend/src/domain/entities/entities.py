@@ -1,7 +1,7 @@
 from decimal import Decimal
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
-from domain.exceptions import DomainValidationError
+from domain.exceptions.exceptions import DomainValidationError
 
 @dataclass(frozen=True)
 class Price:
