@@ -125,7 +125,8 @@ class TestGeminiAdapter:
                 "macro_risks": ["Interest rates"],
                 "internal_risks": ["Execution delay"]
             },
-            "bottom_line": "Excellent execution."
+            "bottom_line": "Excellent execution.",
+            "sources": [{"citation_number": 1, "source_text": "MD&A Page 15"}]
         }
         mock_response.text = json.dumps(json_earnings)
 

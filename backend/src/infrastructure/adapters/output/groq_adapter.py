@@ -378,15 +378,25 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                 "share_buybacks": 0.0,
                 "dividends": 0.0,
                 "capex_rd": 0.0,
-                "infrastructure_assessment": "String: Detailed 2-3 sentence paragraph explaining the 'why' behind the CapEx/R&D (e.g., accelerating for AI buildout, cutting back for margins). Do not just provide a single word."
+                "infrastructure_assessment": "String: Detailed 2-3 sentence paragraph explaining the 'why' behind the CapEx/R&D. Use [1], [2] for citations."
             }},
-            "forward_guidance": "String: Detailed 2-3 sentence analysis of management's forward-looking projections and guidance",
-            "moat_trajectory": "String: Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why)",
+            "forward_guidance": "String: Detailed 2-3 sentence analysis of management's forward-looking projections and guidance. Use [1], [2] for citations.",
+            "moat_trajectory": "String: Detailed 2-3 sentence analysis of the company's competitive advantage trajectory. Use [1], [2] for citations.",
             "risk_deconstruction": {{
                 "macro_risks": ["String", "String"],
                 "internal_risks": ["String", "String"]
             }},
-            "bottom_line": "String: A brutal, concise summary answering if the business executed well or if structural cracks are forming."
+            "bottom_line": "String: A brutal, concise summary answering if the business executed well or if structural cracks are forming. Use [1], [2] for citations.",
+            "sources": [
+                {{
+                    "citation_number": 1,
+                    "source_text": "String: Name of the exact section or page where the information was found (e.g. 'MD&A Page 15')"
+                }},
+                {{
+                    "citation_number": 2,
+                    "source_text": "String: Name of another section"
+                }}
+            ]
         }}
         """
 
@@ -541,5 +551,6 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
                 macro_risks=schema_instance.risk_deconstruction.macro_risks,
                 internal_risks=schema_instance.risk_deconstruction.internal_risks
             ),
-            bottom_line=schema_instance.bottom_line
+            bottom_line=schema_instance.bottom_line,
+            sources={str(src.citation_number): src.source_text for src in schema_instance.sources}
         )

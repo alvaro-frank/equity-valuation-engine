@@ -10,6 +10,22 @@ from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
 from infrastructure.schemas.llm_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
+
+def _remove_additional_properties(d):
+    """
+    Recursively removes 'additionalProperties' from a JSON schema dictionary.
+    This is required because Gemini Developer API rejects schemas with 'additionalProperties': False,
+    which Pydantic v2 includes by default.
+    """
+    if isinstance(d, dict):
+        if "additionalProperties" in d:
+            del d["additionalProperties"]
+        for k, v in d.items():
+            _remove_additional_properties(v)
+    elif isinstance(d, list):
+        for item in d:
+            _remove_additional_properties(item)
+    return d
 from typing import Optional
 
 load_dotenv()
@@ -161,7 +177,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         contents=prompt_en,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
-                            response_schema=CompanyProfileSchema,
+                            response_schema=_remove_additional_properties(CompanyProfileSchema.model_json_schema()),
                             temperature=0.0,
                         )
                     )
@@ -294,7 +310,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         contents=prompt_en,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
-                            response_schema=IndustrySectorDynamicsSchema,
+                            response_schema=_remove_additional_properties(IndustrySectorDynamicsSchema.model_json_schema()),
                             temperature=0.0,
                             max_output_tokens=8192
                         )
@@ -362,6 +378,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         5. moat_trajectory: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why).
         6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
         7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
+        8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory', and 'bottom_line' whenever you extract specific insights, data points, or management quotes. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string) (e.g. [{{"citation_number": 1, "source_text": "MD&A Page 15"}}]).
         """
 
         import hashlib
@@ -411,7 +428,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         contents=[prompt_en, uploaded_file],
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
-                            response_schema=EarningsReportSchema,
+                            response_schema=_remove_additional_properties(EarningsReportSchema.model_json_schema()),
                             temperature=0.0,
                         )
                     )
@@ -467,5 +484,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 macro_risks=schema_instance.risk_deconstruction.macro_risks,
                 internal_risks=schema_instance.risk_deconstruction.internal_risks
             ),
-            bottom_line=schema_instance.bottom_line
+            bottom_line=schema_instance.bottom_line,
+            sources={str(src.citation_number): src.source_text for src in schema_instance.sources}
         )

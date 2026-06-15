@@ -49,7 +49,8 @@ class TestEarningsReportUseCase:
                 macro_risks=["Interest rates"],
                 internal_risks=["Execution delay"]
             ),
-            bottom_line="Excellent execution."
+            bottom_line="Excellent execution.",
+            sources={"1": "MD&A Page 15"}
         )
 
         use_case = EarningsReportUseCase(adapter=qual_port, quant_adapter=quant_port)

@@ -212,3 +212,7 @@ class EarningsReportResult(BaseModel):
     moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
     risk_deconstruction: RiskDeconstructionResult = Field(..., description="Macro and internal risk breakdown")
     bottom_line: str = Field(..., description="Brutal, concise summary of business execution")
+    sources: Dict[str, str] = Field(
+        ..., 
+        description="Mapping of numerical citations to source document pages/sections (e.g. {'1': 'MD&A Page 15'})"
+    )

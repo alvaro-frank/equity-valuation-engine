@@ -378,6 +378,7 @@ class EarningsReport:
     moat_trajectory: str
     risk_deconstruction: RiskDeconstruction
     bottom_line: str
+    sources: Dict[str, str]
     
 @dataclass(frozen=True)
 class MoatSources:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -122,6 +122,13 @@ class RiskDeconstructionSchema(BaseModel):
     macro_risks: List[str]
     internal_risks: List[str]
 
+class SourceCitation(BaseModel):
+    """
+    A specific citation source.
+    """
+    citation_number: int
+    source_text: str
+
 class EarningsReportSchema(BaseModel):
     """
     Schema for earnings report analysis focused on Value Investing.
@@ -134,3 +141,7 @@ class EarningsReportSchema(BaseModel):
     moat_trajectory: str
     risk_deconstruction: RiskDeconstructionSchema
     bottom_line: str
+    sources: List[SourceCitation] = Field(
+        ..., 
+        description="List of numerical citations used in the text and their source document section or page"
+    )
