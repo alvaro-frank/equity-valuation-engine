@@ -5,7 +5,7 @@
     "thesis": "TESE DE INVESTIMENTO",
     "valuation": "VALUATION",
     "sector": "ANÁLISE SETORIAL",
-    "filings": "RELATÓRIOS",
+    "filings": "ANÁLISE DE RELATÓRIOS",
     "support": "SUPORTE",
     "api": "API"
   },
@@ -254,8 +254,10 @@
     "macro_risks": "Riscos Macro / Externos",
     "internal_risks": "Riscos Internos / Execução",
     "forward_guidance": "Projeções Futuras",
+    "moat": "Vantagem Competitiva",
     "bottom_line": "Conclusão",
-    "no_risks_identified": "Nenhum risco significativo identificado nesta categoria."
+    "no_risks_identified": "Nenhum risco significativo identificado nesta categoria.",
+    "period_ended": "Período"
   },
   "pdf_uploader": {
     "uploading": "A analisar Documento...",

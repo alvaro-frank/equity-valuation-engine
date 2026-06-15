@@ -5,7 +5,7 @@
     "thesis": "INVESTMENT THESIS",
     "valuation": "VALUATION",
     "sector": "SECTOR ANALYSIS",
-    "filings": "FILINGS",
+    "filings": "FILINGS ANALYSIS",
     "support": "SUPPORT",
     "api": "API"
   },
@@ -254,8 +254,10 @@
     "macro_risks": "Macro / External Risks",
     "internal_risks": "Internal / Execution Risks",
     "forward_guidance": "Forward Guidance",
+    "moat": "Moat Trajectory",
     "bottom_line": "The Bottom Line",
-    "no_risks_identified": "No significant risks identified in this category."
+    "no_risks_identified": "No significant risks identified in this category.",
+    "period_ended": "Period"
   },
   "pdf_uploader": {
     "uploading": "Analyzing Document...",

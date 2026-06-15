@@ -38,7 +38,14 @@ export function FilingsView() {
   return (
     <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
       <div className="flex-1 pb-10">
-        <FilingsResultsHeader onReset={handleReset} />
+        <FilingsResultsHeader 
+          onReset={handleReset}
+          ticker={activeData.ticker.symbol}
+          name={activeData.ticker.name}
+          sector={activeData.ticker.sector}
+          industry={activeData.ticker.industry}
+          periodEndDate={activeData.period_end_date}
+        />
         <EarningsReportCard data={activeData} />
       </div>
     </div>
