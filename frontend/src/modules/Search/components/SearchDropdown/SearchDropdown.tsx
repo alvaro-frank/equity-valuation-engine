@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { SearchHistoryItem } from '@/common/components/SearchHistoryItem';
-import { SearchResultItem } from '@/common/components/SearchResultItem';
+import { SearchHistoryItem } from '@/modules/Search/components/SearchHistoryItem';
+import { SearchResultItem } from '@/modules/Search/components/SearchResultItem';
 
 interface SearchDropdownProps {
   show: boolean;
@@ -12,6 +12,7 @@ interface SearchDropdownProps {
   onSelect: (ticker: string, name?: string) => void;
   onHover: (index: number) => void;
   onClearHistory: () => void;
+  className?: string;
 }
 
 // --- Sub-Components (Rule 2.23, 2.8, 2.9, 2.12) ---
@@ -124,14 +125,14 @@ function RecentSearchesSection({ onClearHistory, filteredHistory, selectedIndex,
 // --- Main Component ---
 
 export function SearchDropdown(props: SearchDropdownProps) {
-  const { show, searchTerm, filteredHistory, searchResults, isFetching, selectedIndex, onSelect, onHover, onClearHistory } = props;
+  const { show, searchTerm, filteredHistory, searchResults, isFetching, selectedIndex, onSelect, onHover, onClearHistory, className } = props;
   const hasSearchTerm = searchTerm.trim().length > 0;
   
   if (!show) return null;
   if (!hasSearchTerm && filteredHistory.length === 0) return null;
 
   return (
-    <div className="absolute top-[110%] left-0 w-full bg-surface-container-high border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className={`bg-surface-container-high border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${className || ''}`}>
       {hasSearchTerm ? (
         <SearchResultsSection 
           show={show} 

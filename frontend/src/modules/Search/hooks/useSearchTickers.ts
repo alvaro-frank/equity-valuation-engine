@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../utils/api';
+import { api } from '@/common/utils/api';
 
 export interface TickerSearchDTO {
   symbol: string;

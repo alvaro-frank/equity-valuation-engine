@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchHistory } from './useSearchHistory';
-import { useDebounce } from './useDebounce';
+import { useDebounce } from '@/common/hooks/useDebounce';
 import { useSearchTickers } from './useSearchTickers';
 
 export function useSearchBox(onSearchCallback?: (ticker: string) => void) {
