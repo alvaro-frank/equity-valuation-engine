@@ -1,14 +1,13 @@
 import { useTranslation } from 'react-i18next';
+import { NavLink } from 'react-router-dom';
 import { CompanyLogo } from '@/common/components/CompanyLogo';
-import { useSearchHistory } from '@/common/hooks/useSearchHistory';
+import { useSearchHistory } from '@/modules/Search/hooks/useSearchHistory';
 
 interface SideNavBarProps {
   activeTicker: string;
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
 }
 
-export function SideNavBar({ activeTicker, activeTab, onTabChange }: SideNavBarProps) {
+export function SideNavBar({ activeTicker }: SideNavBarProps) {
   const { t } = useTranslation();
   const { history } = useSearchHistory();
   
@@ -16,7 +15,7 @@ export function SideNavBar({ activeTicker, activeTab, onTabChange }: SideNavBarP
   const activeName = activeCompany?.name;
 
   return (
-    <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-10 h-[calc(100vh-40px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-40 group">
+    <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-16 h-[calc(100vh-64px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-40 group">
       <div className="px-4 py-2 mb-4">
         <div className="flex items-center gap-3">
           <CompanyLogo ticker={activeTicker} />
@@ -28,21 +27,23 @@ export function SideNavBar({ activeTicker, activeTab, onTabChange }: SideNavBarP
       </div>
       <nav className="flex-1 px-3 space-y-1">
         {[
-          { icon: 'dashboard', label: t('nav.summary'), id: 'SUMMARY', active: true },
-          { icon: 'account_balance', label: t('nav.financials'), id: 'FINANCIALS' },
-          { icon: 'history_edu', label: t('nav.thesis'), id: 'THESIS' },
-          { icon: 'calculate', label: t('nav.valuation'), id: 'VALUATION' },
-          { icon: 'analytics', label: t('nav.sector'), id: 'SECTOR' },
-          { icon: 'description', label: t('nav.filings'), id: 'FILINGS' }
+          { icon: 'dashboard', label: t('nav.summary'), id: 'summary' },
+          { icon: 'account_balance', label: t('nav.financials'), id: 'financials' },
+          { icon: 'history_edu', label: t('nav.thesis'), id: 'thesis' },
+          { icon: 'calculate', label: t('nav.valuation'), id: 'valuation' },
+          { icon: 'analytics', label: t('nav.sector'), id: 'sector' },
+          { icon: 'description', label: t('nav.filings'), id: 'filings' }
         ].map(item => (
-          <button 
+          <NavLink 
             key={item.id}
-            onClick={() => onTabChange?.(item.id)}
-            className={`${activeTab === item.id ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`}
+            to={`/${activeTicker}/${item.id}`}
+            className={({ isActive }) => 
+              `${isActive ? 'bg-secondary-container text-on-secondary-container border-r-2 border-primary' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'} flex items-center w-full h-10 px-2 rounded-sm group/item transition-colors`
+            }
           >
             <span className="material-symbols-outlined">{item.icon}</span>
             <span className="ml-4 font-label-caps text-label-caps opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{item.label}</span>
-          </button>
+          </NavLink>
         ))}
       </nav>
       <div className="px-3 space-y-1 mt-auto border-t border-outline-variant pt-4">
