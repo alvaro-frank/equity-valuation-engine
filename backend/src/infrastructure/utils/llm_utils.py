@@ -1,4 +1,4 @@
-import json
+import json_repair
 from application.exceptions.exceptions import LLMParsingError
 
 def extract_json_from_response(text: str) -> dict:
@@ -22,6 +22,13 @@ def extract_json_from_response(text: str) -> dict:
         raise LLMParsingError("No JSON object found in response.")
     
     try:
-        return json.loads(text)
-    except json.JSONDecodeError as e:
+        # Use json_repair to robustly handle LLM hallucinations like trailing commas or extra braces
+        repaired_json = json_repair.loads(text)
+        
+        # In rare cases, json_repair might return a string if the input was completely broken
+        if not isinstance(repaired_json, dict) and not isinstance(repaired_json, list):
+             raise LLMParsingError("Parsed result is not a valid JSON object or array.")
+             
+        return repaired_json
+    except Exception as e:
         raise LLMParsingError(f"Failed to parse JSON: {e}. Raw text: {text}")
