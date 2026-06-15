@@ -13,10 +13,14 @@ interface LayoutProps {
 }
 
 export function Layout({ children, onSearch, activeTicker, hasError, activeTab, onTabChange }: LayoutProps) {
-  const isFetching = useIsFetching({
-    predicate: (query) => query.queryKey[0] !== 'search'
+  const isFetchingNewTicker = useIsFetching({
+    predicate: (query) => 
+      query.queryKey[0] === 'valuation' && 
+      query.queryKey[1] === 'validate' && 
+      query.queryKey[2] === activeTicker && 
+      query.state.data === undefined
   });
-  const isLoading = isFetching > 0;
+  const isLoading = isFetchingNewTicker > 0;
   const shouldShowNav = Boolean(activeTicker && !isLoading && !hasError);
 
   return (
