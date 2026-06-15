@@ -1,4 +1,5 @@
 import pytest
+from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
 from domain.entities.entities import FinancialYear
 
@@ -46,7 +47,7 @@ class TestFinancialYearEntity:
         data = valid_financial_year_data.copy()
         data[field] = invalid_value
         
-        with pytest.raises(ValueError, match="Domain Error"):
+        with pytest.raises(DomainValidationError, match="cannot be negative"):
             FinancialYear(**data)
             
     def test_financial_ratios_calculation(self, valid_financial_year_data):
@@ -77,10 +78,7 @@ class TestFinancialYearEntity:
         data[field_to_zero] = Decimal("0")
         fy = FinancialYear(**data)
         
-        if property_to_check == "ps_ratio":
-            assert getattr(fy, property_to_check) is None
-        else:
-            assert getattr(fy, property_to_check) == Decimal("0")
+        assert getattr(fy, property_to_check) is None
 
     def test_ratios_handle_zero_equity_and_capital(self, valid_financial_year_data):
         data = valid_financial_year_data.copy()

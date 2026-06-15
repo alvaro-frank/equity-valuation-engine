@@ -21,18 +21,25 @@ class TestQualitativeValuationUseCase:
         return mock
 
     @pytest.fixture
-    def use_case(self, mock_qual_adapter, mock_quant_adapter):
+    def mock_ownership_adapter(self, mocker):
+        mock = mocker.MagicMock()
+        mock.get_major_shareholders = mocker.AsyncMock()
+        return mock
+
+    @pytest.fixture
+    def use_case(self, mock_qual_adapter, mock_quant_adapter, mock_ownership_adapter):
         return QualitativeValuationUseCase(
             adapter=mock_qual_adapter, 
-            quant_adapter=mock_quant_adapter
+            quant_adapter=mock_quant_adapter,
+            ownership_adapter=mock_ownership_adapter
         )
 
     @pytest.mark.anyio
-    async def test_analyse_ticker_happy_path(self, use_case, mock_qual_adapter, mock_quant_adapter):
+    async def test_analyse_ticker_happy_path(self, use_case, mock_qual_adapter, mock_quant_adapter, mock_ownership_adapter):
         mock_quant_adapter.get_ticker_info.return_value = Ticker(
             symbol="MSFT", name="Microsoft", sector="Tech", industry="Software"
         )
-        mock_quant_adapter.get_major_shareholders.return_value = {"Vanguard": Decimal("8.5")}
+        mock_ownership_adapter.get_major_shareholders.return_value = {"Vanguard": Decimal("8.5")}
         
         mock_qual_adapter.analyse_company.return_value = CompanyProfile(
             business_description="Tech giant",

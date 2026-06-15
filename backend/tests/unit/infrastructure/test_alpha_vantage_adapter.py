@@ -1,4 +1,5 @@
 import pytest
+from application.exceptions.exceptions import ExternalServiceError
 from decimal import Decimal
 import httpx
 
@@ -115,7 +116,7 @@ class TestAlphaVantageAdapter:
     async def test_get_data_handles_network_failure(self, adapter, mock_session):
         mock_session.get.side_effect = httpx.HTTPError("Timeout error")
         
-        with pytest.raises(ConnectionError, match="Connection Error: Timeout error"):
+        with pytest.raises(ExternalServiceError, match="Connection Error: Timeout error"):
             await adapter.get_ticker_info("MSFT")
 
     @pytest.mark.parametrize("api_error_response, expected_match", [

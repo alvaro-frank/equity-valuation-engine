@@ -1,4 +1,5 @@
 import pytest
+from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
 from domain.entities.entities import CompanyProfile, MoatSources, QualityPillars
 
@@ -41,5 +42,5 @@ class TestCompanyProfileEntity:
     def test_invalid_ceo_ownership_raises_error(self, valid_profile_data, invalid_ownership):
         data = valid_profile_data.copy()
         data["key_executives"][0]["ownership"] = invalid_ownership
-        with pytest.raises(ValueError, match="Executive ownership must be between 0 and 100%"):
+        with pytest.raises(DomainValidationError, match="Executive ownership must be between 0 and 100%"):
             CompanyProfile(**data)

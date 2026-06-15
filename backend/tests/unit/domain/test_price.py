@@ -1,4 +1,5 @@
 import pytest
+from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
 from domain.entities.entities import Price
 
@@ -10,5 +11,5 @@ class TestPriceEntity:
         assert price.currency == "EUR"
 
     def test_negative_price_raises_error(self):
-        with pytest.raises(ValueError, match="Price amount cannot be negative"):
+        with pytest.raises(DomainValidationError, match="Price amount cannot be negative"):
             Price(amount=Decimal("-10.00"))

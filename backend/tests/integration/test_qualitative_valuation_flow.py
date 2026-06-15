@@ -69,7 +69,8 @@ class TestQualitativeIntegrationFlow:
         
         use_case = QualitativeValuationUseCase(
             adapter=qual_adapter, 
-            quant_adapter=quant_adapter
+            quant_adapter=quant_adapter,
+            ownership_adapter=quant_adapter
         )
 
         result = await use_case.analyse_ticker("MSFT")

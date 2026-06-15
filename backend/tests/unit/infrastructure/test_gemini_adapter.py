@@ -1,4 +1,5 @@
 import pytest
+from application.exceptions.exceptions import ExternalServiceError
 import json
 from decimal import Decimal
 
@@ -87,7 +88,7 @@ class TestGeminiAdapter:
     async def test_analyse_company_handles_api_failure(self, adapter, mock_client):
         mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
-        with pytest.raises(ConnectionError, match="Gemini|Connection Error"):
+        with pytest.raises(ExternalServiceError, match="Gemini API Error"):
             await adapter.analyse_company("MSFT")
             
         assert mock_client.aio.models.generate_content.call_count == 1
@@ -147,7 +148,7 @@ class TestGeminiAdapter:
         mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
         mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
-        with pytest.raises(ConnectionError, match="Connection Error"):
+        with pytest.raises(ExternalServiceError, match="Gemini API Error"):
             await adapter.analyse_earnings_report("MSFT", "dummy_pdf.pdf")
             
         assert mock_client.aio.models.generate_content.call_count == 1

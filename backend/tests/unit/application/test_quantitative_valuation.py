@@ -13,6 +13,7 @@ class TestQuantitativeValuationUseCase:
         mock.get_ticker_info = mocker.AsyncMock()
         mock.get_stock_current_price = mocker.AsyncMock()
         mock.get_stock_fundamental_data = mocker.AsyncMock()
+        mock.get_stock_quarterly_data = mocker.AsyncMock()
         return mock
 
     @pytest.fixture
