@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from application.ports.ports import QuantitativeDataPort, OwnershipDataPort
 from application.exceptions.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
-from infrastructure.mappers.mapper_financial_years import map_to_financial_years, map_to_financial_quarters
+from infrastructure.mappers.alphavantage_mapper import map_to_financial_years, map_to_financial_quarters
 
 load_dotenv()
 

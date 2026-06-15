@@ -2,7 +2,7 @@ import pytest
 from decimal import Decimal
 
 from domain.entities.entities import Price, FinancialYear
-from infrastructure.mappers.mapper_financial_years import parse_decimal, map_to_financial_years
+from infrastructure.mappers.alphavantage_mapper import parse_decimal, map_to_financial_years
 
 class TestParseDecimal:
     

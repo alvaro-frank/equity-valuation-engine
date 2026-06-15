@@ -1,7 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from typing import List, Dict, Any
 
-from domain.entities.entities import FinancialYear, Price
+from domain.entities.entities import FinancialQuarter, FinancialYear, Price
 
 def parse_decimal(value: Any, field_name: str) -> Decimal:
         """
