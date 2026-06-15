@@ -428,7 +428,7 @@ class CompanyProfile:
         strategy (str): The company's core strategic focus.
         products_services (Dict[str, str]): Main products and services offered.
         competitive_advantage (str): Competitive advantage or MOAT analysis.
-        competitors (Dict[str, str]): Main competitors in the industry.
+        competitors (List[Dict[str, str]]): List of main competitors in the industry.
         management_insights (str): Insights on management quality and meetings.
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
@@ -443,7 +443,7 @@ class CompanyProfile:
     strategy: str
     products_services: Dict[str, str]
     competitive_advantage: str
-    competitors: Dict[str, str]
+    competitors: List[Dict[str, str]]
     management_insights: str
     risk_factors: Dict[str, str]
     historical_context_crises: str

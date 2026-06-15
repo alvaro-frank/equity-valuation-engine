@@ -14,7 +14,7 @@ class TestCompanyProfileEntity:
             "strategy": "Innovation",
             "products_services": {"iPhone": "Smartphone"},
             "competitive_advantage": "Brand loyalty",
-            "competitors": {"Samsung": "Hardware"},
+            "competitors": [{"name": "Samsung", "ticker": "005930.KS", "overlap": "Hardware"}],
             "management_insights": "Good",
             "risk_factors": {"Supply Chain": "Dependence on Asia"},
             "historical_context_crises": "Survived 2008 crisis",

@@ -60,8 +60,8 @@ class QualitativeValuationAdapter:
             print(f"   - {title}: {ownership}%")
         
         print(f"\nCOMPETITION:")
-        for title, description in analysis.competitors.items():
-            print(f"   - {title}: {description}")
+        for comp in analysis.competitors:
+            print(f"   - {comp['name']} [{comp['ticker']}]: {comp['overlap']}")
         
         print(f"\nSTRATEGY AND PRODUCTS:")
         print(f"   - Revenue Model: {analysis.revenue_model}")

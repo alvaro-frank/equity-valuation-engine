@@ -76,7 +76,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
         - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
-        - Lists of Objects: For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema.
+        - Lists of Objects: For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema. For 'competitors', enforce exactly one company per entry and provide its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
@@ -102,9 +102,9 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
             ],
             "competitive_advantage": "MINIMUM 100 WORDS, 4-5 sentences. Deep analysis defending the existence, strength, and durability of the Moat.",
             "competitors": [
-                {{ "name": "Competitor 1 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis of competitive dynamics, market share battles, and specific overlap." }},
-                {{ "name": "Competitor 2 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }},
-                {{ "name": "Competitor 3 Name", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }}
+                {{ "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "MINIMUM 60 WORDS. Detailed analysis of competitive dynamics, market share battles, and specific overlap." }},
+                {{ "name": "Competitor 2 Name", "ticker": "MSFT", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }},
+                {{ "name": "Competitor 3 Name", "ticker": "PRIVATE", "overlap": "MINIMUM 60 WORDS. Detailed analysis..." }}
             ],
             "management_insights": "MINIMUM 80 WORDS. Analysis of management quality and track record.",
             "risk_factors": [
@@ -199,7 +199,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
             strategy=schema_instance.strategy,
             products_services={p.name: p.description for p in schema_instance.products_services},
             competitive_advantage=schema_instance.competitive_advantage,
-            competitors={c.name: c.overlap for c in schema_instance.competitors},
+            competitors=[{"name": c.name, "ticker": c.ticker, "overlap": c.overlap} for c in schema_instance.competitors],
             management_insights=schema_instance.management_insights,
             risk_factors={r.title: r.description for r in schema_instance.risk_factors},
             historical_context_crises=schema_instance.historical_context_crises,

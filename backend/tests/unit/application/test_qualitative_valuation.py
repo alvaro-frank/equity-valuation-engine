@@ -49,7 +49,7 @@ class TestQualitativeValuationUseCase:
             strategy="AI",
             products_services={"Azure": "Cloud"},
             competitive_advantage="Moat",
-            competitors={"AWS": "Cloud"},
+            competitors=[{"name": "AWS", "ticker": "AMZN", "overlap": "Cloud"}],
             management_insights="Strong",
             risk_factors={"Risk": "Desc"},
             historical_context_crises="None",

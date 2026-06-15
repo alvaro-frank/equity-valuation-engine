@@ -135,7 +135,7 @@ class QualitativeValuationResult(BaseModel):
     strategy: str = Field(..., description="The company's core strategic focus")
     products_services: Dict[str, str] = Field(..., description="Product name mapping to its function")
     competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
-    competitors: Dict[str, str] = Field(..., description="Competitor name mapping to the competitive overlap")
+    competitors: List[Dict[str, str]] = Field(..., description="List of competitors with name, ticker, and competitive overlap")
     management_insights: str = Field(..., description="Insights on management quality and meetings")
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")

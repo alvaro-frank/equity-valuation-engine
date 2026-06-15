@@ -41,7 +41,7 @@ class TestGeminiAdapter:
             "strategy": "AI First",
             "products_services": [{"name": "Azure", "description": "Cloud platform"}],
             "competitive_advantage": "Ecosystem lock-in",
-            "competitors": [{"name": "AWS", "overlap": "Cloud"}],
+            "competitors": [{"name": "AWS", "ticker": "AMZN", "overlap": "Cloud"}],
             "management_insights": "Strong execution",
             "risk_factors": [{"title": "Regulation", "description": "Antitrust scrutiny"}],
             "historical_context_crises": "Survived dot-com bubble",
@@ -57,7 +57,9 @@ class TestGeminiAdapter:
         assert profile.key_executives[0]["name"] == "Satya Nadella"
         assert profile.key_executives[0]["ownership"] == 0.15
         assert profile.products_services["Azure"] == "Cloud platform"
-        assert profile.competitors["AWS"] == "Cloud"
+        assert profile.competitors[0]["name"] == "AWS"
+        assert profile.competitors[0]["ticker"] == "AMZN"
+        assert profile.competitors[0]["overlap"] == "Cloud"
         
         mock_client.aio.models.generate_content.assert_called_once()
 

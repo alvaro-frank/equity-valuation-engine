@@ -49,7 +49,7 @@ class TestQualitativeIntegrationFlow:
             "strategy": "AI First",
             "products_services": [{"name": "Azure", "description": "Cloud platform"}],
             "competitive_advantage": "Ecosystem lock-in",
-            "competitors": [{"name": "AWS", "overlap": "Cloud"}],
+            "competitors": [{"name": "AWS", "ticker": "AMZN", "overlap": "Cloud"}],
             "management_insights": "Strong execution",
             "risk_factors": [{"title": "Regulation", "description": "Antitrust"}],
             "historical_context_crises": "Survived dot-com bubble",
@@ -80,4 +80,6 @@ class TestQualitativeIntegrationFlow:
         assert result.key_executives[0]["name"] == "Satya Nadella"
         assert result.key_executives[0]["ownership"] == 0.15
         assert result.products_services["Azure"] == "Cloud platform"
-        assert result.competitors["AWS"] == "Cloud"
+        assert result.competitors[0]["name"] == "AWS"
+        assert result.competitors[0]["ticker"] == "AMZN"
+        assert result.competitors[0]["overlap"] == "Cloud"

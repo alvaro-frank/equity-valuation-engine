@@ -70,7 +70,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
         - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
-        - Dictionaries: For 'products_services', 'competitors', and 'risk_factors', provide specific key-value pairs where the key is the Item Name and the value is the Detail/Stake.
+        - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific key-value pairs. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
@@ -94,11 +94,11 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 "Product/Service 3": "Comprehensive 2-3 sentence description..."
             }},
             "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat.",
-            "competitors": {{
-                "Competitor 1 Name": "Detailed 2-3 sentence analysis of competitive dynamics, market share battles, and specific overlap.",
-                "Competitor 2 Name": "Detailed 2-3 sentence analysis...",
-                "Competitor 3 Name": "Detailed 2-3 sentence analysis..."
-            }},
+            "competitors": [
+                {{ "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis..." }},
+                {{ "name": "Competitor 2 Name", "ticker": "MSFT", "overlap": "Detailed 2-3 sentence analysis..." }},
+                {{ "name": "Competitor 3 Name", "ticker": "PRIVATE", "overlap": "Detailed 2-3 sentence analysis..." }}
+            ],
             "management_insights": "Analysis of management quality and track record.",
             "risk_factors": {{
                 "Risk 1 Title (e.g. Geopolitical)": "Detailed 2-3 sentence breakdown of the risk impact and probability.",
@@ -192,7 +192,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             strategy=schema_instance.strategy,
             products_services={p.name: p.description for p in schema_instance.products_services},
             competitive_advantage=schema_instance.competitive_advantage,
-            competitors={c.name: c.overlap for c in schema_instance.competitors},
+            competitors=[{"name": c.name, "ticker": c.ticker, "overlap": c.overlap} for c in schema_instance.competitors],
             management_insights=schema_instance.management_insights,
             risk_factors={r.title: r.description for r in schema_instance.risk_factors},
             historical_context_crises=schema_instance.historical_context_crises,

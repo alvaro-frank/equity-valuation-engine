@@ -15,6 +15,7 @@ class Competitor(BaseModel):
     Details regarding a direct or indirect competitor in the market.
     """
     name: str
+    ticker: str
     overlap: str
 
 class RiskFactor(BaseModel):
