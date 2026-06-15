@@ -32,7 +32,7 @@ interface ChartHeaderProps {
   benchmarkTicker: string;
 }
 
-function ChartHeader({ companyTicker, companyName, sector, industry, benchmarkTicker }: ChartHeaderProps) {
+function ChartHeader({ companyTicker, companyName, sector, industry }: ChartHeaderProps) {
   const { t } = useTranslation();
   return (
     <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center">

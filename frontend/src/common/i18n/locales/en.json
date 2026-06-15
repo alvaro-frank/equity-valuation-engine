@@ -254,7 +254,8 @@
     "macro_risks": "Macro / External Risks",
     "internal_risks": "Internal / Execution Risks",
     "forward_guidance": "Forward Guidance",
-    "bottom_line": "The Bottom Line"
+    "bottom_line": "The Bottom Line",
+    "no_risks_identified": "No significant risks identified in this category."
   },
   "pdf_uploader": {
     "uploading": "Analyzing Document...",

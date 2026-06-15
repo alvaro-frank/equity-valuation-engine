@@ -1,4 +1,5 @@
 
+import { useParams } from 'react-router-dom';
 import { PdfUploader } from './components/PdfUploader';
 import { EarningsReportCard } from './components/EarningsReportCard';
 import { ApiErrorState } from '@/common/components/ApiErrorState';
@@ -7,14 +8,15 @@ import { FilingsResultsHeader } from './components/FilingsResultsHeader';
 
 // --- Main Component ---
 
-export function FilingsView({ ticker }: { ticker: string }) {
+export function FilingsView() {
+  const { ticker } = useParams<{ ticker: string }>();
   const { 
     activeData, 
     isPending, 
     errorState, 
     handleFileSelect, 
     handleReset 
-  } = useFilingsView(ticker);
+  } = useFilingsView(ticker!);
 
   // 1. Error State
   if (errorState) {

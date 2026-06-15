@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { DashboardView } from '@/modules/Dashboard/DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { DashboardSkeleton } from '@/modules/Dashboard/components/DashboardSkeleton';
@@ -6,17 +7,10 @@ import { parseApiError } from '@/common/utils/apiErrors';
 import { useDashboard } from '@/modules/Dashboard/hooks/useDashboard';
 import { useTranslation } from 'react-i18next';
 
-interface DashboardProps {
-  ticker: string;
-  isParentError?: boolean;
-  onErrorChange?: (hasError: boolean) => void;
-  onSearch?: (ticker: string) => void;
-  onHome?: () => void;
-}
-
-export function Dashboard({ ticker, isParentError, onErrorChange, onSearch, onHome }: DashboardProps) {
+export function Dashboard() {
+  const { ticker } = useParams<{ ticker: string }>();
   const { t } = useTranslation();
-  const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker, isParentError, onErrorChange);
+  const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker!);
 
   if (isLoading) {
     return (
@@ -28,17 +22,16 @@ export function Dashboard({ ticker, isParentError, onErrorChange, onSearch, onHo
 
   if (hasError) {
     const activeError = errorQuant || errorQual;
-    const errorState = parseApiError(activeError, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={retry} onHome={onHome} />;
+    const errorState = parseApiError(activeError, t, ticker!);
+    return <ApiErrorState errorState={errorState} onRetry={retry} />;
   }
 
   return (
     <ErrorBoundary>
       <DashboardView 
-        ticker={ticker}
+        ticker={ticker!}
         quantData={quantData} 
         qualData={qualData}
-        onSearch={onSearch}
       />
     </ErrorBoundary>
   );

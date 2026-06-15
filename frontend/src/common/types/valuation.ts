@@ -52,6 +52,12 @@ export interface QualityPillars {
   tam_expansion: number;
 }
 
+export interface CompetitorData {
+  name: string;
+  ticker: string;
+  overlap: string;
+}
+
 export interface QualitativeValuationResult {
   ticker: TickerResult;
   business_description: string;
@@ -62,7 +68,7 @@ export interface QualitativeValuationResult {
   strategy: string;
   products_services: Record<string, string>;
   competitive_advantage: string;
-  competitors: Record<string, string>;
+  competitors: CompetitorData[];
   management_insights: string;
   risk_factors: Record<string, string>;
   historical_context_crises: string;

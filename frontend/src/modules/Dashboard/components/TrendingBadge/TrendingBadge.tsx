@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { SearchResultItem } from '@/common/components/SearchResultItem';
+import { SearchResultItem } from '@/modules/Search/components/SearchResultItem';
 import { useTrendingBadge } from './useTrendingBadge';
 
 // --- Types ---

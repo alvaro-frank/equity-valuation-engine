@@ -3,6 +3,7 @@ import { translateSector, translateIndustry } from '@/common/utils/translations'
 import { useThesisView } from './hooks/useThesisView';
 import { ApiErrorState } from '@/common/components/ApiErrorState';
 import { parseApiError } from '@/common/utils/apiErrors';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { QualitativeValuationResult, TickerResult } from '@/common/types/valuation';
 import type { SubNavTab } from '@/common/components/SubNav';
@@ -50,12 +51,8 @@ function TabContent({ activeSubTab, qualData }: { activeSubTab: string; qualData
 
 // --- Main Component ---
 
-interface ThesisViewProps {
-  ticker: string;
-  onHome?: () => void;
-}
-
-export function ThesisView({ ticker, onHome }: ThesisViewProps) {
+export function ThesisView() {
+  const { ticker } = useParams<{ ticker: string }>();
   const { 
     t, 
     qualData, 
@@ -64,21 +61,21 @@ export function ThesisView({ ticker, onHome }: ThesisViewProps) {
     refetch, 
     activeSubTab, 
     setActiveSubTab, 
-    subTabs 
-  } = useThesisView(ticker);
+    subTabs
+  } = useThesisView(ticker!);
 
   if (isLoading) {
     return <ThesisSkeleton />;
   }
 
   if (error || !qualData) {
-    const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
+    const errorState = parseApiError(error, t, ticker!);
+    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
   }
 
   return (
     <div className="max-w-[1400px] mx-auto pb-12 animate-in fade-in duration-500">
-      <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker} />
+      <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker!} />
 
       <SubNav 
         tabs={subTabs as SubNavTab[]} 

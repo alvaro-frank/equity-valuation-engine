@@ -3,7 +3,7 @@ import { MoatRadarChart } from '../MoatRadarChart';
 
 // --- Sub-Components (Rule 2.23, Rule 2.30) ---
 
-import type { MoatSources, QualitativeValuationResult } from '@/common/types/valuation';
+import type { MoatSources, QualitativeValuationResult, CompetitorData } from '@/common/types/valuation';
 
 function MoatOverview({ content, moatSources }: { content: string; moatSources: MoatSources | undefined }) {
   const { t } = useTranslation();
@@ -42,23 +42,30 @@ function MoatTrajectory({ content }: { content: string | undefined }) {
   );
 }
 
-function CompetitorCard({ competitor, overlap }: { competitor: string; overlap: string }) {
+function CompetitorCard({ competitor }: { competitor: CompetitorData }) {
   return (
-    <div className="bg-surface-container-lowest p-4 rounded-lg border border-outline-variant/50 hover:border-outline-variant transition-all hover:shadow-sm">
+    <div className="bg-surface-container-lowest p-4 rounded-lg border border-outline-variant/50 hover:border-primary/30 transition-all hover:shadow-sm cursor-pointer group">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center border border-outline-variant shrink-0">
-          <span className="material-symbols-outlined text-[16px] text-on-surface-variant">corporate_fare</span>
+        <div className="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center border border-outline-variant shrink-0 group-hover:bg-primary/10 group-hover:border-primary/30 transition-colors">
+          <span className="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-primary transition-colors">corporate_fare</span>
         </div>
-        <h4 className="font-bold text-on-surface text-sm">{competitor}</h4>
+        <h4 className="font-bold text-on-surface text-sm flex items-center gap-2">
+          {competitor.name}
+          {competitor.ticker !== "PRIVATE" && (
+            <span className="bg-surface-container-high text-on-surface-variant text-[10px] px-2 py-0.5 rounded border border-outline-variant font-mono">
+              {competitor.ticker}
+            </span>
+          )}
+        </h4>
       </div>
-      <p className="text-xs text-on-surface-variant leading-relaxed pl-11">{overlap}</p>
+      <p className="text-xs text-on-surface-variant leading-relaxed pl-11">{competitor.overlap}</p>
     </div>
   );
 }
 
-function CompetitorsList({ competitors }: { competitors: Record<string, string> }) {
+function CompetitorsList({ competitors }: { competitors: CompetitorData[] }) {
   const { t } = useTranslation();
-  const hasData = Object.keys(competitors || {}).length > 0;
+  const hasData = competitors && competitors.length > 0;
 
   return (
     <div>
@@ -68,8 +75,8 @@ function CompetitorsList({ competitors }: { competitors: Record<string, string> 
       </h3>
       <div className="grid grid-cols-1 gap-3">
         {hasData ? (
-          Object.entries(competitors).map(([competitor, overlap]) => (
-            <CompetitorCard key={competitor} competitor={competitor} overlap={overlap} />
+          competitors.map((comp, i) => (
+            <CompetitorCard key={`${comp.ticker}-${i}`} competitor={comp} />
           ))
         ) : (
           <p className="text-sm text-on-surface-variant italic p-4">{t('thesis_view.no_data')}</p>
@@ -94,7 +101,7 @@ export function MoatTab({ qualData }: MoatTabProps) {
           <MoatOverview content={qualData.competitive_advantage} moatSources={qualData.moat_sources} />
           <MoatTrajectory content={qualData.moat_trajectory} />
         </div>
-        <CompetitorsList competitors={qualData.competitors || {}} />
+        <CompetitorsList competitors={qualData.competitors || []} />
       </div>
     </div>
   );

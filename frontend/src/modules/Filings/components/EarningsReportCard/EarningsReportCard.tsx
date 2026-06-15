@@ -42,17 +42,17 @@ function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_perfor
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <PerformanceMetric 
           label={t('filings.adj_revenue')} 
-          value={formatLargeCurrency(data.adjusted_revenue.amount * 1e9)} 
+          value={formatLargeCurrency((data.adjusted_revenue.amount || 0) * 1e9)} 
           growth={data.adjusted_revenue.yoy_growth} 
         />
         <PerformanceMetric 
           label={t('filings.adj_eps')} 
-          value={formatEps(data.adjusted_eps.amount)} 
-          growth={data.adjusted_eps.yoy_growth} 
+          value={formatEps(data.adjusted_eps?.amount)} 
+          growth={data.adjusted_eps?.yoy_growth} 
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
-          value={formatLargeCurrency(data.free_cash_flow.amount * 1e9)} 
+          value={formatLargeCurrency((data.free_cash_flow.amount || 0) * 1e9)} 
           growth={data.free_cash_flow.yoy_growth} 
         />
         <PerformanceMetric 
@@ -122,23 +122,35 @@ function RiskDeconstructionPanel({ data }: { data: EarningsReportResult['risk_de
         <div className="mb-4">
           <span className="text-xs font-semibold text-tertiary block mb-2 uppercase tracking-wider">{t('filings.macro_risks')}</span>
           <ul className="space-y-1">
-            {data.macro_risks.map((risk, i) => (
-              <li key={i} className="text-sm text-on-surface flex items-start">
-                <span className="mr-2 text-tertiary">•</span>
-                <span>{risk}</span>
+            {data.macro_risks.length > 0 ? (
+              data.macro_risks.map((risk, i) => (
+                <li key={i} className="text-sm text-on-surface flex items-start">
+                  <span className="mr-2 text-tertiary">•</span>
+                  <span>{risk}</span>
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-on-surface-variant italic py-1">
+                {t('filings.no_risks_identified')}
               </li>
-            ))}
+            )}
           </ul>
         </div>
         <div>
           <span className="text-xs font-semibold text-tertiary block mb-2 uppercase tracking-wider">{t('filings.internal_risks')}</span>
           <ul className="space-y-1">
-            {data.internal_risks.map((risk, i) => (
-              <li key={i} className="text-sm text-on-surface flex items-start">
-                <span className="mr-2 text-tertiary">•</span>
-                <span>{risk}</span>
+            {data.internal_risks.length > 0 ? (
+              data.internal_risks.map((risk, i) => (
+                <li key={i} className="text-sm text-on-surface flex items-start">
+                  <span className="mr-2 text-tertiary">•</span>
+                  <span>{risk}</span>
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-on-surface-variant italic py-1">
+                {t('filings.no_risks_identified')}
               </li>
-            ))}
+            )}
           </ul>
         </div>
       </div>

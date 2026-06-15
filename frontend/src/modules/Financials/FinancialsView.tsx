@@ -1,4 +1,5 @@
 
+import { useParams } from 'react-router-dom';
 import { SubNav } from '@/common/components/SubNav';
 import { FinancialTable } from './components/FinancialTable';
 import { useFinancialsView } from './hooks/useFinancialsView';
@@ -8,12 +9,8 @@ import { parseApiError } from '@/common/utils/apiErrors';
 import { FinancialsSkeleton } from './components/FinancialsSkeleton';
 import { FinancialsHeader } from './components/FinancialsHeader';
 
-interface FinancialsViewProps {
-  ticker: string;
-  onHome?: () => void;
-}
-
-export function FinancialsView({ ticker, onHome }: FinancialsViewProps) {
+export function FinancialsView() {
+  const { ticker } = useParams<{ ticker: string }>();
   const { 
     t, 
     quantData, 
@@ -26,21 +23,21 @@ export function FinancialsView({ ticker, onHome }: FinancialsViewProps) {
     setIsQuarterly, 
     tabs, 
     currentRows 
-  } = useFinancialsView(ticker);
+  } = useFinancialsView(ticker!);
 
   if (isLoading) {
     return <FinancialsSkeleton />;
   }
 
   if (error || !quantData) {
-    const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
+    const errorState = parseApiError(error, t, ticker!);
+    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
   }
 
   return (
     <div className="max-w-[1600px] mx-auto pb-12 animate-in fade-in duration-500">
       <FinancialsHeader 
-        ticker={ticker} 
+        ticker={ticker!} 
         quantData={quantData} 
         activeTab={activeTab} 
         isQuarterly={isQuarterly} 

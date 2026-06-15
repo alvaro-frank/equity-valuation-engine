@@ -9,7 +9,7 @@ interface ApiErrorStateProps {
 
 export function ApiErrorState({ errorState, onRetry, onHome }: ApiErrorStateProps) {
   const { t } = useTranslation();
-  const { key, details, rawMessage, ticker } = errorState;
+  const { key, details, rawMessage } = errorState;
 
   const title = details.title;
   const message = details.message;

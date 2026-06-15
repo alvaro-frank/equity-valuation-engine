@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuantitativeData } from '@/common/hooks/useQuantitativeData';
-import { useTickerValidation } from '@/common/hooks/useTickerValidation';
+import { useQuantitativeData } from '@/common/api/hooks/useQuantitativeData';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 import type { SubNavTab } from '@/common/components/SubNav';
 import { 
   INCOME_STATEMENT_ROWS, 

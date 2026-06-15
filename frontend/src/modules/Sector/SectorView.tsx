@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { SubNav } from '@/common/components/SubNav';
 import type { SubNavTab } from '@/common/components/SubNav';
 import { translateSector, translateIndustry } from '@/common/utils/translations';
@@ -56,12 +57,8 @@ function TabContent({ activeTab, sectorData, perfData, isLoadingPerf, companyNam
 
 // --- Main Component ---
 
-interface SectorViewProps {
-  ticker: string;
-  onHome?: () => void;
-}
-
-export function SectorView({ ticker, onHome }: SectorViewProps) {
+export function SectorView() {
+  const { ticker } = useParams<{ ticker: string }>();
   const { 
     t, 
     i18n, 
@@ -74,21 +71,21 @@ export function SectorView({ ticker, onHome }: SectorViewProps) {
     activeSubTab, 
     setActiveSubTab, 
     subTabs 
-  } = useSectorView(ticker);
+  } = useSectorView(ticker!);
 
   if (isLoading) {
     return <SectorSkeleton language={i18n.language} />;
   }
 
   if (error || !sectorData) {
-    const errorState = parseApiError(error, t, ticker);
-    return <ApiErrorState errorState={errorState} onRetry={refetch} onHome={onHome} />;
+    const errorState = parseApiError(error, t, ticker!);
+    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
   }
 
   return (
     <div className="max-w-[1400px] mx-auto pb-12 animate-in fade-in duration-500">
       <SectorHeader 
-        ticker={ticker} 
+        ticker={ticker!} 
         name={sectorData.ticker.name} 
         sector={sectorData.sector} 
         industry={sectorData.industry} 

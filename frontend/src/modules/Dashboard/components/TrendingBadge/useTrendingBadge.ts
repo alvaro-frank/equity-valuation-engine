@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { useTrendingTickers } from '@/common/hooks/useTrendingTickers';
+import { useTrendingTickers } from '@/modules/Dashboard/hooks/useTrendingTickers';
 import { useClickOutside } from '@/common/hooks/useClickOutside';
 
 interface UseTrendingBadgeProps {

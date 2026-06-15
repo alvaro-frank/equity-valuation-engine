@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useQuantitativeData } from '@/common/hooks/useQuantitativeData';
-import { useQualitativeData } from '@/common/hooks/useQualitativeData';
-import { useSearchHistory } from '@/common/hooks/useSearchHistory';
-import { useTickerValidation } from '@/common/hooks/useTickerValidation';
+import { useQuantitativeData } from '@/common/api/hooks/useQuantitativeData';
+import { useQualitativeData } from '@/common/api/hooks/useQualitativeData';
+import { useSearchHistory } from '@/modules/Search/hooks/useSearchHistory';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
 export function useDashboard(ticker: string, isParentError?: boolean, onErrorChange?: (hasError: boolean) => void) {
   const { 

@@ -1,5 +1,5 @@
 import { MetricCard } from '../MetricCard';
-import { formatLargeCurrency, formatLargeNumber, formatMultiplier } from '@/common/utils/formatters';
+import { formatLargeCurrency, formatMultiplier } from '@/common/utils/formatters';
 import type { QuantitativeValuationResult } from '@/common/types/valuation';
 
 interface KPIGridProps {

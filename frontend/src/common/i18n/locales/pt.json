@@ -254,7 +254,8 @@
     "macro_risks": "Riscos Macro / Externos",
     "internal_risks": "Riscos Internos / Execução",
     "forward_guidance": "Projeções Futuras",
-    "bottom_line": "Conclusão"
+    "bottom_line": "Conclusão",
+    "no_risks_identified": "Nenhum risco significativo identificado nesta categoria."
   },
   "pdf_uploader": {
     "uploading": "A analisar Documento...",

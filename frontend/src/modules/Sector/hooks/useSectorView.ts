@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSectorData } from '@/common/hooks/useSectorData';
-import { useSectorPerformance } from '@/common/hooks/useSectorPerformance';
-import { useTickerValidation } from '@/common/hooks/useTickerValidation';
+import { useSectorData } from '@/modules/Sector/hooks/useSectorData';
+import { useSectorPerformance } from '@/modules/Sector/hooks/useSectorPerformance';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
 export type SectorTab = 'competitive' | 'macro' | 'performance';
 

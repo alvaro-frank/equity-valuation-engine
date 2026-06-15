@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQualitativeData } from '@/common/hooks/useQualitativeData';
-import { useTickerValidation } from '@/common/hooks/useTickerValidation';
+import { useQualitativeData } from '@/common/api/hooks/useQualitativeData';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
 export type ThesisTab = 'overview' | 'moat' | 'leadership' | 'history' | 'risks';
 
