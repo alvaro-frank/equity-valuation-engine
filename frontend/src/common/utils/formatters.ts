@@ -56,7 +56,7 @@ export const formatPercentage = (rawVal?: number | string | null): string => {
 
 export const formatMultiplier = (rawVal?: number | string | null): string => {
   if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
-  return `${Number(rawVal).toFixed(1)}x`;
+  return `${Number(rawVal).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}x`;
 };
 
 export type FormatType = 'currency' | 'small_currency' | 'percent' | 'multiplier' | 'raw' | 'number';

@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
-import { formatLargeCurrency, formatLargeNumber } from '@/common/utils/formatters';
+import { formatLargeCurrency, formatLargeNumber, formatMultiplier } from '@/common/utils/formatters';
 
 interface UseDashboardDataProps {
   quantData?: QuantitativeValuationResult;
@@ -21,7 +21,7 @@ export function useDashboardData({ quantData, qualData }: UseDashboardDataProps)
   }, [quantData]);
 
   // Helper to safely extract the latest formatted value of a metric by key
-  const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' = 'number') => {
+  const getLatestMetric = (metricKey: string, formatAs: 'currency' | 'number' | 'percent' | 'multiplier' = 'number') => {
     if (!quantData || !quantData.metrics) return 'N/A';
     
     const series = quantData.metrics[metricKey];
@@ -41,6 +41,7 @@ export function useDashboardData({ quantData, qualData }: UseDashboardDataProps)
 
     if (formatAs === 'currency') return formatLargeCurrency(val);
     if (formatAs === 'percent') return `${val.toFixed(1)}%`;
+    if (formatAs === 'multiplier') return formatMultiplier(val);
     return formatLargeNumber(val);
   };
 

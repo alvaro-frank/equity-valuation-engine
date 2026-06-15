@@ -1,12 +1,12 @@
 import { MetricCard } from '../MetricCard';
-import { formatLargeCurrency, formatLargeNumber } from '@/common/utils/formatters';
+import { formatLargeCurrency, formatLargeNumber, formatMultiplier } from '@/common/utils/formatters';
 import type { QuantitativeValuationResult } from '@/common/types/valuation';
 
 interface KPIGridProps {
   quantData?: QuantitativeValuationResult;
   ev: number | null;
   fcf: number | null;
-  getLatestMetric: (metricKey: string, formatAs?: 'currency' | 'number' | 'percent') => string;
+  getLatestMetric: (metricKey: string, formatAs?: 'currency' | 'number' | 'percent' | 'multiplier') => string;
   getRawLatestMetric: (metricKey: string) => number | null;
 }
 
@@ -25,11 +25,11 @@ export function KPIGrid({ quantData, ev, fcf, getLatestMetric, getRawLatestMetri
 
       <MetricCard 
         label="P/E RATIO TTM" 
-        value={formatLargeNumber(quantData?.ticker?.pe_ratio)} 
+        value={formatMultiplier(quantData?.ticker?.pe_ratio)} 
         icon="monitoring" 
         flipData={{
           label: "FORWARD P/E",
-          value: formatLargeNumber(quantData?.ticker?.forward_pe)
+          value: formatMultiplier(quantData?.ticker?.forward_pe)
         }}
       />
       
@@ -55,7 +55,7 @@ export function KPIGrid({ quantData, ev, fcf, getLatestMetric, getRawLatestMetri
       
       <MetricCard 
         label="DEBT-TO-EQUITY" 
-        value={getLatestMetric('debt_to_equity', 'number')} 
+        value={getLatestMetric('debt_to_equity', 'multiplier')} 
         icon="balance" 
         flipData={{
           label: "CASH & EQUIVALENTS",
