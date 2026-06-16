@@ -41,10 +41,10 @@ class EarningsReportAdapter:
         print(f"{'='*80}")
         
         print(f"\n[1] CORE PERFORMANCE (Non-GAAP):")
-        print(f"  - Adjusted Revenue: {result.core_performance.adjusted_revenue.amount:,.2f} (YoY: {result.core_performance.adjusted_revenue.yoy_growth:+.2f}%)")
-        print(f"  - Adjusted EPS: {result.core_performance.adjusted_eps.amount:,.2f} (YoY: {result.core_performance.adjusted_eps.yoy_growth:+.2f}%)")
+        print(f"  - Adjusted Revenue: {result.core_performance.adjusted_revenue.amount:,.2f}")
+        print(f"  - Adjusted EPS: {result.core_performance.adjusted_eps.amount:,.2f}")
 
-        print(f"  - Free Cash Flow: {result.core_performance.free_cash_flow.amount:,.2f} (YoY: {result.core_performance.free_cash_flow.yoy_growth:+.2f}%)")
+        print(f"  - Free Cash Flow: {result.core_performance.free_cash_flow.amount:,.2f}")
         
         print(f"\n[2] CAPITAL ALLOCATION:")
         print(f"  - Share Buybacks: {result.capital_allocation.share_buybacks:,.2f}")

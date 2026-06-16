@@ -162,11 +162,11 @@ class SectorIndustrialValuationResult(BaseModel):
 
 class MetricWithGrowthResult(BaseModel):
     """
-    Data Transfer Object representing a financial metric with its absolute value and year-over-year growth percentage.
+    Data Transfer Object representing a financial metric extracted from an earnings report.
+    YoY growth is calculated deterministically in the frontend using quantitative API data.
     """
     model_config = ConfigDict(frozen=True)
     amount: Optional[Decimal] = Field(None, description="The absolute value or margin of the metric")
-    yoy_growth: Optional[Decimal] = Field(None, description="The Year-over-Year growth percentage")
 
 class CorePerformanceResult(BaseModel):
     """

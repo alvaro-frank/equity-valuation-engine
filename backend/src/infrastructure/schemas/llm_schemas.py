@@ -90,10 +90,10 @@ class IndustrySectorDynamicsSchema(BaseModel):
 
 class MetricWithGrowthSchema(BaseModel):
     """
-    Represents a financial metric with its year-over-year growth percentage.
+    Represents a financial metric extracted from an earnings report.
+    YoY growth is calculated deterministically in the frontend using quantitative API data.
     """
     amount: Optional[float] = None
-    yoy_growth: Optional[float] = None
 
 class CorePerformanceSchema(BaseModel):
     """

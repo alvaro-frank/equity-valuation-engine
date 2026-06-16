@@ -300,14 +300,15 @@ class FinancialQuarter(BaseFinancialPeriod):
 @dataclass(frozen=True)
 class MetricWithGrowth:
     """
-    Represents a financial metric with its corresponding Year-over-Year (YoY) growth.
+    Represents a financial metric extracted from an earnings report.
     
     Attributes:
         amount (Optional[Decimal]): The absolute value or margin of the metric (e.g., revenue amount, EPS value, or margin percentage).
-        yoy_growth (Optional[Decimal]): The year-over-year growth percentage.
+    
+    Note:
+        YoY growth is calculated deterministically in the frontend using quantitative API data.
     """
     amount: Optional[Decimal] = None
-    yoy_growth: Optional[Decimal] = None
 
 @dataclass(frozen=True)
 class CorePerformance:
