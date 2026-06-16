@@ -23,7 +23,7 @@ function FinancialHeaderRow({ row, colSpan }: { row: ProcessedRow; colSpan: numb
   );
 }
 
-function FinancialDataRow({ row }: { row: ProcessedRow }) {
+function FinancialDataRow({ row, hideGrowthColumn }: { row: ProcessedRow; hideGrowthColumn?: boolean }) {
   const { t } = useTranslation();
   return (
     <tr className="hover:bg-surface-container transition-colors group">
@@ -35,19 +35,21 @@ function FinancialDataRow({ row }: { row: ProcessedRow }) {
           {val}
         </td>
       ))}
-      <td className="p-4 text-sm font-bold text-primary text-right bg-primary/5 font-data-mono">
-        {row.growth}
-      </td>
+      {!hideGrowthColumn && (
+        <td className="p-4 text-sm font-bold text-primary text-right bg-primary/5 font-data-mono">
+          {row.growth}
+        </td>
+      )}
     </tr>
   );
 }
 
 // Route rows without ternaries (Rule 2.12)
-function TableRow({ row, colSpan }: { row: ProcessedRow; colSpan: number }) {
+function TableRow({ row, colSpan, hideGrowthColumn }: { row: ProcessedRow; colSpan: number; hideGrowthColumn?: boolean }) {
   if (row.isHeader) {
     return <FinancialHeaderRow row={row} colSpan={colSpan} />;
   }
-  return <FinancialDataRow row={row} />;
+  return <FinancialDataRow row={row} hideGrowthColumn={hideGrowthColumn} />;
 }
 
 // --- Main Component ---
@@ -57,17 +59,18 @@ interface FinancialTableProps {
   quarterlyData?: Record<string, BaseMetric[]> | undefined;
   isQuarterly?: boolean;
   rows: FinancialTableRow[];
+  hideGrowthColumn?: boolean;
 }
 
 export function FinancialTable(props: FinancialTableProps) {
-  const { isQuarterly = false } = props;
+  const { isQuarterly = false, hideGrowthColumn = false } = props;
   const { t } = useTranslation();
   
   const { periods, processedRows } = useFinancialTable(props);
 
   if (periods.length === 0) return null;
 
-  const totalCols = periods.length + (isQuarterly ? 1 : 2);
+  const totalCols = periods.length + (hideGrowthColumn ? 1 : 2);
 
   return (
     <div className="overflow-x-auto custom-scrollbar border border-outline-variant rounded-xl bg-surface-container-low">
@@ -82,14 +85,16 @@ export function FinancialTable(props: FinancialTableProps) {
                 {period}
               </th>
             ))}
-            <th className="p-4 font-label-caps text-label-caps text-on-surface-variant text-right bg-primary/5">
-              {!isQuarterly ? t('financials.cagr') : t('financials.yoy')}
-            </th>
+            {!hideGrowthColumn && (
+              <th className="p-4 font-label-caps text-label-caps text-on-surface-variant text-right bg-primary/5">
+                {!isQuarterly ? t('financials.cagr') : t('financials.yoy')}
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/50">
           {processedRows.map((row) => (
-            <TableRow key={row.key} row={row} colSpan={totalCols} />
+            <TableRow key={row.key} row={row} colSpan={totalCols} hideGrowthColumn={hideGrowthColumn} />
           ))}
         </tbody>
       </table>

@@ -16,7 +16,7 @@ export function CitedText({ text, sources }: CitedTextProps) {
   const parts = text.split(/\[(\d+)\]/g);
 
   return (
-    <Tooltip.Provider delayDuration={200}>
+    <Tooltip.Provider delayDuration={150}>
       <span className="leading-relaxed">
         {parts.map((part, index) => {
           // Even indices are regular text
@@ -27,28 +27,32 @@ export function CitedText({ text, sources }: CitedTextProps) {
           // Odd indices are the captured numbers from [1]
           const sourceText = sources[part];
           if (!sourceText) {
-            // If there's no matching source, just render it back as [1]
-            return <span key={index}>[{part}]</span>;
+            // If there's no matching source, render nothing (clean text)
+            return null;
           }
 
           return (
             <Tooltip.Root key={index}>
               <Tooltip.Trigger asChild>
                 <button
-                  className="inline-flex items-center justify-center w-[18px] h-[18px] mx-0.5 align-text-top text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-full cursor-help transition-colors ring-1 ring-primary/20"
-                  aria-label={`Source: ${sourceText}`}
+                  className="inline-flex items-center justify-center w-[16px] h-[16px] mx-0.5 align-text-top text-primary/60 hover:text-primary hover:bg-primary/10 rounded cursor-help transition-all duration-150"
+                  aria-label={`Fonte: ${sourceText}`}
                 >
-                  {part}
+                  <span className="material-symbols-outlined" style={{ fontSize: '13px', fontVariationSettings: "'FILL' 0, 'wght' 400" }}>
+                    format_quote
+                  </span>
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Content
-                  className="z-50 max-w-[280px] px-3 py-2 text-xs font-medium text-surface bg-on-surface rounded shadow-md animate-in fade-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95"
-                  sideOffset={5}
+                  className="z-50 max-w-[300px] px-3 py-2 text-xs font-medium text-surface bg-on-surface rounded-lg shadow-lg animate-in fade-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95"
+                  sideOffset={6}
                 >
-                  <div className="flex items-start gap-1.5">
-                    <span className="material-symbols-outlined text-[14px] text-surface/70 mt-0.5">article</span>
-                    <span>{sourceText}</span>
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-[13px] text-primary mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      article
+                    </span>
+                    <span className="opacity-90">{sourceText}</span>
                   </div>
                   <Tooltip.Arrow className="fill-on-surface" />
                 </Tooltip.Content>

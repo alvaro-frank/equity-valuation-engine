@@ -1,5 +1,5 @@
 export const formatLargeCurrency = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   
   const val = Number(rawVal);
   let actualValue = val;
@@ -16,7 +16,7 @@ export const formatLargeCurrency = (rawVal?: number | string | null): string => 
 };
 
 export const formatLargeNumber = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   
   const val = Number(rawVal);
   let actualValue = val;
@@ -32,7 +32,7 @@ export const formatLargeNumber = (rawVal?: number | string | null): string => {
 };
 
 export const formatCurrency = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   const val = Number(rawVal);
   const absVal = Math.abs(val);
   const sign = val < 0 ? '-' : '';
@@ -44,18 +44,18 @@ export const formatCurrency = (rawVal?: number | string | null): string => {
 };
 
 export const formatStockPrice = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   return `$${Number(rawVal).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
 };
 
 
 export const formatPercentage = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   return `${Number(rawVal).toFixed(1)}%`;
 };
 
 export const formatMultiplier = (rawVal?: number | string | null): string => {
-  if (rawVal == null || isNaN(Number(rawVal))) return 'N/A';
+  if (rawVal == null || isNaN(Number(rawVal))) return '-';
   return `${Number(rawVal).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}x`;
 };
 
