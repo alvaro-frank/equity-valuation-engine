@@ -12,6 +12,7 @@ export function FilingsView() {
   const { ticker } = useParams<{ ticker: string }>();
   const { 
     activeData, 
+    quantData,
     isPending, 
     errorState, 
     handleFileSelect, 
@@ -46,7 +47,7 @@ export function FilingsView() {
           industry={activeData.ticker.industry}
           periodEndDate={activeData.period_end_date}
         />
-        <EarningsReportCard data={activeData} />
+        <EarningsReportCard data={activeData} quantData={quantData} />
       </div>
     </div>
   );

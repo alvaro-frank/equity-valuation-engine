@@ -3,12 +3,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useEarningsAnalysis } from './useEarningsAnalysis';
 import { parseApiError } from '@/common/utils/apiErrors';
+import { useQuantitativeData } from '@/common/api/hooks/useQuantitativeData';
 
 export function useFilingsView(ticker: string) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { mutate, data: mutationData, isPending, error, reset } = useEarningsAnalysis();
   
+  const { data: quantData } = useQuantitativeData(ticker, true);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
 
@@ -47,6 +50,7 @@ export function useFilingsView(ticker: string) {
   return {
     t,
     activeData,
+    quantData,
     isPending,
     errorState: getErrorState(),
     handleFileSelect,

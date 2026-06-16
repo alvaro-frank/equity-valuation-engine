@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardView } from '@/modules/Dashboard/DashboardView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { DashboardSkeleton } from '@/modules/Dashboard/components/DashboardSkeleton';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 export function Dashboard() {
   const { ticker } = useParams<{ ticker: string }>();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { quantData, qualData, isLoading, hasError, errorQuant, errorQual, retry } = useDashboard(ticker!);
 
@@ -26,12 +27,17 @@ export function Dashboard() {
     return <ApiErrorState errorState={errorState} onRetry={retry} />;
   }
 
+  const handleSearch = (newTicker: string) => {
+    navigate(`/${newTicker}/summary`);
+  };
+
   return (
     <ErrorBoundary>
       <DashboardView 
         ticker={ticker!}
         quantData={quantData} 
         qualData={qualData}
+        onSearch={handleSearch}
       />
     </ErrorBoundary>
   );

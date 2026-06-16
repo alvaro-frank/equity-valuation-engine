@@ -56,6 +56,7 @@ export function FinancialsView() {
           quarterlyData={quantData.quarterly_metrics}
           isQuarterly={activeTab === 'ratios' ? false : isQuarterly}
           rows={currentRows}
+          hideGrowthColumn={activeTab === 'ratios'}
         />
       </div>
     </div>
