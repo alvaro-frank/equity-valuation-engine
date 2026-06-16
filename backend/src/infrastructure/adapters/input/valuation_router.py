@@ -4,6 +4,7 @@ import os
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
+from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
@@ -24,6 +25,7 @@ from infrastructure.adapters.input.dependencies import (
     get_qualitative_use_case,
     get_sector_use_case,
     get_sector_performance_use_case,
+    get_dcf_use_case,
     get_search_tickers_use_case,
     get_quantitative_adapter
 )
@@ -154,6 +156,22 @@ async def analyse_qualitative(
     """
     try:
         result = await use_case.analyse_ticker(ticker.upper(), language=lang)
+        return result
+    except Exception as e:
+        handle_domain_error(e)
+
+@router.get("/dcf/{ticker}")
+async def analyse_dcf(
+    ticker: str,
+    lang: str = Query("en", description="Language to generate the report in"),
+    use_case: AnalyseDCFValuationUseCase = Depends(get_dcf_use_case)
+):
+    """
+    Orchestrates the DCF Valuation process for a given ticker, returning intrinsic values and LLM assumptions.
+    """
+    try:
+        # Pydantic will auto-serialize the domain entity DCFValuation
+        result = await use_case.execute(ticker.upper(), language=lang)
         return result
     except Exception as e:
         handle_domain_error(e)

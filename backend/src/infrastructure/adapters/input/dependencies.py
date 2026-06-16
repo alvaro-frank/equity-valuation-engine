@@ -3,6 +3,7 @@ from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
+from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
@@ -15,6 +16,7 @@ from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeA
 from infrastructure.config.settings import settings
 from typing import Union
 from application.ports.ports import QuantitativeDataPort, SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, OwnershipDataPort, SearchDataPort, PerformanceDataPort, TrendingDataPort
+from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 
 # In a real production environment, these adapters can be maintained as global variables (Singletons)
 # or constructed per request, depending on whether they store state (ex: DB sessions).
@@ -61,6 +63,20 @@ def get_llm_adapter() -> Union[SectorIndustrialDataPort, EarningsReportPort, Qua
     Provides the Fallback LLM Adapter instance.
     """
     return _fallback_llm_adapter
+
+def get_dcf_use_case(
+    quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
+    qual_adapter: QualitativeDataPort = Depends(get_llm_adapter),
+    llm_adapter: IntrinsicValueCalculationPort = Depends(get_llm_adapter)
+) -> AnalyseDCFValuationUseCase:
+    """
+    Builds and provides the Analyse DCF Valuation Use Case via Dependency Injection.
+    """
+    return AnalyseDCFValuationUseCase(
+        quant_data_port=quant_adapter,
+        qual_data_port=qual_adapter,
+        llm_port=llm_adapter
+    )
 
 def get_earnings_report_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
