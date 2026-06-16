@@ -94,7 +94,7 @@ export interface SectorIndustrialValuationResult {
 
 export interface MetricWithGrowth {
   amount: number | null;
-  yoy_growth: number | null;
+  yoy_growth?: number | null;
 }
 
 export interface CorePerformance {

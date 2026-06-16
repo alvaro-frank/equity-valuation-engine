@@ -2,37 +2,53 @@ import type { EarningsReportResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
 import { formatLargeCurrency, formatPercentage } from '@/common/utils/formatters';
 import { CitedText } from '@/common/components/CitedText/CitedText';
+import { calcYoY } from '@/common/utils/financialCalcs';
 
-// --- Sub-Components (Rules 2.1, 2.21, 2.23, 2.30, 2.31) ---
-
-function MetricBadge({ value }: { value: number | string | null | undefined }) {
+function MetricBadge({ value, isMargin }: { value: number | string | null | undefined, isMargin?: boolean }) {
   if (value == null) return null;
   const numValue = Number(value);
   const isPositive = numValue >= 0;
   return (
     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 ${isPositive ? 'bg-secondary/10 text-secondary' : 'bg-error/10 text-error'}`}>
-      {isPositive ? '+' : ''}{numValue.toFixed(1)}% YoY
+      {isPositive ? '+' : ''}{numValue.toFixed(1)}{isMargin ? ' pp YoY' : '% YoY'}
     </span>
   );
 }
 
-function PerformanceMetric({ label, value, growth }: { label: string; value: string; growth?: number | string | null }) {
+function PerformanceMetric({ label, value, growth, isMargin }: { label: string; value: string; growth?: number | string | null, isMargin?: boolean }) {
   return (
     <div className="bg-surface-container border border-outline-variant rounded p-4">
       <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider block mb-1">{label}</span>
       <div className="flex items-center">
         <span className="text-xl font-bold text-on-surface">{value}</span>
-        <MetricBadge value={growth} />
+        <MetricBadge value={growth} isMargin={isMargin} />
       </div>
     </div>
   );
 }
 
-function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_performance'] }) {
+function CorePerformanceGrid({ data, quantData }: { data: EarningsReportResult['core_performance'], quantData?: any }) {
   const { t } = useTranslation();
   
   const formatEps = (amount: number | string | null | undefined) => 
     amount != null ? `$${Number(amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : 'N/A';
+
+  // Helper to get exact YoY growth from our reliable quantitative data source
+  const getAccurateYoY = (metricKey: string, fallback: number | null | undefined) => {
+    if (!quantData?.quarterly_metrics?.[metricKey]) return fallback;
+    const series = quantData.quarterly_metrics[metricKey];
+    if (!series || series.length < 5) return fallback;
+    
+    const isNewestFirst = series[0].date > series[series.length - 1].date;
+    const latestIndex = isNewestFirst ? 0 : series.length - 1;
+    const priorYearIndex = isNewestFirst ? 4 : series.length - 5;
+    
+    const latestValue = series[latestIndex].value;
+    const priorValue = series[priorYearIndex].value;
+
+    const isMargin = metricKey.includes('margin');
+    return calcYoY(latestValue, priorValue, isMargin) ?? fallback;
+  };
 
   return (
     <div>
@@ -44,32 +60,35 @@ function CorePerformanceGrid({ data }: { data: EarningsReportResult['core_perfor
         <PerformanceMetric 
           label={t('filings.adj_revenue')} 
           value={formatLargeCurrency((data.adjusted_revenue.amount || 0) * 1e9)} 
-          growth={data.adjusted_revenue.yoy_growth} 
+          growth={getAccurateYoY('revenue', data.adjusted_revenue.yoy_growth)} 
         />
         <PerformanceMetric 
           label={t('filings.adj_eps')} 
           value={formatEps(data.adjusted_eps?.amount)} 
-          growth={data.adjusted_eps?.yoy_growth} 
+          growth={getAccurateYoY('eps', data.adjusted_eps?.yoy_growth)} 
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
           value={formatLargeCurrency((data.free_cash_flow.amount || 0) * 1e9)} 
-          growth={data.free_cash_flow.yoy_growth} 
+          growth={getAccurateYoY('free_cash_flow', data.free_cash_flow.yoy_growth)} 
         />
         <PerformanceMetric 
           label={t('filings.gross_margin')} 
           value={formatPercentage(data.adjusted_gross_margin.amount)} 
-          growth={data.adjusted_gross_margin.yoy_growth} 
+          growth={getAccurateYoY('gross_margin', data.adjusted_gross_margin.yoy_growth)}
+          isMargin={true}
         />
         <PerformanceMetric 
           label={t('filings.operating_margin')} 
           value={formatPercentage(data.adjusted_operating_margin.amount)} 
-          growth={data.adjusted_operating_margin.yoy_growth} 
+          growth={getAccurateYoY('operating_margin', data.adjusted_operating_margin.yoy_growth)}
+          isMargin={true}
         />
         <PerformanceMetric 
           label={t('filings.net_margin')} 
           value={formatPercentage(data.adjusted_net_margin.amount)} 
-          growth={data.adjusted_net_margin.yoy_growth} 
+          growth={getAccurateYoY('net_margin', data.adjusted_net_margin.yoy_growth)}
+          isMargin={true}
         />
       </div>
     </div>
@@ -201,14 +220,15 @@ function BottomLinePanel({ text, sources }: { text: string, sources: EarningsRep
 
 interface EarningsReportCardProps {
   data: EarningsReportResult;
+  quantData?: any;
 }
 
-export function EarningsReportCard({ data }: EarningsReportCardProps) {
+export function EarningsReportCard({ data, quantData }: EarningsReportCardProps) {
   const { core_performance, capital_allocation, risk_deconstruction, sources } = data;
 
   return (
     <div className="space-y-6 mt-6 animate-fade-in">
-      <CorePerformanceGrid data={core_performance} />
+      <CorePerformanceGrid data={core_performance} quantData={quantData} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CapitalAllocationPanel data={capital_allocation} sources={sources} />

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import type { MetricSeries, BaseMetric } from '@/common/types/valuation';
 import type { FinancialTableRow } from './FinancialTable';
-import { formatFinancialMetric } from '@/common/utils/formatters';
-import { formatPercentage } from '@/common/utils/formatters';
+import { formatFinancialMetric, formatPercentage } from '@/common/utils/formatters';
+import { calcYoY } from '@/common/utils/financialCalcs';
 
 interface UseFinancialTableProps {
   metricsData: Record<string, MetricSeries> | undefined;
@@ -67,16 +67,18 @@ export function useFinancialTable({ metricsData, quarterlyData, isQuarterly = fa
       const values = periods.map(period => formatFinancialMetric(valuesByDate[period], row.formatAs));
 
       let growth = '-';
-      if (!isQuarterly) {
-        growth = metricSeries?.cagr != null ? formatPercentage(metricSeries.cagr) : '-';
-      } else {
-        if (periods.length >= 5) {
-          // Index 0 is the newest quarter, Index 4 is the same quarter last year
-          const current = valuesByDate[periods[0]];
-          const previous = valuesByDate[periods[4]];
-          if (current != null && previous != null && previous !== 0) {
-            const yoy = ((current - previous) / Math.abs(previous)) * 100;
-            growth = formatPercentage(yoy);
+      // Do not calculate CAGR or YoY for margins, ratios or multipliers
+      if (row.formatAs !== 'percent' && row.formatAs !== 'multiplier') {
+        if (!isQuarterly) {
+          growth = metricSeries?.cagr != null ? formatPercentage(metricSeries.cagr) : '-';
+        } else {
+          if (periods.length >= 5) {
+            // Index 0 is the newest quarter, Index 4 is the same quarter last year
+            const current = valuesByDate[periods[0]];
+            const previous = valuesByDate[periods[4]];
+            // Guard against division by zero only; negatives are valid (CapEx, dividends, etc.)
+            const yoy = calcYoY(current, previous);
+            if (yoy != null) growth = formatPercentage(yoy);
           }
         }
       }
