@@ -55,6 +55,7 @@ class OpenRouterTranslatorAdapter(TranslationPort):
         5. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
         6. CAUTION: 'economic_sensitivity' and 'interest_rate_exposure' are STRING fields, not arrays! DO NOT add a closing bracket ']' or '],' after their values. 
         7. DO NOT omit 'interest_rate_exposure' or any other field. YOU MUST RETURN THE EXACT SAME NUMBER OF KEYS.
+        8. DO NOT translate any values inside the 'sources' field. Document references (e.g. "Earnings Release, Page 3") must remain in their original language.
         
         JSON to translate:
         {json_str}
