@@ -7,6 +7,7 @@ import json
 import re
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
+from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
 from infrastructure.schemas.llm_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
@@ -30,9 +31,9 @@ from typing import Optional
 
 load_dotenv()
 
-class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort):
+class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, IntrinsicValueCalculationPort):
     """
-    Adapter that leverages Google's Gemini LLM to generate qualitative research.
+    Adapter that leverages Google's Gemini LLM to generate qualitative research and DCF assumptions.
     
     It transforms raw company and industry queries into structured Domain Entities 
     by enforcing a strict JSON schema via system prompting.
@@ -484,3 +485,109 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             bottom_line=schema_instance.bottom_line,
             sources={str(src.citation_number): src.source_text for src in schema_instance.sources}
         )
+
+    async def deduce_dcf_assumptions(self, ticker: str, company_profile: dict, quant_data: dict, language: str = "en") -> dict:
+        """
+        Uses Gemini to deduce DCF growth rates and discount rates based on fundamental data.
+        """
+        from infrastructure.schemas.llm_schemas import DCFValuationResponseSchema
+        from domain.entities.dcf import DCFAssumptions
+        import json
+
+        prompt = f"""
+        You are a top-tier Wall Street Financial Analyst specializing in Discounted Cash Flow (DCF) valuation and competitive moat assessment.
+        Your task is to deduce the most realistic future growth assumptions for {ticker} based on its historical performance, business model resilience, and macroeconomic context.
+
+        CRITICAL RULES:
+        1. DO NOT calculate the intrinsic value. Your ONLY job is to provide the growth rates, WACC, and terminal growth rate. The mathematical calculation will be handled by our deterministic backend engine.
+        2. Provide your assumptions for three scenarios: Bear (Pessimistic), Fair (Base Case), and Bull (Optimistic).
+        3. Provide a clear, sharp, and highly analytical justification (1-2 paragraphs) for why you chose these specific rates for each scenario.
+        4. Always respond strictly in English and format your response matching the provided JSON schema. All rates MUST be expressed as decimals (e.g. 15% is 0.15).
+
+        [CONTEXT INJECTED BY US]
+        COMPANY PROFILE & QUALITATIVE MOAT:
+        {json.dumps(company_profile, indent=2)}
+
+        QUANTITATIVE METRICS (FCF HISTORY & MARGINS):
+        {json.dumps(quant_data, indent=2)}
+
+        [HOW TO THINK ABOUT THE VARIABLES]
+        - FCF Growth (Years 1-5): Base this on the company's recent growth trajectory, TAM expansion, and pricing power. If the moat is shrinking, penalize the Bear case heavily.
+        - FCF Growth (Years 6-10): Assume a natural linear deceleration as the company and its market mature.
+        - WACC (Discount Rate): Reflects the risk premium. A highly predictable, monopolistic business commands a lower WACC (0.075 - 0.09). A highly cyclical or risky business should have a higher WACC (0.10 - 0.13). Vary the WACC slightly across scenarios to reflect the perceived stability of the moat.
+        - Terminal Growth Rate: Rate after year 10. This MUST be conservative. It usually ranges between 0.02 and 0.03, aligning with expected long-term global GDP growth and inflation. Never exceed 0.035 unless absolutely justifiable.
+
+        [QUALITY EXAMPLE - FAIR SCENARIO FOR GOOG]
+        "fcf_growth_1_to_5": 0.15,
+        "fcf_growth_6_to_10": 0.10,
+        "wacc": 0.085,
+        "terminal_growth_rate": 0.025,
+        "justification": "Alphabet's 'Fair' scenario assumes steady growth supported by its Cloud infrastructure and efficient AI integration. The Search moat remains resilient but faces gradual structural challenges, prompting a linear deceleration in the back half of the decade. A conservative 8.5% WACC reflects its unshakeable balance sheet and deeply entrenched ecosystem."
+        
+        Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
+        """
+
+        cache_filename_en = f"dcf_{ticker.upper()}_en.json"
+        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        
+        data_en = None
+        if os.path.exists(cache_path_en):
+            if time.time() - os.path.getmtime(cache_path_en) < 86400:
+                try:
+                    with open(cache_path_en, 'r', encoding='utf-8') as f:
+                        data_en = json.load(f)
+                    DCFValuationResponseSchema(**data_en)
+                except Exception:
+                    data_en = None
+
+        if not data_en:
+            try:
+                response = await self.client.aio.models.generate_content(
+                    model=self.model_id,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=_remove_additional_properties(DCFValuationResponseSchema.model_json_schema()),
+                        temperature=0.0,
+                    )
+                )
+                data_en = json.loads(response.text)
+                with open(cache_path_en, 'w', encoding='utf-8') as f:
+                    json.dump(data_en, f, indent=4)
+            except Exception as e: 
+                error_str = str(e).lower()
+                if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                    raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+                raise ExternalServiceError(f"Gemini API Error: {e}")
+
+        # Translation: If a translator exists, we translate ONLY the justifications!
+        # The growth rates and WACC are numbers, so they don't need translation.
+        data = data_en.copy()
+        if language != "en" and self.translator:
+            justifications = {
+                "bear": data["bear"]["justification"],
+                "fair": data["fair"]["justification"],
+                "bull": data["bull"]["justification"]
+            }
+            translated_justifications = await self.translator.translate_json(justifications, language)
+            data["bear"]["justification"] = translated_justifications.get("bear", data["bear"]["justification"])
+            data["fair"]["justification"] = translated_justifications.get("fair", data["fair"]["justification"])
+            data["bull"]["justification"] = translated_justifications.get("bull", data["bull"]["justification"])
+
+        schema_instance = DCFValuationResponseSchema(**data)
+        
+        def to_dec(val):
+            return Decimal(str(val))
+            
+        result = {}
+        for scenario_key in ["bear", "fair", "bull"]:
+            scenario_data = getattr(schema_instance, scenario_key)
+            result[scenario_key] = DCFAssumptions(
+                fcf_growth_1_to_5=to_dec(scenario_data.fcf_growth_1_to_5),
+                fcf_growth_6_to_10=to_dec(scenario_data.fcf_growth_6_to_10),
+                wacc=to_dec(scenario_data.wacc),
+                terminal_growth_rate=to_dec(scenario_data.terminal_growth_rate),
+                justification=scenario_data.justification
+            )
+            
+        return result

@@ -1,8 +1,9 @@
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from application.exceptions.exceptions import ExternalServiceError, RateLimitExceededError, LLMParsingError
 from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
 
-class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort):
+class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, IntrinsicValueCalculationPort):
     """
     An adapter that implements the fallback pattern.
     It attempts to use the primary adapter first. If it fails, it falls back to the secondary adapter.
@@ -71,3 +72,13 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
         except (ExternalServiceError, RateLimitExceededError, LLMParsingError) as e:
             print(f"Primary adapter failed for analyse_earnings_report: {e}. Falling back to backup adapter.")
             return await self.backup.analyse_earnings_report(symbol, pdf_file_path, language=language)
+
+    async def deduce_dcf_assumptions(self, ticker: str, company_profile: dict, quant_data: dict, language: str = "en") -> dict:
+        """
+        Attempts to deduce DCF assumptions using the primary adapter. If it fails, falls back to the backup adapter.
+        """
+        try:
+            return await self.primary.deduce_dcf_assumptions(ticker, company_profile, quant_data, language)
+        except (ExternalServiceError, RateLimitExceededError, LLMParsingError) as e:
+            print(f"Primary adapter failed for deduce_dcf_assumptions: {e}. Falling back to backup adapter.")
+            return await self.backup.deduce_dcf_assumptions(ticker, company_profile, quant_data, language)
