@@ -26,11 +26,8 @@ interface MarginChartProps {
 }
 
 import { formatPercentage } from '@/common/utils/formatters';
-
-// --- Custom Hooks (Rule 1.11, 2.39) ---
 import { useMarginChartData } from './useMarginChartData';
 
-// --- Sub-Components (Rule 2.23, 2.31, 2.41) ---
 function MarginLineChart({ data }: { data: MarginDataPoint[] }) {
   const { t } = useTranslation();
   
@@ -140,7 +137,11 @@ function ChartCardFace({ title, actionText, onAction, data, isBackFace = false }
 export function MarginChart({ quantData }: MarginChartProps) {
   const { t } = useTranslation();
   const [isQuarterly, setIsQuarterly] = useState(false);
+  const [hasFlipped, setHasFlipped] = useState(false);
   const { annualData, quarterlyData } = useMarginChartData(quantData);
+
+  const handleShowQuarterly = () => { setIsQuarterly(true); setHasFlipped(true); };
+  const handleShowAnnual = () => setIsQuarterly(false);
 
   return (
     <div className="bg-transparent h-[400px]" style={{ perspective: '1000px' }}>
@@ -151,16 +152,18 @@ export function MarginChart({ quantData }: MarginChartProps) {
         <ChartCardFace 
           title={t('dashboard.margin_chart_annual')}
           actionText={t('dashboard.show_quarters')}
-          onAction={() => setIsQuarterly(true)}
+          onAction={handleShowQuarterly}
           data={annualData}
         />
-        <ChartCardFace 
-          title={t('dashboard.margin_chart_quarterly')}
-          actionText={t('dashboard.show_annual')}
-          onAction={() => setIsQuarterly(false)}
-          data={quarterlyData}
-          isBackFace
-        />
+        {hasFlipped && (
+          <ChartCardFace 
+            title={t('dashboard.margin_chart_quarterly')}
+            actionText={t('dashboard.show_annual')}
+            onAction={handleShowAnnual}
+            data={quarterlyData}
+            isBackFace
+          />
+        )}
       </div>
     </div>
   );

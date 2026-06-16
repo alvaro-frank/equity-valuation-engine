@@ -27,7 +27,6 @@ interface RevenueChartProps {
   quantData?: QuantitativeValuationResult;
 }
 
-// --- Helper Functions (Rule 2.22) ---
 const formatLabel = (val: unknown) => {
   const num = Number(val);
   return (!isNaN(num) && num !== 0) ? formatLargeNumber(num) : '';
@@ -35,7 +34,6 @@ const formatLabel = (val: unknown) => {
 
 import { useRevenueChartData } from './useRevenueChartData';
 
-// --- Sub-Components (Rule 2.23, 2.31, 2.41) ---
 function RevenueBarChart({ data }: { data: RevenueDataPoint[] }) {
   const { t } = useTranslation();
   
@@ -128,7 +126,11 @@ function ChartCardFace({ title, actionText, onAction, data, isBackFace = false }
 export function RevenueChart({ quantData }: RevenueChartProps) {
   const { t } = useTranslation();
   const [isQuarterly, setIsQuarterly] = useState(false);
+  const [hasFlipped, setHasFlipped] = useState(false);
   const { annualData, quarterlyData } = useRevenueChartData(quantData);
+
+  const handleShowQuarterly = () => { setIsQuarterly(true); setHasFlipped(true); };
+  const handleShowAnnual = () => setIsQuarterly(false);
 
   return (
     <div className="bg-transparent h-[400px]" style={{ perspective: '1000px' }}>
@@ -139,16 +141,18 @@ export function RevenueChart({ quantData }: RevenueChartProps) {
         <ChartCardFace 
           title={t('dashboard.revenue_chart_annual')}
           actionText={t('dashboard.show_quarters')}
-          onAction={() => setIsQuarterly(true)}
+          onAction={handleShowQuarterly}
           data={annualData}
         />
-        <ChartCardFace 
-          title={t('dashboard.revenue_chart_quarterly')}
-          actionText={t('dashboard.show_annual')}
-          onAction={() => setIsQuarterly(false)}
-          data={quarterlyData}
-          isBackFace
-        />
+        {hasFlipped && (
+          <ChartCardFace 
+            title={t('dashboard.revenue_chart_quarterly')}
+            actionText={t('dashboard.show_annual')}
+            onAction={handleShowAnnual}
+            data={quarterlyData}
+            isBackFace
+          />
+        )}
       </div>
     </div>
   );
