@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react';
-import { useIsFetching } from '@tanstack/react-query';
 import { Outlet, useParams } from 'react-router-dom';
 import { TopAppBar } from './TopAppBar';
 import { SideNavBar } from './SideNavBar';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -12,15 +12,10 @@ interface LayoutProps {
 export function Layout({ children, headerSearchComponent }: LayoutProps) {
   const { ticker: activeTicker } = useParams<{ ticker?: string }>();
 
-  const isFetchingNewTicker = useIsFetching({
-    predicate: (query) => 
-      query.queryKey[0] === 'valuation' && 
-      query.queryKey[1] === 'validate' && 
-      query.queryKey[2] === activeTicker && 
-      query.state.data === undefined
-  });
-  const isLoading = isFetchingNewTicker > 0;
-  const shouldShowNav = Boolean(activeTicker && !isLoading);
+  const { data, isLoading } = useTickerValidation(activeTicker ?? '');
+
+  // Show the sidebar only when the ticker is confirmed valid by the API
+  const shouldShowNav = Boolean(activeTicker && !isLoading && data?.valid);
 
   return (
     <div className="font-body-base text-body-base selection:bg-primary/30 min-h-screen flex flex-col">
