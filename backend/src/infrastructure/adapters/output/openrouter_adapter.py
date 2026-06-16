@@ -62,9 +62,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         Returns:
             CompanyProfile: A Domain Entity containing the qualitative data of the business.
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
 
         context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
 
@@ -75,13 +73,16 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         CRITICAL INSTRUCTIONS:
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
-        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
+        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
         - Lists of Objects: For 'products_services', 'competitors', and 'risk_factors', provide a list of objects as specified in the schema. For 'competitors', enforce exactly one company per entry and provide its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
-        - Language: Generate the analysis text in the following language: {lang_instruction}. 
-        - CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "business_description").
+        - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD competitive_advantage: "Apple's ecosystem creates a powerful flywheel: high switching costs from iCloud lock-in, iOS app investments, and seamless hardware-software integration drive 93% retention rates. The Services segment, growing at 14% YoY, monetizes this captive base with 78% gross margins, creating a durable revenue stream less vulnerable to hardware cycles."
+        BAD competitive_advantage: "Apple has a strong brand and makes popular products that people like to buy."
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
@@ -159,11 +160,11 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                         pass
                         
             if not data_en:
-                prompt_en = prompt.replace(f"language: {lang_instruction}", "language: English")
+
                 try:
                     response = await self.client.chat.completions.create(
                         model=self.model_id,
-                        messages=[{"role": "user", "content": prompt_en}],
+                        messages=[{"role": "user", "content": prompt}],
                         response_format={"type": "json_object"},
                         temperature=0.3,
                         max_tokens=8000,
@@ -220,9 +221,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         Returns:  
             IndustrySectorDynamics: A Domain Entity containing the industry and sector dynamics data.
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
 
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
@@ -234,8 +233,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
 
         INSTRUCTIONS FOR JSON ARRAYS (Sections 1-5):
         For each force, identify 2-4 key factors. Return them as a LIST of objects, where each object has a 'factor' (short, descriptive title) and an 'analysis' (professional analysis).
-        Language: Generate the analysis text in the following language: {lang_instruction}.
-        CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "rivalry_among_competitors").
+        Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -245,6 +243,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         5. Threat of Obsolescence: Technology disruption risks and evolution of consumer preferences.
         6. Economic Sensitivity: Correlation with GDP, cyclicality (Cyclical vs. Defensive), and demand elasticity.
         7. Interest Rate Exposure: Impact on capital expenditures (CAPEX), financing costs, and consumer spending power.
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD rivalry_among_competitors: "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%), with high exit barriers from long-term enterprise contracts and massive sunk costs in data center infrastructure."
+        BAD rivalry_among_competitors: "There is a lot of competition in this industry."
 
         OUTPUT FORMAT:
         Return ONLY a valid JSON object following this exact schema:
@@ -293,14 +295,12 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                         data_en = None
 
             if not data_en:
-                # Force English for base extraction
-                prompt_en = prompt.replace(f"language: {lang_instruction}", "language: English")
                 try:
                     response = await self.client.chat.completions.create(
                         model=self.model_id,
                         messages=[
                             {"role": "system", "content": "You are a machine that outputs only raw, valid JSON."},
-                            {"role": "user", "content": prompt_en}
+                            {"role": "user", "content": prompt}
                         ],
                         response_format={"type": "json_object"},
                         temperature=0.3,
@@ -349,36 +349,35 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         Returns:
             EarningsReport: A Domain Entity containing the earnings report analysis.
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
+
 
         prompt = f"""
         You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
-        Language: Generate the analysis text in the following language: {lang_instruction}. 
-        CRITICAL: DO NOT TRANSLATE THE JSON KEYS. They must remain exactly as shown below (e.g. "core_performance", "adjusted_revenue").
+        Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
-        Extract and synthesize the following fields EXACTLY as named.
-        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null. However, if a metric is simply missing but can be calculated from the data (e.g., Net Margin = Net Income / Revenue), you MUST calculate it yourself rather than outputting null.
+
+        1. Extract and synthesize the following fields EXACTLY as named.
+        CRITICAL: For margins, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null.
+        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
 
         {{
             "ticker": "String: The stock ticker symbol",
             "period_end_date": "String: The end date of the fiscal period",
             "core_performance": {{
-                "adjusted_revenue": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "adjusted_eps": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "adjusted_gross_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "adjusted_operating_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "adjusted_net_margin": {{ "amount": 0.0, "yoy_growth": 0.0 }},
-                "free_cash_flow": {{ "amount": 0.0, "yoy_growth": 0.0 }}
+                "adjusted_revenue": {{ "amount": 0.0 }},
+                "adjusted_eps": {{ "amount": 0.0 }},
+                "adjusted_gross_margin": {{ "amount": 0.0 }},
+                "adjusted_operating_margin": {{ "amount": 0.0 }},
+                "adjusted_net_margin": {{ "amount": 0.0 }},
+                "free_cash_flow": {{ "amount": 0.0 }}
             }},
             "capital_allocation": {{
                 "share_buybacks": 0.0,
                 "dividends": 0.0,
                 "capex_rd": 0.0,
-                "infrastructure_assessment": "String: Detailed 2-3 sentence paragraph explaining the 'why' behind the CapEx/R&D. Use [1], [2] for citations."
+                "infrastructure_assessment": "String: Detailed 2-3 sentence paragraph explaining the 'why' behind the CapEx/R&D (as floats, in billions). Use [1], [2] for citations."
             }},
             "forward_guidance": "String: Detailed 2-3 sentence analysis of management's forward-looking projections and guidance. Use [1], [2] for citations.",
             "moat_trajectory": "String: Detailed 2-3 sentence analysis of the company's competitive advantage trajectory. Use [1], [2] for citations.",
@@ -398,6 +397,10 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                 }}
             ]
         }}
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD bottom_line: "Alphabet executed strongly: Search revenue grew 12% YoY driven by AI Overviews adoption, Cloud crossed the $12B annualized run-rate with 28% margins, and the $70B buyback signals management's confidence in sustained free cash flow generation [1]. The key risk is a potential deceleration in ad spend if macro conditions deteriorate [2]."
+        BAD bottom_line: "The company did well this quarter and beat expectations."
         """
 
         import hashlib
@@ -523,10 +526,9 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
 
         def get_metric(metric_schema):
             if metric_schema is None:
-                return MetricWithGrowth(amount=None, yoy_growth=None)
+                return MetricWithGrowth(amount=None)
             return MetricWithGrowth(
-                amount=to_dec(metric_schema.amount),
-                yoy_growth=to_dec(metric_schema.yoy_growth)
+                amount=to_dec(metric_schema.amount)
             )
 
         return EarningsReport(

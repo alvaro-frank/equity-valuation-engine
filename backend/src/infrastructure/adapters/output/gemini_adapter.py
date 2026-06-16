@@ -72,10 +72,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             CompanyProfile: A Domain Entity containing the qualitative data of the business
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
-
         context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
 
         prompt = f"""
@@ -83,14 +79,18 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Your goal is to provide a deep qualitative assessment for the company: {symbol}.{context_prompt}
 
         CRITICAL INSTRUCTIONS:
+        - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
         - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
-        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names, AND translating the title into the requested language (e.g., if language is Portuguese, use 'DIRETOR GERAL' instead of 'CHIEF EXECUTIVE OFFICER'). Convert the final translated title to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
+        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
         - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific key-value pairs. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
         - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
-        - Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD competitive_advantage: "Apple's ecosystem creates a powerful flywheel: high switching costs from iCloud lock-in, iOS app investments, and seamless hardware-software integration drive 93% retention rates. The Services segment, growing at 14% YoY, monetizes this captive base with 78% gross margins, creating a durable revenue stream less vulnerable to hardware cycles."
+        BAD competitive_advantage: "Apple has a strong brand and makes popular products that people like to buy."
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
@@ -169,12 +169,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         pass
                         
             if not data_en:
-                # Force English for base extraction
-                prompt_en = prompt.replace(lang_instruction, "English")
                 try:
                     response = await self.client.aio.models.generate_content(
                         model=self.model_id,
-                        contents=prompt_en,
+                        contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
                             response_schema=_remove_additional_properties(CompanyProfileSchema.model_json_schema()),
@@ -229,10 +227,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             IndustrySectorDynamics: A Domain Entity containing the data given the sector and industry
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
-
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
         Perform a comprehensive fundamental analysis of the following market:
@@ -240,10 +234,14 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         INDUSTRY: {industry}
 
         CORE FRAMEWORK: Use Porter's Five Forces to evaluate structural profitability and competitive intensity.
+        Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
         INSTRUCTIONS FOR JSON DICTIONARIES (Sections 1-5):
         For each force, identify 2-4 key factors. Return them as a dictionary where the KEY is a short, descriptive title (e.g., "Capital Intensity") and the VALUE is a professional analysis.
-        Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD rivalry_among_competitors: "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%), with high exit barriers from long-term enterprise contracts and massive sunk costs in data center infrastructure."
+        BAD rivalry_among_competitors: "There is a lot of competition in this industry."
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -302,12 +300,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         data_en = None
 
             if not data_en:
-                # Force English for base extraction
-                prompt_en = prompt.replace(lang_instruction, "English")
                 try:
                     response = await self.client.aio.models.generate_content(
                         model=self.model_id,
-                        contents=prompt_en,
+                        contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
                             response_schema=_remove_additional_properties(IndustrySectorDynamicsSchema.model_json_schema()),
@@ -358,27 +354,27 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         Returns:
             EarningsReport: A Domain Entity containing the earnings report analysis.
         """
-        lang_instruction = language
-        if language == "pt":
-            lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms."
-
         prompt = f"""
         You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
-        Language: Generate the analysis text in the following language: {lang_instruction}. IMPORTANT: The JSON keys must remain strictly in English as defined by the schema.
+        Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
         Extract and synthesize the following fields EXACTLY as named.
-        CRITICAL: For margins and yoy_growth, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null. However, if a metric is simply missing but can be calculated from the data (e.g., Net Margin = Net Income / Revenue), you MUST calculate it yourself rather than outputting null.
+        CRITICAL: For margins, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null.
 
         1. period_end_date: (String) The end date of the fiscal period.
-        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with two floats: 'amount' and 'yoy_growth' (percentage).
-        3. capital_allocation: (Object) Detail exact amounts (as floats) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx (e.g. accelerating for AI buildout, or cutting back to preserve cash). Do not just provide a single word.
+        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
+        3. capital_allocation: (Object) Detail exact amounts (as floats, in billions) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx (e.g. accelerating for AI buildout, or cutting back to preserve cash). Do not just provide a single word.
         4. forward_guidance: (String) Detailed 2-3 sentence analysis of management's forward-looking projections and guidance.
         5. moat_trajectory: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why).
         6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
         7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
         8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory', and 'bottom_line' whenever you extract specific insights, data points, or management quotes. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string) (e.g. [{{"citation_number": 1, "source_text": "MD&A Page 15"}}]).
+
+        QUALITY EXAMPLES (follow this tone and depth):
+        GOOD bottom_line: "Alphabet executed strongly: Search revenue grew 12% YoY driven by AI Overviews adoption, Cloud crossed the $12B annualized run-rate with 28% margins, and the $70B buyback signals management's confidence in sustained free cash flow generation [1]. The key risk is a potential deceleration in ad spend if macro conditions deteriorate [2]."
+        BAD bottom_line: "The company did well this quarter and beat expectations."
         """
 
         import hashlib
@@ -421,11 +417,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 if file_info.state.name == "FAILED":
                     raise InvalidDocumentFormatError("Gemini failed to process the uploaded PDF document.")
 
-                prompt_en = prompt.replace(lang_instruction, "English")
                 try:
                     response = await self.client.aio.models.generate_content(
                         model=self.model_id,
-                        contents=[prompt_en, uploaded_file],
+                        contents=[prompt, uploaded_file],
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
                             response_schema=_remove_additional_properties(EarningsReportSchema.model_json_schema()),
@@ -442,7 +437,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                     raise ExternalServiceError(f"Gemini API Error: {e}")
 
             if language != "en" and self.translator:
-                data = await self.translator.translate_json(data_en, language)
+                # Exclude 'sources' from translation — document references stay in original language
+                data_to_translate = {k: v for k, v in data_en.items() if k != "sources"}
+                data = await self.translator.translate_json(data_to_translate, language)
+                data["sources"] = data_en.get("sources", [])
             else:
                 data = data_en
                 
@@ -456,10 +454,9 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
 
         def get_metric(metric_schema):
             if metric_schema is None:
-                return MetricWithGrowth(amount=None, yoy_growth=None)
+                return MetricWithGrowth(amount=None)
             return MetricWithGrowth(
-                amount=to_dec(metric_schema.amount),
-                yoy_growth=to_dec(metric_schema.yoy_growth)
+                amount=to_dec(metric_schema.amount)
             )
 
         return EarningsReport(
