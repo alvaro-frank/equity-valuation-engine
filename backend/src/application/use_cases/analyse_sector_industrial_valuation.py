@@ -1,6 +1,6 @@
 from application.ports.ports import QuantitativeDataPort, SectorIndustrialDataPort
-from domain.entities.entities import IndustrySectorDynamics
-from application.dtos.dtos import TickerResult, SectorIndustrialValuationResult
+from domain.entities import IndustrySectorDynamics
+from application.dtos import TickerResult, SectorIndustrialValuationResult
 from dataclasses import asdict
 
 class SectorIndustrialValuationUseCase:

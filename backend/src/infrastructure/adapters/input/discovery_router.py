@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from application.dtos.dtos import TrendingTickerResult
+from application.dtos import TrendingTickerResult
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.input.dependencies import get_trending_tickers_use_case
 from infrastructure.adapters.input.valuation_router import handle_domain_error

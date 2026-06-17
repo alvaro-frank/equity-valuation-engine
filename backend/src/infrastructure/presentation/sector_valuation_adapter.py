@@ -1,5 +1,5 @@
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from application.dtos.dtos import SectorIndustrialValuationResult
+from application.dtos import SectorIndustrialValuationResult
 
 class SectorValuationAdapter:
     """

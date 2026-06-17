@@ -4,7 +4,7 @@ from decimal import Decimal
 import httpx
 
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
-from domain.entities.entities import Price, Ticker
+from domain.entities import Price, Ticker
 
 class TestAlphaVantageAdapter:
     

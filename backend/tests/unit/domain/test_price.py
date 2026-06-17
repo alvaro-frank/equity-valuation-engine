@@ -1,7 +1,7 @@
 import pytest
 from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
-from domain.entities.entities import Price
+from domain.entities import Price
 
 class TestPriceEntity:
     def test_valid_price_creation(self):

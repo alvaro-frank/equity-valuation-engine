@@ -12,8 +12,8 @@ from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, LLMParsingError
 from infrastructure.utils.llm_utils import extract_json_from_response
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
-from infrastructure.schemas.llm_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
+from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
+from infrastructure.schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
 load_dotenv()
 
@@ -563,7 +563,7 @@ class GroqAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataP
         """
         Uses Groq to deduce DCF growth rates and discount rates based on fundamental data.
         """
-        from infrastructure.schemas.llm_schemas import DCFValuationResponseSchema
+        from infrastructure.schemas import DCFValuationResponseSchema
         from domain.entities.dcf import DCFAssumptions
 
         prompt = f"""

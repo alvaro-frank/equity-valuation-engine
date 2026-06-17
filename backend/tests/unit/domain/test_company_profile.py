@@ -1,7 +1,7 @@
 import pytest
 from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
-from domain.entities.entities import CompanyProfile, MoatSources, QualityPillars
+from domain.entities import CompanyProfile, MoatSources, QualityPillars
 
 class TestCompanyProfileEntity:
     @pytest.fixture

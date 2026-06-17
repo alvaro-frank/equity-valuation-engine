@@ -3,7 +3,7 @@ from application.exceptions.exceptions import ExternalServiceError
 import json
 from decimal import Decimal
 
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
+from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
 
 class TestGeminiAdapter:
@@ -106,12 +106,12 @@ class TestGeminiAdapter:
             "ticker": "MSFT",
             "period_end_date": "2026-03-31",
             "core_performance": {
-                "adjusted_revenue": {"amount": 50000.0, "yoy_growth": 15.0},
-                "adjusted_eps": {"amount": 5.0, "yoy_growth": 10.0},
-                "adjusted_gross_margin": {"amount": 60.0, "yoy_growth": 1.0},
-                "adjusted_operating_margin": {"amount": 40.0, "yoy_growth": 2.0},
-                "adjusted_net_margin": {"amount": 30.0, "yoy_growth": 1.0},
-                "free_cash_flow": {"amount": 15000.0, "yoy_growth": 5.0}
+                "adjusted_revenue": {"amount": 50000.0},
+                "adjusted_eps": {"amount": 5.0},
+                "adjusted_gross_margin": {"amount": 60.0},
+                "adjusted_operating_margin": {"amount": 40.0},
+                "adjusted_net_margin": {"amount": 30.0},
+                "free_cash_flow": {"amount": 15000.0}
             },
             "capital_allocation": {
                 "share_buybacks": 2000.0,
@@ -137,7 +137,6 @@ class TestGeminiAdapter:
         assert isinstance(report, EarningsReport)
         assert report.period_end_date == "2026-03-31"
         assert report.core_performance.adjusted_revenue.amount == Decimal("50000.0")
-        assert report.core_performance.adjusted_revenue.yoy_growth == Decimal("15.0")
         assert report.capital_allocation.share_buybacks == Decimal("2000.0")
         assert report.forward_guidance == "Raise"
         assert "Interest rates" in report.risk_deconstruction.macro_risks

@@ -1,7 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from typing import List, Dict, Any
 
-from domain.entities.entities import FinancialQuarter, FinancialYear, Price
+from domain.entities import FinancialQuarter, FinancialYear, Price
 
 def parse_decimal(value: Any, field_name: str) -> Decimal:
         """
@@ -127,7 +127,7 @@ def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: L
         Returns:
             List[FinancialQuarter]: A list of domain entities containing consolidated financial data for each quarter.
         """
-        from domain.entities.entities import FinancialQuarter
+        from domain.entities import FinancialQuarter
         quarters = []
         
         balance_dict = {report.get("fiscalDateEnding"): report for report in balance_list}

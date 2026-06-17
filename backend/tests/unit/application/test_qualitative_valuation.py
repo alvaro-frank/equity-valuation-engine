@@ -2,8 +2,8 @@ import pytest
 from decimal import Decimal
 
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
-from domain.entities.entities import Ticker, CompanyProfile, MoatSources, QualityPillars
-from application.dtos.dtos import QualitativeValuationResult
+from domain.entities import Ticker, CompanyProfile, MoatSources, QualityPillars
+from application.dtos import QualitativeValuationResult
 
 class TestQualitativeValuationUseCase:
 

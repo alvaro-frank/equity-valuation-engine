@@ -1,5 +1,5 @@
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
-from application.dtos.dtos import EarningsReportResult
+from application.dtos import EarningsReportResult
 
 class EarningsReportAdapter:
     """

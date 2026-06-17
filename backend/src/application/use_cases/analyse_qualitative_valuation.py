@@ -1,6 +1,6 @@
-from domain.entities.entities import CompanyProfile
+from domain.entities import CompanyProfile
 from application.ports.ports import QualitativeDataPort, QuantitativeDataPort, OwnershipDataPort
-from application.dtos.dtos import TickerResult, QualitativeValuationResult
+from application.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
 import dataclasses
 import datetime

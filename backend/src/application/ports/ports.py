@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker, CompanyProfile, IndustrySectorDynamics, EarningsReport
+from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker, CompanyProfile, IndustrySectorDynamics, EarningsReport
 
 class QuantitativeDataPort(ABC):
     """

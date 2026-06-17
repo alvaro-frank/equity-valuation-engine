@@ -1,6 +1,6 @@
 import logging
 from application.ports.ports import QuantitativeDataPort, PerformanceDataPort
-from application.dtos.dtos import SectorPerformanceResult
+from application.dtos import SectorPerformanceResult
 
 SECTOR_ETF_MAP = {
     "technology": "XLK",

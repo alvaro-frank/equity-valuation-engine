@@ -1,5 +1,5 @@
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from application.dtos.dtos import QuantitativeValuationResult
+from application.dtos import QuantitativeValuationResult
 
 class QuantitativeValuationAdapter:
     """

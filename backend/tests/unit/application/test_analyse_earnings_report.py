@@ -2,9 +2,9 @@ import pytest
 from decimal import Decimal
 from unittest.mock import MagicMock
 
-from domain.entities.entities import Ticker, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
+from domain.entities import Ticker, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
-from application.dtos.dtos import EarningsReportResult
+from application.dtos import EarningsReportResult
 
 class TestEarningsReportUseCase:
 
@@ -30,12 +30,12 @@ class TestEarningsReportUseCase:
         qual_port.analyse_earnings_report.return_value = EarningsReport(
             period_end_date="2026-03-31",
             core_performance=CorePerformance(
-                adjusted_revenue=MetricWithGrowth(amount=Decimal("50000"), yoy_growth=Decimal("15")),
-                adjusted_eps=MetricWithGrowth(amount=Decimal("5"), yoy_growth=Decimal("10")),
-                adjusted_gross_margin=MetricWithGrowth(amount=Decimal("60"), yoy_growth=Decimal("1")),
-                adjusted_operating_margin=MetricWithGrowth(amount=Decimal("40"), yoy_growth=Decimal("2")),
-                adjusted_net_margin=MetricWithGrowth(amount=Decimal("30"), yoy_growth=Decimal("1")),
-                free_cash_flow=MetricWithGrowth(amount=Decimal("15000"), yoy_growth=Decimal("5"))
+                adjusted_revenue=MetricWithGrowth(amount=Decimal("50000")),
+                adjusted_eps=MetricWithGrowth(amount=Decimal("5")),
+                adjusted_gross_margin=MetricWithGrowth(amount=Decimal("60")),
+                adjusted_operating_margin=MetricWithGrowth(amount=Decimal("40")),
+                adjusted_net_margin=MetricWithGrowth(amount=Decimal("30")),
+                free_cash_flow=MetricWithGrowth(amount=Decimal("15000"))
             ),
             capital_allocation=CapitalAllocation(
                 share_buybacks=Decimal("2000"),

@@ -1,7 +1,7 @@
 import pytest
 from domain.exceptions.exceptions import DomainValidationError
 from decimal import Decimal
-from domain.entities.entities import FinancialYear
+from domain.entities import FinancialYear
 
 class TestFinancialYearEntity:
     @pytest.fixture

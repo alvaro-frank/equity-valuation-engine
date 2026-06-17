@@ -1,4 +1,4 @@
-from application.dtos.dtos import EarningsReportResult, TickerResult
+from application.dtos import EarningsReportResult, TickerResult
 from application.ports.ports import EarningsReportPort, QuantitativeDataPort
 from dataclasses import asdict
 

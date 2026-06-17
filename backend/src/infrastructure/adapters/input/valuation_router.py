@@ -31,7 +31,7 @@ from infrastructure.adapters.input.dependencies import (
 )
 from application.ports.ports import QuantitativeDataPort
 
-from application.dtos.dtos import (
+from application.dtos import (
     EarningsReportResult,
     QuantitativeValuationResult,
     QualitativeValuationResult,

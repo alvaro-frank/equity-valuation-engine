@@ -2,8 +2,8 @@ import pytest
 from decimal import Decimal
 
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
-from domain.entities.entities import Ticker, FinancialYear
-from application.dtos.dtos import QuantitativeValuationResult
+from domain.entities import Ticker, FinancialYear
+from application.dtos import QuantitativeValuationResult
 
 class TestQuantitativeValuationUseCase:
 
@@ -26,7 +26,7 @@ class TestQuantitativeValuationUseCase:
             symbol="AAPL", name="Apple", sector="Tech", industry="Hardware"
         )
         
-        from domain.entities.entities import Price
+        from domain.entities import Price
         mock_quant_adapter.get_stock_current_price.return_value = Price(amount=Decimal("150.0"), currency="USD")
 
         fy_recent = FinancialYear(

@@ -2,7 +2,7 @@ from decimal import Decimal
 import pandas as pd
 from typing import Optional
 
-from domain.entities.entities import FinancialYear, FinancialQuarter
+from domain.entities import FinancialYear, FinancialQuarter
 
 def parse_financial_period(date_str: str, date, financials, balance_sheet, cashflow, ticker, is_quarter: bool = False):
     """

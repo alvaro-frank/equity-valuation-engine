@@ -1,7 +1,7 @@
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from application.exceptions.exceptions import ExternalServiceError, RateLimitExceededError, LLMParsingError
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
+from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
 
 class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, IntrinsicValueCalculationPort):
     """

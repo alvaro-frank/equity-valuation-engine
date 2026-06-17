@@ -6,7 +6,7 @@ import pandas as pd
 import httpx
 
 from infrastructure.mappers.yfinance_mapper import parse_financial_period
-from domain.entities.entities import Price, FinancialYear, FinancialQuarter, Ticker
+from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from application.exceptions.exceptions import TickerNotFoundError, DataFetchError
 from application.ports.ports import QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort
 

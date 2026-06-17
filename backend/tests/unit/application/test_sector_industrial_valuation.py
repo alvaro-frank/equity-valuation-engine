@@ -1,8 +1,8 @@
 import pytest
 
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
-from domain.entities.entities import Ticker, IndustrySectorDynamics
-from application.dtos.dtos import SectorIndustrialValuationResult
+from domain.entities import Ticker, IndustrySectorDynamics
+from application.dtos import SectorIndustrialValuationResult
 
 class TestSectorIndustrialValuationUseCase:
 

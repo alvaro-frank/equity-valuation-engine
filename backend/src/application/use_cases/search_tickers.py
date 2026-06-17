@@ -1,5 +1,5 @@
 from application.ports.ports import SearchDataPort
-from application.dtos.dtos import TickerSearchResult, TickerSearchDTO
+from application.dtos import TickerSearchResult, TickerSearchDTO
 
 class SearchTickersUseCase:
     """

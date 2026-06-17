@@ -1,6 +1,6 @@
 from application.ports.ports import QuantitativeDataPort
-from domain.entities.entities import FinancialYear
-from application.dtos.dtos import TickerResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
+from domain.entities import FinancialYear
+from application.dtos import TickerResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from dataclasses import fields
 import dataclasses
 from decimal import Decimal
