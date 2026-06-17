@@ -122,7 +122,7 @@ export function SectorPerformanceChart({ data, companyName }: SectorPerformanceC
               <Line 
                 type="monotone" 
                 dataKey={companyTicker} 
-                name={companyName || t('sector_view.chart.company', 'Empresa')} 
+                name={`${companyName || companyTicker} (${companyTicker})`}
                 stroke="var(--on-surface)" 
                 strokeWidth={3}
                 dot={false}
@@ -133,7 +133,7 @@ export function SectorPerformanceChart({ data, companyName }: SectorPerformanceC
             <Line 
               type="monotone" 
               dataKey={sectorEtf} 
-              name={`${t('sector_view.chart.sector', 'Setor')}: ${translateSector(sector)}`} 
+              name={`${translateSector(sector)} (${sectorEtf})`}
               stroke="var(--primary)" 
               strokeWidth={1.5}
               dot={false}
@@ -144,7 +144,7 @@ export function SectorPerformanceChart({ data, companyName }: SectorPerformanceC
               <Line 
                 type="monotone" 
                 dataKey={industryEtf} 
-                name={`${t('sector_view.chart.industry', 'Indústria')}: ${translateIndustry(industry)}`} 
+                name={`${translateIndustry(industry)} (${industryEtf})`}
                 stroke="var(--tertiary)" 
                 strokeWidth={1.5}
                 dot={false}
@@ -155,7 +155,7 @@ export function SectorPerformanceChart({ data, companyName }: SectorPerformanceC
             <Line 
               type="monotone" 
               dataKey={benchmarkTicker} 
-              name={`${t('sector_view.chart.benchmark', 'Benchmark')} (S&P 500)`} 
+              name={`S&P 500 (${benchmarkTicker})`}
               stroke="var(--chart-benchmark)" 
               strokeWidth={1.5}
               dot={false}

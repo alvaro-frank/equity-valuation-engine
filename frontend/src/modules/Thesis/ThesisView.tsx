@@ -14,9 +14,6 @@ import { LeadershipTab } from './components/LeadershipTab';
 import { HistoryTab } from './components/HistoryTab';
 import { RisksTab } from './components/RisksTab';
 import { ThesisSkeleton } from './components/ThesisSkeleton';
-// Force Vite re-parse
-
-// --- Sub-Components (Rule 2.11, 2.23) ---
 
 function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: TickerResult; ticker: string }) {
   const { t } = useTranslation();
@@ -29,7 +26,7 @@ function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: TickerResult; ticker
             {t('nav.thesis')}
           </span>
         </div>
-        <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
+        <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
           <span className="material-symbols-outlined text-[16px]">domain</span>
           {translateSector(tickerInfo?.sector)} / {translateIndustry(tickerInfo?.industry)}
         </p>

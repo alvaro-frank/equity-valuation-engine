@@ -33,7 +33,7 @@ function SectorHeader({ ticker, name, sector, industry }: SectorHeaderProps) {
             {t('nav.sector')}
           </span>
         </div>
-        <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
+        <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
           <span className="material-symbols-outlined text-[16px]">domain</span>
           {translateSector(sector)} / {translateIndustry(industry)}
         </p>

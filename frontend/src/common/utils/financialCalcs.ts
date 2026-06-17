@@ -3,7 +3,11 @@ export function calcYoY(
   previous: number | null | undefined,
   isMargin = false
 ): number | null {
-  if (current == null || previous == null || previous === 0) return null;
-  if (isMargin) return current - previous;
-  return ((current - previous) / Math.abs(previous)) * 100;
+  if (current == null || previous == null) return null;
+  const numCurrent = Number(current);
+  const numPrevious = Number(previous);
+  
+  if (numPrevious === 0) return null;
+  if (isMargin) return numCurrent - numPrevious;
+  return ((numCurrent - numPrevious) / Math.abs(numPrevious)) * 100;
 }

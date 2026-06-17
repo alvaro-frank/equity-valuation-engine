@@ -22,7 +22,7 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
           </span>
         </div>
         {sector && industry && (
-          <p className="text-body-sm text-on-surface-variant capitalize mt-1.5 flex items-center gap-2">
+          <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
             {translateSector(sector)} / {translateIndustry(industry)}
           </p>
