@@ -37,27 +37,52 @@ class GroqTranslatorAdapter(TranslationPort):
         if not data:
             return data
             
-        json_str = json.dumps(data)
-        
         lang_instruction = target_language
         if target_language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms or grammar."
 
+        import copy
+        result_data = copy.deepcopy(data)
+        
+        strings_to_translate = {}
+        paths = []
+        
+        def traverse(obj):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    if k in ["ticker", "sector", "industry", "sector_key", "industry_key"] and isinstance(v, str):
+                        continue
+                    if isinstance(v, str):
+                        # Avoid translating pure numbers or very short codes
+                        if len(v.strip()) > 1 and not v.strip().isnumeric():
+                            strings_to_translate[str(len(paths))] = v
+                            paths.append((obj, k))
+                    else:
+                        traverse(v)
+            elif isinstance(obj, list):
+                for i, v in enumerate(obj):
+                    if isinstance(v, str):
+                        if len(v.strip()) > 1 and not v.strip().isnumeric():
+                            strings_to_translate[str(len(paths))] = v
+                            paths.append((obj, i))
+                    else:
+                        traverse(v)
+
+        traverse(result_data)
+        
+        if not strings_to_translate:
+            return result_data
+            
+        json_str = json.dumps(strings_to_translate)
+        
         prompt = f"""
         You are a precise JSON translation engine. 
-        Your ONLY task is to translate the string values of the following JSON object to the target language: '{lang_instruction}'.
+        Your ONLY task is to translate the string values of the following flat JSON object to the target language: '{lang_instruction}'.
         
         CRITICAL RULES:
         1. Translate ALL string values to the target language.
-        2. DO NOT translate the main structural schema keys (e.g., sector, industry, rivalry_among_competitors, macro_risks, core_performance, etc).
-        3. If a JSON key is inside an inner dictionary and acts as a dynamic title/factor (e.g. "Intensity of Competition", "Regulatory Hurdles"), YOU MUST TRANSLATE IT to the target language.
-        4. DO NOT modify numbers, booleans, or null values.
-        5. BE EXTREMELY CAREFUL with JSON syntax. Do not add stray brackets or commas.
-        6. Maintain the exact same JSON structure and arrays. Ensure every array and object is properly closed.
-        7. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
-        8. CAUTION: 'economic_sensitivity' and 'interest_rate_exposure' are STRING fields, not arrays! DO NOT add a closing bracket ']' or '],' after their values. 
-        9. DO NOT omit 'interest_rate_exposure' or any other field. YOU MUST RETURN THE EXACT SAME NUMBER OF KEYS.
-        10. DO NOT translate any values inside the 'sources' field. Document references (e.g. "Earnings Release, Page 3") must remain in their original language.
+        2. KEEP the numeric JSON keys exactly the same. Do not change the keys.
+        3. Return ONLY valid, raw JSON. Do not include markdown formatting like ```json or any conversational text.
         
         JSON to translate:
         {json_str}
@@ -75,24 +100,16 @@ class GroqTranslatorAdapter(TranslationPort):
             )
             
             result_text = response.choices[0].message.content.strip()
-            
-            # Auto-repair common hallucination: '],' after a string field
-            result_text = re.sub(r'\]\s*,\s*"interest_rate_exposure"', ',\n"interest_rate_exposure"', result_text)
-            
             translated_dict = extract_json_from_response(result_text)
             
-            # Re-inject original structural keys to prevent frontend dictionary misses
-            if "sector" in data:
-                translated_dict["sector"] = data["sector"]
-            if "industry" in data:
-                translated_dict["industry"] = data["industry"]
-            if "ticker" in data and isinstance(data["ticker"], dict):
-                if "sector" in data["ticker"]:
-                    translated_dict["ticker"]["sector"] = data["ticker"]["sector"]
-                if "industry" in data["ticker"]:
-                    translated_dict["ticker"]["industry"] = data["ticker"]["industry"]
-                    
-            return translated_dict
+            for idx_str, translated_text in translated_dict.items():
+                if idx_str.isdigit():
+                    idx = int(idx_str)
+                    if idx < len(paths):
+                        parent_obj, key = paths[idx]
+                        parent_obj[key] = translated_text
+                        
+            return result_data
         except Exception as e:
             print(f"Translation failed: {e}")
             return data # Fallback to original data if translation fails

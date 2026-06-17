@@ -8,9 +8,9 @@ import re
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
-from domain.entities.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
+from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
-from infrastructure.schemas.llm_schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
+from infrastructure.schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
 
 def _remove_additional_properties(d):
     """
@@ -82,7 +82,14 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         CRITICAL INSTRUCTIONS:
         - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
         - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
-        - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Hardware companies rarely have Network Effects. Acknowledge financial struggles or declining revenues if they exist in the provided context.
+        - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Acknowledge financial struggles or declining revenues if they exist in the provided context.
+        - Independent Scoring: You MUST independently evaluate and assign a score from 1 to 5 for EACH 'moat_sources' and 'quality_pillars' metric based on the SPECIFIC company being analyzed. DO NOT copy the arbitrary numbers from the JSON example.
+        - Moat Definitions:
+          * Intangible Assets: Patents, brands, or regulatory licenses.
+          * Switching Costs: The cost for a customer to change to a competitor.
+          * Network Effect: The value of the service increases as more people use it.
+          * Cost Advantage: Can the company produce goods/services at a structurally lower cost than peers? (e.g., tech giants with massive data center economies of scale often have a 4 or 5).
+          * Efficient Scale: Does the market only support one or a few players economically? (e.g., a dominant search engine or natural monopoly should score high).
         - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
         - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific key-value pairs. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
@@ -126,18 +133,18 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             "historical_context_crises": "How the company navigated past major crises.",
             "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
             "moat_sources": {{
-                "intangible_assets": 4,
-                "switching_costs": 3,
-                "network_effect": 5,
-                "cost_advantage": 2,
+                "intangible_assets": 1,
+                "switching_costs": 1,
+                "network_effect": 1,
+                "cost_advantage": 1,
                 "efficient_scale": 1
             }},
             "quality_pillars": {{
-                "management_quality": 4,
-                "business_model_resilience": 5,
-                "pricing_power": 4,
-                "innovation_and_growth": 3,
-                "tam_expansion": 4
+                "management_quality": 1,
+                "business_model_resilience": 1,
+                "pricing_power": 1,
+                "innovation_and_growth": 1,
+                "tam_expansion": 1
             }}
         }}
 
@@ -490,7 +497,7 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         """
         Uses Gemini to deduce DCF growth rates and discount rates based on fundamental data.
         """
-        from infrastructure.schemas.llm_schemas import DCFValuationResponseSchema
+        from infrastructure.schemas import DCFValuationResponseSchema
         from domain.entities.dcf import DCFAssumptions
         import json
 
