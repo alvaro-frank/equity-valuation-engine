@@ -5,6 +5,8 @@ import { ValuationHeader } from './components/ValuationHeader/ValuationHeader';
 import { ValuationEngine } from './components/ValuationEngine/ValuationEngine';
 import { ValuationVisuals } from './components/ValuationVisuals/ValuationVisuals';
 import { ValuationSkeleton } from './components/ValuationSkeleton/ValuationSkeleton';
+import { ApiErrorState } from '@/common/components/ApiErrorState';
+import { parseApiError } from '@/common/utils/apiErrors';
 
 export const ValuationView = () => {
   const { ticker } = useParams<{ ticker: string }>();
@@ -14,6 +16,7 @@ export const ValuationView = () => {
     tickerData,
     isLoading,
     error,
+    refetch,
     activeScenario,
     handleScenarioChange,
     customAssumptions,
@@ -26,11 +29,8 @@ export const ValuationView = () => {
   }
 
   if (error || !dcfData || !currentScenarioData) {
-    return (
-      <div className="flex h-full items-center justify-center min-h-[400px]">
-        <p className="text-error">Error loading valuation data.</p>
-      </div>
-    );
+    const errorState = parseApiError(error || new Error('Missing valuation data'), t, ticker!);
+    return <ApiErrorState errorState={errorState} onRetry={refetch} />;
   }
 
   return (

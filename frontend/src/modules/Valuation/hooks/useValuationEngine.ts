@@ -12,19 +12,24 @@ export const useValuationEngine = (ticker: string) => {
   const [activeScenario, setActiveScenario] = useState<ScenarioType>('fair');
   const [customAssumptions, setCustomAssumptions] = useState<DCFAssumptions | null>(null);
 
-  const { data: dcfData, isLoading, error } = useQuery({
+  const { data: dcfData, isLoading, error, refetch: refetchDcf } = useQuery({
     queryKey: ['dcf', ticker, i18n.language],
     queryFn: () => ValuationApi.getDcf(ticker),
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!ticker,
   });
 
-  const { data: quantData, isLoading: isLoadingQuant, error: errorQuant } = useQuery({
+  const { data: quantData, isLoading: isLoadingQuant, error: errorQuant, refetch: refetchQuant } = useQuery({
     queryKey: ['valuation', 'quantitative', ticker, i18n.language],
     queryFn: () => ValuationApi.getQuantitative(ticker, 1), // Only need 1 year to get ticker info quickly
     staleTime: 1000 * 60 * 5,
     enabled: !!ticker,
   });
+
+  const refetch = () => {
+    refetchDcf();
+    refetchQuant();
+  };
 
   // When data loads, or ticker changes, reset custom assumptions to fair
   useEffect(() => {
@@ -69,6 +74,7 @@ export const useValuationEngine = (ticker: string) => {
     tickerData: quantData?.ticker,
     isLoading: isLoading || isLoadingQuant,
     error: error || errorQuant,
+    refetch,
     activeScenario,
     handleScenarioChange,
     customAssumptions,
