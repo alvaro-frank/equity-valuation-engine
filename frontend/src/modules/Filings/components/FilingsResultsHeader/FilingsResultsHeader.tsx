@@ -17,7 +17,7 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
       <div>
         <div className="flex items-center gap-3">
           <h1 className="font-display-md text-display-md text-on-surface">{name || ticker}</h1>
-          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider mt-1">
             {t('nav.filings')}
           </span>
         </div>

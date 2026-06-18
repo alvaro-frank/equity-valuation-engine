@@ -18,11 +18,11 @@ import { ThesisSkeleton } from './components/ThesisSkeleton';
 function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: TickerResult; ticker: string }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant mb-6">
+    <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant">
       <div>
         <div className="flex items-center gap-3">
           <h1 className="font-display-md text-display-md text-on-surface">{tickerInfo?.name || ticker}</h1>
-          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider mt-1">
             {t('nav.thesis')}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function ThesisView() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto pb-12 animate-in fade-in duration-500">
+    <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
       <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker!} />
 
       <SubNav 

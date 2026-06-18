@@ -5,19 +5,16 @@ import type { QuantitativeValuationResult } from '@/common/types/valuation';
 interface FinancialsHeaderProps {
   ticker: string;
   quantData: QuantitativeValuationResult;
-  activeTab: string;
-  isQuarterly: boolean;
-  onToggleQuarterly: (isQuarterly: boolean) => void;
 }
 
-export function FinancialsHeader({ ticker, quantData, activeTab, isQuarterly, onToggleQuarterly }: FinancialsHeaderProps) {
+export function FinancialsHeader({ ticker, quantData }: FinancialsHeaderProps) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant mb-6">
+    <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant">
       <div>
         <div className="flex items-center gap-3">
           <h1 className="font-display-md text-display-md text-on-surface">{quantData.ticker.name || ticker}</h1>
-          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+          <span className="bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider mt-1">
             {t('nav.financials')}
           </span>
         </div>
@@ -27,22 +24,6 @@ export function FinancialsHeader({ ticker, quantData, activeTab, isQuarterly, on
         </p>
       </div>
       
-      {activeTab !== 'ratios' ? (
-        <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
-          <button
-            onClick={() => onToggleQuarterly(false)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${!isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-          >
-            {t('financials.annual')}
-          </button>
-          <button
-            onClick={() => onToggleQuarterly(true)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-          >
-            {t('financials.quarterly')}
-          </button>
-        </div>
-      ) : null}
     </div>
   );
 }

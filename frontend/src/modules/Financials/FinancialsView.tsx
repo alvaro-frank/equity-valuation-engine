@@ -35,22 +35,37 @@ export function FinancialsView() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto pb-12 animate-in fade-in duration-500">
+    <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
       <FinancialsHeader 
         ticker={ticker!} 
         quantData={quantData} 
-        activeTab={activeTab} 
-        isQuarterly={isQuarterly} 
-        onToggleQuarterly={setIsQuarterly} 
       />
 
       <SubNav 
         tabs={tabs} 
         activeTabId={activeTab} 
         onTabChange={setActiveTab} 
+        rightContent={
+          activeTab !== 'ratios' ? (
+            <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
+              <button
+                onClick={() => setIsQuarterly(false)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${!isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+              >
+                {t('financials.annual')}
+              </button>
+              <button
+                onClick={() => setIsQuarterly(true)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+              >
+                {t('financials.quarterly')}
+              </button>
+            </div>
+          ) : null
+        }
       />
 
-      <div className="mt-4">
+      <div>
         <FinancialTable 
           metricsData={quantData.metrics}
           quarterlyData={quantData.quarterly_metrics}

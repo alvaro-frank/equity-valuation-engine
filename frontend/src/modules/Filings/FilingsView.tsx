@@ -27,7 +27,7 @@ export function FilingsView() {
   // 2. Empty / Upload State
   if (!activeData) {
     return (
-      <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
+      <div className="w-full max-w-[1600px] mx-auto flex-1 flex flex-col">
         <div className="flex-1 mt-12">
           <PdfUploader onFileSelect={handleFileSelect} isUploading={isPending} />
         </div>
@@ -37,7 +37,7 @@ export function FilingsView() {
 
   // 3. Success / Results State
   return (
-    <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col">
+    <div className="w-full max-w-[1600px] mx-auto flex-1 flex flex-col">
       <div className="flex-1 pb-10">
         <FilingsResultsHeader 
           onReset={handleReset}
