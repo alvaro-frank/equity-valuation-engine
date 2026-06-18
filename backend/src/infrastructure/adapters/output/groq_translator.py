@@ -4,6 +4,7 @@ from openai import AsyncOpenAI
 from application.ports.ports import TranslationPort
 from infrastructure.utils.llm_utils import extract_json_from_response
 import os
+import copy
 
 class GroqTranslatorAdapter(TranslationPort):
     """
@@ -41,7 +42,6 @@ class GroqTranslatorAdapter(TranslationPort):
         if target_language == "pt":
             lang_instruction = "Portuguese (European / pt-PT). DO NOT use Brazilian Portuguese terms or grammar."
 
-        import copy
         result_data = copy.deepcopy(data)
         
         strings_to_translate = {}

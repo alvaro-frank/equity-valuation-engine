@@ -4,6 +4,7 @@ import time
 import re
 from openai import AsyncOpenAI
 import fitz
+import hashlib
 from dotenv import load_dotenv
 from decimal import Decimal
 from typing import Optional
@@ -14,7 +15,10 @@ from application.exceptions.exceptions import RateLimitExceededError, Configurat
 from infrastructure.utils.llm_utils import extract_json_from_response
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from infrastructure.schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
-
+from sklearn.feature_extraction.text import TfidfVectorizer
+from infrastructure.schemas import DCFValuationResponseSchema
+from domain.entities.dcf import DCFAssumptions
+        
 load_dotenv()
 
 class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, IntrinsicValueCalculationPort):
@@ -403,8 +407,7 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         GOOD bottom_line: "Alphabet executed strongly: Search revenue grew 12% YoY driven by AI Overviews adoption, Cloud crossed the $12B annualized run-rate with 28% margins, and the $70B buyback signals management's confidence in sustained free cash flow generation [1]. The key risk is a potential deceleration in ad spend if macro conditions deteriorate [2]."
         BAD bottom_line: "The company did well this quarter and beat expectations."
         """
-
-        import hashlib
+        
         with open(pdf_file_path, "rb") as f:
             file_hash = hashlib.md5(f.read()).hexdigest()[:12]
         cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
@@ -434,8 +437,6 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
                     md_text += page.get_text("text") + "\n\n"
             
             # TF-IDF RAG Implementation to respect OpenRouter token limits
-            import numpy as np
-            from sklearn.feature_extraction.text import TfidfVectorizer
             
             if len(md_text) > 30000:
                 # 1. Split text into chunks
@@ -562,8 +563,6 @@ class OpenRouterAdapter(SectorIndustrialDataPort, EarningsReportPort, Qualitativ
         """
         Uses OpenRouter to deduce DCF growth rates and discount rates based on fundamental data.
         """
-        from infrastructure.schemas import DCFValuationResponseSchema
-        from domain.entities.dcf import DCFAssumptions
 
         prompt = f"""
         You are a top-tier Wall Street Financial Analyst specializing in Discounted Cash Flow (DCF) valuation and competitive moat assessment.

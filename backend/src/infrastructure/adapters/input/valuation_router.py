@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
 import os
+import tempfile
+import shutil
 
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
@@ -106,10 +108,6 @@ async def analyse_earnings_report(
     """
     if not file.filename.lower().endswith('.pdf'):
         raise InvalidDocumentFormatError("Only PDF files are supported.")
-        
-    import tempfile
-    import shutil
-    
     try:
         # Create a temporary file to save the uploaded PDF
         fd, temp_path = tempfile.mkstemp(suffix=".pdf")

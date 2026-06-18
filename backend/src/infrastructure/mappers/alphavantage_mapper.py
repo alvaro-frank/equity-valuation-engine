@@ -127,7 +127,6 @@ def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: L
         Returns:
             List[FinancialQuarter]: A list of domain entities containing consolidated financial data for each quarter.
         """
-        from domain.entities import FinancialQuarter
         quarters = []
         
         balance_dict = {report.get("fiscalDateEnding"): report for report in balance_list}
