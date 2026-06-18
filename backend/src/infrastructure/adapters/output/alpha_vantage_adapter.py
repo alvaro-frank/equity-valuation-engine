@@ -4,6 +4,7 @@ import json
 import asyncio
 import httpx
 import yfinance as yf
+import pandas as pd
 from decimal import Decimal
 from typing import Dict, Optional, List
 from dotenv import load_dotenv
@@ -231,7 +232,6 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort):
             holders = institutional_holders.head(5)
             
             result = {}
-            import pandas as pd
             for index, row in holders.iterrows():
                 holder_name = row.get("Holder")
                 pct_held = row.get("pctHeld") or row.get("Value")

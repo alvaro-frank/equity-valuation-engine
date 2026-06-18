@@ -399,7 +399,7 @@
     "growth_1_5": "Crescimento FCF (Anos 1-5)",
     "growth_6_10": "Crescimento FCF (Anos 6-10)",
     "wacc": "WACC (Taxa de Desconto)",
-    "terminal_growth": "Crescimento Perpétuo",
+    "terminal_growth": "Taxa de Crescimento Perpétuo",
     "ai_rationale": "Justificação da IA",
     "sensitivity_matrix": "Matriz de Sensibilidade",
     "projected_cashflows": "Cash Flows Projetados",
