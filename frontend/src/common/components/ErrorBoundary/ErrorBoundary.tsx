@@ -45,7 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <ApiErrorState 
           errorState={this.getErrorState()} 
-          onRetry={() => window.location.reload()} 
+          onRetry={() => this.setState({ hasError: false, error: null })} 
         />
       );
     }

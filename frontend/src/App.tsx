@@ -8,6 +8,7 @@ import { SectorView } from '@/modules/Sector/SectorView';
 import { FinancialsView } from '@/modules/Financials';
 import { PlaceholderView } from '@/common/components/PlaceholderView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
+import { ValuationView } from '@/modules/Valuation/ValuationView';
 
 import { GlobalSearchBox } from '@/modules/Search/components/GlobalSearchBox';
 
@@ -24,13 +25,7 @@ function App() {
             <Route path="thesis" element={<ThesisView />} />
             <Route path="sector" element={<SectorView />} />
             <Route path="filings" element={<FilingsView />} />
-            <Route path="valuation" element={
-              <PlaceholderView 
-                title="Modelos de Valuation" 
-                description="Calculadoras interativas de valor intrínseco (DCF, Múltiplos) para determinar o preço alvo." 
-                icon="calculate" 
-              />
-            } />
+            <Route path="valuation" element={<ValuationView />} />
           </Route>
         </Route>
       </Routes>

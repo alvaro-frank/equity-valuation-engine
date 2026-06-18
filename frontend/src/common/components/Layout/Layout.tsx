@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams, useLocation } from 'react-router-dom';
 import { TopAppBar } from './TopAppBar';
 import { SideNavBar } from './SideNavBar';
+import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
 interface LayoutProps {
@@ -11,6 +12,7 @@ interface LayoutProps {
 
 export function Layout({ children, headerSearchComponent }: LayoutProps) {
   const { ticker: activeTicker } = useParams<{ ticker?: string }>();
+  const location = useLocation();
 
   const { data, isLoading } = useTickerValidation(activeTicker ?? '');
 
@@ -29,8 +31,10 @@ export function Layout({ children, headerSearchComponent }: LayoutProps) {
         />
       ) : null}
 
-      <main className={`${shouldShowNav ? 'ml-16' : ''} flex-1 p-panel-gap transition-all`}>
-        {children || <Outlet />}
+      <main className={`${shouldShowNav ? 'ml-16' : ''} flex-1 flex flex-col p-panel-gap transition-all`}>
+        <ErrorBoundary key={location.pathname}>
+          {children || <Outlet />}
+        </ErrorBoundary>
       </main>
     </div>
   );
