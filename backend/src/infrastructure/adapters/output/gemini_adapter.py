@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import os
 import time
 import json
+import asyncio
+import hashlib
 import re
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
@@ -11,7 +13,13 @@ from application.ports.intrinsic_value_calculation_port import IntrinsicValueCal
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, MetricWithGrowth, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars
 from decimal import Decimal
 from infrastructure.schemas import CompanyProfileSchema, IndustrySectorDynamicsSchema, EarningsReportSchema
-
+from pydantic import ValidationError
+from infrastructure.utils.llm_utils import extract_json_from_response
+from application.exceptions.exceptions import LLMParsingError
+from typing import Optional
+from infrastructure.schemas import DCFValuationResponseSchema
+from domain.entities.dcf import DCFAssumptions
+        
 def _remove_additional_properties(d):
     """
     Recursively removes 'additionalProperties' from a JSON schema dictionary.
@@ -27,7 +35,6 @@ def _remove_additional_properties(d):
         for item in d:
             _remove_additional_properties(item)
     return d
-from typing import Optional
 
 load_dotenv()
 
@@ -81,8 +88,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
 
         CRITICAL INSTRUCTIONS:
         - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
-        - Accuracy: Use the most recent public information available up to your knowledge cutoff. Combine it with the real-world context provided above.
-        - Strict Evaluation: Be ruthlessly objective and highly critical. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence. Acknowledge financial struggles or declining revenues if they exist in the provided context.
+        - Accuracy & Search: You have access to Google Search. You MUST actively search for the company's most recent news, headwinds, litigations, and structural problems to fill the risk_factors and moat_trajectory. Do NOT rely on static past memory for these fields.
+        - Products & Strategy Search: You MUST use Google Search to verify the company's current core products, recent strategic pivots, and latest revenue model (e.g. from their latest Earnings Release). Ensure products_services and strategy reflect the current year.
+        - Analytical rigor: Focus on deep economic moats, structural competitive advantages, and real threats. Avoid generic marketing fluff. Do NOT be overly optimistic. If a company is struggling, explicitly state it.
+        - Strict Evaluation & Headwinds: Be ruthlessly objective and highly critical. You MUST explicitly identify recent headwinds, ongoing litigations, declining business segments, supply chain issues, or new competitive threats. Acknowledge financial struggles if they exist. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence.
         - Independent Scoring: You MUST independently evaluate and assign a score from 1 to 5 for EACH 'moat_sources' and 'quality_pillars' metric based on the SPECIFIC company being analyzed. DO NOT copy the arbitrary numbers from the JSON example.
         - Moat Definitions:
           * Intangible Assets: Patents, brands, or regulatory licenses.
@@ -91,10 +100,10 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
           * Cost Advantage: Can the company produce goods/services at a structurally lower cost than peers? (e.g., tech giants with massive data center economies of scale often have a 4 or 5).
           * Efficient Scale: Does the market only support one or a few players economically? (e.g., a dominant search engine or natural monopoly should score high).
         - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
-        - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific key-value pairs. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
+        - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific list of objects as shown. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
         - Tone: Professional, objective, and data-driven.
         - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
-        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive).
+        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive). Ensure these reflect CURRENT events and real recent news, not just generic possibilities.
 
         QUALITY EXAMPLES (follow this tone and depth):
         GOOD competitive_advantage: "Apple's ecosystem creates a powerful flywheel: high switching costs from iCloud lock-in, iOS app investments, and seamless hardware-software integration drive 93% retention rates. The Services segment, growing at 14% YoY, monetizes this captive base with 78% gross margins, creating a durable revenue stream less vulnerable to hardware cycles."
@@ -112,26 +121,26 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
             ],
             "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
             "strategy": "Core strategic focus and future outlook.",
-            "products_services": {{
-                "Product/Service 1": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance.",
-                "Product/Service 2": "Comprehensive 2-3 sentence description...",
-                "Product/Service 3": "Comprehensive 2-3 sentence description..."
-            }},
-            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat.",
+            "products_services": [
+                {{ "name": "Product/Service 1", "description": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance." }},
+                {{ "name": "Product/Service 2", "description": "Comprehensive 2-3 sentence description..." }},
+                {{ "name": "Product/Service 3", "description": "Comprehensive 2-3 sentence description..." }}
+            ],
+            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly cite any recent challenges to this moat.",
             "competitors": [
                 {{ "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis..." }},
                 {{ "name": "Competitor 2 Name", "ticker": "MSFT", "overlap": "Detailed 2-3 sentence analysis..." }},
                 {{ "name": "Competitor 3 Name", "ticker": "PRIVATE", "overlap": "Detailed 2-3 sentence analysis..." }}
             ],
             "management_insights": "Analysis of management quality and track record.",
-            "risk_factors": {{
-                "Risk 1 Title (e.g. Geopolitical)": "Detailed 2-3 sentence breakdown of the risk impact and probability.",
-                "Risk 2 Title (e.g. Competitive)": "Detailed 2-3 sentence breakdown...",
-                "Risk 3 Title (e.g. Internal)": "Detailed 2-3 sentence breakdown...",
-                "Risk 4 Title (e.g. Macro)": "Detailed 2-3 sentence breakdown..."
-            }},
+            "risk_factors": [
+                {{ "title": "Risk 1 Title (e.g. Geopolitical)", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability. Must include recent specific headwinds." }},
+                {{ "title": "Risk 2 Title (e.g. Competitive)", "description": "Detailed 2-3 sentence breakdown..." }},
+                {{ "title": "Risk 3 Title (e.g. Internal)", "description": "Detailed 2-3 sentence breakdown..." }},
+                {{ "title": "Risk 4 Title (e.g. Macro)", "description": "Detailed 2-3 sentence breakdown..." }}
+            ],
             "historical_context_crises": "How the company navigated past major crises.",
-            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why).",
+            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why). Mention recent news.",
             "moat_sources": {{
                 "intangible_assets": 1,
                 "switching_costs": 1,
@@ -182,12 +191,18 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                         model=self.model_id,
                         contents=prompt,
                         config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            response_schema=_remove_additional_properties(CompanyProfileSchema.model_json_schema()),
                             temperature=0.0,
+                            tools=[{"google_search": {}}]
                         )
                     )
-                    data_en = json.loads(response.text)
+                    data_en = extract_json_from_response(response.text)
+                    
+                    # Validate schema BEFORE caching to prevent cache poisoning!
+                    try:
+                        CompanyProfileSchema(**data_en)
+                    except ValidationError as ve:
+                        raise LLMParsingError(f"Gemini returned invalid JSON structure: {ve}")
+                        
                     with open(cache_path_en, 'w', encoding='utf-8') as f:
                         json.dump(data_en, f, indent=4)
                 except Exception as e: 
@@ -200,6 +215,12 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 data = await self.translator.translate_json(data_en, language)
             else:
                 data = data_en
+                
+            # Validate final data before caching translated version
+            try:
+                CompanyProfileSchema(**data)
+            except ValidationError as ve:
+                raise LLMParsingError(f"Translator returned invalid JSON structure: {ve}")
                 
             with open(cache_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4)
@@ -385,7 +406,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         BAD bottom_line: "The company did well this quarter and beat expectations."
         """
 
-        import hashlib
         with open(pdf_file_path, "rb") as f:
             file_hash = hashlib.md5(f.read()).hexdigest()[:12]
         cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
@@ -418,7 +438,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
                 uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
                 file_info = await self.client.aio.files.get(name=uploaded_file.name)
                 while file_info.state.name == "PROCESSING":
-                    import asyncio
                     await asyncio.sleep(2)
                     file_info = await self.client.aio.files.get(name=uploaded_file.name)
                     
@@ -497,9 +516,6 @@ class GeminiAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDat
         """
         Uses Gemini to deduce DCF growth rates and discount rates based on fundamental data.
         """
-        from infrastructure.schemas import DCFValuationResponseSchema
-        from domain.entities.dcf import DCFAssumptions
-        import json
 
         prompt = f"""
         You are a top-tier Wall Street Financial Analyst specializing in Discounted Cash Flow (DCF) valuation and competitive moat assessment.
