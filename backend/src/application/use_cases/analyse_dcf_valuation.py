@@ -27,14 +27,11 @@ class AnalyseDCFValuationUseCase:
         """
         Executes the DCF valuation process for the given ticker.
         """
-        # 1. Fetch Quantitative and Qualitative data concurrently
+        # 1. Fetch Quantitative data first
         try:
-            financial_years, company_profile_obj = await asyncio.gather(
-                self.quant_data_port.get_stock_fundamental_data(ticker),
-                self.qual_data_port.analyse_company(ticker, language=language)
-            )
+            financial_years = await self.quant_data_port.get_stock_fundamental_data(ticker)
         except Exception as e:
-            raise ExternalServiceError(f"Failed to fetch base data for DCF: {str(e)}")
+            raise ExternalServiceError(f"Failed to fetch quantitative data for DCF: {str(e)}")
 
         if not financial_years:
             raise ExternalServiceError(f"No quantitative financial data available for {ticker} to perform DCF.")
@@ -45,6 +42,33 @@ class AnalyseDCFValuationUseCase:
         base_fcf = latest_year.free_cash_flow
         shares_outstanding = latest_year.shares_outstanding
         net_cash = latest_year.cash_and_equivalents - latest_year.total_debt
+
+        # 3. Short-circuit if base FCF is negative to save LLM calls
+        if base_fcf < 0:
+            dummy_assumptions = DCFAssumptions(
+                fcf_growth_1_to_5=Decimal("0.0"),
+                fcf_growth_6_to_10=Decimal("0.0"),
+                wacc=Decimal("0.10"),
+                terminal_growth_rate=Decimal("0.02"),
+                justification="Company has negative Free Cash Flow. DCF Valuation is fundamentally incompatible."
+            )
+            scenarios = {
+                "bear": DCFScenario("Bear", dummy_assumptions, base_fcf, shares_outstanding, net_cash),
+                "fair": DCFScenario("Fair", dummy_assumptions, base_fcf, shares_outstanding, net_cash),
+                "bull": DCFScenario("Bull", dummy_assumptions, base_fcf, shares_outstanding, net_cash),
+            }
+            return DCFValuation(
+                base_fcf_ttm=base_fcf,
+                shares_outstanding=shares_outstanding,
+                net_cash=net_cash,
+                scenarios=scenarios
+            )
+
+        # 4. Fetch Qualitative data
+        try:
+            company_profile_obj = await self.qual_data_port.analyse_company(ticker, language=language)
+        except Exception as e:
+            raise ExternalServiceError(f"Failed to fetch qualitative data for DCF: {str(e)}")
 
         # 3. Prepare Context for LLM
         # We build a historical FCF trend to ground the LLM's growth projections

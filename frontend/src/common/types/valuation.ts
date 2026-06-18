@@ -149,3 +149,36 @@ export interface SectorPerformanceData {
   benchmark_ticker: string;
   chart_data: Array<Record<string, number | string>>;
 }
+
+export interface DCFAssumptions {
+  fcf_growth_1_to_5: number;
+  fcf_growth_6_to_10: number;
+  wacc: number;
+  terminal_growth_rate: number;
+  justification: string;
+}
+
+export interface DCFScenario {
+  scenario_name: string;
+  assumptions: DCFAssumptions;
+  base_fcf: number;
+  shares_outstanding: number;
+  net_cash: number;
+  projected_fcfs: number[];
+  terminal_value: number;
+  intrinsic_value_per_share: number;
+}
+
+export interface DCFScenarios {
+  bear: DCFScenario;
+  fair: DCFScenario;
+  bull: DCFScenario;
+  custom?: DCFScenario; // Custom is local to the frontend
+}
+
+export interface DCFValuationResult {
+  base_fcf_ttm: number;
+  shares_outstanding: number;
+  net_cash: number;
+  scenarios: DCFScenarios;
+}
