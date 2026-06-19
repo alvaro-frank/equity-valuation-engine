@@ -11,8 +11,8 @@ class TestEarningsIntegrationFlow:
     @pytest.fixture(autouse=True)
     def mock_sleep(self, mocker):
         mocker.patch("infrastructure.adapters.output.alpha_vantage_adapter.asyncio.sleep", return_value=None)
-        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
-        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
+        mocker.patch("infrastructure.adapters.output.base_llm_adapter.os.path.exists", return_value=False)
+        mocker.patch("infrastructure.adapters.output.base_llm_adapter.os.makedirs", return_value=None)
         mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
 
     @pytest.fixture

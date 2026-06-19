@@ -97,8 +97,8 @@ class TestGeminiAdapter:
 
     @pytest.mark.anyio
     async def test_analyse_earnings_report_happy_path(self, adapter, mock_client, mocker):
-        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
-        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.makedirs", return_value=None)
+        mocker.patch("infrastructure.adapters.output.base_llm_adapter.os.path.exists", return_value=False)
+        mocker.patch("infrastructure.adapters.output.base_llm_adapter.os.makedirs", return_value=None)
         
         mock_response = mock_client.aio.models.generate_content.return_value
         
@@ -146,7 +146,7 @@ class TestGeminiAdapter:
 
     @pytest.mark.anyio
     async def test_analyse_earnings_report_handles_api_failure(self, adapter, mock_client, mocker):
-        mocker.patch("infrastructure.adapters.output.gemini_adapter.os.path.exists", return_value=False)
+        mocker.patch("infrastructure.adapters.output.base_llm_adapter.os.path.exists", return_value=False)
         mocker.patch("builtins.open", mocker.mock_open(read_data=b"dummy pdf content"))
         mock_client.aio.models.generate_content.side_effect = Exception("Gemini server is down 503")
 
