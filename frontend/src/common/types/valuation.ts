@@ -77,6 +77,7 @@ export interface QualitativeValuationResult {
   quality_pillars?: QualityPillars;
   forward_guidance?: string;
   bottom_line?: string;
+  sources?: Record<string, string>;
 }
 
 export interface SectorIndustrialValuationResult {
