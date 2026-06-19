@@ -73,6 +73,7 @@ class CompanyProfile:
     moat_trajectory: str
     moat_sources: MoatSources
     quality_pillars: QualityPillars
+    sources: Dict[str, str] = field(default_factory=dict)
     
     def __post_init__(self):
         for exec in self.key_executives:
