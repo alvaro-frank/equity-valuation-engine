@@ -6,7 +6,6 @@ import { FilingsView } from '@/modules/Filings/FilingsView';
 import { ThesisView } from '@/modules/Thesis';
 import { SectorView } from '@/modules/Sector/SectorView';
 import { FinancialsView } from '@/modules/Financials';
-import { PlaceholderView } from '@/common/components/PlaceholderView';
 import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 import { ValuationView } from '@/modules/Valuation/ValuationView';
 

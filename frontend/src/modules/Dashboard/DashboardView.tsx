@@ -6,6 +6,7 @@ import { BusinessMoatPanel } from './components/BusinessMoatPanel/index';
 import { LeadershipPanel } from './components/LeadershipPanel/index';
 import { useDashboardData } from './hooks/useDashboardData';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
+import { SourcesProvider } from '@/common/contexts/SourcesContext';
 
 interface DashboardViewProps {
   ticker: string;
@@ -24,31 +25,33 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
   } = useDashboardData({ quantData, qualData });
 
   return (
-    <div className="max-w-[1600px] mx-auto w-full flex-1 space-y-panel-gap">
-      <DashboardHeader 
-        ticker={ticker} 
-        quantData={quantData} 
-        qualData={qualData} 
-        onSearch={onSearch} 
-      />
+    <SourcesProvider sources={qualData?.sources}>
+      <div className="max-w-[1600px] mx-auto w-full flex-1 space-y-panel-gap">
+        <DashboardHeader 
+          ticker={ticker} 
+          quantData={quantData} 
+          qualData={qualData} 
+          onSearch={onSearch} 
+        />
 
-      <KPIGrid 
-        quantData={quantData} 
-        ev={ev} 
-        fcf={fcf} 
-        getLatestMetric={getLatestMetric} 
-        getRawLatestMetric={getRawLatestMetric} 
-      />
+        <KPIGrid 
+          quantData={quantData} 
+          ev={ev} 
+          fcf={fcf} 
+          getLatestMetric={getLatestMetric} 
+          getRawLatestMetric={getRawLatestMetric} 
+        />
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-panel-gap">
-        <BusinessMoatPanel qualData={qualData} />
-        <LeadershipPanel qualData={qualData} ceoViewModel={ceoViewModel} />
-      </section>
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-panel-gap">
+          <BusinessMoatPanel qualData={qualData} />
+          <LeadershipPanel qualData={qualData} ceoViewModel={ceoViewModel} />
+        </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-panel-gap">
-        <RevenueChart quantData={quantData} />
-        <MarginChart quantData={quantData} />
-      </section>
-    </div>
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-panel-gap">
+          <RevenueChart quantData={quantData} />
+          <MarginChart quantData={quantData} />
+        </section>
+      </div>
+    </SourcesProvider>
   );
 }

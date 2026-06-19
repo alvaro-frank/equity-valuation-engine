@@ -14,6 +14,7 @@ import { LeadershipTab } from './components/LeadershipTab';
 import { HistoryTab } from './components/HistoryTab';
 import { RisksTab } from './components/RisksTab';
 import { ThesisSkeleton } from './components/ThesisSkeleton';
+import { SourcesProvider } from '@/common/contexts/SourcesContext';
 
 function ThesisHeader({ tickerInfo, ticker }: { tickerInfo: TickerResult; ticker: string }) {
   const { t } = useTranslation();
@@ -71,18 +72,20 @@ export function ThesisView() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
-      <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker!} />
+    <SourcesProvider sources={qualData?.sources}>
+      <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
+        <ThesisHeader tickerInfo={qualData.ticker} ticker={ticker!} />
 
-      <SubNav 
-        tabs={subTabs as SubNavTab[]} 
-        activeTabId={activeSubTab} 
-        onTabChange={setActiveSubTab as (id: string) => void} 
-      />
+        <SubNav 
+          tabs={subTabs as SubNavTab[]} 
+          activeTabId={activeSubTab} 
+          onTabChange={setActiveSubTab as (id: string) => void} 
+        />
 
-      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6 min-h-[500px]">
-        <TabContent activeSubTab={activeSubTab} qualData={qualData} />
+        <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6 min-h-[500px]">
+          <TabContent activeSubTab={activeSubTab} qualData={qualData} />
+        </div>
       </div>
-    </div>
+    </SourcesProvider>
   );
 }
