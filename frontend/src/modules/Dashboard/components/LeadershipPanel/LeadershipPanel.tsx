@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { QualitativeValuationResult } from '@/common/types/valuation';
+import { CitedText } from '@/common/components/CitedText/CitedText';
 
 interface LeadershipPanelProps {
   qualData?: QualitativeValuationResult;
@@ -29,7 +30,9 @@ export function LeadershipPanel({ qualData, ceoViewModel }: LeadershipPanelProps
           </div>
         </div>
         <div className="mt-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar pr-2">
-          <p className="text-body-sm text-on-surface-variant leading-relaxed mb-4" title={qualData?.management_insights}>{qualData?.management_insights || 'Analyzing leadership...'}</p>
+          <p className="text-body-sm text-on-surface-variant leading-relaxed mb-4">
+            {qualData ? <CitedText text={qualData.management_insights} /> : 'Analyzing leadership...'}
+          </p>
           
           {qualData?.major_shareholders && Object.keys(qualData.major_shareholders).length > 0 ? (
             <div className="mt-auto pt-4 border-t border-outline-variant/50">
