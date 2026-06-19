@@ -45,6 +45,7 @@ class QualitativeValuationResult(BaseModel):
     moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
     moat_sources: MoatSourcesResult = Field(..., description="Quantitative evaluation of moat sources (1-5)")
     quality_pillars: QualityPillarsResult = Field(..., description="Quantitative evaluation of business quality pillars (1-5)")
+    sources: Dict[str, str] = Field(default_factory=dict, description="Google Search citation mapping")
 
 class SectorIndustrialValuationResult(BaseModel):
     """
