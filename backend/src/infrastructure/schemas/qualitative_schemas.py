@@ -64,6 +64,7 @@ class CompanyProfileSchema(BaseModel):
     moat_trajectory: str
     moat_sources: MoatSourcesSchema
     quality_pillars: QualityPillarsSchema
+    sources: dict = {}
 
 class ForceFactor(BaseModel):
     """
