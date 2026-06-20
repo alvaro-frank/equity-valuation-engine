@@ -1,8 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { SearchHistoryItem } from '@/modules/Search/components/SearchHistoryItem';
-import { SearchResultItem } from '@/modules/Search/components/SearchResultItem';
 
-interface SearchDropdownProps {
+export interface SearchDropdownProps {
   show: boolean;
   searchTerm: string;
   isFetching: boolean;
@@ -15,112 +12,8 @@ interface SearchDropdownProps {
   className?: string;
 }
 
-// --- Sub-Components (Rule 2.23, 2.8, 2.9, 2.12) ---
-
-function LoadingState() {
-  return (
-    <div className="px-4 py-4 text-sm text-on-surface-variant flex items-center gap-2">
-      <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
-      Searching tickers...
-    </div>
-  );
-}
-
-function EmptyState({ searchTerm }: { searchTerm: string }) {
-  return (
-    <div className="px-4 py-4 text-sm text-on-surface-variant flex items-center gap-2">
-      <span className="material-symbols-outlined text-[16px]">search_off</span>
-      No tickers found matching "{searchTerm}"
-    </div>
-  );
-}
-
-function SearchResultsList({ searchResults, isFetching, searchTerm, selectedIndex, onSelect, onHover }: SearchDropdownProps) {
-  
-  if (isFetching && (!searchResults || searchResults.length === 0)) {
-    return <LoadingState />;
-  }
-
-  if (!searchResults || searchResults.length === 0) {
-    return <EmptyState searchTerm={searchTerm} />;
-  }
-
-  return (
-    <>
-      {searchResults.map((item, index) => (
-        <SearchResultItem
-          key={item.symbol}
-          symbol={item.symbol}
-          name={item.name}
-          exchange={item.exchange}
-          isSelected={index === selectedIndex}
-          onSelect={() => onSelect(item.symbol, item.name)}
-          onHover={() => onHover(index)}
-          className="px-4 py-3"
-        />
-      ))}
-    </>
-  );
-}
-
-function SearchResultsSection({ searchResults, isFetching, searchTerm, selectedIndex, onSelect, onHover, show, filteredHistory, onClearHistory }: SearchDropdownProps) {
-  return (
-    <>
-      <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant uppercase tracking-wider flex justify-between items-center">
-        <span>SEARCH RESULTS</span>
-        {isFetching ? <span className="material-symbols-outlined animate-spin text-[14px]">refresh</span> : null}
-      </div>
-      <div className="flex flex-col max-h-[300px] overflow-y-auto">
-        <SearchResultsList 
-          searchResults={searchResults}
-          isFetching={isFetching}
-          searchTerm={searchTerm}
-          selectedIndex={selectedIndex}
-          onSelect={onSelect}
-          onHover={onHover}
-          show={show}
-          filteredHistory={filteredHistory}
-          onClearHistory={onClearHistory}
-        />
-      </div>
-    </>
-  );
-}
-
-function RecentSearchesSection({ onClearHistory, filteredHistory, selectedIndex, onSelect, onHover }: SearchDropdownProps) {
-  const { t } = useTranslation();
-  return (
-    <>
-      <div className="px-4 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-highest border-b border-outline-variant flex justify-between items-center">
-        <span>{t('search.recent_searches')}</span>
-        <button 
-          type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClearHistory();
-          }}
-          className="text-error hover:text-error/80 cursor-pointer transition-colors"
-        >
-          {t('search.clear')}
-        </button>
-      </div>
-      <div className="flex flex-col max-h-[300px] overflow-y-auto">
-        {filteredHistory.map((item, index) => (
-          <SearchHistoryItem
-            key={item.ticker}
-            ticker={item.ticker}
-            name={item.name}
-            isSelected={index === selectedIndex}
-            onSelect={() => onSelect(item.ticker, item.name)}
-            onHover={() => onHover(index)}
-            className="px-4 py-3 text-base"
-          />
-        ))}
-      </div>
-    </>
-  );
-}
+import { SearchResultsSection } from './components/SearchResultsSection';
+import { RecentSearchesSection } from './components/RecentSearchesSection';
 
 // --- Main Component ---
 
