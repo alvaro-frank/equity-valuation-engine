@@ -3,11 +3,11 @@ import time
 import json
 import hashlib
 import re
-from typing import Optional, Dict, Any, Type, TypeVar
+from typing import Optional, Type, TypeVar
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, ValidationError
 
-from application.exceptions.exceptions import RateLimitExceededError, ExternalServiceError, LLMParsingError, InvalidDocumentFormatError
+from application.exceptions.exceptions import LLMParsingError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars, MetricWithGrowth
@@ -204,12 +204,11 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         CORE FRAMEWORK: Use Porter's Five Forces to evaluate structural profitability and competitive intensity.
         Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
-        INSTRUCTIONS FOR JSON DICTIONARIES (Sections 1-5):
-        For each force, identify 2-4 key factors. Return them as a dictionary where the KEY is a short, descriptive title (e.g., "Capital Intensity") and the VALUE is a professional analysis.
+        INSTRUCTIONS FOR SECTIONS 1-5:
+        For each force, identify 2-4 key factors. Return them as an ARRAY of objects, where each object has a "factor" (short title) and an "analysis" (professional analysis).
 
         QUALITY EXAMPLES (follow this tone and depth):
-        GOOD rivalry_among_competitors: "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%), with high exit barriers from long-term enterprise contracts and massive sunk costs in data center infrastructure."
-        BAD rivalry_among_competitors: "There is a lot of competition in this industry."
+        GOOD rivalry_among_competitors: [{{"factor": "Market Concentration", "analysis": "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%), with high exit barriers from long-term enterprise contracts and massive sunk costs in data center infrastructure."}}]
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -225,11 +224,11 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         {{
             "sector": "{sector}",
             "industry": "{industry}",
-            "rivalry_among_competitors": {{ "Key Factor": "Analysis..." }},
-            "bargaining_power_of_suppliers": {{ "Key Factor": "Analysis..." }},
-            "bargaining_power_of_customers": {{ "Key Factor": "Analysis..." }},
-            "threat_of_new_entrants": {{ "Key Factor": "Analysis..." }},
-            "threat_of_obsolescence": {{ "Key Factor": "Analysis..." }},
+            "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
+            "bargaining_power_of_suppliers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
+            "bargaining_power_of_customers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
+            "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
+            "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
             "economic_sensitivity": "Detailed narrative about economic cycles.",
             "interest_rate_exposure": "Detailed narrative about rate impacts."
         }}

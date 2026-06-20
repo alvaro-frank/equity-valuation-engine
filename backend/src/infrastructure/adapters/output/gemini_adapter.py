@@ -43,10 +43,13 @@ class GeminiAdapter(BaseLLMAdapter):
         self.model_id = 'gemini-2.5-flash'
 
     async def _generate_company_profile(self, prompt: str, schema: Type[T]) -> dict:
+        strict_search_mandate = "\n\nCRITICAL MANDATE: You MUST actively trigger the Google Search tool. Your response will be REJECTED if you do not use the search tool."
+        current_prompt = prompt + strict_search_mandate
+        
         try:
             response = await self.client.aio.models.generate_content(
                 model=self.model_id,
-                contents=prompt,
+                contents=current_prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.0,
                     tools=[{"google_search": {}}]
@@ -70,7 +73,7 @@ class GeminiAdapter(BaseLLMAdapter):
             
             data_en['sources'] = sources
             return data_en
-        except Exception as e: 
+        except Exception as e:
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
                 raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
@@ -110,10 +113,12 @@ class GeminiAdapter(BaseLLMAdapter):
                 model=self.model_id,
                 contents=[prompt, uploaded_file],
                 config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=_remove_additional_properties(schema.model_json_schema()),
                     temperature=0.0
                 )
             )
-            return extract_json_from_response(response.text)
+            return json.loads(response.text)
         except Exception as e: 
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:

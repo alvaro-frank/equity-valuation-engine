@@ -46,7 +46,6 @@ class EarningsReportSchema(BaseModel):
     """
     Schema for earnings report analysis focused on Value Investing.
     """
-    ticker: str
     period_end_date: str
     core_performance: CorePerformanceSchema
     capital_allocation: CapitalAllocationSchema
