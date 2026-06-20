@@ -21,7 +21,6 @@ interface TrendingPopupContentProps {
   setSelectedIndex: (index: number) => void;
 }
 
-// --- Sub-Components (Rule 2.8, 2.23) ---
 function TrendingPopupContent({
   isLoading,
   error,

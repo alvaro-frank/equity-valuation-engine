@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { TrendingBadge } from '../TrendingBadge';
 import { translateSector, translateIndustry } from '@/common/utils/translations';
-import { formatStockPrice } from '@/common/utils/formatters';
+import { PriceDisplay } from './components/PriceDisplay';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
 interface DashboardHeaderProps {
@@ -41,21 +41,11 @@ export function DashboardHeader({ ticker, quantData, qualData, onSearch }: Dashb
           </div>
         </div>
       </div>
-      <div className="text-right flex flex-col items-end justify-center">
-        <span className="font-display-lg text-3xl font-bold text-primary leading-none">
-          {formatStockPrice(quantData?.ticker?.current_price)}
-        </span>
-        {quantData?.ticker?.regular_market_change != null ? (
-          <span className={`text-[12px] font-bold mt-1.5 flex items-center gap-0.5 ${quantData.ticker.regular_market_change >= 0 ? 'text-green-500' : 'text-error'}`}>
-            <span className="material-symbols-outlined text-[14px]">
-              {quantData.ticker.regular_market_change >= 0 ? 'arrow_upward' : 'arrow_downward'}
-            </span>
-            ${Math.abs(quantData.ticker.regular_market_change).toFixed(2)} ({Math.abs(quantData.ticker.regular_market_change_percent || 0).toFixed(2)}%)
-          </span>
-        ) : (
-          <span className="text-on-surface-variant text-[11px] font-medium mt-1 tracking-wide">{t('company_profile.live_pricing')}</span>
-        )}
-      </div>
+      <PriceDisplay 
+        currentPrice={quantData?.ticker?.current_price}
+        change={quantData?.ticker?.regular_market_change}
+        changePercent={quantData?.ticker?.regular_market_change_percent}
+      />
     </div>
   );
 }
