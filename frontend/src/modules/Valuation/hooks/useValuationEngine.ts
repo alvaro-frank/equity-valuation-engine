@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ValuationApi } from '@/common/api/valuationApi';
-import type { DCFValuationResult, DCFScenario, DCFAssumptions } from '@/common/types/valuation';
+import type { DCFScenario, DCFAssumptions } from '@/common/types/valuation';
 import { calculateDCFScenario } from '../utils/dcfCalculator';
 import { useTranslation } from 'react-i18next';
 

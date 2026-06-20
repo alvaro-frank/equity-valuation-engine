@@ -74,7 +74,7 @@ export const ValuationView = () => {
           <div className="lg:col-span-8">
             <ValuationVisuals
               scenario={currentScenarioData}
-              currentPrice={tickerData?.current_price}
+              currentPrice={tickerData?.current_price || 0}
             />
           </div>
         </div>
