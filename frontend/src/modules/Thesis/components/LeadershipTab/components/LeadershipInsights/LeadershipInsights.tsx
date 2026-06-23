@@ -8,13 +8,13 @@ interface LeadershipInsightsProps {
 export function LeadershipInsights({ content }: LeadershipInsightsProps) {
   const { t } = useTranslation();
   return (
-    <div className="lg:col-span-2">
-      <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">insights</span>
+    <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 flex flex-col gap-4">
+      <h3 className="font-header-sm text-header-sm font-bold text-on-surface flex items-center gap-2">
+        <span className="material-symbols-outlined text-primary text-xl">insights</span>
         {t('thesis_view.leadership_title')}
       </h3>
-      <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50 min-h-[400px]">
-        <p><CitedText text={content} /></p>
+      <div className="text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap">
+        <CitedText text={content} />
       </div>
     </div>
   );

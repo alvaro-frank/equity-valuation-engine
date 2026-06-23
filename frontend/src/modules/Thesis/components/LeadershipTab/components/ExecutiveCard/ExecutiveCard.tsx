@@ -6,15 +6,6 @@ export interface Executive {
   ownership?: number | string | null; 
 }
 
-const getInitials = (name: string) => {
-  if (!name) return '?';
-  const parts = name.replace(/^(Mr\.|Ms\.|Mrs\.|Dr\.)\s+/i, '').trim().split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
-};
-
 interface ExecutiveCardProps {
   exec: Executive;
 }
@@ -24,10 +15,7 @@ export function ExecutiveCard({ exec }: ExecutiveCardProps) {
   const cleanName = exec.name.replace(/^(Sr\.|Sra\.|Mr\.|Mrs\.|Ms\.|Miss\.|Dr\.|Prof\.)\s+/i, '');
   
   return (
-    <div className="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant/50 hover:bg-surface-container-low transition-colors duration-200 rounded-xl group">
-      <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 group-hover:bg-primary/20 transition-colors">
-        {getInitials(cleanName)}
-      </div>
+    <div className="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
       <div className="flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2">
           <span className="text-sm text-on-surface font-bold leading-tight">{cleanName}</span>
