@@ -57,7 +57,7 @@ export function QualityStarRating({ data }: QualityStarRatingProps) {
   const pillars = useQualityPillars(data);
 
   return (
-    <div className="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/50 flex flex-col w-full">
+    <div className="flex flex-col w-full">
       <div className="space-y-3 flex-1 flex flex-col justify-center">
         {pillars.map((pillar) => (
           <PillarRow key={pillar.key} label={pillar.label} score={pillar.score} />

@@ -13,7 +13,10 @@ export function MoatTab({ qualData }: MoatTabProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <MoatOverview content={qualData.competitive_advantage} moatSources={qualData.moat_sources} />
-          <MoatTrajectory content={qualData.moat_trajectory} />
+          <MoatTrajectory 
+            status={qualData.moat_trajectory_status} 
+            description={qualData.moat_trajectory_description} 
+          />
         </div>
         <CompetitorsList competitors={qualData.competitors || []} />
       </div>

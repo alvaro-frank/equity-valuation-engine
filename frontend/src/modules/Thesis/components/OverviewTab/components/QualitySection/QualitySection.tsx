@@ -11,8 +11,8 @@ export function QualitySection({ qualityPillars }: QualitySectionProps) {
   if (!qualityPillars) return null;
 
   return (
-    <div>
-      <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+    <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 flex flex-col gap-4">
+      <h3 className="font-header-sm text-header-sm font-bold text-on-surface flex items-center gap-2">
         <span className="material-symbols-outlined text-[16px] text-primary">verified</span>
         {t('thesis_view.quality_pillars.title')}
       </h3>

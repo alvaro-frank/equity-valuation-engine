@@ -11,14 +11,14 @@ interface MoatOverviewProps {
 export function MoatOverview({ content, moatSources }: MoatOverviewProps) {
   const { t } = useTranslation();
   return (
-    <div>
-      <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">fort</span>
+    <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 flex flex-col gap-4">
+      <h3 className="font-header-sm text-header-sm font-bold text-on-surface flex items-center gap-2">
+        <span className="material-symbols-outlined text-primary text-xl">fort</span>
         {t('thesis_view.moat_title')}
       </h3>
-      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6 bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/50 items-center">
-        <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
-          <p><CitedText text={content} /></p>
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6 items-center">
+        <div className="text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap">
+          <CitedText text={content} />
         </div>
         {moatSources ? (
           <div className="2xl:border-l 2xl:pl-6 2xl:border-t-0 border-t pt-6 2xl:pt-0 border-outline-variant/50 w-full h-full flex items-center justify-center">
