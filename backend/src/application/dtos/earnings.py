@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Dict, List, Optional
 from .core import TickerResult
+from .qualitative import SourceInfoDTO
 
 class MetricWithGrowthResult(BaseModel):
     """
@@ -52,10 +53,11 @@ class EarningsReportResult(BaseModel):
     core_performance: CorePerformanceResult = Field(..., description="Core non-GAAP performance metrics")
     capital_allocation: CapitalAllocationResult = Field(..., description="Capital allocation and infrastructure assessment")
     forward_guidance: str = Field(..., description="Summary of forward guidance (Raise/Lower/Maintain)")
-    moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
+    moat_trajectory_status: str = Field(..., description="Moat trajectory status (EXPANDING, STABLE, SHRINKING)")
+    moat_trajectory_description: str = Field(..., description="Evidence of moat trajectory")
     risk_deconstruction: RiskDeconstructionResult = Field(..., description="Macro and internal risk breakdown")
     bottom_line: str = Field(..., description="Brutal, concise summary of business execution")
-    sources: Dict[str, str] = Field(
+    sources: Dict[str, SourceInfoDTO] = Field(
         ..., 
         description="Mapping of numerical citations to source document pages/sections (e.g. {'1': 'MD&A Page 15'})"
     )

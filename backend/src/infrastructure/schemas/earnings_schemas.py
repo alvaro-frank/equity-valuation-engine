@@ -50,7 +50,8 @@ class EarningsReportSchema(BaseModel):
     core_performance: CorePerformanceSchema
     capital_allocation: CapitalAllocationSchema
     forward_guidance: str
-    moat_trajectory: str
+    moat_trajectory_status: str
+    moat_trajectory_description: str
     risk_deconstruction: RiskDeconstructionSchema
     bottom_line: str
     sources: List[SourceCitation] = Field(

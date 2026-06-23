@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 class ProductService(BaseModel):
     """
@@ -47,6 +47,17 @@ class KeyExecutive(BaseModel):
     title: str
     ownership: Optional[float] = None
 
+class NearTermCatalyst(BaseModel):
+    """
+    Details regarding an upcoming event and its potential impact on the stock.
+    """
+    event: str
+    impact: str
+
+class SourceInfo(BaseModel):
+    url: str
+    title: str
+
 class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
@@ -59,12 +70,15 @@ class CompanyProfileSchema(BaseModel):
     competitive_advantage: str
     competitors: List[Competitor]
     management_insights: str
+    capital_allocation_strategy: str
+    near_term_catalysts: List[NearTermCatalyst]
     risk_factors: List[RiskFactor]
     historical_context_crises: str
-    moat_trajectory: str
+    moat_trajectory_status: str
+    moat_trajectory_description: str
     moat_sources: MoatSourcesSchema
     quality_pillars: QualityPillarsSchema
-    sources: dict = {}
+    sources: Dict[str, SourceInfo] = {}
 
 class ForceFactor(BaseModel):
     """

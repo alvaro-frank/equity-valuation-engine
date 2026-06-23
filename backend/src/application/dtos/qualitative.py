@@ -23,6 +23,20 @@ class QualityPillarsResult(BaseModel):
     innovation_and_growth: int = Field(..., description="Score 1-5 for Innovation and Growth")
     tam_expansion: int = Field(..., description="Score 1-5 for TAM Expansion")
 
+class SourceInfoDTO(BaseModel):
+    """
+    Data Transfer Object representing information about a source used in the research.
+    """
+    url: str
+    title: str
+
+class NearTermCatalystDTO(BaseModel):
+    """
+    Data Transfer Object representing a near-term catalyst.
+    """
+    event: str
+    impact: str
+
 class QualitativeValuationResult(BaseModel):
     """
     Data Transfer Object representing the stock qualitative valuation analysis, including the ticker information, business description and company history.
@@ -40,12 +54,15 @@ class QualitativeValuationResult(BaseModel):
     competitive_advantage: str = Field(..., description="Competitive advantage or MOAT analysis")
     competitors: List[Dict[str, str]] = Field(..., description="List of competitors with name, ticker, and competitive overlap")
     management_insights: str = Field(..., description="Insights on management quality and meetings")
+    capital_allocation_strategy: str = Field("", description="Detailed analysis of how management deploys Free Cash Flow")
+    near_term_catalysts: List[NearTermCatalystDTO] = Field(default_factory=list, description="Upcoming events that could re-rate the stock")
     risk_factors: Dict[str, str] = Field(..., description="Risk title mapping to detailed description")
     historical_context_crises: str = Field(..., description="History including major crises overcome")
-    moat_trajectory: str = Field(..., description="Evidence of moat trajectory (expanding/shrinking)")
+    moat_trajectory_status: str = Field(..., description="Moat trajectory status (EXPANDING, STABLE, SHRINKING)")
+    moat_trajectory_description: str = Field(..., description="Detailed analysis of the moat trajectory")
     moat_sources: MoatSourcesResult = Field(..., description="Quantitative evaluation of moat sources (1-5)")
     quality_pillars: QualityPillarsResult = Field(..., description="Quantitative evaluation of business quality pillars (1-5)")
-    sources: Dict[str, str] = Field(default_factory=dict, description="Google Search citation mapping")
+    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Google Search citation mapping")
 
 class SectorIndustrialValuationResult(BaseModel):
     """

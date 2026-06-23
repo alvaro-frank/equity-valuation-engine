@@ -39,6 +39,30 @@ class QualityPillars:
     tam_expansion: int
 
 @dataclass(frozen=True)
+class NearTermCatalyst:
+    """
+    Details regarding an upcoming event and its potential impact on the stock.
+    
+    Attributes:
+        event (str): Description of the upcoming event.
+        impact (str): Analysis of the potential impact of the event on the stock.
+    """
+    event: str
+    impact: str
+
+@dataclass(frozen=True)
+class SourceInfo:
+    """
+    Information about a source used in the research.
+    
+    Attributes:
+        url (str): The URL of the source.
+        title (str): The title of the source.
+    """
+    url: str
+    title: str
+
+@dataclass(frozen=True)
 class CompanyProfile:
     """
     Represents the company and company's business model details
@@ -53,11 +77,15 @@ class CompanyProfile:
         competitive_advantage (str): Competitive advantage or MOAT analysis.
         competitors (List[Dict[str, str]]): List of main competitors in the industry.
         management_insights (str): Insights on management quality and meetings.
+        capital_allocation_strategy (str): Detailed analysis of how management deploys Free Cash Flow.
+        near_term_catalysts (List[NearTermCatalyst]): Upcoming events that could re-rate the stock.
         risk_factors (Dict[str, str]): Main risk factors for the business.
         historical_context_crises (str): History including major crises overcome.
-        moat_trajectory (str): Evidence of moat trajectory (expanding/shrinking).
+        moat_trajectory_status (str): Moat trajectory status (EXPANDING, STABLE, SHRINKING).
+        moat_trajectory_description (str): Detailed analysis of the moat trajectory.
         moat_sources (MoatSources): Quantitative evaluation of moat sources (1-5).
         quality_pillars (QualityPillars): Quantitative evaluation of business quality pillars (1-5).
+        sources (Dict[str, SourceInfo]): Sources used in the research with URL and title.
     """
     business_description: str
     company_history: str
@@ -70,10 +98,13 @@ class CompanyProfile:
     management_insights: str
     risk_factors: Dict[str, str]
     historical_context_crises: str
-    moat_trajectory: str
+    moat_trajectory_status: str
+    moat_trajectory_description: str
     moat_sources: MoatSources
     quality_pillars: QualityPillars
-    sources: Dict[str, str] = field(default_factory=dict)
+    capital_allocation_strategy: str = ""
+    near_term_catalysts: List[NearTermCatalyst] = field(default_factory=list)
+    sources: Dict[str, SourceInfo] = field(default_factory=dict)
     
     def __post_init__(self):
         for exec in self.key_executives:

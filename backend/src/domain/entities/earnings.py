@@ -73,7 +73,8 @@ class EarningsReport:
         core_performance (CorePerformance): Core non-GAAP performance metrics.
         capital_allocation (CapitalAllocation): Capital allocation decisions.
         forward_guidance (str): Summary of forward guidance.
-        moat_trajectory (str): Evidence of moat trajectory.
+        moat_trajectory_status (str): Moat trajectory status (EXPANDING, STABLE, SHRINKING).
+        moat_trajectory_description (str): Evidence of moat trajectory.
         risk_deconstruction (RiskDeconstruction): Risk deconstruction.
         bottom_line (str): Brutal, concise summary of business execution.
     """
@@ -81,7 +82,8 @@ class EarningsReport:
     core_performance: CorePerformance
     capital_allocation: CapitalAllocation
     forward_guidance: str
-    moat_trajectory: str
+    moat_trajectory_status: str
+    moat_trajectory_description: str
     risk_deconstruction: RiskDeconstruction
     bottom_line: str
     sources: Dict[str, str]
