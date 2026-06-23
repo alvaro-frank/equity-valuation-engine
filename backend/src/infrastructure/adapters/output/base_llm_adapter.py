@@ -11,6 +11,7 @@ from application.exceptions.exceptions import LLMParsingError
 from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars, MetricWithGrowth
+from domain.entities.qualitative import NearTermCatalyst, SourceInfo as EntitySourceInfo
 from domain.entities.dcf import DCFAssumptions
 from decimal import Decimal
 
@@ -74,59 +75,65 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
 
         CRITICAL INSTRUCTIONS:
         - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
-        - Accuracy & Search: You have access to Google Search (if supported). You MUST actively search for the company's most recent news, headwinds, litigations, and structural problems to fill the risk_factors and moat_trajectory. Do NOT rely on static past memory for these fields.
-        - Products & Strategy Search: You MUST verify the company's current core products, recent strategic pivots, and latest revenue model (e.g. from their latest Earnings Release). Ensure products_services and strategy reflect the current year.
-        - Analytical rigor: Focus on deep economic moats, structural competitive advantages, and real threats. Avoid generic marketing fluff. Do NOT be overly optimistic. If a company is struggling, explicitly state it.
-        - Strict Evaluation & Headwinds: Be ruthlessly objective and highly critical. You MUST explicitly identify recent headwinds, ongoing litigations, declining business segments, supply chain issues, or new competitive threats. Acknowledge financial struggles if they exist. Do not assign high scores (4-5) for Moat or Quality unless there is indisputable evidence.
+        - Extreme Recency & Search Mandate: You MUST actively use Google Search to find the most recent Earnings Call, Investor Day, and breaking news from the LAST 6 MONTHS. Your analysis MUST be anchored in the current year. Do NOT rely on pre-2023 memory.
+        - Quantitative Precision: EVERY claim about growth, margins, market share, product success, or strategic shifts MUST be backed by a specific hard number and date (e.g., "Grew 14% YoY in Q3 2023", "Holds a 65% market share as of late 2023", "Revenue target of $5B by 2025"). DO NOT use vague terms like "strong growth", "significant share", or "market leader" without quantifying it.
+        - Quantitative Anchors: Whenever analyzing the 'competitive_advantage' or 'revenue_model', you MUST explicitly cite structural financial metrics if available (e.g., Gross Margins, Operating Margins, ROIC, or FCF generation) to prove the qualitative thesis. A moat without margin or ROIC expansion is not a moat.
+        - Analytical Rigor & Value Investing Lens: Write like a ruthless, data-driven hedge fund analyst. Focus on structural competitive advantages (Moats), unit economics, and real existential threats. Strip out ALL corporate marketing fluff.
+        - Ruthless Objectivity: Be brutally honest. If a company is struggling, losing market share, or facing severe macroeconomic headwinds, you MUST explicitly state it and quantify the damage. Do not assign high scores (4-5) for Moat or Quality without indisputable, quantified evidence.
         - Independent Scoring: You MUST independently evaluate and assign a score from 1 to 5 for EACH 'moat_sources' and 'quality_pillars' metric based on the SPECIFIC company being analyzed. DO NOT copy the arbitrary numbers from the JSON example.
         - Moat Definitions:
           * Intangible Assets: Patents, brands, or regulatory licenses.
           * Switching Costs: The cost for a customer to change to a competitor.
           * Network Effect: The value of the service increases as more people use it.
-          * Cost Advantage: Can the company produce goods/services at a structurally lower cost than peers? (e.g., tech giants with massive data center economies of scale often have a 4 or 5).
-          * Efficient Scale: Does the market only support one or a few players economically? (e.g., a dominant search engine or natural monopoly should score high).
-        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers (e.g., President, COO, CTO, Chief Business Officer). Do NOT invent roles. If a role is not in the context, do not include it. You must return between 2 and 4 executives total. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
-        - Dictionaries/Lists: For 'products_services' and 'risk_factors', provide specific list of objects as shown. For 'competitors', provide a list of objects exactly as specified, enforcing one single company per item and providing its stock ticker (use "PRIVATE" if unlisted).
-        - Tone: Professional, objective, and data-driven.
-        - Density and Depth: DO NOT provide short or brief answers. Every text field must be highly analytical, comprehensive, and detailed, acting as a professional equity research report.
-        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors (e.g. Macro, Geopolitical, Internal, Competitive). Ensure these reflect CURRENT events and real recent news, not just generic possibilities.
+          * Cost Advantage: Can the company produce goods/services at a structurally lower cost than peers?
+          * Efficient Scale: Does the market only support one or a few players economically?
+        - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers. Do NOT invent roles. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE. Ensure 'ownership' is a float representing the percentage, or null if undisclosed.
+        - Competitors: Enforce exactly ONE single company per item, providing its official stock ticker (use "PRIVATE" if unlisted). The 'overlap' must explicitly detail where they compete and quantify the competitor's threat.
+        - Tone: Professional, highly critical, objective, and data-heavy.
+        - Density and Depth: DO NOT provide brief answers. Every text field must be highly analytical, comprehensive, and packed with facts, acting as a professional institutional research report.
+        - Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors. Ensure these reflect CURRENT events and real recent news, with specific dates or numbers (e.g. "Q4 2023 supply chain disruption causing $200M impact").
 
         QUALITY EXAMPLES (follow this tone and depth):
-        GOOD competitive_advantage: "Apple's ecosystem creates a powerful flywheel: high switching costs from iCloud lock-in, iOS app investments, and seamless hardware-software integration drive 93% retention rates. The Services segment, growing at 14% YoY, monetizes this captive base with 78% gross margins, creating a durable revenue stream less vulnerable to hardware cycles."
+        GOOD competitive_advantage: "Apple's ecosystem creates a powerful flywheel: high switching costs from iCloud lock-in, iOS app investments, and seamless hardware-software integration drive 93% retention rates. The Services segment, growing at 14% YoY in Q3 2023, monetizes this captive base with 78% gross margins, creating a durable revenue stream less vulnerable to hardware cycles."
         BAD competitive_advantage: "Apple has a strong brand and makes popular products that people like to buy."
 
         REQUIRED JSON STRUCTURE:
         Return ONLY a valid JSON object following this exact schema:
         {{
-            "company_history": "Key milestones from foundation to present.",
+            "company_history": "Key milestones from foundation to present, heavily emphasizing the strategic shifts of the last 3 years with precise dates.",
             "key_executives": [
                 {{ "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER", "ownership": 5.2 }},
                 {{ "name": "Name B", "title": "CHIEF FINANCIAL OFFICER", "ownership": 1.2 }},
                 {{ "name": "Name C", "title": "PRESIDENT & CHIEF INVESTMENT OFFICER", "ownership": 0.5 }},
                 {{ "name": "Name D", "title": "CHIEF TECHNOLOGY OFFICER", "ownership": 0.1 }}
             ],
-            "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy.",
-            "strategy": "Core strategic focus and future outlook.",
+            "revenue_model": "Highly detailed explanation (3-4 sentences) of all major revenue streams, pricing power, and monetization strategy. Must include recent revenue breakdown percentages and margin or growth metrics if available.",
+            "strategy": "Core strategic focus and future outlook, anchored in recent management commentary (e.g. latest earnings call).",
             "products_services": [
-                {{ "name": "Product/Service 1", "description": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance." }},
+                {{ "name": "Product/Service 1", "description": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance, including recent traction data." }},
                 {{ "name": "Product/Service 2", "description": "Comprehensive 2-3 sentence description..." }},
                 {{ "name": "Product/Service 3", "description": "Comprehensive 2-3 sentence description..." }}
             ],
-            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly cite any recent challenges to this moat.",
+            "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly anchor the analysis in ROIC, gross margins, or market share metrics.",
             "competitors": [
-                {{ "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis..." }},
+                {{ "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis of direct overlap and competitive threat..." }},
                 {{ "name": "Competitor 2 Name", "ticker": "MSFT", "overlap": "Detailed 2-3 sentence analysis..." }},
                 {{ "name": "Competitor 3 Name", "ticker": "PRIVATE", "overlap": "Detailed 2-3 sentence analysis..." }}
             ],
-            "management_insights": "Analysis of management quality and track record.",
+            "management_insights": "Analysis of management quality, execution track record, and integrity.",
+            "capital_allocation_strategy": "Detailed analysis of how management deploys Free Cash Flow: CapEx intensity, M&A track record, share buybacks, and dividend policy.",
+            "near_term_catalysts": [
+                {{ "event": "Catalyst 1 Name", "impact": "Detailed 2-3 sentence breakdown of how this upcoming event could positively or negatively re-rate the stock in the next 12-24 months." }}
+            ],
             "risk_factors": [
-                {{ "title": "Risk 1 Title (e.g. Geopolitical)", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability. Must include recent specific headwinds." }},
+                {{ "title": "Risk 1 Title (e.g. Geopolitical)", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability. Must include recent specific headwinds and quantifiable data." }},
                 {{ "title": "Risk 2 Title (e.g. Competitive)", "description": "Detailed 2-3 sentence breakdown..." }},
                 {{ "title": "Risk 3 Title (e.g. Internal)", "description": "Detailed 2-3 sentence breakdown..." }},
                 {{ "title": "Risk 4 Title (e.g. Macro)", "description": "Detailed 2-3 sentence breakdown..." }}
             ],
-            "historical_context_crises": "How the company navigated past major crises.",
-            "moat_trajectory": "Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (expanding or shrinking and why). Mention recent news.",
+            "historical_context_crises": "How the company navigated past major crises and recent macro challenges (e.g. 2022 inflation, recent industry downturns).",
+            "moat_trajectory_status": "EXPANDING/STABLE/SHRINKING",
+            "moat_trajectory_description": "Detailed 2-3 sentence analysis of why the competitive advantage trajectory is shifting. Mention recent news.",
             "moat_sources": {{
                 "intangible_assets": 1,
                 "switching_costs": 1,
@@ -142,9 +149,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 "tam_expansion": 1
             }}
         }}
-
         Do not include any markdown formatting outside the JSON, preamble, or conversational text. Return only the raw JSON.
-        CRITICAL: If you use facts from the search results, preserve numerical citation markers (e.g., [1], [2]) directly inside the JSON string values.
         """
 
         cache_filename = f"company_{symbol.upper()}_{language}.json"
@@ -188,10 +193,13 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             management_insights=schema_instance.management_insights,
             risk_factors={r.title: r.description for r in schema_instance.risk_factors},
             historical_context_crises=schema_instance.historical_context_crises,
-            moat_trajectory=schema_instance.moat_trajectory,
+            moat_trajectory_status=schema_instance.moat_trajectory_status,
+            moat_trajectory_description=schema_instance.moat_trajectory_description,
             moat_sources=MoatSources(**schema_instance.moat_sources.model_dump()),
             quality_pillars=QualityPillars(**schema_instance.quality_pillars.model_dump()),
-            sources=schema_instance.sources
+            capital_allocation_strategy=schema_instance.capital_allocation_strategy,
+            near_term_catalysts=[NearTermCatalyst(event=c.event, impact=c.impact) for c in schema_instance.near_term_catalysts],
+            sources={k: EntitySourceInfo(url=v.url, title=v.title) for k, v in schema_instance.sources.items()}
         )
 
     async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
@@ -287,7 +295,8 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
         3. capital_allocation: (Object) Detail exact amounts (as floats, in billions) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx (e.g. accelerating for AI buildout, or cutting back to preserve cash). Do not just provide a single word.
         4. forward_guidance: (String) Detailed 2-3 sentence analysis of management's forward-looking projections and guidance.
-        5. moat_trajectory: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory (e.g., is pricing power expanding or shrinking and why).
+        5. moat_trajectory_status: (String) Exactly "EXPANDING", "STABLE", or "SHRINKING".
+        5b. moat_trajectory_description: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory.
         6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
         7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
         8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory', and 'bottom_line' whenever you extract specific insights, data points, or management quotes. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string) (e.g. [{{"citation_number": 1, "source_text": "MD&A Page 15"}}]).
@@ -315,7 +324,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             if language != "en" and self.translator:
                 translatable_fields = {
                     "forward_guidance": data_en["forward_guidance"],
-                    "moat_trajectory": data_en["moat_trajectory"],
+                    "moat_trajectory_description": data_en["moat_trajectory_description"],
                     "bottom_line": data_en["bottom_line"],
                     "risk_deconstruction": {
                         "macro_risks": data_en["risk_deconstruction"]["macro_risks"],
@@ -327,7 +336,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 }
                 translated = await self.translator.translate_json(translatable_fields, language)
                 data["forward_guidance"] = translated.get("forward_guidance", data["forward_guidance"])
-                data["moat_trajectory"] = translated.get("moat_trajectory", data["moat_trajectory"])
+                data["moat_trajectory_description"] = translated.get("moat_trajectory_description", data["moat_trajectory_description"])
                 data["bottom_line"] = translated.get("bottom_line", data["bottom_line"])
                 if "risk_deconstruction" in translated:
                     data["risk_deconstruction"]["macro_risks"] = translated["risk_deconstruction"].get("macro_risks", data["risk_deconstruction"]["macro_risks"])
@@ -358,7 +367,8 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 infrastructure_assessment=schema_instance.capital_allocation.infrastructure_assessment
             ),
             forward_guidance=schema_instance.forward_guidance,
-            moat_trajectory=schema_instance.moat_trajectory,
+            moat_trajectory_status=schema_instance.moat_trajectory_status,
+            moat_trajectory_description=schema_instance.moat_trajectory_description,
             risk_deconstruction=RiskDeconstruction(
                 macro_risks=schema_instance.risk_deconstruction.macro_risks,
                 internal_risks=schema_instance.risk_deconstruction.internal_risks

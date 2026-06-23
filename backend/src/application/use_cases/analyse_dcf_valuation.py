@@ -89,7 +89,7 @@ class AnalyseDCFValuationUseCase:
         profile_context = {
             "business_description": company_profile_obj.business_description,
             "competitive_advantage": company_profile_obj.competitive_advantage,
-            "moat_trajectory": company_profile_obj.moat_trajectory,
+            "moat_trajectory": f"{company_profile_obj.moat_trajectory_status}. {company_profile_obj.moat_trajectory_description}",
             "risk_factors": company_profile_obj.risk_factors,
             "macro_exposure": "Derived from qualitative data"
         }
