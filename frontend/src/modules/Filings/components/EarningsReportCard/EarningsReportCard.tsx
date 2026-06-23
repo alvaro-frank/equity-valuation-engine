@@ -29,7 +29,7 @@ export function EarningsReportCard({ data, quantData }: EarningsReportCardProps)
 
       <TextualAnalysisPanel 
         forwardGuidance={data.forward_guidance} 
-        moatTrajectory={data.moat_trajectory} 
+        moatTrajectory={data.moat_trajectory_description} 
         sources={sources}
       />
 

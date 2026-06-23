@@ -58,8 +58,14 @@ export interface CompetitorData {
   overlap: string;
 }
 
+export interface SourceInfo {
+  url: string;
+  title: string;
+}
+
 export interface QualitativeValuationResult {
   ticker: TickerResult;
+  company_name: string;
   business_description: string;
   company_history: string;
   key_executives: Array<{name: string; title: string; ownership: number | null}>;
@@ -70,14 +76,17 @@ export interface QualitativeValuationResult {
   competitive_advantage: string;
   competitors: CompetitorData[];
   management_insights: string;
+  capital_allocation_strategy?: string;
+  near_term_catalysts?: Array<{event: string; impact: string}>;
   risk_factors: Record<string, string>;
   historical_context_crises: string;
-  moat_trajectory?: string;
+  moat_trajectory_status?: string;
+  moat_trajectory_description?: string;
   moat_sources?: MoatSources;
   quality_pillars?: QualityPillars;
   forward_guidance?: string;
   bottom_line?: string;
-  sources?: Record<string, string>;
+  sources?: Record<string, SourceInfo>;
 }
 
 export interface SectorIndustrialValuationResult {
@@ -130,10 +139,11 @@ export interface EarningsReportResult {
   core_performance: CorePerformance;
   capital_allocation: CapitalAllocation;
   forward_guidance: string;
-  moat_trajectory: string;
+  moat_trajectory_status: string;
+  moat_trajectory_description: string;
   risk_deconstruction: RiskDeconstruction;
   bottom_line: string;
-  sources: Record<string, string>;
+  sources: Record<string, SourceInfo>;
 }
 
 export interface SectorPerformancePoint {
