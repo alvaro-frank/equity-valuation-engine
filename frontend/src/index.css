@@ -51,6 +51,7 @@
     --on-tertiary-fixed-variant: #723600;
     --error: #ef4444;
     --inverse-primary: #005ac2;
+    --success: #10b981;
     --chart-benchmark: var(--secondary);
 }
 
@@ -102,6 +103,7 @@
     --on-tertiary-fixed-variant: #723600;
     --error: #ffb4ab;
     --inverse-primary: #005ac2;
+    --success: #34d399;
 }
 
 

@@ -54,7 +54,8 @@ export default {
         "primary-fixed-dim": "var(--primary-fixed-dim)",
         "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
         "error": "var(--error)",
-        "inverse-primary": "var(--inverse-primary)"
+        "inverse-primary": "var(--inverse-primary)",
+        "success": "var(--success)"
       },
       borderRadius: {
         "DEFAULT": "0.125rem",
