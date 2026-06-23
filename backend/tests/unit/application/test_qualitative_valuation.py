@@ -53,7 +53,8 @@ class TestQualitativeValuationUseCase:
             management_insights="Strong",
             risk_factors={"Risk": "Desc"},
             historical_context_crises="None",
-            moat_trajectory="Expanding",
+            moat_trajectory_status="EXPANDING",
+            moat_trajectory_description="Expanding",
             moat_sources=MoatSources(**{"intangible_assets": 4, "switching_costs": 3, "network_effect": 5, "cost_advantage": 2, "efficient_scale": 1}),
             quality_pillars=QualityPillars(**{"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 3, "tam_expansion": 4})
         )

@@ -53,7 +53,8 @@ class TestQualitativeIntegrationFlow:
             "management_insights": "Strong execution",
             "risk_factors": [{"title": "Regulation", "description": "Antitrust"}],
             "historical_context_crises": "Survived dot-com bubble",
-            "moat_trajectory": "Expanding",
+            "moat_trajectory_status": "EXPANDING",
+            "moat_trajectory_description": "Strong pricing power.",
             "moat_sources": {"intangible_assets": 4, "switching_costs": 5, "network_effect": 5, "cost_advantage": 3, "efficient_scale": 2},
             "quality_pillars": {"management_quality": 4, "business_model_resilience": 5, "pricing_power": 4, "innovation_and_growth": 4, "tam_expansion": 4}
         }

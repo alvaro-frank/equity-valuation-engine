@@ -44,7 +44,8 @@ class TestEarningsReportUseCase:
                 infrastructure_assessment="Accelerating"
             ),
             forward_guidance="Raise",
-            moat_trajectory="Expanding",
+            moat_trajectory_status="EXPANDING",
+            moat_trajectory_description="Expanding",
             risk_deconstruction=RiskDeconstruction(
                 macro_risks=["Interest rates"],
                 internal_risks=["Execution delay"]
