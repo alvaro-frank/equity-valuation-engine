@@ -1,10 +1,11 @@
 import React from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useSources } from '@/common/contexts/SourcesContext';
+import { type SourceInfo } from '@/common/types/valuation';
 
 interface CitedTextProps {
   text: string;
-  sources?: Record<string, string>;
+  sources?: Record<string, SourceInfo>;
 }
 
 export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
@@ -87,14 +88,15 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                   sideOffset={6}
                 >
                   {validSources.map((srcItem, idx) => {
-                    const isUrl = srcItem.sourceText.startsWith('http');
-                    const domain = isUrl ? new URL(srcItem.sourceText).hostname : srcItem.sourceText;
+                    const info = srcItem.sourceText; // This is a SourceInfo object
+                    const isUrl = info.url.startsWith('http');
+                    const displayTitle = info.title || (isUrl ? new URL(info.url).hostname : info.url);
                     
                     if (isUrl) {
                       return (
                         <a 
                           key={idx}
-                          href={srcItem.sourceText} 
+                          href={info.url} 
                           target="_blank" 
                           rel="noreferrer" 
                           className="flex items-center gap-2 hover:text-primary transition-colors hover:underline cursor-pointer"
@@ -102,7 +104,7 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                           <span className="material-symbols-outlined text-[13px] text-primary shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
                             link
                           </span>
-                          <span className="opacity-90">{domain}</span>
+                          <span className="opacity-90">{displayTitle}</span>
                         </a>
                       );
                     }
@@ -112,7 +114,7 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                         <span className="material-symbols-outlined text-[13px] text-primary shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
                           article
                         </span>
-                        <span className="opacity-90">{domain}</span>
+                        <span className="opacity-90">{displayTitle}</span>
                       </div>
                     );
                   })}

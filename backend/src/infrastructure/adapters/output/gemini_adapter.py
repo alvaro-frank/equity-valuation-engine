@@ -55,22 +55,40 @@ class GeminiAdapter(BaseLLMAdapter):
                     tools=[{"google_search": {}}]
                 )
             )
-            data_en = extract_json_from_response(response.text)
-            
-            # Extract grounding metadata URLs from Google Search
+            raw_text = response.text
             sources = {}
             try:
                 if hasattr(response, 'candidates') and response.candidates:
-                    if hasattr(response.candidates[0], 'grounding_metadata') and response.candidates[0].grounding_metadata:
-                        gm = response.candidates[0].grounding_metadata
+                    gm = getattr(response.candidates[0], 'grounding_metadata', None)
+                    if gm:
+                        # Extract sources
                         if hasattr(gm, 'grounding_chunks') and gm.grounding_chunks:
                             for i, chunk in enumerate(gm.grounding_chunks):
-                                if hasattr(chunk, 'web') and chunk.web:
-                                    if hasattr(chunk.web, 'uri') and chunk.web.uri:
-                                        sources[str(i + 1)] = chunk.web.uri
+                                web = getattr(chunk, 'web', None)
+                                if web and getattr(web, 'uri', None):
+                                    title = getattr(web, 'title', 'source')
+                                    sources[str(i + 1)] = {"url": web.uri, "title": title}
+                        
+                        # Inject citations into raw_text
+                        if hasattr(gm, 'grounding_supports') and gm.grounding_supports:
+                            # Sort by end_index descending to avoid offset shifting
+                            supports_sorted = sorted(
+                                [s for s in gm.grounding_supports if hasattr(s, 'segment') and s.segment],
+                                key=lambda s: s.segment.end_index, 
+                                reverse=True
+                            )
+                            for support in supports_sorted:
+                                end_idx = support.segment.end_index
+                                indices = getattr(support, 'grounding_chunk_indices', [])
+                                if indices:
+                                    citation_nums = [str(idx + 1) for idx in indices]
+                                    citation_str = f" [{', '.join(citation_nums)}]"
+                                    raw_text = raw_text[:end_idx] + citation_str + raw_text[end_idx:]
+                                    
             except Exception as meta_e:
                 print(f"Warning: Failed to extract grounding metadata: {meta_e}")
-            
+
+            data_en = extract_json_from_response(raw_text)
             data_en['sources'] = sources
             return data_en
         except Exception as e:

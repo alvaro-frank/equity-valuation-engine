@@ -57,11 +57,50 @@ class QualitativeValuationUseCase:
             context_parts.append(f"Profit Margins: {float(ticker_info.profit_margins)*100:.2f}%")
         if getattr(ticker_info, 'revenue_growth', None) is not None:
             context_parts.append(f"Revenue Growth: {float(ticker_info.revenue_growth)*100:.2f}%")
+            
+        if getattr(ticker_info, 'pe_ratio', None) is not None:
+            context_parts.append(f"Current P/E Ratio: {float(ticker_info.pe_ratio):.2f}")
+            
+        if getattr(ticker_info, 'forward_pe', None) is not None:
+            context_parts.append(f"Forward P/E Ratio: {float(ticker_info.forward_pe):.2f}")
+            
+        if getattr(ticker_info, 'regular_market_change_percent', None) is not None:
+            context_parts.append(f"Today's Market Change: {float(ticker_info.regular_market_change_percent):.2f}%")
         
         officers = getattr(ticker_info, 'company_officers', [])
         if officers:
             officers_str = ", ".join([f"{o.get('name')} ({o.get('title')})" for o in officers[:10]])
             context_parts.append(f"Current Key Executives/Officers: {officers_str}")
+            
+        # Inject Major Shareholders
+        major_shareholders = await self.ownership_adapter.get_major_shareholders(ticker_info.symbol)
+        if major_shareholders:
+            sh_str = ", ".join([f"{k} ({v:.2f}%)" for k, v in list(major_shareholders.items())[:5]])
+            context_parts.append(f"Top Institutional Shareholders: {sh_str}")
+            
+        # Fetch Deep Fundamentals for ROIC, FCF, Debt
+        financials = await self.quant_adapter.get_stock_fundamental_data(ticker_symbol)
+        if financials:
+            latest_year = financials[0]
+            if getattr(latest_year, 'roic', None) is not None:
+                context_parts.append(f"Latest Year ROIC: {float(latest_year.roic):.2f}%")
+            if getattr(latest_year, 'roe', None) is not None:
+                context_parts.append(f"Latest Year ROE: {float(latest_year.roe):.2f}%")
+            
+            # Format large numbers
+            def fmt_currency(val):
+                v = float(val)
+                if abs(v) >= 1e12: return f"${v/1e12:.2f}T"
+                elif abs(v) >= 1e9: return f"${v/1e9:.2f}B"
+                elif abs(v) >= 1e6: return f"${v/1e6:.2f}M"
+                return f"${v:,.0f}"
+                
+            if getattr(latest_year, 'free_cash_flow', None) is not None:
+                context_parts.append(f"Latest Year Free Cash Flow: {fmt_currency(latest_year.free_cash_flow)}")
+            if getattr(latest_year, 'total_debt', None) is not None:
+                context_parts.append(f"Latest Year Total Debt: {fmt_currency(latest_year.total_debt)}")
+            if getattr(latest_year, 'cash_and_equivalents', None) is not None:
+                context_parts.append(f"Latest Year Cash on Hand: {fmt_currency(latest_year.cash_and_equivalents)}")
             
         context_str = "\n".join(context_parts)
         
@@ -94,8 +133,6 @@ class QualitativeValuationUseCase:
         if "major_shareholders" in qual_data_dict:
             del qual_data_dict["major_shareholders"]
             
-        major_shareholders = await self.ownership_adapter.get_major_shareholders(ticker_info.symbol)
-
         return QualitativeValuationResult(
             ticker=ticker_dto,
             major_shareholders=major_shareholders,

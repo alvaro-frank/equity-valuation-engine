@@ -1,7 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react';
+import { type SourceInfo } from '@/common/types/valuation';
 
 interface SourcesContextType {
-  sources?: Record<string, string>;
+  sources?: Record<string, SourceInfo>;
 }
 
 const SourcesContext = createContext<SourcesContextType | undefined>(undefined);
@@ -10,7 +11,7 @@ export function SourcesProvider({
   sources, 
   children 
 }: { 
-  sources?: Record<string, string>; 
+  sources?: Record<string, SourceInfo>; 
   children: ReactNode; 
 }) {
   return (
