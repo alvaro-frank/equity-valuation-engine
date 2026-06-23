@@ -24,7 +24,7 @@ export function OverviewTab({ qualData }: OverviewTabProps) {
           <TextSection 
             icon="payments" 
             iconColor="text-tertiary" 
-            title={t('company_profile.revenue_model')} 
+            title={t('company_profile.revenue_model_low')} 
             content={qualData.revenue_model} 
           />
           <TextSection 

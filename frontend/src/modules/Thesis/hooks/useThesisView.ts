@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQualitativeData } from '@/common/api/hooks/useQualitativeData';
 import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
 
-export type ThesisTab = 'overview' | 'moat' | 'leadership' | 'history' | 'risks';
+export type ThesisTab = 'overview' | 'moat' | 'leadership' | 'history' | 'catalysts' | 'risks';
 
 export function useThesisView(ticker: string) {
   const { t, i18n } = useTranslation();
@@ -17,6 +17,7 @@ export function useThesisView(ticker: string) {
     { id: 'moat' as const, label: t('thesis_view.tab_moat'), icon: 'security' },
     { id: 'leadership' as const, label: t('thesis_view.tab_leadership'), icon: 'groups' },
     { id: 'history' as const, label: t('thesis_view.tab_history'), icon: 'history' },
+    { id: 'catalysts' as const, label: t('thesis_view.tab_catalysts'), icon: 'rocket_launch' },
     { id: 'risks' as const, label: t('thesis_view.tab_risks'), icon: 'warning' }
   ];
 

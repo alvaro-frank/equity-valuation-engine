@@ -12,6 +12,7 @@ import { OverviewTab } from './components/OverviewTab';
 import { MoatTab } from './components/MoatTab';
 import { LeadershipTab } from './components/LeadershipTab';
 import { HistoryTab } from './components/HistoryTab';
+import { CatalystsTab } from './components/CatalystsTab';
 import { RisksTab } from './components/RisksTab';
 import { ThesisSkeleton } from './components/ThesisSkeleton';
 import { SourcesProvider } from '@/common/contexts/SourcesContext';
@@ -42,6 +43,7 @@ function TabContent({ activeSubTab, qualData }: { activeSubTab: string; qualData
     case 'moat': return <MoatTab qualData={qualData} />;
     case 'leadership': return <LeadershipTab qualData={qualData} />;
     case 'history': return <HistoryTab qualData={qualData} />;
+    case 'catalysts': return <CatalystsTab qualData={qualData} />;
     case 'risks': return <RisksTab qualData={qualData} />;
     default: return null;
   }
