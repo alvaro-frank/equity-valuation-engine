@@ -9,7 +9,7 @@ export function RisksColumn({ riskFactors }: RisksColumnProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-surface-container-lowest p-3 border border-outline-variant/50 rounded-lg flex flex-col h-48">
+    <div className="bg-transparent p-4 border border-outline-variant/50 rounded-2xl flex flex-col h-56">
       <span className="font-label-caps text-label-caps text-tertiary mb-2 shrink-0">{t('company_profile.key_risks')}</span>
       <div className="overflow-y-auto custom-scrollbar pr-2 h-full flex flex-col gap-3">
         {!riskFactors ? (
