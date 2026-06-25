@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { translateSector, translateIndustry } from '@/common/utils/translations';
+import { formatDateString } from '@/common/utils/formatters';
 
 interface FilingsResultsHeaderProps {
-  onReset: () => void;
+  onReset?: () => void;
   ticker: string;
   name?: string;
   sector?: string;
@@ -11,7 +12,10 @@ interface FilingsResultsHeaderProps {
 }
 
 export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, periodEndDate }: FilingsResultsHeaderProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const formattedDate = formatDateString(periodEndDate, i18n.language);
+
   return (
     <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant mb-6">
       <div>
@@ -32,16 +36,18 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
         {periodEndDate && (
           <div className="flex items-center gap-2 text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-sm border border-outline-variant">
             <span className="material-symbols-outlined text-[16px]">calendar_month</span>
-            <span className="text-sm font-medium">{t('filings.period_ended')}: {periodEndDate}</span>
+            <span className="text-sm font-medium">{t('filings.period_ended')}: {formattedDate}</span>
           </div>
         )}
-        <button 
-          onClick={onReset} 
-          className="p-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant transition-colors flex items-center justify-center"
-          title={t('filings.analyze_another')}
-        >
-          <span className="material-symbols-outlined text-[20px]">refresh</span>
-        </button>
+        {onReset && (
+          <button 
+            onClick={onReset} 
+            className="p-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant transition-colors flex items-center justify-center"
+            title={t('filings.analyze_another')}
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          </button>
+        )}
       </div>
     </div>
   );
