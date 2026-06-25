@@ -49,3 +49,18 @@ class TickerResult(BaseModel):
     current_price: Optional[Decimal] = Field(None, description="Live Stock Price")
     regular_market_change: Optional[Decimal] = Field(None, description="Live Market Price Change")
     regular_market_change_percent: Optional[Decimal] = Field(None, description="Live Market Price Change Percentage")
+
+class LocalFilingDTO(BaseModel):
+    """
+    Data Transfer Object representing a cached SEC filing document.
+    """
+    id: str = Field(..., description="Unique identifier or file path for the document")
+    form_type: str = Field(..., description="Type of filing (e.g. 10-K, 10-Q)")
+    period: str = Field(..., description="Period string (e.g. FY2025, 2026-Q1)")
+    accession_number: str = Field(..., description="SEC Accession Number")
+
+class LocalFilingListResult(BaseModel):
+    """
+    Data Transfer Object representing a list of cached SEC filing documents.
+    """
+    filings: List[LocalFilingDTO] = Field(..., description="List of local filings")
