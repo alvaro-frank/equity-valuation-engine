@@ -2,58 +2,92 @@ import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useEarningsAnalysis } from './useEarningsAnalysis';
+import { useLocalFilingAnalysis } from './useLocalFilingAnalysis';
+import { useLocalFilings } from './useLocalFilings';
 import { parseApiError } from '@/common/utils/apiErrors';
 import { useQuantitativeData } from '@/common/api/hooks/useQuantitativeData';
+import { useTickerValidation } from '@/common/api/hooks/useTickerValidation';
+import type { LocalFilingDTO } from '@/common/types/valuation';
 
 export function useFilingsView(ticker: string) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
-  const { mutate, data: mutationData, isPending, error, reset } = useEarningsAnalysis();
   
-  const { data: quantData } = useQuantitativeData(ticker, true);
+  const { isSuccess: isValid, isLoading: isVerifying, error: validationError, refetch: refetchValidation } = useTickerValidation(ticker);
+  
+  const { mutate: mutateUpload, data: uploadData, isPending: isUploadPending, error: uploadError, reset: resetUpload } = useEarningsAnalysis();
+  const { mutate: mutateLocal, data: localData, isPending: isLocalPending, error: localError, reset: resetLocal } = useLocalFilingAnalysis();
+  
+  const { data: quantData, isLoading: isQuantLoading } = useQuantitativeData(ticker, isValid);
+  const { data: localFilingsResult, isLoading: isFilingsLoading } = useLocalFilings(ticker, !!quantData);
+
+  const isInitialLoading = isVerifying || (isValid && isQuantLoading) || (isValid && !!quantData && isFilingsLoading);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [analyzingFilingId, setAnalyzingFilingId] = useState<string | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
 
   // Reset mutation state when language changes so mutationData doesn't override cachedData
   if (currentLang !== i18n.language) {
     setCurrentLang(i18n.language);
-    reset();
+    resetUpload();
+    resetLocal();
   }
 
   const cachedData = queryClient.getQueryData(['earnings_analysis', ticker, i18n.language]);
-  const activeData = cachedData || mutationData;
+  const activeData = cachedData || uploadData || localData;
 
   // Auto-fetch if we have a file but no data for the new language
   useEffect(() => {
-    if (selectedFile && !activeData && !isPending && !error) {
-      mutate({ ticker, file: selectedFile });
+    if (selectedFile && !activeData && !isUploadPending && !uploadError) {
+      mutateUpload({ ticker, file: selectedFile });
     }
-  }, [i18n.language, selectedFile, activeData, isPending, error, mutate, ticker]);
+  }, [i18n.language, selectedFile, activeData, isUploadPending, uploadError, mutateUpload, ticker]);
 
   const handleReset = () => {
-    reset();
+    resetUpload();
+    resetLocal();
     setSelectedFile(null);
+    setAnalyzingFilingId(null);
     queryClient.removeQueries({ queryKey: ['earnings_analysis', ticker, i18n.language] });
   };
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
-    mutate({ ticker, file });
+    setAnalyzingFilingId(null);
+    mutateUpload({ ticker, file });
+  };
+
+  const handleLocalFilingSelect = (filing: LocalFilingDTO) => {
+    setSelectedFile(null);
+    setAnalyzingFilingId(filing.id);
+    mutateLocal({ ticker, filePath: filing.id });
   };
 
   const getErrorState = () => {
-    if (!error) return null;
-    return parseApiError(error, t, ticker);
+    const err = uploadError || localError;
+    if (!err) return null;
+    return parseApiError(err, t, ticker);
+  };
+
+  const getValidationErrorState = () => {
+    if (!validationError) return null;
+    return parseApiError(validationError, t, ticker);
   };
 
   return {
     t,
+    isValid,
+    isInitialLoading,
+    validationErrorState: getValidationErrorState(),
     activeData,
     quantData,
-    isPending,
+    localFilings: localFilingsResult?.filings || [],
+    isPending: isUploadPending || isLocalPending,
+    analyzingFilingId,
     errorState: getErrorState(),
     handleFileSelect,
+    handleLocalFilingSelect,
     handleReset
   };
 }
