@@ -36,6 +36,17 @@ export interface QuantitativeValuationResult {
   quarterly_metrics?: Record<string, BaseMetric[]>;
 }
 
+export interface LocalFilingDTO {
+  id: string;
+  form_type: string;
+  period: string;
+  accession_number: string;
+}
+
+export interface LocalFilingListResult {
+  filings: LocalFilingDTO[];
+}
+
 export interface MoatSources {
   intangible_assets: number;
   switching_costs: number;
@@ -143,7 +154,7 @@ export interface EarningsReportResult {
   moat_trajectory_description: string;
   risk_deconstruction: RiskDeconstruction;
   bottom_line: string;
-  sources: Record<string, SourceInfo>;
+  sources: Record<string, SourceInfo | string>;
 }
 
 export interface SectorPerformancePoint {

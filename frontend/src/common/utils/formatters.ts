@@ -72,3 +72,18 @@ export const formatFinancialMetric = (val: number | null | undefined, formatAs?:
     default: return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }
 };
+
+export const formatDateString = (dateStr?: string | null, language: string = 'en'): string => {
+  if (!dateStr) return '';
+  try {
+    return new Date(dateStr).toLocaleDateString(language === 'pt' ? 'pt-PT' : 'en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      timeZone: 'UTC'
+    });
+  } catch (e) {
+    return dateStr;
+  }
+};
+

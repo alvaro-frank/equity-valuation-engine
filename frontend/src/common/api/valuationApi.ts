@@ -5,6 +5,8 @@ import type {
   SectorIndustrialValuationResult,
   SectorPerformanceData,
   DCFValuationResult,
+  LocalFilingListResult,
+  EarningsReportResult,
 } from '@/common/types/valuation';
 import i18n from '@/common/i18n/i18n';
 
@@ -42,6 +44,18 @@ export const ValuationApi = {
 
   getDcf: async (ticker: string): Promise<DCFValuationResult> => {
     const response = await api.get(`/valuation/dcf/${ticker}`, {
+      params: { lang: i18n.language }
+    });
+    return response.data;
+  },
+
+  getLocalFilings: async (ticker: string): Promise<LocalFilingListResult> => {
+    const response = await api.get(`/valuation/filings/${ticker}`);
+    return response.data;
+  },
+
+  analyseLocalFiling: async (ticker: string, filePath: string): Promise<EarningsReportResult> => {
+    const response = await api.post(`/valuation/filings/${ticker}/analyse_local`, { file_path: filePath }, {
       params: { lang: i18n.language }
     });
     return response.data;
