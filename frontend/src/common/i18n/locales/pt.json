@@ -235,6 +235,8 @@
     "interest_rate": "Exposição à Taxa de Juro"
   },
   "filings": {
+    "annual_filings": "10-K (Anual)",
+    "quarterly_filings": "10-Q (Trimestral)",
     "results": "Resultados da Análise",
     "analyze_another": "Analisar Outro",
     "core_performance": "Desempenho Principal",
@@ -262,7 +264,7 @@
   "pdf_uploader": {
     "uploading": "A analisar Documento...",
     "extracting": "A extrair dados financeiros e insights...",
-    "title": "Upload do Relatório de Contas",
+    "title": "Upload do Relatório Financeiro",
     "desc": "Arrasta o teu PDF para aqui ou clica para navegar",
     "supported": "Formatos suportados: PDF (máx 10MB)",
     "invalid_pdf": "Por favor, faça upload de um ficheiro PDF."

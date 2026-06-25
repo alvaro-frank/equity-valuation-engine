@@ -236,6 +236,8 @@
     "interest_rate": "Interest Rate Exposure"
   },
   "filings": {
+    "annual_filings": "10-K (Annual)",
+    "quarterly_filings": "10-Q (Quarterly)",
     "results": "Analysis Results",
     "analyze_another": "Analyze Another",
     "core_performance": "Core Performance",
@@ -263,7 +265,7 @@
   "pdf_uploader": {
     "uploading": "Analyzing Document...",
     "extracting": "Extracting financial data and insights...",
-    "title": "Upload Earnings Report",
+    "title": "Upload Financial Report",
     "desc": "Drag and drop your PDF here or click to browse",
     "supported": "Supported formats: PDF (max 10MB)",
     "invalid_pdf": "Please upload a PDF file."
