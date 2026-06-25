@@ -10,6 +10,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
+from application.use_cases.list_local_filings import ListLocalFilingsUseCase
 from application.exceptions.exceptions import (
     TickerNotFoundError,
     RateLimitExceededError,
@@ -29,16 +30,19 @@ from infrastructure.adapters.input.dependencies import (
     get_sector_performance_use_case,
     get_dcf_use_case,
     get_search_tickers_use_case,
+    get_list_local_filings_use_case,
     get_quantitative_adapter
 )
 from application.ports.ports import QuantitativeDataPort
+from pydantic import BaseModel
 
 from application.dtos import (
     EarningsReportResult,
     QuantitativeValuationResult,
     QualitativeValuationResult,
     SectorIndustrialValuationResult,
-    TickerSearchResult
+    TickerSearchResult,
+    LocalFilingListResult
 )
 
 def handle_domain_error(e: Exception):
@@ -126,6 +130,41 @@ async def analyse_earnings_report(
             except Exception as e:
                 print(f"Error removing temporary file: {e}")
 
+@router.get("/filings/{ticker}", response_model=LocalFilingListResult)
+async def list_local_filings(
+    ticker: str,
+    use_case: ListLocalFilingsUseCase = Depends(get_list_local_filings_use_case)
+):
+    """
+    Lists available SEC filings cached locally for a given ticker.
+    """
+    try:
+        return await use_case.execute(ticker)
+    except Exception as e:
+        handle_domain_error(e)
+
+class LocalFilingRequest(BaseModel):
+    file_path: str
+
+@router.post("/filings/{ticker}/analyse_local", response_model=EarningsReportResult)
+async def analyse_local_filing(
+    ticker: str,
+    request: LocalFilingRequest,
+    lang: str = Query("en", description="Language to generate the report in"),
+    use_case: EarningsReportUseCase = Depends(get_earnings_report_use_case)
+):
+    """
+    Analyses a locally cached SEC filing (txt or html) using the Gemini-powered model.
+    """
+    try:
+        if not os.path.exists(request.file_path):
+            raise InvalidDocumentFormatError(f"File not found: {request.file_path}")
+            
+        result = await use_case.analyse_earnings_report(ticker.upper(), request.file_path, language=lang)
+        return result
+    except Exception as e:
+        handle_domain_error(e)
+
 @router.get("/quantitative/{ticker}", response_model=QuantitativeValuationResult)
 async def analyse_quantitative(
     ticker: str,
@@ -146,6 +185,7 @@ async def analyse_quantitative(
 async def analyse_qualitative(
     ticker: str,
     lang: str = Query("en", description="Language to generate the report in"),
+    period: str = Query(None, description="Specific period to analyze (e.g. Q3, Q4)"),
     use_case: QualitativeValuationUseCase = Depends(get_qualitative_use_case)
 ):
     """
@@ -153,7 +193,7 @@ async def analyse_qualitative(
     Returns a structured DTO representing the company profile.
     """
     try:
-        result = await use_case.analyse_ticker(ticker.upper(), language=lang)
+        result = await use_case.analyse_ticker(ticker.upper(), language=lang, period=period)
         return result
     except Exception as e:
         handle_domain_error(e)
