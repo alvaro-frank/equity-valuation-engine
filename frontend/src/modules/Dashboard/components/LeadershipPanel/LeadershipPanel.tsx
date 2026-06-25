@@ -6,7 +6,7 @@ import { TopInvestors } from './components/TopInvestors';
 
 interface LeadershipPanelProps {
   qualData?: QualitativeValuationResult;
-  ceoViewModel: { cleanName?: string; ownershipFormatted?: string | number | null; title?: string } | null;
+  ceoViewModel: { cleanName?: string; title?: string } | null;
 }
 
 export function LeadershipPanel({ qualData, ceoViewModel }: LeadershipPanelProps) {

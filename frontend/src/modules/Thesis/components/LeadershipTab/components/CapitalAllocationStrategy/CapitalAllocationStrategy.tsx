@@ -11,14 +11,11 @@ export function CapitalAllocationStrategy({ content }: CapitalAllocationStrategy
   if (!content) return null;
 
   return (
-    <div className="flex flex-col rounded-2xl border border-outline-variant/50 bg-surface/30 p-6 backdrop-blur-sm">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 flex flex-col gap-4">
+      <h3 className="font-header-sm text-header-sm font-bold text-on-surface flex items-center gap-2">
         <span className="material-symbols-outlined text-primary text-xl">account_balance</span>
-        <h3 className="font-header-sm text-header-sm font-bold text-on-surface">
-          {t('thesis_view.capital_allocation_title', 'Capital Allocation Strategy')}
-        </h3>
-      </div>
-      
+        {t('thesis_view.capital_allocation_title', 'Capital Allocation Strategy')}
+      </h3>
       <div className="text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap">
         <CitedText text={content} />
       </div>

@@ -88,8 +88,18 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                   sideOffset={6}
                 >
                   {validSources.map((srcItem, idx) => {
-                    const info = srcItem.sourceText; // This is a SourceInfo object
-                    const isUrl = info.url.startsWith('http');
+                    const info = srcItem.sourceText;
+                    
+                    if (typeof info === 'string') {
+                      return (
+                        <div key={idx} className="flex gap-2">
+                          <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
+                          <span>"{info}"</span>
+                        </div>
+                      );
+                    }
+
+                    const isUrl = info.url?.startsWith('http');
                     const displayTitle = info.title || (isUrl ? new URL(info.url).hostname : info.url);
                     
                     if (isUrl) {
@@ -98,23 +108,19 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                           key={idx}
                           href={info.url} 
                           target="_blank" 
-                          rel="noreferrer" 
-                          className="flex items-center gap-2 hover:text-primary transition-colors hover:underline cursor-pointer"
+                          rel="noopener noreferrer"
+                          className="flex gap-2 group/link"
                         >
-                          <span className="material-symbols-outlined text-[13px] text-primary shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-                            link
-                          </span>
-                          <span className="opacity-90">{displayTitle}</span>
+                          <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
+                          <span className="text-primary group-hover/link:underline">{displayTitle}</span>
                         </a>
                       );
                     }
                     
                     return (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[13px] text-primary shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-                          article
-                        </span>
-                        <span className="opacity-90">{displayTitle}</span>
+                      <div key={idx} className="flex gap-2">
+                        <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
+                        <span>"{displayTitle}"</span>
                       </div>
                     );
                   })}

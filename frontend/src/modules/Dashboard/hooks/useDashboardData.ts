@@ -74,10 +74,7 @@ export function useDashboardData({ quantData, qualData }: UseDashboardDataProps)
     
     return {
       ...ceo,
-      cleanName,
-      ownershipFormatted: ceo.ownership != null 
-        ? (Number(ceo.ownership) < 0.1 ? Number(ceo.ownership).toFixed(2) : Number(ceo.ownership).toFixed(1))
-        : null
+      cleanName
     };
   }, [qualData]);
 
