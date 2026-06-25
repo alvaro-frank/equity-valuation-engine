@@ -41,7 +41,7 @@ class BaseLLMTranslator(TranslationPort, ABC):
         def traverse(obj):
             if isinstance(obj, dict):
                 for k, v in obj.items():
-                    if k in ["ticker", "sector", "industry", "sector_key", "industry_key", "sources"]:
+                    if k in ["ticker", "sector", "industry", "sector_key", "industry_key", "sources", "moat_trajectory_status"]:
                         continue
                     if isinstance(v, str):
                         # Avoid translating pure numbers or very short codes

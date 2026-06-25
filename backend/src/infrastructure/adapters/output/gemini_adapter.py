@@ -11,21 +11,8 @@ from .base_llm_adapter import BaseLLMAdapter
 
 T = TypeVar('T', bound=BaseModel)
 
-def _remove_additional_properties(d):
-    """
-    Recursively removes 'additionalProperties' from a JSON schema dictionary.
-    This is required because Gemini Developer API rejects schemas with 'additionalProperties': False,
-    which Pydantic v2 includes by default.
-    """
-    if isinstance(d, dict):
-        if "additionalProperties" in d:
-            del d["additionalProperties"]
-        for k, v in d.items():
-            _remove_additional_properties(v)
-    elif isinstance(d, list):
-        for item in d:
-            _remove_additional_properties(item)
-    return d
+
+
 
 class GeminiAdapter(BaseLLMAdapter):
     """
@@ -104,7 +91,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=_remove_additional_properties(schema.model_json_schema()),
+                    response_schema=schema,
                     temperature=0.0,
                     max_output_tokens=8192
                 )
@@ -117,22 +104,23 @@ class GeminiAdapter(BaseLLMAdapter):
             raise ExternalServiceError(f"Gemini API Error: {e}")
 
     async def _generate_earnings_report(self, prompt: str, pdf_file_path: str, schema: Type[T]) -> dict:
-        uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
-        file_info = await self.client.aio.files.get(name=uploaded_file.name)
-        while file_info.state.name == "PROCESSING":
-            await asyncio.sleep(2)
-            file_info = await self.client.aio.files.get(name=uploaded_file.name)
-            
-        if file_info.state.name == "FAILED":
-            raise InvalidDocumentFormatError("Gemini failed to process the uploaded PDF document.")
-
+        uploaded_file = None
         try:
+            uploaded_file = await self.client.aio.files.upload(file=pdf_file_path)
+            file_info = await self.client.aio.files.get(name=uploaded_file.name)
+            while file_info.state.name == "PROCESSING":
+                await asyncio.sleep(2)
+                file_info = await self.client.aio.files.get(name=uploaded_file.name)
+                
+            if file_info.state.name == "FAILED":
+                raise InvalidDocumentFormatError("Gemini failed to process the uploaded document.")
+
             response = await self.client.aio.models.generate_content(
                 model=self.model_id,
                 contents=[prompt, uploaded_file],
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=_remove_additional_properties(schema.model_json_schema()),
+                    response_schema=schema,
                     temperature=0.0
                 )
             )
@@ -141,12 +129,15 @@ class GeminiAdapter(BaseLLMAdapter):
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
                 raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+            elif isinstance(e, InvalidDocumentFormatError):
+                raise
             raise ExternalServiceError(f"Gemini API Error: {e}")
         finally:
-            try:
-                await self.client.aio.files.delete(name=uploaded_file.name)
-            except Exception:
-                pass
+            if uploaded_file is not None:
+                try:
+                    await self.client.aio.files.delete(name=uploaded_file.name)
+                except Exception:
+                    pass
 
     async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T]) -> dict:
         try:
@@ -155,7 +146,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=_remove_additional_properties(schema.model_json_schema()),
+                    response_schema=schema,
                     temperature=0.0,
                 )
             )

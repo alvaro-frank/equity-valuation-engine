@@ -74,6 +74,10 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         Your goal is to provide a deep qualitative assessment for the company: {symbol}.{context_prompt}
 
         CRITICAL INSTRUCTIONS:
+        - RAG & COMPARATIVE ANALYSIS MANDATE: Attached at the bottom are the latest OFFICIAL SEC Filings. You are NOT just extracting text. You MUST perform a comparative analysis across the provided documents.
+          * If multiple 10-Q documents are provided, you MUST explicitly compare the target quarter against the homologous quarter to identify decelerations in growth, margin compression, or shifting management tone.
+          * If multiple 10-K documents are provided, you MUST explicitly compare the fiscal years to evaluate structural changes in the Moat Trajectory and Capital Allocation execution.
+          * Your 'management_insights', 'moat_trajectory_description', 'strategy', and 'risk_factors' fields MUST explicitly reference these YoY/QoQ comparisons.
         - Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
         - Extreme Recency & Search Mandate: You MUST actively use Google Search to find the most recent Earnings Call, Investor Day, and breaking news from the LAST 6 MONTHS. Your analysis MUST be anchored in the current year. Do NOT rely on pre-2023 memory.
         - Quantitative Precision: EVERY claim about growth, margins, market share, product success, or strategic shifts MUST be backed by a specific hard number and date (e.g., "Grew 14% YoY in Q3 2023", "Holds a 65% market share as of late 2023", "Revenue target of $5B by 2025"). DO NOT use vague terms like "strong growth", "significant share", or "market leader" without quantifying it.
@@ -153,9 +157,11 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         """
 
         cache_filename = f"company_{symbol.upper()}_{language}.json"
-        cache_path = os.path.join(self.cache_dir, cache_filename)
+        target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis")
+        os.makedirs(target_dir, exist_ok=True)
+        cache_path = os.path.join(target_dir, cache_filename)
         cache_filename_en = f"company_{symbol.upper()}_en.json"
-        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        cache_path_en = os.path.join(target_dir, cache_filename_en)
         
         data = self._get_cached_data(cache_path)
         if not data:
@@ -248,10 +254,12 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         safe_sector = re.sub(r'[^a-zA-Z0-9]', '_', sector)
         safe_industry = re.sub(r'[^a-zA-Z0-9]', '_', industry)
         cache_filename = f"industry_{safe_sector}_{safe_industry}_{language}.json"
-        cache_path = os.path.join(self.cache_dir, cache_filename)
+        target_dir = os.path.join(self.cache_dir, "industries")
+        os.makedirs(target_dir, exist_ok=True)
+        cache_path = os.path.join(target_dir, cache_filename)
         
         cache_filename_en = f"industry_{safe_sector}_{safe_industry}_en.json"
-        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        cache_path_en = os.path.join(target_dir, cache_filename_en)
         
         data = self._get_cached_data(cache_path)
         if not data:
@@ -288,30 +296,43 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
         Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
-        Extract and synthesize the following fields EXACTLY as named.
-        CRITICAL: For margins, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663). ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers. If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null.
+        CRITICAL MATHEMATICAL RULES:
+        - For margins, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663).
+        - ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers.
+        - If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null.
 
-        1. period_end_date: (String) The end date of the fiscal period.
-        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
-        3. capital_allocation: (Object) Detail exact amounts (as floats, in billions) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx (e.g. accelerating for AI buildout, or cutting back to preserve cash). Do not just provide a single word.
+        CRITICAL TEMPORAL SCOPE:
+        - If the document is a quarterly report (10-Q), you MUST extract financial figures (Revenue, Margins, Cash Flows, CapEx) exclusively from the isolated 'Three Months Ended' column. NEVER extract the 'Six Months Ended', 'Nine Months Ended' or 'Year-to-Date' cumulative columns.
+        - If the document is an annual report (10-K), extract the full fiscal year figures.
+
+        Extract and synthesize the following fields EXACTLY as named.
+
+        1. period_end_date: (String) The end date of the fiscal period strictly in 'YYYY-MM-DD' format.
+        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. Free Cash Flow MUST be calculated as 'Net Cash from Operations' minus 'CapEx' (Additions to property and equipment). For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
+        3. capital_allocation: (Object) Detail exact amounts (as floats, in billions) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx. You MUST extract specific hardware names, exact geographic locations of new facilities, specific project names, or exact financial sub-allocations if mentioned. Assess whether this CapEx cycle appears Defensive or Offensive. Explicitly IGNORE generic corporate jargon like "meeting customer needs" or "investing for the future".
         4. forward_guidance: (String) Detailed 2-3 sentence analysis of management's forward-looking projections and guidance.
         5. moat_trajectory_status: (String) Exactly "EXPANDING", "STABLE", or "SHRINKING".
         5b. moat_trajectory_description: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory.
-        6. risk_deconstruction: (Object) Separate headwinds into two string lists: 'macro_risks' (external) and 'internal_risks' (execution/product).
+        6. risk_deconstruction: (Object) Separate headwinds into two string lists (arrays of strings): 'macro_risks' (external) and 'internal_risks' (execution/product). Each individual risk must be a separate string element in the array. You MUST include numerical citations directly inside each string.
         7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
-        8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory', and 'bottom_line' whenever you extract specific insights, data points, or management quotes. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string) (e.g. [{{"citation_number": 1, "source_text": "MD&A Page 15"}}]).
+        8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory_description', 'risk_deconstruction', and 'bottom_line'. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string). 
+        CRITICAL: The 'source_text' MUST be the exact raw quote or sentence from the document that proves your claim (e.g. "Cloud revenue grew 24% driven by AI workload demand"). DO NOT just provide page numbers or section titles. Citations must be strictly sequential (1, 2, 3...) with no skipped numbers.
 
         QUALITY EXAMPLES (follow this tone and depth):
         GOOD bottom_line: "Alphabet executed strongly: Search revenue grew 12% YoY driven by AI Overviews adoption, Cloud crossed the $12B annualized run-rate with 28% margins, and the $70B buyback signals management's confidence in sustained free cash flow generation [1]. The key risk is a potential deceleration in ad spend if macro conditions deteriorate [2]."
         BAD bottom_line: "The company did well this quarter and beat expectations."
+        GOOD infrastructure_assessment: "CapEx surged to $30.8B, aggressively allocated to scaling Azure's AI infrastructure. Management is securing scarce GPU supply and building next-gen liquid-cooled datacenters, signaling an offensive land-grab in AI compute. This massive capital intensity will compress near-term operating margins but is designed to lock in long-term enterprise AI workloads."
+        BAD infrastructure_assessment: "The company is spending more on datacenters to meet growing AI demand and serve customers better."
         """
 
         with open(pdf_file_path, "rb") as f:
             file_hash = hashlib.md5(f.read()).hexdigest()[:12]
         cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
-        cache_path = os.path.join(self.cache_dir, cache_filename)
+        target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis")
+        os.makedirs(target_dir, exist_ok=True)
+        cache_path = os.path.join(target_dir, cache_filename)
         cache_filename_en = f"earnings_{symbol.upper()}_{file_hash}_en.json"
-        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        cache_path_en = os.path.join(target_dir, cache_filename_en)
         
         data = self._get_cached_data(cache_path)
         if not data:
@@ -412,7 +433,9 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         """
 
         cache_filename_en = f"dcf_{ticker.upper()}_en.json"
-        cache_path_en = os.path.join(self.cache_dir, cache_filename_en)
+        target_dir = os.path.join(self.cache_dir, ticker.upper(), "analysis")
+        os.makedirs(target_dir, exist_ok=True)
+        cache_path_en = os.path.join(target_dir, cache_filename_en)
         
         data_en = self._get_cached_data(cache_path_en)
         if not data_en:
