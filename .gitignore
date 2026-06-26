@@ -214,3 +214,4 @@ src/test_valuation.py
 gemini.py
 test_data/
 production_roadmap.md
+refactoring_plan.md
