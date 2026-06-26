@@ -29,9 +29,9 @@ class CapitalAllocationResult(BaseModel):
     Data Transfer Object representing the capital allocation of the company.
     """
     model_config = ConfigDict(frozen=True)
-    share_buybacks: Decimal = Field(..., description="Amount spent on Share Buybacks")
-    dividends: Decimal = Field(..., description="Amount spent on Dividends")
-    capex_rd: Decimal = Field(..., description="Amount spent on CapEx/R&D")
+    share_buybacks: Optional[Decimal] = Field(None, description="Amount spent on Share Buybacks")
+    dividends: Optional[Decimal] = Field(None, description="Amount spent on Dividends")
+    capex_rd: Optional[Decimal] = Field(None, description="Amount spent on CapEx/R&D")
     infrastructure_assessment: str = Field(..., description="Assessment of infrastructure investment (accelerating/decelerating)")
 
 class RiskDeconstructionResult(BaseModel):

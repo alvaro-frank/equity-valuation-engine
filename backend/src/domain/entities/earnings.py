@@ -46,10 +46,10 @@ class CapitalAllocation:
         capex_rd (Decimal): Amount spent on CapEx and R&D.
         infrastructure_assessment (str): Assessment of infrastructure investment (accelerating/decelerating).
     """
-    share_buybacks: Decimal
-    dividends: Decimal
-    capex_rd: Decimal
     infrastructure_assessment: str
+    share_buybacks: Optional[Decimal] = None
+    dividends: Optional[Decimal] = None
+    capex_rd: Optional[Decimal] = None
 
 @dataclass(frozen=True)
 class RiskDeconstruction:

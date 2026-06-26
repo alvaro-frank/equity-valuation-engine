@@ -23,9 +23,9 @@ class CapitalAllocationSchema(BaseModel):
     """
     Represents the capital allocation of the company.
     """
-    share_buybacks: float
-    dividends: float
-    capex_rd: float
+    share_buybacks: Optional[float] = None
+    dividends: Optional[float] = None
+    capex_rd: Optional[float] = None
     infrastructure_assessment: str
 
 class RiskDeconstructionSchema(BaseModel):

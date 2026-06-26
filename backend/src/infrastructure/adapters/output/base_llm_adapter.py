@@ -383,9 +383,9 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 free_cash_flow=get_metric(schema_instance.core_performance.free_cash_flow)
             ),
             capital_allocation=CapitalAllocation(
-                share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)),
-                dividends=Decimal(str(schema_instance.capital_allocation.dividends)),
-                capex_rd=Decimal(str(schema_instance.capital_allocation.capex_rd)),
+                share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)) if schema_instance.capital_allocation.share_buybacks is not None else None,
+                dividends=Decimal(str(schema_instance.capital_allocation.dividends)) if schema_instance.capital_allocation.dividends is not None else None,
+                capex_rd=Decimal(str(schema_instance.capital_allocation.capex_rd)) if schema_instance.capital_allocation.capex_rd is not None else None,
                 infrastructure_assessment=schema_instance.capital_allocation.infrastructure_assessment
             ),
             forward_guidance=schema_instance.forward_guidance,
