@@ -1,4 +1,5 @@
-from application.ports.ports import QuantitativeDataPort, SectorIndustrialDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort
+from application.ports.llm_analysis_ports import SectorIndustrialDataPort
 from domain.entities import IndustrySectorDynamics
 from application.dtos import TickerResult, SectorIndustrialValuationResult
 from dataclasses import asdict

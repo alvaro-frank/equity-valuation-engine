@@ -33,7 +33,7 @@ from infrastructure.adapters.input.dependencies import (
     get_list_local_filings_use_case,
     get_quantitative_adapter
 )
-from application.ports.ports import QuantitativeDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort
 from pydantic import BaseModel
 
 from application.dtos import (

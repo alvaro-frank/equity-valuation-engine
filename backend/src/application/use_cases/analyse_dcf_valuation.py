@@ -2,7 +2,8 @@ import asyncio
 from decimal import Decimal
 from typing import Dict, Any
 
-from application.ports.ports import QuantitativeDataPort, QualitativeDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort
+from application.ports.llm_analysis_ports import QualitativeDataPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from domain.entities.dcf import DCFAssumptions, DCFScenario, DCFValuation
 from application.exceptions.exceptions import ExternalServiceError

@@ -1,5 +1,5 @@
 import logging
-from application.ports.ports import QuantitativeDataPort, PerformanceDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort
 from application.dtos import SectorPerformanceResult
 
 SECTOR_ETF_MAP = {

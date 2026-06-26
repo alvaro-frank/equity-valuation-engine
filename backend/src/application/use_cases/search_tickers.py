@@ -1,4 +1,4 @@
-from application.ports.ports import SearchDataPort
+from application.ports.discovery_ports import SearchDataPort
 from application.dtos import TickerSearchResult, TickerSearchDTO
 
 class SearchTickersUseCase:

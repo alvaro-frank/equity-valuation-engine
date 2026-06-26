@@ -10,7 +10,7 @@ from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
 from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker
-from application.ports.ports import QuantitativeDataPort, OwnershipDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, OwnershipDataPort
 from application.exceptions.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
 from infrastructure.mappers.alphavantage_mapper import map_to_financial_years, map_to_financial_quarters
 

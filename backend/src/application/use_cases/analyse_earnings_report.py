@@ -1,5 +1,6 @@
 from application.dtos import EarningsReportResult, TickerResult
-from application.ports.ports import EarningsReportPort, QuantitativeDataPort
+from application.ports.llm_analysis_ports import EarningsReportPort
+from application.ports.core_financial_ports import QuantitativeDataPort
 from dataclasses import asdict
 
 class EarningsReportUseCase:

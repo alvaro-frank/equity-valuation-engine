@@ -1,4 +1,4 @@
-from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.llm_analysis_ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from application.exceptions.exceptions import ExternalServiceError, RateLimitExceededError, LLMParsingError
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport

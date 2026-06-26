@@ -1,5 +1,6 @@
 from domain.entities import CompanyProfile
-from application.ports.ports import QualitativeDataPort, QuantitativeDataPort, OwnershipDataPort
+from application.ports.llm_analysis_ports import QualitativeDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, OwnershipDataPort
 from application.dtos import TickerResult, QualitativeValuationResult
 from dataclasses import asdict
 import dataclasses

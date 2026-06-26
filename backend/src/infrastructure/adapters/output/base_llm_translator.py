@@ -1,7 +1,7 @@
 import json
 import copy
 from abc import ABC, abstractmethod
-from application.ports.ports import TranslationPort
+from application.ports.translation_port import TranslationPort
 from infrastructure.utils.llm_utils import extract_json_from_response
 
 class BaseLLMTranslator(TranslationPort, ABC):

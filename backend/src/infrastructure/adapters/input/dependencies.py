@@ -18,7 +18,9 @@ from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeA
 from infrastructure.adapters.output.sec_edgar_adapter import SECAdapter
 from infrastructure.config.settings import settings
 from typing import Union
-from application.ports.ports import QuantitativeDataPort, SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, OwnershipDataPort, SearchDataPort, PerformanceDataPort, TrendingDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort, OwnershipDataPort
+from application.ports.llm_analysis_ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.discovery_ports import SearchDataPort, TrendingDataPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 
 # In a real production environment, these adapters can be maintained as global variables (Singletons)

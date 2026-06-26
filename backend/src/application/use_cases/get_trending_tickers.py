@@ -1,5 +1,5 @@
 from typing import Optional
-from application.ports.ports import TrendingDataPort
+from application.ports.discovery_ports import TrendingDataPort
 from application.dtos import TrendingTickerResult, TrendingTickerDTO
 
 class GetTrendingTickersUseCase:

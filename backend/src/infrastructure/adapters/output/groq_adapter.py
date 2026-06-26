@@ -7,7 +7,7 @@ from openai import AsyncOpenAI
 import fitz
 
 from application.exceptions.exceptions import RateLimitExceededError, ConfigurationError, ExternalServiceError, InvalidDocumentFormatError
-from application.ports.ports import TranslationPort
+from application.ports.translation_port import TranslationPort
 from infrastructure.utils.llm_utils import extract_json_from_response
 from .base_llm_adapter import BaseLLMAdapter
 

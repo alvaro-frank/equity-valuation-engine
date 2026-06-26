@@ -8,7 +8,8 @@ import httpx
 from infrastructure.mappers.yfinance_mapper import parse_financial_period
 from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker
 from application.exceptions.exceptions import TickerNotFoundError, DataFetchError
-from application.ports.ports import QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort, OwnershipDataPort
+from application.ports.discovery_ports import TrendingDataPort, SearchDataPort
 
 class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, PerformanceDataPort, OwnershipDataPort):
     """
@@ -17,7 +18,6 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
     """
     
     def __init__(self):
-        # yfinance doesn't need API keys
         pass
 
     async def get_stock_current_price(self, symbol: str) -> Price:

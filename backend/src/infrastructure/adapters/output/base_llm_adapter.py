@@ -8,7 +8,8 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, ValidationError
 
 from application.exceptions.exceptions import LLMParsingError
-from application.ports.ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort, TranslationPort
+from application.ports.llm_analysis_ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
+from application.ports.translation_port import TranslationPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport, CorePerformance, CapitalAllocation, RiskDeconstruction, MoatSources, QualityPillars, MetricWithGrowth
 from domain.entities.qualitative import NearTermCatalyst, SourceInfo as EntitySourceInfo

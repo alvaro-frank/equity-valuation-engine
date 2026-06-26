@@ -1,4 +1,4 @@
-from application.ports.ports import QuantitativeDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort
 from domain.entities import FinancialYear
 from application.dtos import TickerResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from dataclasses import fields
