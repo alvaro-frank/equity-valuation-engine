@@ -27,7 +27,7 @@ class EarningsReportPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve all data needed for earnings report analysis.
     """
     @abstractmethod
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
         """
         Analyses the earnings report of a company for a specific fiscal period (either a year or a quarter)
         

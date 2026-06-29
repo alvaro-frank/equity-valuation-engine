@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
 import os
 import tempfile
 import shutil
-
+from typing import Optional
 from application.use_cases.analyse_earnings_report import EarningsReportUseCase
 from application.use_cases.analyse_quantitative_valuation import QuantitativeValuationUseCase
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
@@ -10,7 +10,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
-from application.use_cases.list_local_filings import ListLocalFilingsUseCase
+from application.use_cases.list_company_filings import ListCompanyFilingsUseCase
 from application.exceptions.exceptions import (
     TickerNotFoundError,
     RateLimitExceededError,
@@ -30,7 +30,7 @@ from infrastructure.adapters.input.dependencies import (
     get_sector_performance_use_case,
     get_dcf_use_case,
     get_search_tickers_use_case,
-    get_list_local_filings_use_case,
+    get_list_company_filings_use_case,
     get_quantitative_adapter
 )
 from application.ports.core_financial_ports import QuantitativeDataPort
@@ -131,20 +131,21 @@ async def analyse_earnings_report(
                 print(f"Error removing temporary file: {e}")
 
 @router.get("/filings/{ticker}", response_model=LocalFilingListResult)
-async def list_local_filings(
+async def list_company_filings(
     ticker: str,
-    use_case: ListLocalFilingsUseCase = Depends(get_list_local_filings_use_case)
+    use_case: ListCompanyFilingsUseCase = Depends(get_list_company_filings_use_case)
 ):
     """
-    Lists available SEC filings cached locally for a given ticker.
+    Lists the available SEC filings for a given company.
     """
     try:
-        return await use_case.execute(ticker)
+        return await use_case.execute(ticker.upper())
     except Exception as e:
         handle_domain_error(e)
 
 class LocalFilingRequest(BaseModel):
     file_path: str
+    focus_period: Optional[str] = None
 
 @router.post("/filings/{ticker}/analyse_local", response_model=EarningsReportResult)
 async def analyse_local_filing(
@@ -160,7 +161,7 @@ async def analyse_local_filing(
         if not os.path.exists(request.file_path):
             raise InvalidDocumentFormatError(f"File not found: {request.file_path}")
             
-        result = await use_case.analyse_earnings_report(ticker.upper(), request.file_path, language=lang)
+        result = await use_case.analyse_earnings_report(ticker.upper(), request.file_path, language=lang, focus_period=request.focus_period)
         return result
     except Exception as e:
         handle_domain_error(e)

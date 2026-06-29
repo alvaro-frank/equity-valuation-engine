@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
-import { PdfUploader } from './components/PdfUploader';
-import { EarningsReportCard } from './components/EarningsReportCard';
-import { AvailableFilingsGrid } from './components/AvailableFilingsGrid';
+import { PdfUploader } from '@/modules/Filings/components/PdfUploader';
+import { EarningsReportCard } from '@/modules/Filings/components/EarningsReportCard';
+import { AvailableFilingsGrid } from '@/modules/Filings/components/AvailableFilingsGrid';
 import { ApiErrorState } from '@/common/components/ApiErrorState';
-import { useFilingsView } from './hooks/useFilingsView';
-import { FilingsResultsHeader } from './components/FilingsResultsHeader';
-import { FilingsSkeleton } from './components/FilingsSkeleton';
+import { useFilingsView } from '@/modules/Filings/hooks/useFilingsView';
+import { FilingsResultsHeader } from '@/modules/Filings/components/FilingsResultsHeader';
+import { FilingsSkeleton } from '@/modules/Filings/components/FilingsSkeleton';
 
 // --- Main Component ---
 
@@ -19,6 +19,7 @@ export function FilingsView() {
     localFilings,
     isPending,
     analyzingFilingId,
+    analyzingPeriod,
     errorState, 
     handleFileSelect,
     handleLocalFilingSelect,
@@ -57,6 +58,7 @@ export function FilingsView() {
               onSelectFiling={handleLocalFilingSelect} 
               isAnalyzing={isPending}
               analyzingFilingId={analyzingFilingId}
+              analyzingPeriod={analyzingPeriod}
             />
             
             {localFilings.length > 0 && (

@@ -41,6 +41,7 @@ export interface LocalFilingDTO {
   form_type: string;
   period: string;
   accession_number: string;
+  focus_period?: string;
 }
 
 export interface LocalFilingListResult {

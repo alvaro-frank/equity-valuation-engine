@@ -6,9 +6,10 @@ interface AvailableFilingsGridProps {
   onSelectFiling: (filing: LocalFilingDTO) => void;
   isAnalyzing: boolean;
   analyzingFilingId: string | null;
+  analyzingPeriod?: string | null;
 }
 
-export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, analyzingFilingId }: AvailableFilingsGridProps) {
+export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, analyzingFilingId, analyzingPeriod }: AvailableFilingsGridProps) {
   const { t } = useTranslation();
 
   if (!filings || filings.length === 0) {
@@ -16,13 +17,30 @@ export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, ana
   }
 
   const annualFilings = filings.filter((f) => f.form_type === '10-K');
-  const quarterlyFilings = filings.filter((f) => f.form_type === '10-Q');
+  let quarterlyFilings = filings.filter((f) => f.form_type === '10-Q');
+
+  const q4Filings: LocalFilingDTO[] = [];
+  annualFilings.forEach(annual => {
+    const yearMatch = annual.period.match(/\d{4}/);
+    if (yearMatch) {
+      const year = yearMatch[0];
+      q4Filings.push({
+        ...annual,
+        form_type: '10-Q',
+        period: `${year}-Q4`,
+        focus_period: 'Q4'
+      });
+    }
+  });
+
+  quarterlyFilings = [...quarterlyFilings, ...q4Filings].sort((a, b) => b.period.localeCompare(a.period));
 
   const renderFilingButton = (filing: LocalFilingDTO) => {
-    const isThisAnalyzing = isAnalyzing && analyzingFilingId === filing.id;
+    // If analyzingPeriod is provided, use it for exact matching (resolves Q4 vs FY overlap). Otherwise fallback to ID.
+    const isThisAnalyzing = isAnalyzing && (analyzingPeriod ? analyzingPeriod === filing.period : analyzingFilingId === filing.id);
     return (
       <button
-        key={filing.id}
+        key={`${filing.id}_${filing.period}`}
         onClick={() => onSelectFiling(filing)}
         disabled={isAnalyzing}
         className={`

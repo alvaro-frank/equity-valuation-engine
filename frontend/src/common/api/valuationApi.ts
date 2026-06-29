@@ -54,8 +54,12 @@ export const ValuationApi = {
     return response.data;
   },
 
-  analyseLocalFiling: async (ticker: string, filePath: string): Promise<EarningsReportResult> => {
-    const response = await api.post(`/valuation/filings/${ticker}/analyse_local`, { file_path: filePath }, {
+  analyseLocalFiling: async (ticker: string, filePath: string, focusPeriod?: string): Promise<EarningsReportResult> => {
+    const payload: any = { file_path: filePath };
+    if (focusPeriod) {
+      payload.focus_period = focusPeriod;
+    }
+    const response = await api.post(`/valuation/filings/${ticker}/analyse_local`, payload, {
       params: { lang: i18n.language }
     });
     return response.data;

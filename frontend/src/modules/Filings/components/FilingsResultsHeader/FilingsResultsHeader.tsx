@@ -25,21 +25,21 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
             {t('nav.filings')}
           </span>
         </div>
-        {sector && industry && (
+        {sector && industry ? (
           <p className="text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">domain</span>
             {translateSector(sector)} / {translateIndustry(industry)}
           </p>
-        )}
+        ) : null}
       </div>
       <div className="flex items-center gap-4 mb-1">
-        {periodEndDate && (
+        {periodEndDate ? (
           <div className="flex items-center gap-2 text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-sm border border-outline-variant">
             <span className="material-symbols-outlined text-[16px]">calendar_month</span>
             <span className="text-sm font-medium">{t('filings.period_ended')}: {formattedDate}</span>
           </div>
-        )}
-        {onReset && (
+        ) : null}
+        {onReset ? (
           <button 
             onClick={onReset} 
             className="p-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant transition-colors flex items-center justify-center"
@@ -47,7 +47,7 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );

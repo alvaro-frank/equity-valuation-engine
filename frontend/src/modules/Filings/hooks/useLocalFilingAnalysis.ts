@@ -7,8 +7,8 @@ export function useLocalFilingAnalysis() {
   const { i18n } = useTranslation();
 
   return useMutation({
-    mutationFn: async ({ ticker, filePath }: { ticker: string; filePath: string }) => {
-      return await ValuationApi.analyseLocalFiling(ticker, filePath);
+    mutationFn: async ({ ticker, filePath, focusPeriod }: { ticker: string; filePath: string; focusPeriod?: string }) => {
+      return await ValuationApi.analyseLocalFiling(ticker, filePath, focusPeriod);
     },
     onSuccess: (data, variables) => {
       queryClient.setQueryData(['earnings_analysis', variables.ticker, i18n.language], data);

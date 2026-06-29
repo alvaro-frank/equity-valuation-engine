@@ -25,6 +25,7 @@ export function useFilingsView(ticker: string) {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analyzingFilingId, setAnalyzingFilingId] = useState<string | null>(null);
+  const [analyzingPeriod, setAnalyzingPeriod] = useState<string | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
 
   // Reset mutation state when language changes so mutationData doesn't override cachedData
@@ -37,31 +38,29 @@ export function useFilingsView(ticker: string) {
   const cachedData = queryClient.getQueryData(['earnings_analysis', ticker, i18n.language]);
   const activeData = cachedData || uploadData || localData;
 
-  // Auto-fetch if we have a file but no data for the new language
-  useEffect(() => {
-    if (selectedFile && !activeData && !isUploadPending && !uploadError) {
-      mutateUpload({ ticker, file: selectedFile });
-    }
-  }, [i18n.language, selectedFile, activeData, isUploadPending, uploadError, mutateUpload, ticker]);
+
 
   const handleReset = () => {
     resetUpload();
     resetLocal();
     setSelectedFile(null);
     setAnalyzingFilingId(null);
+    setAnalyzingPeriod(null);
     queryClient.removeQueries({ queryKey: ['earnings_analysis', ticker, i18n.language] });
   };
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     setAnalyzingFilingId(null);
+    setAnalyzingPeriod(null);
     mutateUpload({ ticker, file });
   };
 
   const handleLocalFilingSelect = (filing: LocalFilingDTO) => {
     setSelectedFile(null);
     setAnalyzingFilingId(filing.id);
-    mutateLocal({ ticker, filePath: filing.id });
+    setAnalyzingPeriod(filing.period);
+    mutateLocal({ ticker, filePath: filing.id, focusPeriod: filing.focus_period });
   };
 
   const getErrorState = () => {
@@ -85,6 +84,7 @@ export function useFilingsView(ticker: string) {
     localFilings: localFilingsResult?.filings || [],
     isPending: isUploadPending || isLocalPending,
     analyzingFilingId,
+    analyzingPeriod,
     errorState: getErrorState(),
     handleFileSelect,
     handleLocalFilingSelect,

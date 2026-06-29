@@ -290,9 +290,13 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             interest_rate_exposure=schema_instance.interest_rate_exposure
         )
 
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        focus_instruction = ""
+        if focus_period:
+            focus_instruction = f"\n\n        CRITICAL: The user requested an analysis exclusively for the period {focus_period}. This document is an annual report, but you MUST isolate and extract ONLY the performance, guidance, and events pertaining to {focus_period}, ignoring the rest of the year."
+
         prompt = f"""
-        You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.
+        You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.{focus_instruction}
 
         Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
         Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.

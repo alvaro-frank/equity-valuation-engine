@@ -55,7 +55,7 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
             print(f"Primary adapter failed for analyse_industry: {e}. Falling back to backup adapter.")
             return await self.backup.analyse_industry(sector, industry, language=language)
 
-    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en") -> EarningsReport:
+    async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
         """
         Attempts to analyse an earnings report using the primary adapter. If it fails, it falls back to the backup adapter.
         
@@ -63,15 +63,16 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
             symbol (str): The stock ticker symbol.
             pdf_file_path (str): The path to the PDF file containing the earnings report.
             language (str): Target language for the analysis.
+            focus_period (str, optional): The specific period to focus the analysis on.
             
         Returns:
             EarningsReport: Domain Entity containing the analysed earnings report data.
         """
         try:
-            return await self.primary.analyse_earnings_report(symbol, pdf_file_path, language=language)
+            return await self.primary.analyse_earnings_report(symbol, pdf_file_path, language=language, focus_period=focus_period)
         except (ExternalServiceError, RateLimitExceededError, LLMParsingError) as e:
             print(f"Primary adapter failed for analyse_earnings_report: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_earnings_report(symbol, pdf_file_path, language=language)
+            return await self.backup.analyse_earnings_report(symbol, pdf_file_path, language=language, focus_period=focus_period)
 
     async def deduce_dcf_assumptions(self, ticker: str, company_profile: dict, quant_data: dict, language: str = "en") -> dict:
         """

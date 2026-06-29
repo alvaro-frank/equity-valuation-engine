@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { FilingsHeaderSkeleton } from './components/FilingsHeaderSkeleton';
-import { FilingsGridSkeleton } from './components/FilingsGridSkeleton';
-import { FilingsUploadSkeleton } from './components/FilingsUploadSkeleton';
+import { FilingsHeaderSkeleton } from '@/modules/Filings/components/FilingsSkeleton/components/FilingsHeaderSkeleton';
+import { FilingsGridSkeleton } from '@/modules/Filings/components/FilingsSkeleton/components/FilingsGridSkeleton';
+import { FilingsUploadSkeleton } from '@/modules/Filings/components/FilingsSkeleton/components/FilingsUploadSkeleton';
 
 export function FilingsSkeleton() {
   const { i18n } = useTranslation();
