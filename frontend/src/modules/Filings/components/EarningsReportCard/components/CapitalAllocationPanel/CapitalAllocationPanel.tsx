@@ -14,15 +14,15 @@ export function CapitalAllocationPanel({ data, sources }: { data: EarningsReport
       <div className="bg-surface-container border border-outline-variant rounded p-4 space-y-4 flex-1">
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.share_buybacks')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.share_buybacks * 1e9)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.share_buybacks != null ? data.share_buybacks * 1e9 : null)}</span>
         </div>
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.dividends')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.dividends * 1e9)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.dividends != null ? data.dividends * 1e9 : null)}</span>
         </div>
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.capex')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.capex_rd * 1e9)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.capex_rd != null ? data.capex_rd * 1e9 : null)}</span>
         </div>
         
         {data.infrastructure_assessment ? (

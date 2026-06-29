@@ -37,8 +37,8 @@ export function CorePerformanceGrid({ data, quantData }: { data: EarningsReportR
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <PerformanceMetric 
           label={t('filings.adj_revenue')} 
-          value={formatLargeCurrency((data.adjusted_revenue.amount || 0) * 1e9)} 
-          growth={getAccurateYoY('revenue', data.adjusted_revenue.yoy_growth)} 
+          value={formatLargeCurrency(data.adjusted_revenue?.amount != null ? data.adjusted_revenue.amount * 1e9 : null)} 
+          growth={getAccurateYoY('revenue', data.adjusted_revenue?.yoy_growth)} 
         />
         <PerformanceMetric 
           label={t('filings.adj_eps')} 
@@ -47,8 +47,8 @@ export function CorePerformanceGrid({ data, quantData }: { data: EarningsReportR
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
-          value={formatLargeCurrency((data.free_cash_flow.amount || 0) * 1e9)} 
-          growth={getAccurateYoY('free_cash_flow', data.free_cash_flow.yoy_growth)} 
+          value={formatLargeCurrency(data.free_cash_flow?.amount != null ? data.free_cash_flow.amount * 1e9 : null)} 
+          growth={getAccurateYoY('free_cash_flow', data.free_cash_flow?.yoy_growth)} 
         />
         <PerformanceMetric 
           label={t('filings.gross_margin')} 
