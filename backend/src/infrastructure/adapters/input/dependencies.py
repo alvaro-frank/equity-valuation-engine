@@ -4,8 +4,7 @@ from application.use_cases.analyse_quantitative_valuation import QuantitativeVal
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
-from application.use_cases.extract_company_documents import ExtractCompanyDocumentsUseCase
-from application.use_cases.list_local_filings import ListLocalFilingsUseCase
+from application.use_cases.list_company_filings import ListCompanyFilingsUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
@@ -40,7 +39,6 @@ _groq_fallback_to_openrouter = FallbackQualitativeAdapter(primary_adapter=_groq_
 _fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_fallback_to_openrouter)
 
 _sec_adapter = SECAdapter()
-_extract_docs_use_case = ExtractCompanyDocumentsUseCase(document_port=_sec_adapter)
 
 def get_translator() -> GroqTranslatorAdapter:
     """Provides the translator adapter instance."""
@@ -72,9 +70,7 @@ def get_llm_adapter() -> Union[SectorIndustrialDataPort, EarningsReportPort, Qua
     """
     return _fallback_llm_adapter
 
-def get_extract_docs_use_case() -> ExtractCompanyDocumentsUseCase:
-    """Provides the Extract Company Documents Use Case instance."""
-    return _extract_docs_use_case
+
 
 def get_dcf_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
@@ -111,7 +107,7 @@ def get_qualitative_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
     llm_adapter = Depends(get_llm_adapter),
     translator = Depends(get_translator),
-    extract_docs_use_case: ExtractCompanyDocumentsUseCase = Depends(get_extract_docs_use_case)
+    filing_repository_port = Depends(lambda: _sec_adapter)
 ) -> QualitativeValuationUseCase:
     """
     Builds and provides the Qualitative Valuation Use Case via Dependency Injection.
@@ -121,7 +117,7 @@ def get_qualitative_use_case(
         quant_adapter=quant_adapter, 
         ownership_adapter=quant_adapter, 
         translator=translator,
-        extract_docs_use_case=extract_docs_use_case
+        filing_repository_port=filing_repository_port
     )
 
 def get_sector_use_case(
@@ -161,8 +157,8 @@ def get_trending_tickers_use_case(
     """
     return GetTrendingTickersUseCase(trending_port=trending_adapter)
 
-def get_list_local_filings_use_case() -> ListLocalFilingsUseCase:
+def get_list_company_filings_use_case() -> ListCompanyFilingsUseCase:
     """
-    Builds and provides the List Local Filings Use Case via Dependency Injection.
+    Builds and provides the List Company Filings Use Case via Dependency Injection.
     """
-    return ListLocalFilingsUseCase(document_port=_sec_adapter)
+    return ListCompanyFilingsUseCase(filing_repository_port=_sec_adapter)

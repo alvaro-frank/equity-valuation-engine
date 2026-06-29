@@ -5,9 +5,10 @@ import re
 from bs4 import BeautifulSoup
 from typing import List
 from sec_edgar_downloader import Downloader
-from application.ports.document_port import DocumentPort
+from application.ports.filing_repository_port import FilingRepositoryPort
+from application.dtos import LocalFilingDTO
 
-class SECAdapter(DocumentPort):
+class SECAdapter(FilingRepositoryPort):
     def __init__(self, cache_dir: str = ".llm_cache"):
         self.cache_dir = cache_dir
         self.dl = Downloader("EquityValuationEngine", "alvaro@example.com", self.cache_dir)
@@ -29,7 +30,7 @@ class SECAdapter(DocumentPort):
         text = soup.get_text(separator=' ', strip=True)
         return text
 
-    async def get_latest_sec_filings(self, ticker: str, form_type: str, limit: int = 1) -> List[str]:
+    async def _download_latest_sec_filings(self, ticker: str, form_type: str, limit: int = 1) -> List[str]:
         """
         Downloads SEC filings using sec-edgar-downloader, parses HTML,
         and saves as plain text in the cache directory.
@@ -133,11 +134,7 @@ class SECAdapter(DocumentPort):
                 
         return extracted_files
 
-    async def list_local_sec_filings(self, ticker: str) -> List[dict]:
-        """
-        Lists available SEC filings in the local cache.
-        Returns a list of dictionaries with id, form_type, period, and accession_number.
-        """
+    def _list_local_sec_filings_internal(self, ticker: str) -> List[LocalFilingDTO]:
         filings = []
         base_dir = os.path.join(self.cache_dir, ticker.upper(), "filings")
         if not os.path.exists(base_dir):
@@ -146,16 +143,96 @@ class SECAdapter(DocumentPort):
         for root, _, files in os.walk(base_dir):
             for file in files:
                 if file.endswith(".txt") and file.startswith(f"{ticker.upper()}_"):
-                    # Filename format: {ticker}_{form_type}_{period}_{accession_number}.txt
-                    # period_suffix starts with an underscore. e.g. MCO_10-K_FY2025_000006281-26-000015.txt
                     match = re.match(r'^([A-Z0-9]+)_(10-K|10-Q)(_[A-Z0-9\-]+)_([0-9\-]+)\.txt$', file)
                     if match:
                         t, form_type, period_suffix, accession = match.groups()
                         period = period_suffix.lstrip('_')
-                        filings.append({
-                            "id": os.path.join(root, file),
-                            "form_type": form_type,
-                            "period": period,
-                            "accession_number": accession
-                        })
-        return sorted(filings, key=lambda x: x["period"], reverse=True)
+                        filings.append(LocalFilingDTO(
+                            id=os.path.join(root, file),
+                            form_type=form_type,
+                            period=period,
+                            accession_number=accession
+                        ))
+        return sorted(filings, key=lambda x: x.period, reverse=True)
+
+    async def get_available_filings(self, ticker: str) -> List[LocalFilingDTO]:
+        import time
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        cache_dir = os.path.join(self.cache_dir, ticker.upper(), "filings")
+        
+        need_download = True
+        if os.path.exists(cache_dir):
+            most_recent_time = 0
+            file_count = 0
+            for root, dirs, files in os.walk(cache_dir):
+                for file in files:
+                    if file.endswith(".txt"):
+                        file_count += 1
+                        file_path = os.path.join(root, file)
+                        mtime = os.path.getmtime(file_path)
+                        if mtime > most_recent_time:
+                            most_recent_time = mtime
+            
+            if file_count > 0 and (time.time() - most_recent_time) < 86400:
+                logger.info(f"Cache for {ticker} is fresh (less than 24h old). Skipping SEC EDGAR extraction.")
+                need_download = False
+                
+        if need_download:
+            try:
+                logger.info(f"Fetching latest 2 10-K filings for {ticker}...")
+                await self._download_latest_sec_filings(ticker, "10-K", limit=2)
+            except Exception as e:
+                logger.error(f"Error fetching 10-K for {ticker}: {e}")
+                
+            try:
+                logger.info(f"Fetching latest 5 10-Q filings for {ticker}...")
+                await self._download_latest_sec_filings(ticker, "10-Q", limit=5)
+            except Exception as e:
+                logger.error(f"Error fetching 10-Q for {ticker}: {e}")
+                
+        return self._list_local_sec_filings_internal(ticker)
+
+    async def get_filing_paths_for_rag(self, ticker: str, period: str = None) -> List[str]:
+        # Ensure filings exist
+        await self.get_available_filings(ticker)
+        
+        filings = self._list_local_sec_filings_internal(ticker)
+        k_files = [f.id for f in filings if f.form_type == "10-K"]
+        q_files = [f.id for f in filings if f.form_type == "10-Q"]
+        
+        files_to_inject = []
+        is_q4 = (period and period.upper() == "Q4")
+        
+        if is_q4 or not q_files:
+            files_to_inject.extend(k_files[:2])
+        else:
+            if k_files:
+                files_to_inject.append(k_files[0])
+            
+            target_q = None
+            if period:
+                for qf in q_files:
+                    if period.upper() in qf:
+                        target_q = qf
+                        break
+            
+            if not target_q and q_files:
+                target_q = q_files[0]
+                
+            if target_q:
+                files_to_inject.append(target_q)
+                import re
+                target_q_name = os.path.basename(target_q)
+                match = re.search(r'([A-Z0-9]+)_10-Q_([0-9]{4})-Q([1-3])_', target_q_name)
+                if match:
+                    t, year, q_num = match.groups()
+                    prev_year = str(int(year) - 1)
+                    prev_q_str = f"{prev_year}-Q{q_num}"
+                    for qf in q_files:
+                        if prev_q_str in qf:
+                            files_to_inject.append(qf)
+                            break
+                            
+        return files_to_inject

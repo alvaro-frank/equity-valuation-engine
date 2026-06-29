@@ -12,7 +12,7 @@ class QualitativeValuationUseCase:
     Service responsible for performing stock qualitative valuation analysis based on the provided stock data.
     This service takes in an entity Ticker, analyses the quality, moat and background of a business, and returns a DTO containing all information about the Qualitative data of the business.
     """
-    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort, ownership_adapter: OwnershipDataPort, translator=None, extract_docs_use_case=None):
+    def __init__(self, adapter: QualitativeDataPort, quant_adapter: QuantitativeDataPort, ownership_adapter: OwnershipDataPort, translator=None, filing_repository_port=None):
         """
         Initializes the QualitativeValuationUseCase with the GeminiAdapter for AI-driven analysis.
         """
@@ -20,7 +20,7 @@ class QualitativeValuationUseCase:
         self.quant_adapter = quant_adapter
         self.ownership_adapter = ownership_adapter
         self.translator = translator
-        self.extract_docs_use_case = extract_docs_use_case
+        self.filing_repository_port = filing_repository_port
         
     async def analyse_ticker(self, ticker_symbol: str, language: str = "en", period: str = None) -> QualitativeValuationResult:
         """
@@ -107,88 +107,28 @@ class QualitativeValuationUseCase:
         context_str = "\n".join(context_parts)
         
         # --- RAG INTEGRATION (SEC EDGAR FILINGS) ---
-        if self.extract_docs_use_case:
-            import os
+        if self.filing_repository_port:
             try:
-                # 1. Ensure documents are downloaded (this will fetch the latest ones if not in cache)
-                await self.extract_docs_use_case.execute(ticker_symbol)
+                # Get the necessary filings based on the period directly from the port
+                files_to_inject = await self.filing_repository_port.get_filing_paths_for_rag(ticker_symbol, period)
                 
-                # 2. Locate the files in the cache
-                base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-                cache_dir = os.path.join(base_dir, ".llm_cache", ticker_symbol.upper(), "filings")
-                
-                k_dir = os.path.join(cache_dir, "10-K")
-                q_dir = os.path.join(cache_dir, "10-Q")
-                
-                files_to_inject = []
-                
-                # Helper to get sorted files (newest first based on name/date)
-                def get_sorted_files(directory):
-                    if not os.path.exists(directory): return []
-                    files = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(".txt")]
-                    # Sort descending so the most recent is first
-                    return sorted(files, reverse=True)
-
-                k_files = get_sorted_files(k_dir)
-                q_files = get_sorted_files(q_dir)
-                
-                is_q4 = (period and period.upper() == "Q4")
-                
-                if is_q4 or not q_files:
-                    # User requested Q4 or no Qs available: Inject the last two 10-K's for YoY comparison
-                    files_to_inject.extend(k_files[:2])
-                else:
-                    # Q1, Q2, Q3 requested, or default (latest)
-                    # Inject the latest 10-K as the strategic base
-                    if k_files:
-                        files_to_inject.append(k_files[0])
-                    
-                    target_q = None
-                    if period:
-                        # Find the specific Q requested (e.g. Q3)
-                        for qf in q_files:
-                            if period.upper() in qf:
-                                target_q = qf
-                                break
-                    
-                    if not target_q and q_files:
-                        target_q = q_files[0] # Default to the latest
+                # Create filing text string
+                filings_text_parts = []
+                for filepath in files_to_inject:
+                    try:
+                        import os
+                        filename = os.path.basename(filepath)
+                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read(150000) # Read up to 150k chars to avoid token explosion
+                        filings_text_parts.append(f"--- Document: {filename} ---\n{content}\n")
+                    except Exception as e:
+                        logging.error(f"Failed to read filing {filepath}: {e}")
                         
-                    if target_q:
-                        files_to_inject.append(target_q)
-                        # Try to find the homologous Q (e.g. if target is 2024-Q3, look for 2023-Q3)
-                        import re
-                        match = re.search(r'(\d{4})-(Q\d)', target_q)
-                        if match:
-                            target_year = int(match.group(1))
-                            target_quarter = match.group(2)
-                            homologous_str = f"{target_year - 1}-{target_quarter}"
-                            for qf in q_files:
-                                if homologous_str in qf:
-                                    files_to_inject.append(qf)
-                                    break
-
-                if files_to_inject:
-                    context_str += "\n\n=== OFFICIAL SEC FILINGS EXTRACTS ===\n"
-                    if is_q4:
-                        context_str += "USER REQUESTED Q4 ANALYSIS. NO 10-Q EXISTS FOR Q4. USE THE PROVIDED 10-K ANNUAL REPORTS TO EXTRACT Q4 PERFORMANCE AND COMPARE YOY.\n\n"
-                    
-                    for fpath in files_to_inject:
-                        try:
-                            with open(fpath, 'r', encoding='utf-8') as f:
-                                content = f.read()
-                                # Limit each file to avoid breaking absolutely everything if parsing failed
-                                # 350,000 chars is roughly 80k tokens.
-                                content = content[:350000] 
-                                fname = os.path.basename(fpath)
-                                context_str += f"[FILE: {fname}]\n{content}\n\n"
-                        except Exception as e:
-                            logging.error(f"Error reading SEC file {fpath}: {e}")
-                            
-                    context_str += "=====================================\n"
-                    
+                if filings_text_parts:
+                    filings_str = "\n".join(filings_text_parts)
+                    context_str += f"\n\n--- RECENT SEC FILINGS ---\n{filings_str}\n=====================================\n"
             except Exception as e:
-                logging.error(f"Failed to extract or inject SEC documents: {e}")
+                logging.error(f"RAG injection failed: {e}")
         
         qual_data: CompanyProfile = await self.adapter.analyse_company(
             symbol=ticker_info.symbol,
