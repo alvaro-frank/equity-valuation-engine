@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useEarningsAnalysis } from './useEarningsAnalysis';
@@ -13,7 +13,7 @@ export function useFilingsView(ticker: string) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   
-  const { isSuccess: isValid, isLoading: isVerifying, error: validationError, refetch: refetchValidation } = useTickerValidation(ticker);
+  const { isSuccess: isValid, isLoading: isVerifying, error: validationError } = useTickerValidation(ticker);
   
   const { mutate: mutateUpload, data: uploadData, isPending: isUploadPending, error: uploadError, reset: resetUpload } = useEarningsAnalysis();
   const { mutate: mutateLocal, data: localData, isPending: isLocalPending, error: localError, reset: resetLocal } = useLocalFilingAnalysis();
@@ -23,7 +23,6 @@ export function useFilingsView(ticker: string) {
 
   const isInitialLoading = isVerifying || (isValid && isQuantLoading) || (isValid && !!quantData && isFilingsLoading);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analyzingFilingId, setAnalyzingFilingId] = useState<string | null>(null);
   const [analyzingPeriod, setAnalyzingPeriod] = useState<string | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
@@ -43,21 +42,18 @@ export function useFilingsView(ticker: string) {
   const handleReset = () => {
     resetUpload();
     resetLocal();
-    setSelectedFile(null);
     setAnalyzingFilingId(null);
     setAnalyzingPeriod(null);
     queryClient.removeQueries({ queryKey: ['earnings_analysis', ticker, i18n.language] });
   };
 
   const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
     setAnalyzingFilingId(null);
     setAnalyzingPeriod(null);
     mutateUpload({ ticker, file });
   };
 
   const handleLocalFilingSelect = (filing: LocalFilingDTO) => {
-    setSelectedFile(null);
     setAnalyzingFilingId(filing.id);
     setAnalyzingPeriod(filing.period);
     mutateLocal({ ticker, filePath: filing.id, focusPeriod: filing.focus_period });

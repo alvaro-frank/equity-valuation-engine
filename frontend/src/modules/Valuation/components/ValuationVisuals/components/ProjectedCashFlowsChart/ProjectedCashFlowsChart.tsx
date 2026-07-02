@@ -18,7 +18,7 @@ export function ProjectedCashFlowsChart({ cashflowData }: ProjectedCashFlowsChar
           contentStyle={{ backgroundColor: 'var(--surface-container-high)', border: '1px solid var(--outline-variant)', borderRadius: '8px' }}
           itemStyle={{ color: 'var(--on-surface)', fontWeight: 'bold' }}
           labelStyle={{ color: 'var(--on-surface-variant)', marginBottom: '4px' }}
-          formatter={(value: number) => [formatBillion(value), 'FCF']}
+          formatter={(value: any) => [formatBillion(value as number), 'FCF']}
         />
         <Bar dataKey="fcf" fill="var(--tertiary)" radius={[4, 4, 0, 0]} />
       </BarChart>

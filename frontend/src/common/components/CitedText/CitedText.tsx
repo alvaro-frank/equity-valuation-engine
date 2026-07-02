@@ -5,7 +5,7 @@ import { type SourceInfo } from '@/common/types/valuation';
 
 interface CitedTextProps {
   text: string;
-  sources?: Record<string, SourceInfo>;
+  sources?: Record<string, SourceInfo | string>;
 }
 
 export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
