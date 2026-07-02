@@ -47,7 +47,7 @@ export function FilingsView() {
       <div className="w-full max-w-[1600px] mx-auto flex-1 flex flex-col">
         <div className="flex-1 pb-10">
           <FilingsResultsHeader 
-            ticker={quantData?.ticker?.symbol || ticker}
+            ticker={quantData?.ticker?.symbol || ticker || ''}
             name={quantData?.ticker?.name}
             sector={quantData?.ticker?.sector}
             industry={quantData?.ticker?.industry}
@@ -65,7 +65,11 @@ export function FilingsView() {
               <hr className="border-t border-outline-variant my-10" />
             )}
 
-            <PdfUploader onFileSelect={handleFileSelect} isUploading={isPending && !analyzingFilingId} />
+            <PdfUploader 
+              onFileSelect={handleFileSelect} 
+              isUploading={isPending && !analyzingFilingId} 
+              isDisabled={isPending}
+            />
           </div>
         </div>
       </div>

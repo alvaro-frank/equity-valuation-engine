@@ -4,9 +4,10 @@ import { usePdfUploader } from './usePdfUploader';
 interface PdfUploaderProps {
   onFileSelect: (file: File) => void;
   isUploading: boolean;
+  isDisabled?: boolean;
 }
 
-export function PdfUploader({ onFileSelect, isUploading }: PdfUploaderProps) {
+export function PdfUploader({ onFileSelect, isUploading, isDisabled = false }: PdfUploaderProps) {
   const { t } = useTranslation();
   
   const {
@@ -25,7 +26,7 @@ export function PdfUploader({ onFileSelect, isUploading }: PdfUploaderProps) {
         isDragging 
           ? 'border-primary bg-primary/5' 
           : 'border-outline-variant hover:border-outline bg-surface-container-low hover:bg-surface-container'
-      } ${isUploading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'} ${error ? 'border-error bg-error/5' : ''}`}
+      } ${(isUploading || isDisabled) ? 'opacity-50 pointer-events-none' : 'cursor-pointer'} ${error ? 'border-error bg-error/5' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
