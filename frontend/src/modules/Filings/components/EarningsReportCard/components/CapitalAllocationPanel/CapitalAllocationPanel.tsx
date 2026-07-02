@@ -2,9 +2,25 @@ import type { EarningsReportResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
 import { formatLargeCurrency } from '@/common/utils/formatters';
 import { CitedText } from '@/common/components/CitedText/CitedText';
+import { useQuantitativeFallback } from '../../hooks/useQuantitativeFallback';
 
-export function CapitalAllocationPanel({ data, sources }: { data: EarningsReportResult['capital_allocation'], sources: EarningsReportResult['sources'] }) {
+interface CapitalAllocationPanelProps {
+  data: EarningsReportResult['capital_allocation'];
+  sources: EarningsReportResult['sources'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  quantData?: any;
+  periodEndDate: string;
+}
+
+export function CapitalAllocationPanel({ data, sources, quantData, periodEndDate }: CapitalAllocationPanelProps) {
   const { t } = useTranslation();
+  const { getFallbackValue } = useQuantitativeFallback(periodEndDate, quantData);
+
+  const capexFallback = getFallbackValue('capital_expenditures');
+  const finalCapex = data.capex_rd != null 
+    ? data.capex_rd * 1e9 
+    : (capexFallback != null ? Math.abs(capexFallback) : null);
+
   return (
     <div className="flex flex-col h-full">
       <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center">
@@ -22,7 +38,7 @@ export function CapitalAllocationPanel({ data, sources }: { data: EarningsReport
         </div>
         <div className="flex justify-between border-b border-outline-variant pb-2">
           <span className="text-sm text-on-surface-variant">{t('filings.capex')}</span>
-          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(data.capex_rd != null ? data.capex_rd * 1e9 : null)}</span>
+          <span className="text-sm font-bold text-on-surface">{formatLargeCurrency(finalCapex)}</span>
         </div>
         
         {data.infrastructure_assessment ? (

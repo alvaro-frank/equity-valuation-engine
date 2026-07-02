@@ -3,10 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { formatLargeCurrency, formatPercentage } from '@/common/utils/formatters';
 import { calcYoY } from '@/common/utils/financialCalcs';
 import { PerformanceMetric } from '../PerformanceMetric';
+import { useQuantitativeFallback } from '../../hooks/useQuantitativeFallback';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function CorePerformanceGrid({ data, quantData }: { data: EarningsReportResult['core_performance'], quantData?: any }) {
+interface CorePerformanceGridProps {
+  data: EarningsReportResult['core_performance'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  quantData?: any;
+  periodEndDate: string;
+}
+
+export function CorePerformanceGrid({ data, quantData, periodEndDate }: CorePerformanceGridProps) {
   const { t } = useTranslation();
+  const { getFallbackValue } = useQuantitativeFallback(periodEndDate, quantData);
   
   const formatEps = (amount: number | string | null | undefined) => 
     amount != null ? `$${Number(amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : 'N/A';
@@ -28,6 +36,11 @@ export function CorePerformanceGrid({ data, quantData }: { data: EarningsReportR
     return calcYoY(latestValue, priorValue, isMargin) ?? fallback;
   };
 
+  const fcfFallback = getFallbackValue('free_cash_flow');
+  const finalFcf = data.free_cash_flow?.amount != null 
+    ? data.free_cash_flow.amount * 1e9 
+    : (fcfFallback != null ? fcfFallback : null);
+
   return (
     <div>
       <h3 className="font-header-sm text-header-sm font-bold text-on-surface mb-3 flex items-center">
@@ -47,7 +60,7 @@ export function CorePerformanceGrid({ data, quantData }: { data: EarningsReportR
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
-          value={formatLargeCurrency(data.free_cash_flow?.amount != null ? data.free_cash_flow.amount * 1e9 : null)} 
+          value={formatLargeCurrency(finalFcf)} 
           growth={getAccurateYoY('free_cash_flow', data.free_cash_flow?.yoy_growth)} 
         />
         <PerformanceMetric 

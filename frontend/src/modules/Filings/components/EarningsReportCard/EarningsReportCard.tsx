@@ -20,10 +20,19 @@ export function EarningsReportCard({ data, quantData }: EarningsReportCardProps)
 
   return (
     <div className="space-y-6 mt-6 animate-fade-in">
-      <CorePerformanceGrid data={core_performance} quantData={quantData} />
+      <CorePerformanceGrid 
+        data={core_performance} 
+        quantData={quantData} 
+        periodEndDate={data.period_end_date} 
+      />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CapitalAllocationPanel data={capital_allocation} sources={sources} />
+        <CapitalAllocationPanel 
+          data={capital_allocation} 
+          sources={sources} 
+          quantData={quantData} 
+          periodEndDate={data.period_end_date} 
+        />
         <RiskDeconstructionPanel data={risk_deconstruction} sources={sources} />
       </div>
 
