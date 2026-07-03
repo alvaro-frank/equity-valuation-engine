@@ -19,6 +19,7 @@ SECTOR_ETF_MAP = {
 INDUSTRY_ETF_MAP = {
     "biotechnology": "IBB",
     "banks-regional": "KRE",
+    "consumer-electronics": "VGT",
     "software-application": "IGV",
     "software-infrastructure": "IGV",
     "asset-management": "KCE",
