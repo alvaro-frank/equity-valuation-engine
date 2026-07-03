@@ -186,6 +186,13 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 raise LLMParsingError(f"Translator returned invalid JSON structure: {ve}")
             self._set_cached_data(cache_path, data)
 
+        if "sources" in data and isinstance(data["sources"], dict):
+            new_sources = []
+            for k, v in data["sources"].items():
+                v["citation_id"] = str(k)
+                new_sources.append(v)
+            data["sources"] = new_sources
+
         schema_instance = CompanyProfileSchema(**data)
         
         return CompanyProfile(
@@ -206,24 +213,32 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             quality_pillars=QualityPillars(**schema_instance.quality_pillars.model_dump()),
             capital_allocation_strategy=schema_instance.capital_allocation_strategy,
             near_term_catalysts=[NearTermCatalyst(event=c.event, impact=c.impact) for c in schema_instance.near_term_catalysts],
-            sources={k: EntitySourceInfo(url=v.url, title=v.title) for k, v in schema_instance.sources.items()}
+            sources={s.citation_id: EntitySourceInfo(url=s.url, title=s.title) for s in schema_instance.sources}
         )
 
-    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:
+        context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
+
         prompt = f"""
         Act as a Senior Equity Research Analyst and Industry Strategist. 
-        Perform a comprehensive fundamental analysis of the following market:
+        Perform a comprehensive fundamental analysis of the following market from the perspective of {ticker}:
         SECTOR: {sector}
         INDUSTRY: {industry}
+        {context_prompt}
 
         CORE FRAMEWORK: Use Porter's Five Forces to evaluate structural profitability and competitive intensity.
         Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
 
+        CRITICAL INSTRUCTIONS:
+        - RAG & CONTEXT MANDATE: Attached at the top is the REAL-WORLD CONTEXT (recent SEC filings). You MUST anchor your analysis on these documents. Extract precise market share, supplier dependency, buyer concentration, and barriers to entry that the company explicitly mentions.
+        - CITATIONS: You MUST provide inline numerical citations (e.g. [1], [2], [3]) directly within your analysis text to back up your claims. For EACH distinct claim or quote, create a NEW sequential citation number. DO NOT group everything into a single [1] citation.
+        - Perspective: Evaluate the forces exclusively from the point of view of the specific company ({ticker}) operating in its unique micro-niche within the industry.
+
         INSTRUCTIONS FOR SECTIONS 1-5:
-        For each force, identify 2-4 key factors. Return them as an ARRAY of objects, where each object has a "factor" (short title) and an "analysis" (professional analysis).
+        For each force, identify 2-4 key factors. Return them as an ARRAY of objects, where each object has a "factor" (short title) and an "analysis" (professional analysis with citations).
 
         QUALITY EXAMPLES (follow this tone and depth):
-        GOOD rivalry_among_competitors: [{{"factor": "Market Concentration", "analysis": "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%), with high exit barriers from long-term enterprise contracts and massive sunk costs in data center infrastructure."}}]
+        GOOD rivalry_among_competitors: [{{"factor": "Market Concentration", "analysis": "The cloud infrastructure market exhibits intense but rational competition among three dominant hyperscalers (AWS 31%, Azure 25%, GCP 11%) [1], with high exit barriers from long-term enterprise contracts [2]."}}]
 
         REQUIRED ANALYSIS POINTS:
         1. Rivalry among Competitors: Intensity of competition, market concentration, and exit barriers.
@@ -239,23 +254,32 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         {{
             "sector": "{sector}",
             "industry": "{industry}",
-            "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "bargaining_power_of_suppliers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "bargaining_power_of_customers": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "Analysis..." }} ],
-            "economic_sensitivity": "Detailed narrative about economic cycles.",
-            "interest_rate_exposure": "Detailed narrative about rate impacts."
+            "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [1]..." }} ],
+            "bargaining_power_of_suppliers": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [2]..." }} ],
+            "bargaining_power_of_customers": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [3]..." }} ],
+            "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [4]..." }} ],
+            "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [5]..." }} ],
+            "economic_sensitivity": "Detailed narrative about economic cycles with citations [6].",
+            "interest_rate_exposure": "Detailed narrative about rate impacts with citations [7].",
+            "sources": [
+                {{ "citation_id": "1", "url": "SEC EDGAR", "title": "SHORT exact sentence (max 1-2 sentences) from the context. CRITICAL: DO NOT use double quotes inside this text." }},
+                {{ "citation_id": "2", "url": "SEC EDGAR", "title": "Another SHORT exact sentence from the context. Replace internal quotes with single quotes." }}
+            ]
         }}
 
-        CRITICAL: YOU MUST INCLUDE ALL FIELDS IN THE OUTPUT. DO NOT OMIT 'interest_rate_exposure'. 
+        CRITICAL: YOU MUST INCLUDE ALL FIELDS IN THE OUTPUT. DO NOT OMIT 'interest_rate_exposure' or 'sources'. 
         Do not include markdown headers (like ```json), intro text, or conclusions. Return only raw JSON.
         """
         
         safe_sector = re.sub(r'[^a-zA-Z0-9]', '_', sector)
         safe_industry = re.sub(r'[^a-zA-Z0-9]', '_', industry)
         cache_filename = f"industry_{safe_sector}_{safe_industry}_{language}.json"
-        target_dir = os.path.join(self.cache_dir, "industries")
+        
+        if ticker:
+            target_dir = os.path.join(self.cache_dir, ticker.upper(), "analysis")
+        else:
+            target_dir = os.path.join(self.cache_dir, "industries")
+            
         os.makedirs(target_dir, exist_ok=True)
         cache_path = os.path.join(target_dir, cache_filename)
         
@@ -276,6 +300,13 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 
             self._set_cached_data(cache_path, data)
 
+        if "sources" in data and isinstance(data["sources"], dict):
+            new_sources = []
+            for k, v in data["sources"].items():
+                v["citation_id"] = str(k)
+                new_sources.append(v)
+            data["sources"] = new_sources
+
         schema_instance = IndustrySectorDynamicsSchema(**data)
         
         return IndustrySectorDynamics(
@@ -287,7 +318,8 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             threat_of_new_entrants={f.factor: f.analysis for f in schema_instance.threat_of_new_entrants},
             threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
             economic_sensitivity=schema_instance.economic_sensitivity,
-            interest_rate_exposure=schema_instance.interest_rate_exposure
+            interest_rate_exposure=schema_instance.interest_rate_exposure,
+            sources={s.citation_id: EntitySourceInfo(url=s.url, title=s.title) for s in schema_instance.sources}
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:

@@ -137,3 +137,4 @@ class IndustrySectorDynamics:
     threat_of_obsolescence: Dict[str, str]
     economic_sensitivity: str
     interest_rate_exposure: str
+    sources: Dict[str, SourceInfo] = field(default_factory=dict)

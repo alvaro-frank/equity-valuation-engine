@@ -43,7 +43,7 @@ class EarningsReportPort(ABC):
 
 class SectorIndustrialDataPort(ABC):   
     @abstractmethod
-    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:
         """
         Analyses the specific sector and industry dynamics.
         
@@ -51,6 +51,8 @@ class SectorIndustrialDataPort(ABC):
             sector (str): The sector to be analysed
             industry (str): The industry to be analysed
             language (str): Target language for the analysis
+            ticker (str): Optional company ticker for context
+            context (str): Contextual SEC filings or RAG data
         
         Returns:
             IndustrySectorDynamics: Domain Entity containing the data given the sector and industry

@@ -37,7 +37,7 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
             print(f"Primary adapter failed for analyse_company: {e}. Falling back to backup adapter.")
             return await self.backup.analyse_company(symbol, language=language, context=context)
 
-    async def analyse_industry(self, sector: str, industry: str, language: str = "en") -> IndustrySectorDynamics:
+    async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:
         """
         Attempts to fetch industry and sector dynamics data using the primary adapter. If it fails, it falls back to the backup adapter.
         
@@ -45,15 +45,17 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
             sector (str): The industry sector to be analysed.
             industry (str): The specific industry to be analysed.
             language (str): Target language for the analysis.
+            ticker (str): Optional company ticker for context
+            context (str): Contextual SEC filings or RAG data
             
         Returns:
             IndustrySectorDynamics: Domain Entity containing the industry and sector dynamics data.
         """
         try:
-            return await self.primary.analyse_industry(sector, industry, language=language)
+            return await self.primary.analyse_industry(sector, industry, language=language, ticker=ticker, context=context)
         except (ExternalServiceError, RateLimitExceededError, LLMParsingError) as e:
             print(f"Primary adapter failed for analyse_industry: {e}. Falling back to backup adapter.")
-            return await self.backup.analyse_industry(sector, industry, language=language)
+            return await self.backup.analyse_industry(sector, industry, language=language, ticker=ticker, context=context)
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
         """

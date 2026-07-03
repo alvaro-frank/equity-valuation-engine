@@ -23,7 +23,7 @@ class EarningsReportUseCase:
             ticker_symbol (str): The ticker symbol of the company
             pdf_file_path (str): The path to the PDF file to be analysed
             language (str): Target language for the analysis
-            
+            focus_period (str): The fiscal period to focus on (e.g., "FY2023", "Q12023")
         Returns:
             EarningsReportResult: DTO containing the data given the PDF file
         """

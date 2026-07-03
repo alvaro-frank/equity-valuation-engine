@@ -122,14 +122,16 @@ def get_qualitative_use_case(
 
 def get_sector_use_case(
     quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
-    llm_adapter = Depends(get_llm_adapter)
+    llm_adapter = Depends(get_llm_adapter),
+    filing_repository_port = Depends(lambda: _sec_adapter)
 ) -> SectorIndustrialValuationUseCase:
     """
     Builds and provides the Sector Industrial Valuation Use Case via Dependency Injection.
     """
     return SectorIndustrialValuationUseCase(
         quant_port=quant_adapter,
-        sector_industrial_port=llm_adapter
+        sector_industrial_port=llm_adapter,
+        filing_repository_port=filing_repository_port
     )
 
 def get_sector_performance_use_case(

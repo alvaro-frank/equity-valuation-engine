@@ -54,7 +54,8 @@ class NearTermCatalyst(BaseModel):
     event: str
     impact: str
 
-class SourceInfo(BaseModel):
+class SourceInfoSchema(BaseModel):
+    citation_id: str
     url: str
     title: str
 
@@ -78,7 +79,7 @@ class CompanyProfileSchema(BaseModel):
     moat_trajectory_description: str
     moat_sources: MoatSourcesSchema
     quality_pillars: QualityPillarsSchema
-    sources: Dict[str, SourceInfo] = {}
+    sources: List[SourceInfoSchema] = []
 
 class ForceFactor(BaseModel):
     """
@@ -100,3 +101,4 @@ class IndustrySectorDynamicsSchema(BaseModel):
     threat_of_obsolescence: List[ForceFactor]
     economic_sensitivity: str
     interest_rate_exposure: str
+    sources: List[SourceInfoSchema] = []

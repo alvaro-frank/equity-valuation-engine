@@ -80,3 +80,4 @@ class SectorIndustrialValuationResult(BaseModel):
     threat_of_obsolescence: Dict[str, str] = Field(..., description="Risk of technological or market displacement")
     economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
     interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
+    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Sources used in the analysis")

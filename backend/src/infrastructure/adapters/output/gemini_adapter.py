@@ -43,7 +43,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 )
             )
             raw_text = response.text
-            sources = {}
+            sources = []
             try:
                 if hasattr(response, 'candidates') and response.candidates:
                     gm = getattr(response.candidates[0], 'grounding_metadata', None)
@@ -54,7 +54,7 @@ class GeminiAdapter(BaseLLMAdapter):
                                 web = getattr(chunk, 'web', None)
                                 if web and getattr(web, 'uri', None):
                                     title = getattr(web, 'title', 'source')
-                                    sources[str(i + 1)] = {"url": web.uri, "title": title}
+                                    sources.append({"citation_id": str(i + 1), "url": web.uri, "title": title})
                         
                         # Inject citations into raw_text
                         if hasattr(gm, 'grounding_supports') and gm.grounding_supports:
@@ -96,7 +96,7 @@ class GeminiAdapter(BaseLLMAdapter):
                     max_output_tokens=8192
                 )
             )
-            return json.loads(response.text)
+            return extract_json_from_response(response.text)
         except Exception as e: 
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
