@@ -20,12 +20,14 @@ export function MacroeconomicsTab({ sectorData }: MacroeconomicsTabProps) {
         icon="query_stats" 
         title={t('sector_view.economic_sensitivity')} 
         text={sectorData.economic_sensitivity} 
+        sources={sectorData.sources}
       />
       <MacroCard 
         bgIcon="account_balance" 
         icon="percent" 
         title={t('sector_view.interest_rate')} 
         text={sectorData.interest_rate_exposure} 
+        sources={sectorData.sources}
       />
     </div>
   );

@@ -112,6 +112,7 @@ export interface SectorIndustrialValuationResult {
   threat_of_obsolescence: Record<string, string>;
   economic_sensitivity: string;
   interest_rate_exposure: string;
+  sources?: Record<string, SourceInfo>;
 }
 
 export interface MetricWithGrowth {

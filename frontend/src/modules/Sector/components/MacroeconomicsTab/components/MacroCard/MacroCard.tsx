@@ -1,11 +1,15 @@
+import { CitedText } from '@/common/components/CitedText/CitedText';
+import type { SourceInfo } from '@/common/types/valuation';
+
 export interface MacroCardProps {
   bgIcon: string;
   icon: string;
   title: string;
   text: string;
+  sources?: Record<string, SourceInfo>;
 }
 
-export function MacroCard({ bgIcon, icon, title, text }: MacroCardProps) {
+export function MacroCard({ bgIcon, icon, title, text, sources }: MacroCardProps) {
   if (!text) return null;
   
   return (
@@ -18,7 +22,7 @@ export function MacroCard({ bgIcon, icon, title, text }: MacroCardProps) {
         <h3 className="font-display-sm text-2xl text-on-surface">{title}</h3>
       </div>
       <p className="text-on-surface-variant text-base leading-relaxed whitespace-pre-wrap relative z-10 mt-2">
-        {text}
+        <CitedText text={text} sources={sources} />
       </p>
     </div>
   );

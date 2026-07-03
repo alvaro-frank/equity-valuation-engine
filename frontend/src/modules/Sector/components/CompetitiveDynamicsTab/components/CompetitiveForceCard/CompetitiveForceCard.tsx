@@ -1,12 +1,16 @@
 
+import { CitedText } from '@/common/components/CitedText/CitedText';
+import type { SourceInfo } from '@/common/types/valuation';
+
 export interface CompetitiveForceCardProps {
   icon: string;
   title: string;
   data: Record<string, string>;
+  sources?: Record<string, SourceInfo>;
   className?: string;
 }
 
-export function CompetitiveForceCard({ icon, title, data, className = '' }: CompetitiveForceCardProps) {
+export function CompetitiveForceCard({ icon, title, data, sources, className = '' }: CompetitiveForceCardProps) {
   if (!data) return null;
   
   return (
@@ -19,7 +23,9 @@ export function CompetitiveForceCard({ icon, title, data, className = '' }: Comp
         {Object.entries(data).map(([factor, analysis]) => (
           <div key={factor}>
             <p className="text-on-surface font-semibold text-sm mb-1">{factor}</p>
-            <p className="text-on-surface-variant text-sm leading-relaxed">{analysis as string}</p>
+            <p className="text-on-surface-variant text-sm leading-relaxed">
+              <CitedText text={analysis as string} sources={sources} />
+            </p>
           </div>
         ))}
       </div>

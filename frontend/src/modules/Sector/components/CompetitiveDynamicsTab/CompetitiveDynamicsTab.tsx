@@ -19,26 +19,31 @@ export function CompetitiveDynamicsTab({ sectorData }: CompetitiveDynamicsTabPro
         icon="swords" 
         title={t('sector_view.rivalry')} 
         data={sectorData.rivalry_among_competitors} 
+        sources={sectorData.sources}
       />
       <CompetitiveForceCard 
         icon="shield" 
         title={t('sector_view.new_entrants')} 
         data={sectorData.threat_of_new_entrants} 
+        sources={sectorData.sources}
       />
       <CompetitiveForceCard 
         icon="hourglass_empty" 
         title={t('sector_view.obsolescence')} 
         data={sectorData.threat_of_obsolescence} 
+        sources={sectorData.sources}
       />
       <CompetitiveForceCard 
         icon="inventory" 
         title={t('sector_view.suppliers')} 
         data={sectorData.bargaining_power_of_suppliers} 
+        sources={sectorData.sources}
       />
       <CompetitiveForceCard 
         icon="shopping_cart" 
         title={t('sector_view.customers')} 
         data={sectorData.bargaining_power_of_customers} 
+        sources={sectorData.sources}
         className="md:col-span-2 lg:col-span-1" 
       />
     </div>
