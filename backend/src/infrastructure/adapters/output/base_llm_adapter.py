@@ -231,7 +231,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
 
         CRITICAL INSTRUCTIONS:
         - RAG & CONTEXT MANDATE: Attached at the top is the REAL-WORLD CONTEXT (recent SEC filings). You MUST anchor your analysis on these documents. Extract precise market share, supplier dependency, buyer concentration, and barriers to entry that the company explicitly mentions.
-        - CITATIONS: You MUST provide inline numerical citations (e.g. [1], [2], [3]) directly within your analysis text to back up your claims. For EACH distinct claim or quote, create a NEW sequential citation number. DO NOT group everything into a single [1] citation.
+        - CITATIONS: You MUST provide inline numerical citations (e.g. [1], [2], [3]) directly within your analysis text to back up your claims. CRITICAL: You must provide EXACTLY 1 citation per Porter factor (yielding approximately 15-20 total citations across the document). DO NOT group everything into a single [1] citation.
         - Perspective: Evaluate the forces exclusively from the point of view of the specific company ({ticker}) operating in its unique micro-niche within the industry.
 
         INSTRUCTIONS FOR SECTIONS 1-5:
@@ -291,6 +291,10 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             data_en = self._get_cached_data(cache_path_en)
             if not data_en:
                 data_en = await self._generate_industry_dynamics(prompt, IndustrySectorDynamicsSchema)
+                try:
+                    IndustrySectorDynamicsSchema(**data_en)
+                except ValidationError as ve:
+                    raise LLMParsingError(f"LLM returned invalid JSON structure: {ve}")
                 self._set_cached_data(cache_path_en, data_en)
             
             if language != "en" and self.translator:
@@ -298,6 +302,10 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             else:
                 data = data_en
                 
+            try:
+                IndustrySectorDynamicsSchema(**data)
+            except ValidationError as ve:
+                raise LLMParsingError(f"Translator returned invalid JSON structure: {ve}")
             self._set_cached_data(cache_path, data)
 
         if "sources" in data and isinstance(data["sources"], dict):
