@@ -11,9 +11,7 @@ from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
 from infrastructure.adapters.output.yfinance_adapter import YfinanceAdapter
 from infrastructure.adapters.output.gemini_adapter import GeminiAdapter
-from infrastructure.adapters.output.openrouter_adapter import OpenRouterAdapter
-from infrastructure.adapters.output.groq_adapter import GroqAdapter
-from infrastructure.adapters.output.fallback_adapter import FallbackQualitativeAdapter
+from infrastructure.adapters.output.sec_edgar_adapter import SECAdapter
 from infrastructure.adapters.output.sec_edgar_adapter import SECAdapter
 from infrastructure.config.settings import settings
 from typing import Union
@@ -29,14 +27,10 @@ from application.ports.intrinsic_value_calculation_port import IntrinsicValueCal
 
 from infrastructure.adapters.output.groq_translator import GroqTranslatorAdapter
 
-_translator = GroqTranslatorAdapter()
+_translator = GroqTranslatorAdapter(api_key=settings.groq_api_key)
 _alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
 _yfinance_adapter = YfinanceAdapter()
 _gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
-_openrouter_adapter = OpenRouterAdapter(translator=_translator)
-_groq_adapter = GroqAdapter(translator=_translator)
-_groq_fallback_to_openrouter = FallbackQualitativeAdapter(primary_adapter=_groq_adapter, backup_adapter=_openrouter_adapter)
-_fallback_llm_adapter = FallbackQualitativeAdapter(primary_adapter=_gemini_adapter, backup_adapter=_groq_fallback_to_openrouter)
 
 _sec_adapter = SECAdapter()
 
@@ -60,6 +54,18 @@ def get_performance_adapter() -> PerformanceDataPort:
     """Provides the Performance Data Port instance."""
     return _yfinance_adapter
 
+def get_sector_industrial_adapter() -> SectorIndustrialDataPort:
+    """
+    Provides the Sector Industrial Data Port instance.
+    """
+    return _gemini_adapter
+
+def get_qualitative_adapter() -> QualitativeDataPort:
+    """
+    Provides the Qualitative Data Port instance.
+    """
+    return _gemini_adapter
+
 def get_trending_adapter() -> TrendingDataPort:
     """Provides the Trending Data Port instance."""
     return _yfinance_adapter
@@ -68,7 +74,7 @@ def get_llm_adapter() -> Union[SectorIndustrialDataPort, EarningsReportPort, Qua
     """
     Provides the Fallback LLM Adapter instance.
     """
-    return _fallback_llm_adapter
+    return _gemini_adapter
 
 
 
