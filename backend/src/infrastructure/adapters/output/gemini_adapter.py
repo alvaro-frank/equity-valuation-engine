@@ -11,9 +11,6 @@ from .base_llm_adapter import BaseLLMAdapter
 
 T = TypeVar('T', bound=BaseModel)
 
-
-
-
 class GeminiAdapter(BaseLLMAdapter):
     """
     Adapter that leverages Google's Gemini LLM to generate qualitative research and DCF assumptions.
@@ -87,7 +84,7 @@ class GeminiAdapter(BaseLLMAdapter):
     async def _generate_industry_dynamics(self, prompt: str, schema: Type[T]) -> dict:
         try:
             response = await self.client.aio.models.generate_content(
-                model=self.model_id,
+                model='gemini-3.5-flash',
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
