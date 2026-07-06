@@ -20,6 +20,18 @@ class QualitativeDataPort(ABC):
             CompanyProfile: Domain Entity containing the qualitative data of the business
         """
         pass
+        
+    # TODO (Production Blueprint): Prompt Segmentation (Micro-Agents)
+    # @abstractmethod
+    # async def _analyse_company_foundation(self, symbol: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_company_moat(self, symbol: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_company_leadership(self, symbol: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_company_risks(self, symbol: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_company_quality(self, symbol: str, context: str) -> dict: ...
 
 class EarningsReportPort(ABC):
     """
@@ -40,6 +52,14 @@ class EarningsReportPort(ABC):
             EarningsReport: Domain Entity containing the data given the PDF file
         """
         pass
+        
+    # TODO (Production Blueprint): Prompt Segmentation (Micro-Agents)
+    # @abstractmethod
+    # async def _extract_earnings_numbers(self, pdf_file_path: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_earnings_guidance(self, pdf_file_path: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_earnings_risks(self, pdf_file_path: str) -> dict: ...
 
 class SectorIndustrialDataPort(ABC):   
     @abstractmethod
@@ -58,3 +78,13 @@ class SectorIndustrialDataPort(ABC):
             IndustrySectorDynamics: Domain Entity containing the data given the sector and industry
         """
         pass
+        
+    # TODO (Production Blueprint): Prompt Segmentation (Micro-Agents)
+    # @abstractmethod
+    # async def _analyse_industry_rivalry(self, sector: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_industry_power(self, sector: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_industry_obsolescence(self, sector: str, context: str) -> dict: ...
+    # @abstractmethod
+    # async def _analyse_industry_macro(self, sector: str, context: str) -> dict: ...

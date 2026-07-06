@@ -30,3 +30,11 @@ class IntrinsicValueCalculationPort(ABC):
             Dict[str, DCFAssumptions]: A dictionary containing DCFAssumptions for 'bear', 'fair', and 'bull' scenarios.
         """
         pass
+        
+    # TODO (Production Blueprint): Prompt Segmentation (Micro-Agents)
+    # @abstractmethod
+    # async def _deduce_bear_assumptions(self, ticker: str, context: dict) -> DCFAssumptions: ...
+    # @abstractmethod
+    # async def _deduce_fair_assumptions(self, ticker: str, context: dict) -> DCFAssumptions: ...
+    # @abstractmethod
+    # async def _deduce_bull_assumptions(self, ticker: str, context: dict) -> DCFAssumptions: ...
