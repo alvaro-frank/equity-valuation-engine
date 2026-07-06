@@ -26,11 +26,14 @@ from application.ports.intrinsic_value_calculation_port import IntrinsicValueCal
 # instantiating them here is not a problem, but we can optimize later.
 
 from infrastructure.adapters.output.groq_translator import GroqTranslatorAdapter
+from infrastructure.adapters.output.resilient_llm_adapter import ResilientLLMAdapter
 
 _translator = GroqTranslatorAdapter(api_key=settings.groq_api_key)
 _alpha_adapter = AlphaVantageAdapter(api_key=settings.alpha_vantage_api_key)
 _yfinance_adapter = YfinanceAdapter()
-_gemini_adapter = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
+
+_gemini_adapter_raw = GeminiAdapter(api_key=settings.gemini_api_key, translator=_translator)
+_gemini_adapter = ResilientLLMAdapter(base_adapter=_gemini_adapter_raw)
 
 _sec_adapter = SECAdapter()
 
