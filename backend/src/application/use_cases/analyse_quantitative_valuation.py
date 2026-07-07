@@ -50,6 +50,12 @@ class QuantitativeValuationUseCase:
             if ttm_idx is not None:
                 financial_years[ttm_idx] = dataclasses.replace(financial_years[ttm_idx], year_end_price=current_price_obj.amount)
             
+            # Inject Beta
+            ticker_beta = ticker.beta if ticker.beta is not None else Decimal("1.0")
+            financial_years = [dataclasses.replace(fy, beta=ticker_beta) for fy in financial_years]
+            if financial_quarters:
+                financial_quarters = [dataclasses.replace(fq, beta=ticker_beta) for fq in financial_quarters]
+            
             # Enforce sorting: Newest first (Descending). TTM is treated as the most recent date possible.
             financial_years.sort(key=lambda x: "9999-12-31" if x.fiscal_date_ending == "TTM" else x.fiscal_date_ending, reverse=True)
             
@@ -60,7 +66,7 @@ class QuantitativeValuationUseCase:
             "total_equity", "gross_margin", "operating_margin", 
             "net_margin", "roe", "roic", "debt_to_equity",
             "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "free_cash_flow", "fcf_yield", "eps",
-            "current_ratio", "ev_to_ebitda"
+            "current_ratio", "ev_to_ebitda", "historical_wacc", "debt_to_ebitda"
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
