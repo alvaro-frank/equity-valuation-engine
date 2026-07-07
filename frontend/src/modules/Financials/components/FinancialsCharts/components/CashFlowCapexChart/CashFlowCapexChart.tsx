@@ -1,7 +1,8 @@
 import {
   ResponsiveContainer,
-  BarChart,
+  ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,7 +22,7 @@ export function CashFlowCapexChart({ data }: CashFlowCapexChartProps) {
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <ComposedChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--outline-variant)" />
           <XAxis 
             dataKey="period" 
@@ -45,7 +46,7 @@ export function CashFlowCapexChart({ data }: CashFlowCapexChartProps) {
               color: 'var(--on-surface)'
             }}
             itemStyle={{ color: 'var(--on-surface)' }}
-            formatter={(value: any) => [formatLargeCurrency(Number(value))]}
+            formatter={(value: any, name: any) => [formatLargeCurrency(Number(value)), name]}
           />
           <Legend 
             wrapperStyle={{ paddingTop: '20px' }}
@@ -65,7 +66,16 @@ export function CashFlowCapexChart({ data }: CashFlowCapexChartProps) {
             radius={[4, 4, 0, 0]} 
             maxBarSize={40}
           />
-        </BarChart>
+          <Line
+            type="monotone"
+            dataKey="freeCashFlow"
+            name={t('financials.charts.free_cash_flow', 'Free Cash Flow')}
+            stroke="var(--secondary)"
+            strokeWidth={3}
+            dot={{ r: 4, strokeWidth: 2, fill: 'var(--surface)' }}
+            activeDot={{ r: 6 }}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );
