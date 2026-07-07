@@ -1,18 +1,27 @@
 import { useTranslation } from 'react-i18next';
 import { useFinancialsChartsData } from './hooks/useFinancialsChartsData';
 import { ChartCard } from './components/ChartCard';
+import { RevenueProfitChart } from './components/RevenueProfitChart';
+import { FinancialsMarginChart } from './components/FinancialsMarginChart';
 import { RoceWaccChart } from './components/RoceWaccChart';
 import { CashFlowCapexChart } from './components/CashFlowCapexChart';
 import { DebtProfileChart } from './components/DebtProfileChart';
+import { LiquidityProfileChart } from './components/LiquidityProfileChart';
+import { SharesOutstandingChart } from './components/SharesOutstandingChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
-export function FinancialsCharts() {
+interface FinancialsChartsProps {
+  isQuarterly: boolean;
+  activeTab: string;
+}
+
+export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsProps) {
   const { t } = useTranslation();
   const { ticker } = useParams<{ ticker: string }>();
   // We re-use the hook to get quantData. It's cached by react-query.
   const { quantData } = useFinancialsView(ticker!);
-  const chartData = useFinancialsChartsData(quantData);
+  const chartData = useFinancialsChartsData(quantData, isQuarterly);
 
 
   if (!chartData || chartData.length === 0) {
@@ -26,25 +35,63 @@ export function FinancialsCharts() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-500">
-      <ChartCard 
-        title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
-      >
-        <RoceWaccChart data={chartData} />
-      </ChartCard>
-      
-      <ChartCard 
-        title={t('financials.charts.cashflow_capex_title', 'Cash From Operations vs CapEx')} 
-      >
-        <CashFlowCapexChart data={chartData} />
-      </ChartCard>
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-500">
+        
+        {activeTab === 'income_statement' && (
+          <>
+            <ChartCard 
+              title={t('financials.charts.revenue_profit_title', 'Revenue & Profitability')} 
+            >
+              <RevenueProfitChart data={chartData} />
+            </ChartCard>
 
-      <div className="col-span-1 lg:col-span-2">
-        <ChartCard 
-          title={t('financials.charts.debt_profile_title', 'Debt Profile')} 
-        >
-          <DebtProfileChart data={chartData} />
-        </ChartCard>
+            <ChartCard 
+              title={t('financials.charts.margins_title', 'Margin Evolution')} 
+            >
+              <FinancialsMarginChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.shares_title', 'Shares Outstanding')} 
+            >
+              <SharesOutstandingChart data={chartData} />
+            </ChartCard>
+          </>
+        )}
+
+        {activeTab === 'balance_sheet' && (
+          <>
+            <ChartCard 
+              title={t('financials.charts.debt_profile_title', 'Debt Profile')} 
+            >
+              <DebtProfileChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.liquidity_title', 'Liquidity Profile')} 
+            >
+              <LiquidityProfileChart data={chartData} />
+            </ChartCard>
+          </>
+        )}
+
+        {activeTab === 'cash_flow' && (
+          <ChartCard 
+            title={t('financials.charts.cashflow_capex_title', 'Cash From Operations vs CapEx')} 
+          >
+            <CashFlowCapexChart data={chartData} />
+          </ChartCard>
+        )}
+
+        {activeTab === 'ratios' && (
+          <ChartCard 
+            title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
+          >
+            <RoceWaccChart data={chartData} />
+          </ChartCard>
+        )}
+
       </div>
     </div>
   );
