@@ -124,6 +124,9 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             revenue_growth_raw = info.get("revenueGrowth")
             revenue_growth = Decimal(str(revenue_growth_raw)) if revenue_growth_raw is not None and not pd.isna(revenue_growth_raw) else None
             
+            beta_raw = info.get("beta")
+            beta = Decimal(str(beta_raw)) if beta_raw is not None and not pd.isna(beta_raw) else None
+            
             company_officers = info.get("companyOfficers", [])
             
             return Ticker(
@@ -141,6 +144,7 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                 business_description=business_description,
                 profit_margins=profit_margins,
                 revenue_growth=revenue_growth,
+                beta=beta,
                 company_officers=company_officers
             )
         except Exception as e:
@@ -355,6 +359,10 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                         if ttm_shares_outstanding == Decimal("0"):
                             ttm_shares_outstanding = get_latest_q_val(quarterly_financials, 'Diluted Average Shares')
                         
+                        ttm_interest_expense = get_ttm_val(quarterly_financials, q_dates, 'Interest Expense')
+                        ttm_income_tax_expense = get_ttm_val(quarterly_financials, q_dates, 'Tax Provision')
+                        ttm_income_before_tax = get_ttm_val(quarterly_financials, q_dates, 'Pretax Income')
+                        
                         ttm_shares_outstanding = max(ttm_shares_outstanding, Decimal("0"))
                         ttm_total_assets = max(ttm_total_assets, Decimal("0"))
                         ttm_total_debt = max(ttm_total_debt, Decimal("0"))
@@ -389,6 +397,9 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                             net_ppe=ttm_net_ppe,
                             intangible_assets=ttm_intangible_assets,
                             total_assets=ttm_total_assets,
+                            interest_expense=ttm_interest_expense,
+                            income_tax_expense=ttm_income_tax_expense,
+                            income_before_tax=ttm_income_before_tax,
                             year_end_price=Decimal("0")
                         ))
             

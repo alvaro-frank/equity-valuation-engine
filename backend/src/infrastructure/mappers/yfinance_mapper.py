@@ -49,6 +49,11 @@ def parse_financial_period(date_str: str, date, financials, balance_sheet, cashf
     operating_income = get_val(financials, 'Operating Income')
     if operating_income == Decimal("0"):
         operating_income = get_val(financials, 'Pretax Income')
+        
+    interest_expense_direct = get_val(financials, 'Interest Expense')
+    income_tax_expense = get_val(financials, 'Tax Provision')
+    income_before_tax = get_val(financials, 'Pretax Income')
+        
     net_income = get_val(financials, 'Net Income')
     if net_income == Decimal("0"):
         net_income = get_val(financials, 'Net Income Common Stockholders')
@@ -142,7 +147,10 @@ def parse_financial_period(date_str: str, date, financials, balance_sheet, cashf
         current_assets=current_assets,
         net_ppe=net_ppe,
         intangible_assets=intangible_assets,
-        total_assets=total_assets
+        total_assets=total_assets,
+        interest_expense=interest_expense_direct,
+        income_tax_expense=income_tax_expense,
+        income_before_tax=income_before_tax
     )
     
     if is_quarter:
