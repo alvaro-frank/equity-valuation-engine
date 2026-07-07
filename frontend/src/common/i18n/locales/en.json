@@ -335,6 +335,22 @@
     "metric": "Metric",
     "cagr": "CAGR",
     "yoy": "YoY",
+    "table_tab": "Tables",
+    "charts_tab": "Charts",
+    "view_table": "Table View",
+    "view_charts": "Charts View",
+    "no_chart_data": "No historical data available for charts.",
+    "charts": {
+      "roce_wacc_title": "ROCE vs WACC",
+      "cashflow_capex_title": "Operating Cash Flow vs CapEx",
+      "debt_profile_title": "Total Debt vs Cash & Equivalents and Debt/EBITDA",
+      "roce": "ROCE",
+      "wacc": "WACC",
+      "capital_expenditures": "Capital Expenditures",
+      "total_debt": "Total Debt",
+      "cash_and_equivalents": "Cash & Equivalents",
+      "debt_ebitda": "Debt/EBITDA"
+    },
     "tabs": {
       "income_statement": "Income Statement",
       "balance_sheet": "Balance Sheet",
@@ -384,7 +400,8 @@
       "pe_ratio": "P/E Ratio",
       "pb_ratio": "P/B Ratio",
       "ps_ratio": "P/S Ratio",
-      "fcf_yield": "FCF Yield"
+      "fcf_yield": "FCF Yield",
+      "historical_wacc": "WACC"
     }
   },
   "api_errors": {
