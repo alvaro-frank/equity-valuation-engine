@@ -70,6 +70,11 @@ class BaseFinancialPeriod:
     net_debt_issued: Decimal | None = None
     net_financing_cash_flow: Decimal | None = None
     
+    interest_expense: Decimal | None = None
+    income_tax_expense: Decimal | None = None
+    income_before_tax: Decimal | None = None
+    beta: Decimal | None = None
+    
     def __post_init__(self):
         if self.shares_outstanding < 0:
             raise DomainValidationError(f"Shares outstanding cannot be negative. Got {self.shares_outstanding}")
@@ -139,6 +144,47 @@ class BaseFinancialPeriod:
         return self.shares_outstanding * self.period_end_price
 
     @property
+    def tax_rate(self) -> Decimal:
+        """Calculates effective tax rate, defaulting to 21% if missing or invalid."""
+        if self.income_before_tax and self.income_before_tax > Decimal("0") and self.income_tax_expense:
+            return round(self.income_tax_expense / self.income_before_tax, 4)
+        return Decimal("0.21")
+
+    @property
+    def cost_of_debt(self) -> Decimal:
+        """Calculates cost of debt, defaulting to 5% if missing or invalid."""
+        if self.total_debt > Decimal("0") and self.interest_expense:
+            return round(self.interest_expense / self.total_debt, 4)
+        return Decimal("0.05")
+
+    @property
+    def historical_wacc(self) -> Decimal | None:
+        """
+        Calculates Historical WACC based on CAPM.
+        Ke = R_f + Beta * ERP (where R_f = 4.2%, ERP = 5.0%)
+        Kd = Cost of Debt (from interest_expense / total_debt)
+        """
+        equity_val = self.market_cap
+        debt_val = self.total_debt
+        total_val = equity_val + debt_val
+        
+        if total_val <= Decimal("0"):
+            return None
+            
+        weight_equity = equity_val / total_val
+        weight_debt = debt_val / total_val
+        
+        # Industry standard long-term assumptions
+        risk_free_rate = Decimal("0.042")
+        market_premium = Decimal("0.050")
+        
+        company_beta = self.beta if self.beta is not None else Decimal("1.0")
+        cost_of_equity = risk_free_rate + (company_beta * market_premium)
+        
+        wacc = (weight_equity * cost_of_equity) + (weight_debt * self.cost_of_debt * (Decimal("1.0") - self.tax_rate))
+        return round(wacc * Decimal("100"), 2)
+
+    @property
     def pe_ratio(self) -> Decimal | None:
         """Calculates Price-to-Earnings (P/E) ratio as market capitalization divided by net income."""
         if self.net_income <= Decimal("0"):
@@ -163,6 +209,13 @@ class BaseFinancialPeriod:
         if self.ebitda <= Decimal("0"):
             return None
         return round(self.enterprise_value / self.ebitda, 2)
+
+    @property
+    def debt_to_ebitda(self) -> Decimal | None:
+        """Calculates Debt-to-EBITDA ratio as total debt divided by EBITDA."""
+        if self.ebitda <= Decimal("0"):
+            return None
+        return round(self.total_debt / self.ebitda, 2)
 
     @property
     def pb_ratio(self) -> Decimal | None:

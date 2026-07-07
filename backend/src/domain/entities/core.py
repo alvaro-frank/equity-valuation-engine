@@ -58,6 +58,7 @@ class Ticker:
     business_description: str | None = None
     profit_margins: Decimal | None = None
     revenue_growth: Decimal | None = None
+    beta: Decimal | None = None
     company_officers: List[Dict[str, Any]] = field(default_factory=list)
         
     def __str__(self):
