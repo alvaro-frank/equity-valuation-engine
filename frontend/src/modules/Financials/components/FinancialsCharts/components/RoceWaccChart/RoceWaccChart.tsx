@@ -44,7 +44,7 @@ export function RoceWaccChart({ data }: RoceWaccChartProps) {
               color: 'var(--on-surface)'
             }}
             itemStyle={{ color: 'var(--on-surface)' }}
-            formatter={(value: any) => [`${Number(value)}%`]}
+            formatter={(value: any, name: any) => [`${Number(value)}%`, name]}
           />
           <Legend 
             wrapperStyle={{ paddingTop: '20px' }}
