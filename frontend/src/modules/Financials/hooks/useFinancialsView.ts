@@ -18,6 +18,7 @@ export function useFinancialsView(ticker: string) {
   
   const [activeTab, setActiveTab] = useState<string>('income_statement');
   const [isQuarterly, setIsQuarterly] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'table' | 'charts'>('table');
 
   const tabs: SubNavTab[] = [
     { id: 'income_statement', label: t('financials.tabs.income_statement'), icon: 'request_quote' },
@@ -52,6 +53,8 @@ export function useFinancialsView(ticker: string) {
     setActiveTab,
     isQuarterly,
     setIsQuarterly,
+    viewMode,
+    setViewMode,
     tabs,
     currentRows: getRowsForActiveTab(),
   };
