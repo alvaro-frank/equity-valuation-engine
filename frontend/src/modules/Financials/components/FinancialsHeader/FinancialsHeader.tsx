@@ -5,9 +5,11 @@ import type { QuantitativeValuationResult } from '@/common/types/valuation';
 interface FinancialsHeaderProps {
   ticker: string;
   quantData: QuantitativeValuationResult;
+  viewMode: 'table' | 'charts';
+  onViewModeChange: (mode: 'table' | 'charts') => void;
 }
 
-export function FinancialsHeader({ ticker, quantData }: FinancialsHeaderProps) {
+export function FinancialsHeader({ ticker, quantData, viewMode, onViewModeChange }: FinancialsHeaderProps) {
   const { t } = useTranslation();
   return (
     <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant">
@@ -24,6 +26,24 @@ export function FinancialsHeader({ ticker, quantData }: FinancialsHeaderProps) {
         </p>
       </div>
       
+      <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
+        <button
+          onClick={() => onViewModeChange('table')}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === 'table' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+          title={t('financials.view_table', 'Table View')}
+        >
+          <span className="material-symbols-outlined text-[18px]">table_chart</span>
+          {t('financials.table_tab', 'Table')}
+        </button>
+        <button
+          onClick={() => onViewModeChange('charts')}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === 'charts' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+          title={t('financials.view_charts', 'Charts View')}
+        >
+          <span className="material-symbols-outlined text-[18px]">bar_chart</span>
+          {t('financials.charts_tab', 'Charts')}
+        </button>
+      </div>
     </div>
   );
 }

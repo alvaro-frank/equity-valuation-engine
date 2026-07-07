@@ -8,6 +8,7 @@ import { parseApiError } from '@/common/utils/apiErrors';
 
 import { FinancialsSkeleton } from './components/FinancialsSkeleton';
 import { FinancialsHeader } from './components/FinancialsHeader';
+import { FinancialsCharts } from './components/FinancialsCharts';
 
 export function FinancialsView() {
   const { ticker } = useParams<{ ticker: string }>();
@@ -21,6 +22,8 @@ export function FinancialsView() {
     setActiveTab, 
     isQuarterly, 
     setIsQuarterly, 
+    viewMode,
+    setViewMode,
     tabs, 
     currentRows 
   } = useFinancialsView(ticker!);
@@ -39,40 +42,48 @@ export function FinancialsView() {
       <FinancialsHeader 
         ticker={ticker!} 
         quantData={quantData} 
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
-      <SubNav 
-        tabs={tabs} 
-        activeTabId={activeTab} 
-        onTabChange={setActiveTab} 
-        rightContent={
-          activeTab !== 'ratios' ? (
-            <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
-              <button
-                onClick={() => setIsQuarterly(false)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${!isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-              >
-                {t('financials.annual')}
-              </button>
-              <button
-                onClick={() => setIsQuarterly(true)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-              >
-                {t('financials.quarterly')}
-              </button>
-            </div>
-          ) : null
-        }
-      />
+      {viewMode === 'table' ? (
+        <SubNav 
+          tabs={tabs} 
+          activeTabId={activeTab} 
+          onTabChange={setActiveTab} 
+          rightContent={
+            activeTab !== 'ratios' && viewMode === 'table' ? (
+              <div className="flex items-center bg-surface-container border border-outline-variant rounded-lg p-1">
+                <button
+                  onClick={() => setIsQuarterly(false)}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${!isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+                >
+                  {t('financials.annual')}
+                </button>
+                <button
+                  onClick={() => setIsQuarterly(true)}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isQuarterly ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+                >
+                  {t('financials.quarterly')}
+                </button>
+              </div>
+            ) : null
+          }
+        />
+      ) : null}
 
       <div>
-        <FinancialTable 
-          metricsData={quantData.metrics}
-          quarterlyData={quantData.quarterly_metrics}
-          isQuarterly={activeTab === 'ratios' ? false : isQuarterly}
-          rows={currentRows}
-          hideGrowthColumn={activeTab === 'ratios'}
-        />
+        {viewMode === 'table' ? (
+          <FinancialTable 
+            metricsData={quantData.metrics}
+            quarterlyData={quantData.quarterly_metrics}
+            isQuarterly={activeTab === 'ratios' ? false : isQuarterly}
+            rows={currentRows}
+            hideGrowthColumn={activeTab === 'ratios'}
+          />
+        ) : (
+          <FinancialsCharts />
+        )}
       </div>
     </div>
   );
