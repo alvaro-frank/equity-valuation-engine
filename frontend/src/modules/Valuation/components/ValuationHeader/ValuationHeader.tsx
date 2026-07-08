@@ -28,7 +28,7 @@ export const ValuationHeader = ({
   isDcfUnavailable = false,
 }: ValuationHeaderProps) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-start justify-between px-2 pt-2 pb-6 border-b border-outline-variant mb-6 gap-6">
+    <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-6 pb-4 mb-6 flex flex-col md:flex-row md:items-start justify-between border-b border-outline-variant/20 -mx-4 px-4 sm:-mx-8 sm:px-8 gap-6">
       <div>
         <div className="flex items-center gap-3">
           <h1 className="font-display-md text-display-md text-on-surface">{name || ticker}</h1>
