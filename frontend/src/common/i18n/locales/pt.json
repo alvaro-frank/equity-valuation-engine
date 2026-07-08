@@ -369,7 +369,16 @@
       "free_cash_flow": "Fluxo de Caixa Livre",
       "current_assets": "Ativos Correntes",
       "current_liabilities": "Passivos Correntes",
-      "current_ratio": "Current Ratio"
+      "current_ratio": "Current Ratio",
+      "earnings_quality_title": "Qualidade dos Lucros",
+      "earnings_quality_subtitle": "Lucro Líquido vs Free Cash Flow",
+      "opex_breakdown_title": "Estrutura de Custos Operacionais",
+      "opex_breakdown_subtitle": "R&D vs SG&A",
+      "eps_title": "EPS Diluído",
+      "eps_subtitle": "Evolução do Lucro por Ação",
+      "research_and_development": "Pesquisa & Desenvolvimento",
+      "sga": "Vendas, Gerais e Administrativas",
+      "eps": "EPS"
     },
     "tabs": {
       "income_statement": "Demonstração de Resultados",

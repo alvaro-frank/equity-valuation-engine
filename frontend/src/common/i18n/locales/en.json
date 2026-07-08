@@ -362,8 +362,16 @@
       "capital_expenditures": "Capital Expenditures",
       "total_debt": "Total Debt",
       "cash_and_equivalents": "Cash & Equivalents",
-      "debt_ebitda": "Debt/EBITDA",
-      "free_cash_flow": "Free Cash Flow"
+      "free_cash_flow": "Free Cash Flow",
+      "earnings_quality_title": "Earnings Quality",
+      "earnings_quality_subtitle": "Net Income vs Free Cash Flow",
+      "opex_breakdown_title": "Operating Expenses",
+      "opex_breakdown_subtitle": "R&D vs SG&A",
+      "eps_title": "Diluted EPS",
+      "eps_subtitle": "Earnings Per Share Evolution",
+      "research_and_development": "Research & Development",
+      "sga": "Selling, General & Administrative",
+      "eps": "EPS"
     },
     "tabs": {
       "income_statement": "Income Statement",
