@@ -8,6 +8,9 @@ import { CashFlowCapexChart } from './components/CashFlowCapexChart';
 import { DebtProfileChart } from './components/DebtProfileChart';
 import { LiquidityProfileChart } from './components/LiquidityProfileChart';
 import { SharesOutstandingChart } from './components/SharesOutstandingChart';
+import { EarningsQualityChart } from './components/EarningsQualityChart';
+import { OpExBreakdownChart } from './components/OpExBreakdownChart';
+import { EpsChart } from './components/EpsChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
@@ -53,9 +56,27 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
+              title={t('financials.charts.earnings_quality_title', 'Earnings Quality')} 
+            >
+              <EarningsQualityChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.opex_breakdown_title', 'Operating Expenses Breakdown')} 
+            >
+              <OpExBreakdownChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
               title={t('financials.charts.shares_title', 'Shares Outstanding')} 
             >
               <SharesOutstandingChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.eps_title', 'Diluted EPS')} 
+            >
+              <EpsChart data={chartData} />
             </ChartCard>
           </>
         )}
