@@ -24,6 +24,9 @@ export interface ChartDataPoint {
   currentAssets: number;
   currentLiabilities: number;
   currentRatio: number;
+  eps: number;
+  researchAndDevelopment: number;
+  sga: number;
 }
 
 export function useFinancialsChartsData(quantData?: QuantitativeValuationResult, isQuarterly: boolean = false) {
@@ -42,10 +45,16 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
 
     if (baseMetricData.length === 0) return [];
 
-    // Backend sorts Newest first. Reverse for chronological charting.
+    // Backend might return unsorted arrays for quarters. Guarantee Newest First.
+    const sortedData = [...baseMetricData].sort((a: any, b: any) => {
+      const dateA = a.date === 'TTM' ? '9999-12-31' : a.date;
+      const dateB = b.date === 'TTM' ? '9999-12-31' : b.date;
+      return dateB.localeCompare(dateA);
+    });
+
     // For annual, show last 5. For quarterly, show last 8-12 to capture seasonality.
     const numPeriods = isQuarterly ? 12 : 5;
-    const recentPeriods = baseMetricData.slice(0, numPeriods).map((m: any) => m.date).reverse();
+    const recentPeriods = sortedData.slice(0, numPeriods).map((m: any) => m.date).reverse();
 
     const getMetricValue = (metricKey: string, date: string): number => {
       const metricSource = metrics[metricKey];
@@ -117,6 +126,9 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
                         (getMetricValue('current_liabilities', period) !== 0 
                           ? getMetricValue('current_assets', period) / getMetricValue('current_liabilities', period) 
                           : 0),
+          eps: getMetricValue('eps', period),
+          researchAndDevelopment: getMetricValue('research_and_development', period),
+          sga: getMetricValue('selling_general_and_administrative', period),
         };
     });
 
