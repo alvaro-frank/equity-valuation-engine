@@ -317,6 +317,9 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                         ttm_net_income = get_ttm_val(quarterly_financials, q_dates, 'Net Income')
                         if ttm_net_income == Decimal("0"):
                             ttm_net_income = get_ttm_val(quarterly_financials, q_dates, 'Net Income Common Stockholders')
+                            
+                        ttm_research_and_development = get_ttm_val(quarterly_financials, q_dates, 'Research And Development')
+                        ttm_selling_general_and_administrative = get_ttm_val(quarterly_financials, q_dates, 'Selling General And Administration')
 
                         ttm_ebitda = get_ttm_val(quarterly_financials, q_dates, 'EBITDA')
                         if ttm_ebitda == Decimal("0"):
@@ -374,6 +377,8 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
                             gross_profit=ttm_gross_profit,
                             operating_income=ttm_operating_income,
                             net_income=ttm_net_income,
+                            research_and_development=ttm_research_and_development,
+                            selling_general_and_administrative=ttm_selling_general_and_administrative,
                             operating_cash_flow=ttm_operating_cash_flow,
                             depreciation_and_amortization=ttm_depreciation_and_amortization,
                             stock_based_compensation=ttm_stock_based_compensation,
