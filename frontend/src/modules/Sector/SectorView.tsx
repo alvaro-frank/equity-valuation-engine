@@ -83,19 +83,21 @@ export function SectorView() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col gap-6 pb-12 animate-in fade-in duration-500">
-      <SectorHeader 
-        ticker={ticker!} 
-        name={sectorData.ticker.name} 
-        sector={sectorData.sector} 
-        industry={sectorData.industry} 
-      />
+    <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col animate-in fade-in duration-500 pb-12">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-6 pb-4 flex flex-col gap-6 -mx-4 px-4 sm:-mx-8 sm:px-8 border-b border-outline-variant/20 mb-6">
+        <SectorHeader 
+          ticker={ticker!} 
+          name={sectorData.ticker.name} 
+          sector={sectorData.sector} 
+          industry={sectorData.industry} 
+        />
 
-      <SubNav 
-        tabs={subTabs as SubNavTab[]} 
-        activeTabId={activeSubTab} 
-        onTabChange={setActiveSubTab as (id: string) => void} 
-      />
+        <SubNav 
+          tabs={subTabs as SubNavTab[]} 
+          activeTabId={activeSubTab} 
+          onTabChange={setActiveSubTab as (id: string) => void} 
+        />
+      </div>
 
       <div>
         <TabContent 
