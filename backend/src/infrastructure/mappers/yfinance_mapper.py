@@ -59,6 +59,10 @@ def parse_financial_period(date_str: str, date, financials, balance_sheet, cashf
         net_income = get_val(financials, 'Net Income Common Stockholders')
     if net_income == Decimal("0"):
         net_income = get_val(financials, 'Net Income Including Noncontrolling Interests')
+        
+    research_and_development = get_val(financials, 'Research And Development')
+    selling_general_and_administrative = get_val(financials, 'Selling General And Administration')
+    
     ebitda = get_val(financials, 'EBITDA')
     if ebitda == Decimal("0"):
         ebitda = operating_income + get_val(cashflow, 'Depreciation And Amortization')
@@ -125,6 +129,8 @@ def parse_financial_period(date_str: str, date, financials, balance_sheet, cashf
         gross_profit=gross_profit,
         operating_income=operating_income,
         net_income=net_income,
+        research_and_development=research_and_development,
+        selling_general_and_administrative=selling_general_and_administrative,
         operating_cash_flow=operating_cash_flow,
         depreciation_and_amortization=depreciation_and_amortization,
         stock_based_compensation=stock_based_compensation,

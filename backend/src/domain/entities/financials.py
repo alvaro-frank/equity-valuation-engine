@@ -31,6 +31,8 @@ class BaseFinancialPeriod:
         current_assets (Decimal): Current assets at the end of the period.
         net_ppe (Decimal): Net property, plant, and equipment at the end of the period.
         intangible_assets (Decimal): Intangible assets at the end of the period.
+        research_and_development (Decimal | None): Research and development expenses.
+        selling_general_and_administrative (Decimal | None): Selling, general, and administrative expenses.
     """
     fiscal_date_ending: str
     
@@ -61,6 +63,9 @@ class BaseFinancialPeriod:
     net_ppe: Decimal
     intangible_assets: Decimal
     total_assets: Decimal
+    
+    research_and_development: Decimal | None = None
+    selling_general_and_administrative: Decimal | None = None
     
     depreciation_and_amortization: Decimal | None = None
     stock_based_compensation: Decimal | None = None
