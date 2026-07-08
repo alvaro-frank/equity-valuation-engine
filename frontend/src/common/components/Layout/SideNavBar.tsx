@@ -15,7 +15,7 @@ export function SideNavBar({ activeTicker }: SideNavBarProps) {
   const activeName = activeCompany?.name;
 
   return (
-    <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-16 h-[calc(100vh-64px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-40 group">
+    <aside className="bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-16 h-[calc(100vh-64px)] w-16 hover:w-64 transition-all duration-300 border-r border-outline-variant flex flex-col py-panel-gap z-50 group">
       <div className="px-4 py-2 mb-4">
         <div className="flex items-center gap-3">
           <CompanyLogo ticker={activeTicker} />
