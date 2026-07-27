@@ -11,6 +11,12 @@ import { SharesOutstandingChart } from './components/SharesOutstandingChart';
 import { EarningsQualityChart } from './components/EarningsQualityChart';
 import { OpExBreakdownChart } from './components/OpExBreakdownChart';
 import { EpsChart } from './components/EpsChart';
+import { HistoricalPeChart } from './components/HistoricalPeChart';
+import { CapitalStructureChart } from './components/CapitalStructureChart';
+import { WorkingCapitalChart } from './components/WorkingCapitalChart';
+import { FcfConversionChart } from './components/FcfConversionChart';
+import { ShareholderReturnsChart } from './components/ShareholderReturnsChart';
+import { CashFlowPillarsChart } from './components/CashFlowPillarsChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
@@ -84,9 +90,21 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'balance_sheet' && (
           <>
             <ChartCard 
+              title={t('financials.charts.capital_structure_title', 'Capital Structure')} 
+            >
+              <CapitalStructureChart data={chartData} />
+            </ChartCard>
+            
+            <ChartCard 
               title={t('financials.charts.debt_profile_title', 'Debt Profile')} 
             >
               <DebtProfileChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.working_capital_title', 'Working Capital Evolution')} 
+            >
+              <WorkingCapitalChart data={chartData} />
             </ChartCard>
 
             <ChartCard 
@@ -98,19 +116,47 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         )}
 
         {activeTab === 'cash_flow' && (
-          <ChartCard 
-            title={t('financials.charts.cashflow_capex_title', 'Cash From Operations vs CapEx')} 
-          >
-            <CashFlowCapexChart data={chartData} />
-          </ChartCard>
+          <>
+            <ChartCard 
+              title={t('financials.charts.fcf_conversion_title', 'FCF Conversion (Earnings Quality)')} 
+            >
+              <FcfConversionChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.shareholder_returns_title', 'Shareholder Returns')} 
+            >
+              <ShareholderReturnsChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.cash_flow_pillars_title', 'The 3 Pillars (CF Summary)')} 
+            >
+              <CashFlowPillarsChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.operating_cash_flow_title', 'Operating Cash Flow vs CapEx')} 
+            >
+              <CashFlowCapexChart data={chartData} />
+            </ChartCard>
+          </>
         )}
 
         {activeTab === 'ratios' && (
-          <ChartCard 
-            title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
-          >
-            <RoceWaccChart data={chartData} />
-          </ChartCard>
+          <>
+            <ChartCard 
+              title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
+            >
+              <RoceWaccChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.historical_pe_title', 'Historical P/E Ratio')} 
+            >
+              <HistoricalPeChart data={chartData} />
+            </ChartCard>
+          </>
         )}
 
       </div>

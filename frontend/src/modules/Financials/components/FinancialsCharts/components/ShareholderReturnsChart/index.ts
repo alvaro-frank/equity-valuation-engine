@@ -1,0 +1,1 @@
+export { ShareholderReturnsChart } from './ShareholderReturnsChart';

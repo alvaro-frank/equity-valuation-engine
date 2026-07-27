@@ -13,10 +13,15 @@ export interface ChartDataPoint {
   wacc: number;
   operatingCashFlow: number;
   capEx: number;
+  dividendsPaid: number;
+  stockRepurchases: number;
+  netInvestingCashFlow: number;
+  netFinancingCashFlow: number;
   shortTermDebt: number;
   longTermDebt: number;
   totalEquity: number;
   totalDebt: number;
+  totalLiabilities: number;
   cashAndEquivalents: number;
   debtToEbitda: number;
   freeCashFlow: number;
@@ -24,7 +29,11 @@ export interface ChartDataPoint {
   currentAssets: number;
   currentLiabilities: number;
   currentRatio: number;
+  accountsReceivable: number;
+  accountsPayable: number;
+  inventory: number;
   eps: number;
+  peRatio: number;
   researchAndDevelopment: number;
   sga: number;
 }
@@ -112,12 +121,17 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
           wacc: getMetricValue('historical_wacc', period),
           operatingCashFlow: getMetricValue('operating_cash_flow', period),
           capEx: Math.abs(rawCapEx), // absolute value for visual comparison
+          dividendsPaid: Math.abs(getMetricValue('dividends_paid', period)),
+          stockRepurchases: Math.abs(getMetricValue('stock_repurchases', period)),
+          netInvestingCashFlow: getMetricValue('net_investing_cash_flow', period),
+          netFinancingCashFlow: getMetricValue('net_financing_cash_flow', period),
           shortTermDebt: getMetricValue('short_term_debt', period),
           longTermDebt: getMetricValue('long_term_debt', period),
-          totalDebt,
           totalEquity: getMetricValue('total_equity', period),
+          totalDebt: getMetricValue('total_debt', period),
+          totalLiabilities: getMetricValue('total_liabilities', period),
           cashAndEquivalents: getMetricValue('cash_and_equivalents', period),
-          debtToEbitda: getMetricValue('debt_to_ebitda', period) || (ebitda !== 0 ? totalDebt / ebitda : 0),
+          debtToEbitda: getMetricValue('debt_to_ebitda', period) || (ebitda !== 0 ? getMetricValue('total_debt', period) / ebitda : 0),
           freeCashFlow: getMetricValue('free_cash_flow', period),
           sharesOutstanding: getMetricValue('shares_outstanding', period),
           currentAssets: getMetricValue('current_assets', period),
@@ -126,7 +140,11 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
                         (getMetricValue('current_liabilities', period) !== 0 
                           ? getMetricValue('current_assets', period) / getMetricValue('current_liabilities', period) 
                           : 0),
+          accountsReceivable: getMetricValue('accounts_receivable', period),
+          accountsPayable: getMetricValue('accounts_payable', period),
+          inventory: getMetricValue('inventory', period),
           eps: getMetricValue('eps', period),
+          peRatio: getMetricValue('pe_ratio', period),
           researchAndDevelopment: getMetricValue('research_and_development', period),
           sga: getMetricValue('selling_general_and_administrative', period),
         };
