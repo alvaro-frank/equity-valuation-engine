@@ -71,7 +71,7 @@ export function FinancialsView() {
           />
         ) : (
           <FinancialsCharts 
-            isQuarterly={isQuarterly} 
+            isQuarterly={activeTab === 'ratios' ? false : isQuarterly} 
             activeTab={activeTab}
           />
         )}
