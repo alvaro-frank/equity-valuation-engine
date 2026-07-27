@@ -214,5 +214,7 @@ src/test_valuation.py
 gemini.py
 test_data/
 production_roadmap.md
-refactoring_plan.md
 llm_production_strategy.md
+refactoring_plan.md
+# Antigravity Agents
+.agents/
