@@ -47,7 +47,7 @@ export function FinancialsMarginChart({ data }: FinancialsMarginChartProps) {
             formatter={(value: any, name: any) => [`${Number(value).toFixed(2)}%`, name]}
           />
           <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
             iconType="circle"
           />
           <Line
