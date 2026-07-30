@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { QuantitativeValuationResult } from '@/common/types/valuation';
+import { formatFinancialPeriod } from '@/common/utils/formatters';
 
 export interface ChartDataPoint {
   period: string;
@@ -36,6 +37,10 @@ export interface ChartDataPoint {
   peRatio: number;
   researchAndDevelopment: number;
   sga: number;
+  evToEbitda: number;
+  fcfYield: number;
+  roe: number;
+  debtToEquity: number;
 }
 
 export function useFinancialsChartsData(quantData?: QuantitativeValuationResult, isQuarterly: boolean = false) {
@@ -83,31 +88,7 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
         const totalDebt = getMetricValue('total_debt', period);
         const ebitda = getMetricValue('ebitda', period);
         
-        // Format period label: '2024-03-31' -> 'Q1 24', 'TTM' -> 'TTM'
-        let dateLabel = period;
-        if (period === 'TTM') {
-          dateLabel = 'TTM';
-        } else if (isQuarterly) {
-          const parts = period.split('-');
-          if (parts.length >= 2) {
-            if (parts[1].startsWith('Q')) {
-              dateLabel = `${parts[1]} ${parts[0].slice(-2)}`;
-            } else {
-              const month = parseInt(parts[1], 10);
-              const year = parts[0].slice(-2);
-              let quarter = 'Q1';
-              if (month >= 10) quarter = 'Q4';
-              else if (month >= 7) quarter = 'Q3';
-              else if (month >= 4) quarter = 'Q2';
-              
-              dateLabel = `${quarter} ${year}`;
-            }
-          } else {
-            dateLabel = period;
-          }
-        } else {
-          dateLabel = period.split('-')[0];
-        }
+        const dateLabel = formatFinancialPeriod(period, isQuarterly);
         
         return {
           period: dateLabel,
@@ -147,6 +128,10 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
           peRatio: getMetricValue('pe_ratio', period),
           researchAndDevelopment: getMetricValue('research_and_development', period),
           sga: getMetricValue('selling_general_and_administrative', period),
+          evToEbitda: getMetricValue('ev_to_ebitda', period),
+          fcfYield: getMetricValue('fcf_yield', period),
+          roe: getMetricValue('roe', period),
+          debtToEquity: getMetricValue('debt_to_equity', period),
         };
     });
 
