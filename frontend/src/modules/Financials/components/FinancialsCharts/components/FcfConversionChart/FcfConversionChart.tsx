@@ -62,8 +62,7 @@ export function FcfConversionChart({ data }: FcfConversionChartProps) {
             labelStyle={{ color: 'var(--on-surface-variant)', marginBottom: '4px' }}
           />
           <Legend 
-            verticalAlign="bottom" 
-            height={36}
+            verticalAlign="bottom"
             iconType="circle"
             formatter={(value) => {
               const labelMap: Record<string, string> = {
@@ -73,7 +72,7 @@ export function FcfConversionChart({ data }: FcfConversionChartProps) {
               };
               return labelMap[value] || value;
             }}
-            wrapperStyle={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
           />
           <Bar 
             dataKey="netIncome" 
@@ -83,14 +82,14 @@ export function FcfConversionChart({ data }: FcfConversionChartProps) {
           />
           <Bar 
             dataKey="operatingCashFlow" 
-            fill="var(--secondary)" 
+            fill="var(--tertiary)" 
             radius={[4, 4, 0, 0]} 
             maxBarSize={40}
           />
           <Line 
             type="monotone" 
             dataKey="freeCashFlow" 
-            stroke="var(--tertiary)" 
+            stroke="var(--secondary)" 
             strokeWidth={2}
             dot={{ r: 4, fill: 'var(--surface)', strokeWidth: 2 }}
             activeDot={{ r: 6 }}
