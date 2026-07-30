@@ -54,15 +54,14 @@ export function CapitalStructureChart({ data }: CapitalStructureChartProps) {
             ]}
           />
           <Legend 
-            verticalAlign="bottom" 
-            height={36}
+            verticalAlign="bottom"
             iconType="circle"
             formatter={(value) => {
               if (value === 'totalLiabilities') return 'Total Liabilities';
               if (value === 'totalEquity') return 'Total Equity';
               return value;
             }}
-            wrapperStyle={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
           />
           <Bar dataKey="totalEquity" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           <Bar dataKey="totalLiabilities" fill="var(--tertiary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
