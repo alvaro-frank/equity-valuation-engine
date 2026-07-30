@@ -54,7 +54,7 @@ export function OpExBreakdownChart({ data }: OpExBreakdownChartProps) {
             formatter={(value: any, name: any) => [formatLargeNumber(value), name]}
           />
           <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
             iconType="circle"
           />
           
