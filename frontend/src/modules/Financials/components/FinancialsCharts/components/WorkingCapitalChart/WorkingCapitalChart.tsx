@@ -58,8 +58,7 @@ export function WorkingCapitalChart({ data }: WorkingCapitalChartProps) {
             }}
           />
           <Legend 
-            verticalAlign="bottom" 
-            height={36}
+            verticalAlign="bottom"
             iconType="circle"
             formatter={(value) => {
               const labelMap: Record<string, string> = {
@@ -69,7 +68,7 @@ export function WorkingCapitalChart({ data }: WorkingCapitalChartProps) {
               };
               return labelMap[value] || value;
             }}
-            wrapperStyle={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
           />
           <Bar dataKey="accountsReceivable" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           <Bar dataKey="inventory" fill="var(--tertiary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
