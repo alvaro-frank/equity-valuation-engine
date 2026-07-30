@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
+import { formatFinancialPeriod } from '@/common/utils/formatters';
 
 export function useRevenueChartData(quantData?: QuantitativeValuationResult) {
   const annualData = useMemo(() => {
@@ -28,7 +29,7 @@ export function useRevenueChartData(quantData?: QuantitativeValuationResult) {
       );
 
       return {
-        label: year,
+        label: formatFinancialPeriod(revItem.date, false),
         revenue: Number(revItem.value),
         operatingIncome: opIncomeItem ? Number(opIncomeItem.value) : 0,
         netIncome: netIncomeItem ? Number(netIncomeItem.value) : 0,
@@ -49,10 +50,7 @@ export function useRevenueChartData(quantData?: QuantitativeValuationResult) {
     );
 
     return sortedRevenue.map((revItem) => {
-      const d = new Date(revItem.date);
-      const q = Math.ceil((d.getMonth() + 1) / 3);
-      const yy = d.getFullYear().toString().slice(2);
-      const label = `Q${q} ${yy}`;
+      const label = formatFinancialPeriod(revItem.date, true);
       
       const opIncomeItem = opIncomeSeries.find((oi: BaseMetric) => oi.date === revItem.date);
       const netIncomeItem = netIncomeSeries.find((ni: BaseMetric) => ni.date === revItem.date);

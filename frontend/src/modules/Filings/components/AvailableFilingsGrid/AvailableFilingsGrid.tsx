@@ -1,5 +1,6 @@
 import type { LocalFilingDTO } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
+import { formatFinancialPeriod } from '@/common/utils/formatters';
 
 interface AvailableFilingsGridProps {
   filings: LocalFilingDTO[];
@@ -36,6 +37,9 @@ export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, ana
   quarterlyFilings = [...quarterlyFilings, ...q4Filings].sort((a, b) => b.period.localeCompare(a.period));
 
   const renderFilingButton = (filing: LocalFilingDTO) => {
+    const isQuarterly = filing.form_type === '10-Q';
+    const displayPeriod = formatFinancialPeriod(filing.period, isQuarterly);
+
     // If analyzingPeriod is provided, use it for exact matching (resolves Q4 vs FY overlap). Otherwise fallback to ID.
     const isThisAnalyzing = isAnalyzing && (analyzingPeriod ? analyzingPeriod === filing.period : analyzingFilingId === filing.id);
     return (
@@ -70,7 +74,7 @@ export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, ana
           </div>
           <div>
             <h3 className="font-semibold text-on-surface leading-tight">
-              {filing.period}
+              {displayPeriod}
             </h3>
           </div>
         </div>

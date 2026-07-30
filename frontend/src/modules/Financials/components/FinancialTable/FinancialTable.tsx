@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { MetricSeries, BaseMetric } from '@/common/types/valuation';
 import type { FormatType } from '@/common/utils/formatters';
+import { formatFinancialPeriod } from '@/common/utils/formatters';
 import { useFinancialTable } from './useFinancialTable';
 
 export interface FinancialTableRow {
@@ -42,7 +43,7 @@ export function FinancialTable(props: FinancialTableProps) {
             </th>
             {periods.map(period => (
               <th key={period} className="p-4 font-label-caps text-label-caps text-on-surface-variant text-right whitespace-nowrap">
-                {period}
+                {formatFinancialPeriod(period, isQuarterly)}
               </th>
             ))}
             {!hideGrowthColumn && (

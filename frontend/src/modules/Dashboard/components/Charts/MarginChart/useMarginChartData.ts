@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { QuantitativeValuationResult, BaseMetric } from '@/common/types/valuation';
+import { formatFinancialPeriod } from '@/common/utils/formatters';
 
 export function useMarginChartData(quantData?: QuantitativeValuationResult) {
   const annualData = useMemo(() => {
@@ -30,7 +31,7 @@ export function useMarginChartData(quantData?: QuantitativeValuationResult) {
       );
 
       return {
-        label: year,
+        label: formatFinancialPeriod(gmItem.date, false),
         grossMargin: Number(gmItem.value),
         opMargin: opItem ? Number(opItem.value) : null,
         netMargin: netItem ? Number(netItem.value) : null,
@@ -51,10 +52,7 @@ export function useMarginChartData(quantData?: QuantitativeValuationResult) {
     );
 
     return sortedGross.map((gmItem) => {
-      const d = new Date(gmItem.date);
-      const q = Math.ceil((d.getMonth() + 1) / 3);
-      const yy = d.getFullYear().toString().slice(2);
-      const label = `Q${q} ${yy}`;
+      const label = formatFinancialPeriod(gmItem.date, true);
       
       const opItem = opMarginSeries.find((om: BaseMetric) => om.date === gmItem.date);
       const netItem = netMarginSeries.find((nm: BaseMetric) => nm.date === gmItem.date);

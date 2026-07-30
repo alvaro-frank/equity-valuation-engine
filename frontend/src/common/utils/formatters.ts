@@ -87,3 +87,41 @@ export const formatDateString = (dateStr?: string | null, language: string = 'en
   }
 };
 
+export const formatFinancialPeriod = (period: string, isQuarterly: boolean): string => {
+  if (!period) return '';
+  if (period === 'TTM') return 'TTM';
+  
+  // Handle SEC filing formats: "2026-Q1" -> "Q1 2026"
+  if (isQuarterly && period.includes('-Q')) {
+    const parts = period.split('-');
+    if (parts.length === 2 && parts[1].startsWith('Q')) {
+      return `${parts[1]} ${parts[0]}`;
+    }
+  }
+  
+  // Handle SEC filing formats: "FY2025" -> "FY 2025"
+  if (!isQuarterly && period.toUpperCase().startsWith('FY')) {
+    const yearMatch = period.match(/\d{4}/);
+    if (yearMatch) {
+      return `FY ${yearMatch[0]}`;
+    }
+  }
+  
+  try {
+    const date = new Date(period);
+    const year = date.getFullYear();
+    
+    if (isNaN(year)) return period;
+    
+    if (!isQuarterly) {
+      return `FY ${year}`;
+    } else {
+      const month = date.getMonth() + 1; // 1 to 12
+      const q = Math.ceil(month / 3);
+      return `Q${q} ${year}`;
+    }
+  } catch (e) {
+    return period;
+  }
+};
+
