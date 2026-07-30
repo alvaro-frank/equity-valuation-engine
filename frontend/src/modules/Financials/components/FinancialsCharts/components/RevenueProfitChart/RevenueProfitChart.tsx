@@ -48,7 +48,7 @@ export function RevenueProfitChart({ data }: RevenueProfitChartProps) {
             formatter={(value: any, name: any) => [formatLargeCurrency(Number(value)), name]}
           />
           <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
             iconType="circle"
           />
           <Bar 
