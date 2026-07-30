@@ -17,6 +17,10 @@ import { WorkingCapitalChart } from './components/WorkingCapitalChart';
 import { FcfConversionChart } from './components/FcfConversionChart';
 import { ShareholderReturnsChart } from './components/ShareholderReturnsChart';
 import { CashFlowPillarsChart } from './components/CashFlowPillarsChart';
+import { ValuationMultiplesChart } from './components/ValuationMultiplesChart';
+import { RoeRoicChart } from './components/RoeRoicChart';
+import { FcfYieldChart } from './components/FcfYieldChart';
+import { LeverageRatioChart } from './components/LeverageRatioChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
@@ -146,15 +150,39 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'ratios' && (
           <>
             <ChartCard 
+              title={t('financials.charts.valuation_multiples_title', 'Valuation Multiples')} 
+            >
+              <ValuationMultiplesChart data={chartData} />
+            </ChartCard>
+            
+            <ChartCard 
+              title={t('financials.charts.historical_pe_title', 'Historical P/E Ratio')} 
+            >
+              <HistoricalPeChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.fcf_yield_title', 'FCF Yield')} 
+            >
+              <FcfYieldChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.roe_roic_title', 'Profitability (ROE vs ROIC)')} 
+            >
+              <RoeRoicChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
               title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
             >
               <RoceWaccChart data={chartData} />
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.historical_pe_title', 'Historical P/E Ratio')} 
+              title={t('financials.charts.leverage_ratio_title', 'Leverage (Debt-to-Equity)')} 
             >
-              <HistoricalPeChart data={chartData} />
+              <LeverageRatioChart data={chartData} />
             </ChartCard>
           </>
         )}
