@@ -60,8 +60,7 @@ export function ShareholderReturnsChart({ data }: ShareholderReturnsChartProps) 
             labelStyle={{ color: 'var(--on-surface-variant)', marginBottom: '4px' }}
           />
           <Legend 
-            verticalAlign="bottom" 
-            height={36}
+            verticalAlign="bottom"
             iconType="circle"
             formatter={(value) => {
               const labelMap: Record<string, string> = {
@@ -70,7 +69,7 @@ export function ShareholderReturnsChart({ data }: ShareholderReturnsChartProps) 
               };
               return labelMap[value] || value;
             }}
-            wrapperStyle={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}
+            wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
           />
           <Bar dataKey="dividendsPaid" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           <Bar dataKey="stockRepurchases" fill="var(--secondary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
