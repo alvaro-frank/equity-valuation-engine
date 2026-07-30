@@ -378,7 +378,21 @@
       "eps_subtitle": "Evolução do Lucro por Ação",
       "research_and_development": "Pesquisa & Desenvolvimento",
       "sga": "Vendas, Gerais e Administrativas",
-      "eps": "EPS"
+      "eps": "EPS",
+      "capital_structure_title": "Estrutura de Capital",
+      "working_capital_title": "Evolução do Fundo de Maneio",
+      "fcf_conversion_title": "Conversão de FCF (Qualidade dos Lucros)",
+      "shareholder_returns_title": "Retorno aos Acionistas",
+      "cash_flow_pillars_title": "Os 3 Pilares (Resumo CF)",
+      "operating_cash_flow_title": "Cash Flow Operacional vs CapEx",
+      "historical_pe_title": "P/E Histórico",
+      "valuation_multiples_title": "Múltiplos de Avaliação",
+      "roe_roic_title": "Rentabilidade (ROE vs ROIC)",
+      "fcf_yield_title": "FCF Yield",
+      "leverage_ratio_title": "Alavancagem (Debt-to-Equity)",
+      "ev_to_ebitda": "EV/EBITDA",
+      "debt_to_equity": "Debt to Equity",
+      "roe": "Retorno sobre o Capital Próprio"
     },
     "tabs": {
       "income_statement": "Demonstração de Resultados",

@@ -371,7 +371,21 @@
       "eps_subtitle": "Earnings Per Share Evolution",
       "research_and_development": "Research & Development",
       "sga": "Selling, General & Administrative",
-      "eps": "EPS"
+      "eps": "EPS",
+      "capital_structure_title": "Capital Structure",
+      "working_capital_title": "Working Capital Evolution",
+      "fcf_conversion_title": "FCF Conversion (Earnings Quality)",
+      "shareholder_returns_title": "Shareholder Returns",
+      "cash_flow_pillars_title": "The 3 Pillars (CF Summary)",
+      "operating_cash_flow_title": "Operating Cash Flow vs CapEx",
+      "historical_pe_title": "Historical P/E Ratio",
+      "valuation_multiples_title": "Valuation Multiples",
+      "roe_roic_title": "Profitability (ROE vs ROIC)",
+      "fcf_yield_title": "FCF Yield",
+      "leverage_ratio_title": "Leverage (Debt-to-Equity)",
+      "ev_to_ebitda": "EV/EBITDA",
+      "debt_to_equity": "Debt to Equity",
+      "roe": "Return on Equity"
     },
     "tabs": {
       "income_statement": "Income Statement",
