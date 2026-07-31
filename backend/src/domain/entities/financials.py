@@ -238,6 +238,14 @@ class BaseFinancialPeriod:
         return round(self.market_cap / self.revenue, 2)
 
     @property
+    def pfcf_ratio(self) -> Decimal | None:
+        """Calculates Price-to-Free Cash Flow (P/FCF) ratio as market capitalization divided by free cash flow."""
+        fcf = self.free_cash_flow
+        if fcf <= Decimal("0"):
+            return None
+        return round(self.market_cap / fcf, 2)
+
+    @property
     def free_cash_flow(self) -> Decimal:
         """Calculates free cash flow as operating cash flow minus capital expenditures."""
         return self.operating_cash_flow - abs(self.capital_expenditures)

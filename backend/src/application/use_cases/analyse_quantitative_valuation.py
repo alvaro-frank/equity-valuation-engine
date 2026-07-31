@@ -66,7 +66,7 @@ class QuantitativeValuationUseCase:
             "total_equity", "gross_margin", "operating_margin", 
             "net_margin", "roe", "roic", "debt_to_equity",
             "market_cap", "pe_ratio", "pb_ratio", "ps_ratio", "free_cash_flow", "fcf_yield", "eps",
-            "current_ratio", "ev_to_ebitda", "historical_wacc", "debt_to_ebitda"
+            "current_ratio", "ev_to_ebitda", "historical_wacc", "debt_to_ebitda", "pfcf_ratio"
         ]
         
         metrics_to_analyse = [f for f in all_fields if f not in excluded_fields] + ratio_fields
