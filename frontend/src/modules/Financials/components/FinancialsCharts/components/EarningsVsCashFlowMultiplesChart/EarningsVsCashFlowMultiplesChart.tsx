@@ -1,6 +1,6 @@
 import {
   ResponsiveContainer,
-  LineChart,
+  ComposedChart,
   Line,
   XAxis,
   YAxis,
@@ -12,17 +12,17 @@ import type { ChartDataPoint } from '../../hooks/useFinancialsChartsData';
 import { useTranslation } from 'react-i18next';
 import { formatFinancialPeriod } from '@/common/utils/formatters';
 
-interface PfcfRatioChartProps {
+interface EarningsVsCashFlowMultiplesChartProps {
   data: ChartDataPoint[];
 }
 
-export function PfcfRatioChart({ data }: PfcfRatioChartProps) {
+export function EarningsVsCashFlowMultiplesChart({ data }: EarningsVsCashFlowMultiplesChartProps) {
   const { t } = useTranslation();
 
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
+        <ComposedChart
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
@@ -49,7 +49,8 @@ export function PfcfRatioChart({ data }: PfcfRatioChartProps) {
             itemStyle={{ color: 'var(--on-surface)' }}
             formatter={(value: any, name: string) => {
               const labelMap: Record<string, string> = {
-                pfcfRatio: t('financials.charts.pfcf_ratio', 'P/FCF')
+                peRatio: t('financials.metrics.pe_ratio', 'P/E Ratio'),
+                pfcfRatio: t('financials.metrics.pfcf_ratio', 'P/FCF Ratio')
               };
               return [`${Number(value).toFixed(2)}x`, labelMap[name] || name];
             }}
@@ -59,7 +60,8 @@ export function PfcfRatioChart({ data }: PfcfRatioChartProps) {
             iconType="circle"
             formatter={(value) => {
               const labelMap: Record<string, string> = {
-                pfcfRatio: t('financials.charts.pfcf_ratio', 'P/FCF')
+                peRatio: t('financials.metrics.pe_ratio', 'P/E Ratio'),
+                pfcfRatio: t('financials.metrics.pfcf_ratio', 'P/FCF Ratio')
               };
               return labelMap[value] || value;
             }}
@@ -67,14 +69,23 @@ export function PfcfRatioChart({ data }: PfcfRatioChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="pfcfRatio" 
+            dataKey="peRatio" 
             stroke="var(--primary)" 
             strokeWidth={2}
             dot={{ r: 4, fill: 'var(--surface)', strokeWidth: 2 }}
             activeDot={{ r: 6 }}
             connectNulls
           />
-        </LineChart>
+          <Line 
+            type="monotone" 
+            dataKey="pfcfRatio" 
+            stroke="var(--tertiary)" 
+            strokeWidth={2}
+            dot={{ r: 4, fill: 'var(--surface)', strokeWidth: 2 }}
+            activeDot={{ r: 6 }}
+            connectNulls
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

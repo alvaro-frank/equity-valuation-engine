@@ -11,7 +11,6 @@ import { SharesOutstandingChart } from './components/SharesOutstandingChart';
 import { EarningsQualityChart } from './components/EarningsQualityChart';
 import { OpExBreakdownChart } from './components/OpExBreakdownChart';
 import { EpsChart } from './components/EpsChart';
-import { HistoricalPeChart } from './components/HistoricalPeChart';
 import { CapitalStructureChart } from './components/CapitalStructureChart';
 import { WorkingCapitalChart } from './components/WorkingCapitalChart';
 import { FcfConversionChart } from './components/FcfConversionChart';
@@ -21,7 +20,7 @@ import { ValuationMultiplesChart } from './components/ValuationMultiplesChart';
 import { RoeRoicChart } from './components/RoeRoicChart';
 import { FcfYieldChart } from './components/FcfYieldChart';
 import { LeverageRatioChart } from './components/LeverageRatioChart';
-import { PfcfRatioChart } from './components/PfcfRatioChart';
+import { EarningsVsCashFlowMultiplesChart } from './components/EarningsVsCashFlowMultiplesChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
@@ -157,15 +156,9 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
             
             <ChartCard 
-              title={t('financials.charts.historical_pe_title', 'Historical P/E Ratio')} 
+              title={t('financials.charts.earnings_cashflow_multiples_title', 'Earnings vs Cash Flow Multiples')} 
             >
-              <HistoricalPeChart data={chartData} />
-            </ChartCard>
-
-            <ChartCard 
-              title={t('financials.charts.pfcf_ratio_title', 'P/FCF Ratio')} 
-            >
-              <PfcfRatioChart data={chartData} />
+              <EarningsVsCashFlowMultiplesChart data={chartData} />
             </ChartCard>
 
             <ChartCard 

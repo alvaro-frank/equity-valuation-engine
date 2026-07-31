@@ -380,6 +380,7 @@
       "operating_cash_flow_title": "Operating Cash Flow vs CapEx",
       "historical_pe_title": "Historical P/E Ratio",
       "valuation_multiples_title": "Valuation Multiples",
+      "earnings_cashflow_multiples_title": "Earnings vs Cash Flow Multiples",
       "roe_roic_title": "Profitability (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",
       "leverage_ratio_title": "Leverage (Debt-to-Equity)",
