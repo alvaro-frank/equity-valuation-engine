@@ -79,7 +79,7 @@ export function ValuationMultiplesChart({ data }: ValuationMultiplesChartProps) 
           <Line 
             type="monotone" 
             dataKey="peRatio" 
-            stroke="var(--secondary)" 
+            stroke="var(--tertiary)" 
             strokeWidth={2}
             dot={{ r: 4, fill: 'var(--surface)', strokeWidth: 2 }}
             activeDot={{ r: 6 }}

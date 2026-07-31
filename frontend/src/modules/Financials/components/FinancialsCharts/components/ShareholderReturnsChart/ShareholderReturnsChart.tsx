@@ -72,7 +72,7 @@ export function ShareholderReturnsChart({ data }: ShareholderReturnsChartProps) 
             wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: 'var(--on-surface-variant)' }}
           />
           <Bar dataKey="dividendsPaid" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
-          <Bar dataKey="stockRepurchases" fill="var(--secondary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="stockRepurchases" fill="var(--tertiary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
         </BarChart>
       </ResponsiveContainer>
     </div>

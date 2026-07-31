@@ -8,13 +8,16 @@ import {
   Tooltip,
 } from 'recharts';
 import type { ChartDataPoint } from '../../hooks/useFinancialsChartsData';
-import { formatCurrency } from '@/common/utils/formatters';
+import { formatCurrency, formatFinancialPeriod } from '@/common/utils/formatters';
+import { useTranslation } from 'react-i18next';
 
 interface EpsChartProps {
   data: ChartDataPoint[];
 }
 
 export function EpsChart({ data }: EpsChartProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -47,7 +50,7 @@ export function EpsChart({ data }: EpsChartProps) {
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             }}
             itemStyle={{ color: 'var(--on-surface)' }}
-            formatter={(value: any) => [formatCurrency(value), undefined]}
+            formatter={(value: any) => [formatCurrency(value), t('financials.metrics.eps', 'EPS')]}
           />
           
           <Line 
