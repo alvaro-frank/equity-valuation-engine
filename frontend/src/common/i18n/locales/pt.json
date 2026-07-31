@@ -390,9 +390,11 @@
       "roe_roic_title": "Rentabilidade (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",
       "leverage_ratio_title": "Alavancagem (Debt-to-Equity)",
+      "pfcf_ratio_title": "P/FCF Ratio",
       "ev_to_ebitda": "EV/EBITDA",
       "debt_to_equity": "Debt to Equity",
-      "roe": "Retorno sobre o Capital Próprio"
+      "roe": "Retorno sobre o Capital Próprio",
+      "pfcf_ratio": "P/FCF"
     },
     "tabs": {
       "income_statement": "Demonstração de Resultados",

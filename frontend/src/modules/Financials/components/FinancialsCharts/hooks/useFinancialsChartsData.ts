@@ -41,6 +41,7 @@ export interface ChartDataPoint {
   fcfYield: number;
   roe: number;
   debtToEquity: number;
+  pfcfRatio: number;
 }
 
 export function useFinancialsChartsData(quantData?: QuantitativeValuationResult, isQuarterly: boolean = false) {
@@ -132,6 +133,7 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
           fcfYield: getMetricValue('fcf_yield', period),
           roe: getMetricValue('roe', period),
           debtToEquity: getMetricValue('debt_to_equity', period),
+          pfcfRatio: getMetricValue('pfcf_ratio', period),
         };
     });
 

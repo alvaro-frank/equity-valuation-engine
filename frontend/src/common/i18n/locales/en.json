@@ -383,9 +383,11 @@
       "roe_roic_title": "Profitability (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",
       "leverage_ratio_title": "Leverage (Debt-to-Equity)",
+      "pfcf_ratio_title": "P/FCF Ratio",
       "ev_to_ebitda": "EV/EBITDA",
       "debt_to_equity": "Debt to Equity",
-      "roe": "Return on Equity"
+      "roe": "Return on Equity",
+      "pfcf_ratio": "P/FCF"
     },
     "tabs": {
       "income_statement": "Income Statement",
