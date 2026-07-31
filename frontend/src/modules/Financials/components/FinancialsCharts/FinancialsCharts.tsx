@@ -21,6 +21,7 @@ import { ValuationMultiplesChart } from './components/ValuationMultiplesChart';
 import { RoeRoicChart } from './components/RoeRoicChart';
 import { FcfYieldChart } from './components/FcfYieldChart';
 import { LeverageRatioChart } from './components/LeverageRatioChart';
+import { PfcfRatioChart } from './components/PfcfRatioChart';
 import { useParams } from 'react-router-dom';
 import { useFinancialsView } from '../../hooks/useFinancialsView';
 
@@ -159,6 +160,12 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
               title={t('financials.charts.historical_pe_title', 'Historical P/E Ratio')} 
             >
               <HistoricalPeChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title={t('financials.charts.pfcf_ratio_title', 'P/FCF Ratio')} 
+            >
+              <PfcfRatioChart data={chartData} />
             </ChartCard>
 
             <ChartCard 
