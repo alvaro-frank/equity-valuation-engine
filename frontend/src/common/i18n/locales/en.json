@@ -366,6 +366,7 @@
       "cash_and_equivalents": "Cash & Equivalents",
       "free_cash_flow": "Free Cash Flow",
       "earnings_quality_title": "Earnings Quality",
+      "earnings_quality_tooltip": "This chart reveals the true quality of the company's earnings. <1>Net Income</1> is the accounting profit on 'paper', while <2>Free Cash Flow</2> is the actual cash that entered the bank account. An investor expects these two metrics to move closely together. If a company reports record profits but cash flow is consistently low or negative, it's a major red flag.",
       "earnings_quality_subtitle": "Net Income vs Free Cash Flow",
       "opex_breakdown_title": "Operating Expenses",
       "opex_breakdown_subtitle": "R&D vs SG&A",

@@ -373,6 +373,7 @@
       "current_liabilities": "Passivos Correntes",
       "current_ratio": "Current Ratio",
       "earnings_quality_title": "Qualidade dos Lucros",
+      "earnings_quality_tooltip": "Este gráfico revela a verdadeira qualidade do lucro da empresa. O <1>Lucro Líquido</1> é o lucro contabilístico no 'papel', enquanto o <2>Free Cash Flow</2> é o dinheiro real que efetivamente entrou na conta bancária. Um investidor espera que estas duas métricas andem de mãos dadas. Se a empresa reporta lucros recorde mas o fluxo de caixa é consistentemente baixo ou negativo, é um forte sinal de alarme.",
       "earnings_quality_subtitle": "Lucro Líquido vs Free Cash Flow",
       "opex_breakdown_title": "Estrutura de Custos",
       "opex_breakdown_subtitle": "R&D vs SG&A",

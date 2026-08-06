@@ -86,7 +86,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.earnings_quality_title', 'Earnings Quality')} 
+              title={t('financials.charts.earnings_quality_title', 'Earnings Quality')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.earnings_quality_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <EarningsQualityChart data={chartData} />
             </ChartCard>
