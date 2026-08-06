@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useFinancialsChartsData } from './hooks/useFinancialsChartsData';
-import { ChartCard } from './components/ChartCard';
+import { ChartCard } from '@/common/components/ChartCard';
 import { RevenueProfitChart } from './components/RevenueProfitChart';
 import { FinancialsMarginChart } from './components/FinancialsMarginChart';
 import { RoceWaccChart } from './components/RoceWaccChart';
