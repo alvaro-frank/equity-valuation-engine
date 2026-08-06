@@ -380,6 +380,7 @@
       "opex_breakdown_tooltip": "Este gráfico detalha os custos operacionais da empresa. O <1>R&D</1> representa o investimento em inovação e criação de novos produtos (o motor do crescimento futuro). O <2>SG&A</2> engloba os custos fixos de vendas, marketing e administração (o custo de manter a máquina a funcionar). O investidor procura empresas que mantenham o SG&A controlado face às vendas, e dependendo do setor (ex: Tecnologia), um forte investimento contínuo em R&D.",
       "opex_breakdown_subtitle": "R&D vs SG&A",
       "eps_title": "EPS Diluído",
+      "eps_tooltip": "O <1>EPS Diluído</1> (Lucro por Ação) indica quanto lucro a empresa gerou por cada ação existente. A palavra 'Diluído' significa que a métrica já contabiliza o cenário mais conservador possível: pressupõe que todas as stock options de colaboradores e obrigações convertíveis foram transformadas em ações reais. É nesta métrica que o investidor se deve focar, pois representa a fatia exata do lucro que pertence a cada ação na sua carteira.",
       "eps_subtitle": "Evolução do Lucro por Ação",
       "research_and_development": "Pesquisa & Desenvolvimento",
       "sga": "Vendas, Gerais e Administrativas",

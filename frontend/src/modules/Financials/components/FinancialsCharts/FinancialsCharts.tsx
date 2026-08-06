@@ -130,7 +130,15 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.eps_title', 'Diluted EPS')} 
+              title={t('financials.charts.eps_title', 'Diluted EPS')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.eps_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <EpsChart data={chartData} />
             </ChartCard>
