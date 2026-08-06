@@ -388,6 +388,7 @@
       "operating_cash_flow_title": "Cash Flow Operacional vs CapEx",
       "historical_pe_title": "P/E Histórico",
       "valuation_multiples_title": "Múltiplos de Avaliação",
+      "valuation_multiples_tooltip": "Este gráfico compara dois múltiplos de mercado essenciais. O <1>EV/EBITDA</1> avalia a empresa como um todo (independente de dívida ou impostos), enquanto o <2>P/E</2> foca-se exclusivamente no lucro dos acionistas. O investidor procura estabilidade ou contração nestes múltiplos ao longo do tempo, o que indica que a empresa está a ficar mais barata face à sua capacidade de gerar resultados.",
       "earnings_cashflow_multiples_title": "Múltiplos de Lucros vs Fluxo de Caixa",
       "roe_roic_title": "Rentabilidade (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",

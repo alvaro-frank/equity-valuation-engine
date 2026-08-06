@@ -160,7 +160,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'ratios' && (
           <>
             <ChartCard 
-              title={t('financials.charts.valuation_multiples_title', 'Valuation Multiples')} 
+              title={t('financials.charts.valuation_multiples_title', 'Valuation Multiples')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.valuation_multiples_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <ValuationMultiplesChart data={chartData} />
             </ChartCard>

@@ -381,6 +381,7 @@
       "operating_cash_flow_title": "Operating Cash Flow vs CapEx",
       "historical_pe_title": "Historical P/E Ratio",
       "valuation_multiples_title": "Valuation Multiples",
+      "valuation_multiples_tooltip": "This chart compares two essential market multiples. <1>EV/EBITDA</1> values the entire enterprise (independent of debt or taxes), while <2>P/E</2> focuses exclusively on shareholder earnings. An investor looks for stability or contraction in these multiples over time, which indicates the company is becoming cheaper relative to its ability to generate results.",
       "earnings_cashflow_multiples_title": "Earnings vs Cash Flow Multiples",
       "roe_roic_title": "Profitability (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",
