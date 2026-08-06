@@ -345,6 +345,7 @@
       "revenue_profit_tooltip": "This chart illustrates the company's operational efficiency. <1>Revenue</1> indicates sales volume, <2>EBITDA</2> reflects operating profitability, and <3>Net Income</3> represents the bottom-line result. An investor looks for a consistent growth trajectory across all three metrics, where profitability (EBITDA/Income) matches or outpaces sales growth.",
       "revenue_profit_subtitle": "Business Evolution: Revenue vs EBITDA vs Net Income",
       "margins_title": "Margin Evolution",
+      "margins_tooltip": "This chart reveals how efficiently the company retains money at each stage of the business. <1>Gross Margin</1> is the profit remaining after direct production costs. <2>Operating Margin</2> also deducts day-to-day business expenses. <3>Net Margin</3> is the true percentage left at the end. An investor looks for stability or expansion in these margins, which demonstrates pricing power and cost control.",
       "margins_subtitle": "Gross, Operating and Net Margin",
       "roce_wacc_title": "ROCE vs WACC",
       "cashflow_capex_title": "Operating Cash Flow vs CapEx",

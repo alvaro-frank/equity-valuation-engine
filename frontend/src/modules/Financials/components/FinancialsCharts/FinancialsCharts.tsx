@@ -70,7 +70,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.margins_title', 'Margin Evolution')} 
+              title={t('financials.charts.margins_title', 'Margin Evolution')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.margins_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <FinancialsMarginChart data={chartData} />
             </ChartCard>

@@ -346,6 +346,7 @@
       "revenue_profit_tooltip": "Este gráfico ilustra a eficiência operacional da empresa. As <1>Receitas</1> indicam o volume de vendas, o <2>EBITDA</2> reflete a rentabilidade operacional, e o <3>Lucro Líquido</3> representa o resultado final. Um investidor procura uma trajetória de crescimento consistente nas três métricas, onde a rentabilidade (EBITDA/Lucro) acompanha ou supera o ritmo de crescimento das vendas.",
       "revenue_profit_subtitle": "Evolução do Negócio: Receitas vs EBITDA vs Lucro Líquido",
       "margins_title": "Evolução das Margens",
+      "margins_tooltip": "Este gráfico revela o quão eficiente a empresa é a reter dinheiro em cada fase do negócio. A <1>Margem Bruta</1> é o lucro restante após os custos de produção diretos. A <2>Margem Operacional</2> deduz também as despesas do dia-a-dia da empresa. A <3>Margem Líquida</3> é a verdadeira percentagem que sobra no fim. O investidor procura estabilidade ou expansão destas margens, o que demonstra poder de fixação de preços e controlo de custos.",
       "margins_subtitle": "Margem Bruta, Operacional e Líquida",
       "roce_wacc_title": "ROCE vs WACC",
       "roce_wacc_subtitle": "Retorno sobre o Capital em comparação com Custo de Capital",
