@@ -351,6 +351,7 @@
       "cashflow_capex_title": "Operating Cash Flow vs CapEx",
       "cashflow_capex_subtitle": "Cash Generation Profile",
       "shares_title": "Shares Outstanding",
+      "shares_tooltip": "This chart shows the total number of <1>shares outstanding</1>. If the line is falling, the company is buying back its own stock (Buybacks), which is excellent for investors because each remaining share represents a larger slice of the profits. If the line is rising, the company is issuing new stock (Dilution), which decreases the value of existing shareholders' stakes.",
       "liquidity_title": "Liquidity Profile",
       "debt_profile_title": "Debt Profile",
       "revenue": "Revenue",

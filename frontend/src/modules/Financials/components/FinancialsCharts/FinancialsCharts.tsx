@@ -116,7 +116,15 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.shares_title', 'Shares Outstanding')} 
+              title={t('financials.charts.shares_title', 'Shares Outstanding')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.shares_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <SharesOutstandingChart data={chartData} />
             </ChartCard>

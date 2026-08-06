@@ -353,6 +353,7 @@
       "cashflow_capex_title": "Fluxo de Caixa Operacional vs CapEx",
       "cashflow_capex_subtitle": "Fluxo de Caixa Operacional vs Despesas de Capital",
       "shares_title": "Ações em Circulação",
+      "shares_tooltip": "Este gráfico mostra o número total de <1>ações em circulação</1>. Se a linha estiver a cair, significa que a empresa está a recomprar as suas próprias ações (Buybacks), o que é excelente para o investidor, pois cada ação passa a representar uma fatia maior dos lucros. Se a linha estiver a subir, a empresa está a emitir novas ações (Diluição), o que desvaloriza a participação dos atuais acionistas.",
       "liquidity_title": "Liquidez",
       "debt_profile_title": "Endividamento",
       "revenue": "Receitas",
