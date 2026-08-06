@@ -342,6 +342,7 @@
     "no_chart_data": "No historical data available for charts.",
     "charts": {
       "revenue_profit_title": "Revenue & Profitability",
+      "revenue_profit_tooltip": "This chart illustrates the company's operational efficiency. <1>Revenue</1> indicates sales volume, <2>EBITDA</2> reflects operating profitability, and <3>Net Income</3> represents the bottom-line result. An investor looks for a consistent growth trajectory across all three metrics, where profitability (EBITDA/Income) matches or outpaces sales growth.",
       "revenue_profit_subtitle": "Business Evolution: Revenue vs EBITDA vs Net Income",
       "margins_title": "Margin Evolution",
       "margins_subtitle": "Gross, Operating and Net Margin",

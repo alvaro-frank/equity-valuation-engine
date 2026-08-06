@@ -54,7 +54,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'income_statement' && (
           <>
             <ChartCard 
-              title={t('financials.charts.revenue_profit_title', 'Revenue & Profitability')} 
+              title={t('financials.charts.revenue_profit_title', 'Revenue & Profitability')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.revenue_profit_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <RevenueProfitChart data={chartData} />
             </ChartCard>

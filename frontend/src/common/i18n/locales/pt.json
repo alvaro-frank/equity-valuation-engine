@@ -343,6 +343,7 @@
     "no_chart_data": "Sem dados históricos disponíveis para os gráficos.",
     "charts": {
       "revenue_profit_title": "Receitas e Rentabilidade",
+      "revenue_profit_tooltip": "Este gráfico ilustra a eficiência operacional da empresa. As <1>Receitas</1> indicam o volume de vendas, o <2>EBITDA</2> reflete a rentabilidade operacional, e o <3>Lucro Líquido</3> representa o resultado final. Um investidor procura uma trajetória de crescimento consistente nas três métricas, onde a rentabilidade (EBITDA/Lucro) acompanha ou supera o ritmo de crescimento das vendas.",
       "revenue_profit_subtitle": "Evolução do Negócio: Receitas vs EBITDA vs Lucro Líquido",
       "margins_title": "Evolução das Margens",
       "margins_subtitle": "Margem Bruta, Operacional e Líquida",
