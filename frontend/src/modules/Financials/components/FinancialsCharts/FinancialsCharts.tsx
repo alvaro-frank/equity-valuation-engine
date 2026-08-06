@@ -101,7 +101,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.opex_breakdown_title', 'Operating Expenses Breakdown')} 
+              title={t('financials.charts.opex_breakdown_title', 'Operating Expenses Breakdown')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.opex_breakdown_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <OpExBreakdownChart data={chartData} />
             </ChartCard>

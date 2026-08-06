@@ -369,6 +369,7 @@
       "earnings_quality_tooltip": "This chart reveals the true quality of the company's earnings. <1>Net Income</1> is the accounting profit on 'paper', while <2>Free Cash Flow</2> is the actual cash that entered the bank account. An investor expects these two metrics to move closely together. If a company reports record profits but cash flow is consistently low or negative, it's a major red flag.",
       "earnings_quality_subtitle": "Net Income vs Free Cash Flow",
       "opex_breakdown_title": "Operating Expenses",
+      "opex_breakdown_tooltip": "This chart breaks down the company's operating costs. <1>R&D</1> represents investment in innovation and new products (the engine of future growth). <2>SG&A</2> covers fixed costs for sales, marketing, and administration (the cost of keeping the lights on). An investor looks for companies that keep SG&A controlled relative to revenue, and depending on the sector (e.g., Tech), a strong and continuous investment in R&D.",
       "opex_breakdown_subtitle": "R&D vs SG&A",
       "eps_title": "Diluted EPS",
       "eps_subtitle": "Earnings Per Share Evolution",

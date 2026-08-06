@@ -376,6 +376,7 @@
       "earnings_quality_tooltip": "Este gráfico revela a verdadeira qualidade do lucro da empresa. O <1>Lucro Líquido</1> é o lucro contabilístico no 'papel', enquanto o <2>Free Cash Flow</2> é o dinheiro real que efetivamente entrou na conta bancária. Um investidor espera que estas duas métricas andem de mãos dadas. Se a empresa reporta lucros recorde mas o fluxo de caixa é consistentemente baixo ou negativo, é um forte sinal de alarme.",
       "earnings_quality_subtitle": "Lucro Líquido vs Free Cash Flow",
       "opex_breakdown_title": "Estrutura de Custos",
+      "opex_breakdown_tooltip": "Este gráfico detalha os custos operacionais da empresa. O <1>R&D</1> representa o investimento em inovação e criação de novos produtos (o motor do crescimento futuro). O <2>SG&A</2> engloba os custos fixos de vendas, marketing e administração (o custo de manter a máquina a funcionar). O investidor procura empresas que mantenham o SG&A controlado face às vendas, e dependendo do setor (ex: Tecnologia), um forte investimento contínuo em R&D.",
       "opex_breakdown_subtitle": "R&D vs SG&A",
       "eps_title": "EPS Diluído",
       "eps_subtitle": "Evolução do Lucro por Ação",
