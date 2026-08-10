@@ -163,7 +163,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
             
             <ChartCard 
-              title={t('financials.charts.debt_profile_title', 'Debt Profile')} 
+              title={t('financials.charts.debt_profile_title', 'Debt Profile')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.debt_profile_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <DebtProfileChart data={chartData} />
             </ChartCard>

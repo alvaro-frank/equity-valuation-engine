@@ -356,6 +356,7 @@
       "shares_tooltip": "Este gráfico mostra o número total de <1>ações em circulação</1>. Se a linha estiver a cair, significa que a empresa está a recomprar as suas próprias ações (Buybacks), o que é excelente para o investidor, pois cada ação passa a representar uma fatia maior dos lucros. Se a linha estiver a subir, a empresa está a emitir novas ações (Diluição), o que desvaloriza a participação dos atuais acionistas.",
       "liquidity_title": "Liquidez",
       "debt_profile_title": "Endividamento",
+      "debt_profile_tooltip": "Aqui analisamos a saúde da dívida. A <1>Total Debt</1> (Dívida Total) é comparada com o <2>Cash & Equivalents</2> (Caixa) para perceber se a empresa tem liquidez para amortizar o que deve. A linha <3>Debt/EBITDA</3> estima quantos anos a empresa demoraria a pagar a sua dívida usando o seu lucro operacional atual (valores abaixo 3x são geralmente saudáveis).",
       "revenue": "Receitas",
       "ebitda": "EBITDA",
       "net_income": "Lucro Líquido",

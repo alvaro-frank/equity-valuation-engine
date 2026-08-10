@@ -354,6 +354,7 @@
       "shares_tooltip": "This chart shows the total number of <1>shares outstanding</1>. If the line is falling, the company is buying back its own stock (Buybacks), which is excellent for investors because each remaining share represents a larger slice of the profits. If the line is rising, the company is issuing new stock (Dilution), which decreases the value of existing shareholders' stakes.",
       "liquidity_title": "Liquidity Profile",
       "debt_profile_title": "Debt Profile",
+      "debt_profile_tooltip": "Here we analyze debt health. <1>Total Debt</1> is compared against <2>Cash & Equivalents</2> to see if the company has liquidity to pay what it owes. The <3>Debt/EBITDA</3> line estimates how many years it would take to pay off the debt using current operating profits. Values below 3x are generally considered safe.",
       "revenue": "Revenue",
       "ebitda": "EBITDA",
       "net_income": "Net Income",
