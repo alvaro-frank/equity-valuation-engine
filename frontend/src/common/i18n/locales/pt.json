@@ -405,6 +405,7 @@
       "earnings_cashflow_multiples_title": "Múltiplos de Lucros vs Fluxo de Caixa",
       "earnings_cashflow_multiples_tooltip": "Este gráfico compara quanto o mercado está disposto a pagar por cada dólar de lucro versus cada dólar de dinheiro real gerado. O <1>P/E Ratio</1> baseia-se no lucro contabilístico, enquanto o <2>P/FCF Ratio</2> baseia-se no dinheiro real que entrou. Um P/FCF significativamente superior ao P/E pode indicar que os lucros não se traduzem em caixa livre, exigindo cautela.",
       "roe_roic_title": "Rentabilidade (ROE vs ROIC)",
+      "roe_roic_tooltip": "Aqui avaliamos a competência da gestão. O <1>Return on Equity</1> (ROE) mede o lucro gerado apenas com o dinheiro dos acionistas, o que pode ser artificialmente inflacionado por dívidas. O <2>Return on Capital Employed</2> (ROIC) é mais rigoroso: mede a eficiência em gerar lucros considerando todo o capital (incluindo dívida). Empresas excecionais têm um ROIC alto e consistente.",
       "fcf_yield_title": "FCF Yield",
       "fcf_yield_tooltip": "O <1>FCF Yield</1> (Rend. do Fluxo de Caixa Livre) funciona como a 'taxa de juro' teórica do teu investimento se a empresa te distribuísse todo o dinheiro que lhe sobra. É calculado dividindo o Free Cash Flow pelo valor total da empresa na bolsa (Market Cap). Valores mais altos geralmente indicam que a ação está mais barata e atrativa (à semelhança da yield de um imóvel).",
       "leverage_ratio_title": "Alavancagem (Debt-to-Equity)",

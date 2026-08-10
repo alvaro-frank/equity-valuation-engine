@@ -326,7 +326,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.roe_roic_title', 'Profitability (ROE vs ROIC)')} 
+              title={t('financials.charts.roe_roic_title', 'Profitability (ROE vs ROIC)')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.roe_roic_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <RoeRoicChart data={chartData} />
             </ChartCard>
