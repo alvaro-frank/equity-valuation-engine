@@ -410,6 +410,7 @@
       "fcf_yield_title": "FCF Yield",
       "fcf_yield_tooltip": "O <1>FCF Yield</1> (Rend. do Fluxo de Caixa Livre) funciona como a 'taxa de juro' teórica do teu investimento se a empresa te distribuísse todo o dinheiro que lhe sobra. É calculado dividindo o Free Cash Flow pelo valor total da empresa na bolsa (Market Cap). Valores mais altos geralmente indicam que a ação está mais barata e atrativa (à semelhança da yield de um imóvel).",
       "leverage_ratio_title": "Alavancagem (Debt-to-Equity)",
+      "leverage_ratio_tooltip": "O <1>Debt to Equity</1> avalia o risco de alavancagem. Compara a dívida total com o dinheiro dos acionistas (Capital Próprio). Valores elevados significam que a empresa se financia muito mais com dívida do que com o próprio dinheiro, deixando-a vulnerável numa crise. Um valor historicamente descendente e abaixo 1.0x é sinal de grande solidez e segurança.",
       "pfcf_ratio_title": "P/FCF Ratio",
       "ev_to_ebitda": "EV/EBITDA",
       "debt_to_equity": "Debt to Equity",

@@ -403,6 +403,7 @@
       "fcf_yield_title": "FCF Yield",
       "fcf_yield_tooltip": "The <1>FCF Yield</1> acts like the theoretical 'interest rate' on your investment if the company paid you all its leftover cash. It's calculated by dividing Free Cash Flow by the total market value of the company (Market Cap). Higher values generally indicate the stock is cheaper and more attractive (like buying a rental property with a higher yield).",
       "leverage_ratio_title": "Leverage (Debt-to-Equity)",
+      "leverage_ratio_tooltip": "<1>Debt to Equity</1> assesses financial risk. It compares total debt to shareholders' money (Equity). High values (above 2.0x) mean the company relies much more on debt than on its own money, making it vulnerable in a crisis. A value below 1.0x is generally a sign of great safety.",
       "pfcf_ratio_title": "P/FCF Ratio",
       "ev_to_ebitda": "EV/EBITDA",
       "debt_to_equity": "Debt to Equity",
