@@ -394,6 +394,7 @@
       "fcf_conversion_title": "Conversão de FCF (Qualidade dos Lucros)",
       "fcf_conversion_tooltip": "A Conversão de FCF mede que percentagem do <1>Net Income</1> (Lucro Contabilístico) se converte em dinheiro real. O <2>Operating Cash Flow</2> é o dinheiro gerado pelas operações, e o <3>Free Cash Flow</3> é o que sobra após as despesas essenciais de capital. Uma excelente empresa converte lucros em dinheiro real; divergências constantes são um sinal de alarme.",
       "shareholder_returns_title": "Retorno aos Acionistas",
+      "shareholder_returns_tooltip": "Este gráfico mostra como a empresa devolve capital aos seus donos. Pode ser feito de duas formas: pagamento de <1>Dividends Paid</1> (dinheiro depositado na tua conta) ou através de <2>Stock Repurchases</2> (quando a empresa compra as próprias ações, fazendo com que a tua fatia do bolo valorize). Investidores adoram ver este retorno crescer sustentavelmente.",
       "cash_flow_pillars_title": "Os 3 Pilares (Resumo CF)",
       "operating_cash_flow_title": "Cash Flow Operacional vs CapEx",
       "historical_pe_title": "P/E Histórico",

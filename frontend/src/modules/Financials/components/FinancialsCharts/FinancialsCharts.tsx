@@ -231,7 +231,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.shareholder_returns_title', 'Shareholder Returns')} 
+              title={t('financials.charts.shareholder_returns_title', 'Shareholder Returns')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.shareholder_returns_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <ShareholderReturnsChart data={chartData} />
             </ChartCard>
