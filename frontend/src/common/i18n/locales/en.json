@@ -382,6 +382,7 @@
       "capital_structure_title": "Capital Structure",
       "capital_structure_tooltip": "This chart illustrates how the company finances its operations. <1>Total Equity</1> represents shareholders\' money and retained earnings, while <2>Total Liabilities</2> represents debts and obligations. Investors look for companies with a healthy proportion, where debt doesn\'t overwhelm equity, ensuring long-term financial solidity.",
       "working_capital_title": "Working Capital Evolution",
+      "working_capital_tooltip": "Working Capital shows the money \'tied up\' in daily operations. <1>Accounts Receivable</1> is money customers still owe the company, and <2>Inventory</2> are products in the warehouse. In contrast, <3>Accounts Payable</3> is money the company still owes suppliers. An investor wants to see the company collecting cash fast, keeping low inventory, and stretching terms with suppliers.",
       "fcf_conversion_title": "FCF Conversion (Earnings Quality)",
       "shareholder_returns_title": "Shareholder Returns",
       "cash_flow_pillars_title": "The 3 Pillars (CF Summary)",

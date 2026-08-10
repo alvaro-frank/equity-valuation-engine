@@ -179,7 +179,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.working_capital_title', 'Working Capital Evolution')} 
+              title={t('financials.charts.working_capital_title', 'Working Capital Evolution')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.working_capital_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <WorkingCapitalChart data={chartData} />
             </ChartCard>
