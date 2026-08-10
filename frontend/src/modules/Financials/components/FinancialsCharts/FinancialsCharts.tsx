@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useFinancialsChartsData } from './hooks/useFinancialsChartsData';
 import { ChartCard } from '@/common/components/ChartCard';
 import { RevenueProfitChart } from './components/RevenueProfitChart';
@@ -148,7 +148,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'balance_sheet' && (
           <>
             <ChartCard 
-              title={t('financials.charts.capital_structure_title', 'Capital Structure')} 
+              title={t('financials.charts.capital_structure_title', 'Capital Structure')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.capital_structure_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <CapitalStructureChart data={chartData} />
             </ChartCard>

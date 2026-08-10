@@ -386,6 +386,7 @@
       "sga": "Vendas, Gerais e Administrativas",
       "eps": "EPS",
       "capital_structure_title": "Estrutura de Capital",
+      "capital_structure_tooltip": "Este gráfico ilustra como a empresa se financia. O <1>Total Equity</1> (Capital Próprio) representa o dinheiro dos acionistas e lucros retidos, enquanto o <2>Total Liabilities</2> (Passivos) representa as dívidas e obrigações. Investidores procuram empresas com uma proporção saudável, onde a dívida não esmague o capital próprio, garantindo solidez a longo prazo.",
       "working_capital_title": "Evolução do Fundo de Maneio",
       "fcf_conversion_title": "Conversão de FCF (Qualidade dos Lucros)",
       "shareholder_returns_title": "Retorno aos Acionistas",

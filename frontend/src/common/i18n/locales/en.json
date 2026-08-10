@@ -379,6 +379,7 @@
       "sga": "Selling, General & Administrative",
       "eps": "EPS",
       "capital_structure_title": "Capital Structure",
+      "capital_structure_tooltip": "This chart illustrates how the company finances its operations. <1>Total Equity</1> represents shareholders\' money and retained earnings, while <2>Total Liabilities</2> represents debts and obligations. Investors look for companies with a healthy proportion, where debt doesn\'t overwhelm equity, ensuring long-term financial solidity.",
       "working_capital_title": "Working Capital Evolution",
       "fcf_conversion_title": "FCF Conversion (Earnings Quality)",
       "shareholder_returns_title": "Shareholder Returns",
