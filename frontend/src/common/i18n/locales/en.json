@@ -396,6 +396,7 @@
       "valuation_multiples_title": "Valuation Multiples",
       "valuation_multiples_tooltip": "This chart compares two essential market multiples. <1>EV/EBITDA</1> values the entire enterprise (independent of debt or taxes), while <2>P/E</2> focuses exclusively on shareholder earnings. An investor looks for stability or contraction in these multiples over time, which indicates the company is becoming cheaper relative to its ability to generate results.",
       "earnings_cashflow_multiples_title": "Earnings vs Cash Flow Multiples",
+      "earnings_cashflow_multiples_tooltip": "This chart compares how much the market is willing to pay for each dollar of earnings versus each dollar of actual cash generated. The <1>P/E Ratio</1> is based on accounting profit, while the <2>P/FCF Ratio</2> is based on actual cash that came in. A P/FCF much higher than P/E might indicate that earnings aren't translating to cash flow, warranting caution.",
       "roe_roic_title": "Profitability (ROE vs ROIC)",
       "fcf_yield_title": "FCF Yield",
       "leverage_ratio_title": "Leverage (Debt-to-Equity)",

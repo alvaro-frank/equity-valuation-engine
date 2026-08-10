@@ -297,7 +297,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
             
             <ChartCard 
-              title={t('financials.charts.earnings_cashflow_multiples_title', 'Earnings vs Cash Flow Multiples')} 
+              title={t('financials.charts.earnings_cashflow_multiples_title', 'Earnings vs Cash Flow Multiples')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.earnings_cashflow_multiples_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <EarningsVsCashFlowMultiplesChart data={chartData} />
             </ChartCard>
