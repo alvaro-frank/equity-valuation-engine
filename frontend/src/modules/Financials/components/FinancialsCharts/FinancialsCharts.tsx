@@ -312,7 +312,15 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.fcf_yield_title', 'FCF Yield')} 
+              title={t('financials.charts.fcf_yield_title', 'FCF Yield')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.fcf_yield_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <FcfYieldChart data={chartData} />
             </ChartCard>
