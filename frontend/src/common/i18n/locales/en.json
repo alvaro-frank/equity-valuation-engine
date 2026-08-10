@@ -389,6 +389,7 @@
       "shareholder_returns_title": "Shareholder Returns",
       "shareholder_returns_tooltip": "This chart shows how the company returns value directly to shareholders. It can be done in two ways: paying <1>Dividends Paid</1> (cash in your account) or through <2>Stock Repurchases</2> (buying back shares, which makes your remaining shares worth more). Investors love seeing these two bars grow sustainably over time.",
       "cash_flow_pillars_title": "The 3 Pillars (CF Summary)",
+      "cash_flow_pillars_tooltip": "The 3 pillars of cash flow explain how money moves: <1>Operating Cash Flow</1> (money the core business generates), <2>Investing Cash Flow</2> (money spent or received from buying/selling assets), and <3>Financing Cash Flow</3> (money from loans, dividends, or new stock). Ideally, you want to see operations generating plenty of cash to support investments.",
       "operating_cash_flow_title": "Operating Cash Flow vs CapEx",
       "historical_pe_title": "Historical P/E Ratio",
       "valuation_multiples_title": "Valuation Multiples",
