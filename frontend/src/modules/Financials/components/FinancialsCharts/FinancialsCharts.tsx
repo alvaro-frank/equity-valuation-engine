@@ -195,7 +195,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.liquidity_title', 'Liquidity Profile')} 
+              title={t('financials.charts.liquidity_title', 'Liquidity Profile')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.liquidity_profile_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <LiquidityProfileChart data={chartData} />
             </ChartCard>
