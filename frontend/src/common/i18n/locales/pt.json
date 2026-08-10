@@ -392,6 +392,7 @@
       "working_capital_title": "Evolução do Fundo de Maneio",
       "working_capital_tooltip": "O Fundo de Maneio mostra o capital 'preso' nas operações diárias. <1>Accounts Receivable</1> é o dinheiro que os clientes ainda devem à empresa, e <2>Inventory</2> são os produtos em armazém. Em contrapartida, <3>Accounts Payable</3> é o dinheiro que a empresa deve aos fornecedores. Uma operação eficiente recebe dos clientes rápido, tem pouco stock parado e consegue esticar o prazo de pagamento.",
       "fcf_conversion_title": "Conversão de FCF (Qualidade dos Lucros)",
+      "fcf_conversion_tooltip": "A Conversão de FCF mede que percentagem do <1>Net Income</1> (Lucro Contabilístico) se converte em dinheiro real. O <2>Operating Cash Flow</2> é o dinheiro gerado pelas operações, e o <3>Free Cash Flow</3> é o que sobra após as despesas essenciais de capital. Uma excelente empresa converte lucros em dinheiro real; divergências constantes são um sinal de alarme.",
       "shareholder_returns_title": "Retorno aos Acionistas",
       "cash_flow_pillars_title": "Os 3 Pilares (Resumo CF)",
       "operating_cash_flow_title": "Cash Flow Operacional vs CapEx",

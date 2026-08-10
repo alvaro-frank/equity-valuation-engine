@@ -215,7 +215,17 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
         {activeTab === 'cash_flow' && (
           <>
             <ChartCard 
-              title={t('financials.charts.fcf_conversion_title', 'FCF Conversion (Earnings Quality)')} 
+              title={t('financials.charts.fcf_conversion_title', 'FCF Conversion (Earnings Quality)')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.fcf_conversion_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />,
+                    3: <span style={{ color: 'var(--secondary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <FcfConversionChart data={chartData} />
             </ChartCard>
