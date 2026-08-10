@@ -349,6 +349,7 @@
       "margins_subtitle": "Gross, Operating and Net Margin",
       "roce_wacc_title": "ROCE vs WACC",
       "cashflow_capex_title": "Operating Cash Flow vs CapEx",
+      "cashflow_capex_tooltip": "This chart focuses on capital intensity. <1>CapEx</1> (Capital Expenditures) is the money required to maintain or expand the business. It is subtracted from <2>Operating Cash Flow</2> to arrive at the final <3>Free Cash Flow</3>. A highly capital-intensive company requires most of its operating cash flow to be consumed by CapEx, leaving little free cash.",
       "cashflow_capex_subtitle": "Cash Generation Profile",
       "shares_title": "Shares Outstanding",
       "shares_tooltip": "This chart shows the total number of <1>shares outstanding</1>. If the line is falling, the company is buying back its own stock (Buybacks), which is excellent for investors because each remaining share represents a larger slice of the profits. If the line is rising, the company is issuing new stock (Dilution), which decreases the value of existing shareholders' stakes.",

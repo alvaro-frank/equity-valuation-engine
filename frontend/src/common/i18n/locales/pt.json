@@ -351,6 +351,7 @@
       "roce_wacc_title": "ROCE vs WACC",
       "roce_wacc_subtitle": "Retorno sobre o Capital em comparação com Custo de Capital",
       "cashflow_capex_title": "Fluxo de Caixa Operacional vs CapEx",
+      "cashflow_capex_tooltip": "Este gráfico foca-se na intensidade de capital. O <1>CapEx</1> (Capital Expenditures) é o dinheiro obrigatório para manter a empresa a funcionar. É subtraído ao <2>Operating Cash Flow</2> para se obter o <3>Free Cash Flow</3> final (o que verdadeiramente sobra). Empresas pesadas requerem que grande parte do seu fluxo operacional seja devorado pelo CapEx, sobrando pouca riqueza.",
       "cashflow_capex_subtitle": "Fluxo de Caixa Operacional vs Despesas de Capital",
       "shares_title": "Ações em Circulação",
       "shares_tooltip": "Este gráfico mostra o número total de <1>ações em circulação</1>. Se a linha estiver a cair, significa que a empresa está a recomprar as suas próprias ações (Buybacks), o que é excelente para o investidor, pois cada ação passa a representar uma fatia maior dos lucros. Se a linha estiver a subir, a empresa está a emitir novas ações (Diluição), o que desvaloriza a participação dos atuais acionistas.",
