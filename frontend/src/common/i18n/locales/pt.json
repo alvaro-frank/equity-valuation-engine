@@ -349,6 +349,7 @@
       "margins_tooltip": "Este gráfico revela o quão eficiente a empresa é a reter dinheiro em cada fase do negócio. A <1>Margem Bruta</1> é o lucro restante após os custos de produção diretos. A <2>Margem Operacional</2> deduz também as despesas do dia-a-dia da empresa. A <3>Margem Líquida</3> é a verdadeira percentagem que sobra no fim. O investidor procura estabilidade ou expansão destas margens, o que demonstra poder de fixação de preços e controlo de custos.",
       "margins_subtitle": "Margem Bruta, Operacional e Líquida",
       "roce_wacc_title": "ROCE vs WACC",
+      "roce_wacc_tooltip": "Este é talvez o gráfico mais importante da plataforma. O <1>ROCE</1> é o retorno que a empresa consegue extrair das suas operações. O <2>WACC</2> é o custo que ela teve para se financiar (juros da dívida + expetativa dos acionistas). Se a barra do ROCE for consistentemente superior ao WACC, a empresa cria riqueza; se for inferior, destrói valor a cada dia que passa.",
       "roce_wacc_subtitle": "Retorno sobre o Capital em comparação com Custo de Capital",
       "cashflow_capex_title": "Fluxo de Caixa Operacional vs CapEx",
       "cashflow_capex_tooltip": "Este gráfico foca-se na intensidade de capital. O <1>CapEx</1> (Capital Expenditures) é o dinheiro obrigatório para manter a empresa a funcionar. É subtraído ao <2>Operating Cash Flow</2> para se obter o <3>Free Cash Flow</3> final (o que verdadeiramente sobra). Empresas pesadas requerem que grande parte do seu fluxo operacional seja devorado pelo CapEx, sobrando pouca riqueza.",

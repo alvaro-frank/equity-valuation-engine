@@ -348,6 +348,7 @@
       "margins_tooltip": "This chart reveals how efficiently the company retains money at each stage of the business. <1>Gross Margin</1> is the profit remaining after direct production costs. <2>Operating Margin</2> also deducts day-to-day business expenses. <3>Net Margin</3> is the true percentage left at the end. An investor looks for stability or expansion in these margins, which demonstrates pricing power and cost control.",
       "margins_subtitle": "Gross, Operating and Net Margin",
       "roce_wacc_title": "ROCE vs WACC",
+      "roce_wacc_tooltip": "This is perhaps the most critical chart for evaluating value destruction. <1>ROCE</1> is the return the company extracts from its investments. <2>WACC</2> is the cost it paid to borrow that money (interest). If the ROCE bar is consistently higher than WACC, the company creates wealth; if it's lower, it is literally burning cash.",
       "cashflow_capex_title": "Operating Cash Flow vs CapEx",
       "cashflow_capex_tooltip": "This chart focuses on capital intensity. <1>CapEx</1> (Capital Expenditures) is the money required to maintain or expand the business. It is subtracted from <2>Operating Cash Flow</2> to arrive at the final <3>Free Cash Flow</3>. A highly capital-intensive company requires most of its operating cash flow to be consumed by CapEx, leaving little free cash.",
       "cashflow_capex_subtitle": "Cash Generation Profile",

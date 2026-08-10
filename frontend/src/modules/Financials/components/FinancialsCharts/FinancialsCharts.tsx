@@ -341,7 +341,16 @@ export function FinancialsCharts({ isQuarterly, activeTab }: FinancialsChartsPro
             </ChartCard>
 
             <ChartCard 
-              title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')} 
+              title={t('financials.charts.roce_wacc_title', 'ROCE vs WACC')}
+              tooltipText={
+                <Trans
+                  i18nKey="financials.charts.roce_wacc_tooltip"
+                  components={{
+                    1: <span style={{ color: 'var(--primary)' }} className="font-semibold" />,
+                    2: <span style={{ color: 'var(--tertiary)' }} className="font-semibold" />
+                  }}
+                />
+              }
             >
               <RoceWaccChart data={chartData} />
             </ChartCard>
