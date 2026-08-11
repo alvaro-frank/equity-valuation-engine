@@ -59,6 +59,31 @@ class SourceInfoSchema(BaseModel):
     url: str
     title: str
 
+class BusinessModelSchema(BaseModel):
+    company_history: str
+    key_executives: List[KeyExecutive]
+    revenue_model: str
+    strategy: str
+    products_services: List[ProductService]
+    sources: List[SourceInfoSchema] = []
+
+class MoatAnalysisSchema(BaseModel):
+    competitive_advantage: str
+    competitors: List[Competitor]
+    moat_trajectory_status: str
+    moat_trajectory_description: str
+    moat_sources: MoatSourcesSchema
+    quality_pillars: QualityPillarsSchema
+    sources: List[SourceInfoSchema] = []
+
+class RiskCatalystSchema(BaseModel):
+    management_insights: str
+    capital_allocation_strategy: str
+    near_term_catalysts: List[NearTermCatalyst]
+    risk_factors: List[RiskFactor]
+    historical_context_crises: str
+    sources: List[SourceInfoSchema] = []
+
 class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
