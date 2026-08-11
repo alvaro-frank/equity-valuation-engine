@@ -40,11 +40,13 @@ export function RoeRoicChart({ data }: RoeRoicChartProps) {
             tickFormatter={(value) => `${value}%`}
           />
           <Tooltip 
+            cursor={{ fill: 'var(--on-surface)', opacity: 0.05 }}
             contentStyle={{ 
-              backgroundColor: 'var(--surface-variant)', 
-              borderColor: 'var(--surface-border)',
+              backgroundColor: 'var(--surface-container-high)', 
+              borderColor: 'var(--outline-variant)',
               borderRadius: '8px',
-              color: 'var(--on-surface)'
+              color: 'var(--on-surface)',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
             itemStyle={{ color: 'var(--on-surface)' }}
             formatter={(value: any, name: string) => {
