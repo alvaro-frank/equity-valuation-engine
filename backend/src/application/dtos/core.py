@@ -59,6 +59,16 @@ class LocalFilingDTO(BaseModel):
     period: str = Field(..., description="Period string (e.g. FY2025, 2026-Q1)")
     accession_number: str = Field(..., description="SEC Accession Number")
 
+class LiveQuoteResult(BaseModel):
+    """
+    Data Transfer Object representing the live quote for a ticker.
+    """
+    amount: Decimal = Field(..., description="Live Stock Price")
+    currency: str = Field(..., description="Currency of the price")
+    change: Optional[Decimal] = Field(None, description="Absolute change")
+    change_percent: Optional[Decimal] = Field(None, description="Percentage change")
+    is_live_supported: bool = Field(..., description="Whether live polling is supported by the current provider")
+
 class LocalFilingListResult(BaseModel):
     """
     Data Transfer Object representing a list of cached SEC filing documents.

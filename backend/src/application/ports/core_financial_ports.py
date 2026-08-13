@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker
+from domain.entities import Price, LiveQuote, FinancialYear, FinancialQuarter, Ticker
 
 class QuantitativeDataPort(ABC):
     """
@@ -8,15 +8,15 @@ class QuantitativeDataPort(ABC):
     This interface defines the contract for any data port implementation, ensuring that they provide methods to retrieve both current stock price and comprehensive financial data for a given stock ticker symbol.
     """
     @abstractmethod
-    async def get_stock_current_price(self, symbol: str) -> Price:
+    async def get_stock_current_price(self, symbol: str) -> LiveQuote:
         """
-        Fetches the current stock price for a given ticker symbol.
+        Fetches the current stock price and live quote for a given ticker symbol.
         
         Args:
             symbol (str): The stock ticker symbol to fetch the price.
             
         Returns:
-            Price: Domain Entity containing the current price and currency.
+            LiveQuote: Domain Entity containing the current price, change, and live support flag.
         """
         pass
     

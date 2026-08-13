@@ -21,6 +21,21 @@ class Price:
         
     def __str__(self):
         return f"{self.amount:.2f} {self.currency}"
+
+@dataclass(frozen=True)
+class LiveQuote(Price):
+    """
+    Represents a live quote containing the current price, change, and whether it supports live updates.
+    
+    Attributes:
+        change (Decimal | None): The absolute price change.
+        change_percent (Decimal | None): The percentage price change.
+        is_live_supported (bool): True if the data provider supports live polling.
+    """
+    change: Decimal | None = None
+    change_percent: Decimal | None = None
+    is_live_supported: bool = False
+
  
 @dataclass(frozen=True)
 class Ticker:
