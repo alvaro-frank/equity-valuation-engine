@@ -6,6 +6,7 @@ from application.ports.intrinsic_value_calculation_port import IntrinsicValueCal
 from application.exceptions.exceptions import RateLimitExceededError, ExternalServiceError
 from domain.entities import CompanyProfile, IndustrySectorDynamics, EarningsReport
 from domain.entities.dcf import DCFAssumptions
+from application.dtos import StructuredFilingDTO
 
 class ResilientLLMAdapter(QualitativeDataPort, SectorIndustrialDataPort, EarningsReportPort, IntrinsicValueCalculationPort):
     """
@@ -21,8 +22,8 @@ class ResilientLLMAdapter(QualitativeDataPort, SectorIndustrialDataPort, Earning
         stop=stop_after_attempt(3),
         reraise=True
     )
-    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
-        return await self.base.analyse_company(symbol, language, context)
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "", structured_filings: 'StructuredFilingDTO' = None) -> CompanyProfile:
+        return await self.base.analyse_company(symbol, language, context, structured_filings)
 
     @retry(
         retry=retry_if_exception_type((RateLimitExceededError, ExternalServiceError)),

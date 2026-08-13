@@ -3,11 +3,15 @@ import time
 import json
 import hashlib
 import re
+import asyncio
+
 from typing import Optional, Type, TypeVar
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, ValidationError
-
+from infrastructure.schemas import BusinessModelSchema, MoatAnalysisSchema, RiskCatalystSchema
 from application.exceptions.exceptions import LLMParsingError
+from domain.exceptions.exceptions import DomainValidationError
+from loguru import logger
 from application.ports.llm_analysis_ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
 from application.ports.translation_port import TranslationPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
@@ -35,22 +39,22 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         os.makedirs(self.cache_dir, exist_ok=True)
 
     @abstractmethod
-    async def _generate_company_profile(self, prompt: str, schema: Type[T]) -> dict:
+    async def _generate_company_profile(self, prompt: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         """Call the LLM API to generate the company profile JSON."""
         pass
 
     @abstractmethod
-    async def _generate_industry_dynamics(self, prompt: str, schema: Type[T]) -> dict:
+    async def _generate_industry_dynamics(self, prompt: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         """Call the LLM API to generate the industry dynamics JSON."""
         pass
 
     @abstractmethod
-    async def _generate_earnings_report(self, prompt: str, pdf_file_path: str, schema: Type[T]) -> dict:
+    async def _generate_earnings_report(self, prompt: str, pdf_file_path: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         """Call the LLM API to analyze an earnings report PDF."""
         pass
 
     @abstractmethod
-    async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T]) -> dict:
+    async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         """Call the LLM API to generate DCF assumptions."""
         pass
 
@@ -67,16 +71,23 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         with open(cache_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
 
-    async def analyse_company(self, symbol: str, language: str = "en", context: str = "") -> CompanyProfile:
-        import asyncio
-        from infrastructure.schemas import BusinessModelSchema, MoatAnalysisSchema, RiskCatalystSchema
 
+
+    async def analyse_company(self, symbol: str, language: str = "en", context: str = "", structured_filings: 'StructuredFilingDTO' = None) -> CompanyProfile:
         cache_filename = f"company_{symbol.upper()}_{language}.json"
         target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis")
         os.makedirs(target_dir, exist_ok=True)
         cache_path = os.path.join(target_dir, cache_filename)
         cache_filename_en = f"company_{symbol.upper()}_en.json"
         cache_path_en = os.path.join(target_dir, cache_filename_en)
+        
+        context_dir = os.path.join(target_dir, "context")
+        os.makedirs(context_dir, exist_ok=True)
+        cache_distilled = os.path.join(context_dir, f"distilled_{symbol.upper()}_en.json")
+        cache_biz = os.path.join(context_dir, f"business_{symbol.upper()}_en.json")
+        cache_moat = os.path.join(context_dir, f"moat_{symbol.upper()}_en.json")
+        cache_risks = os.path.join(context_dir, f"risks_{symbol.upper()}_en.json")
+
         
         data = self._get_cached_data(cache_path)
         if not data:
@@ -97,26 +108,151 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 with open(skill_risks, 'r', encoding='utf-8') as f:
                     risks_prompt = f.read()
                     
-                context_prompt = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
-                agent_prompt = agent_prompt.replace("{symbol}", symbol).replace("{context}", context_prompt)
+                business_context = f"\n\nREAL-WORLD CONTEXT (USE THIS AS ABSOLUTE TRUTH):\n{context}\n" if context else ""
+                moat_context = business_context
+                risks_context = business_context
                 
-                p_business = f"{agent_prompt}\n\n{business_prompt}"
-                p_moat = f"{agent_prompt}\n\n{moat_prompt}"
-                p_risks = f"{agent_prompt}\n\n{risks_prompt}"
-
-                task_biz = self._generate_company_profile(p_business, BusinessModelSchema)
-                task_moat = self._generate_company_profile(p_moat, MoatAnalysisSchema)
-                task_risk = self._generate_company_profile(p_risks, RiskCatalystSchema)
-                
-                res_biz, res_moat, res_risk = await asyncio.gather(task_biz, task_moat, task_risk)
-                
-                try:
-                    BusinessModelSchema(**res_biz)
-                    MoatAnalysisSchema(**res_moat)
-                    RiskCatalystSchema(**res_risk)
-                except ValidationError as ve:
-                    raise LLMParsingError(f"LLM returned invalid JSON structure from a sub-agent: {ve}")
+                if structured_filings:
+                    quant_metrics = context
                     
+                    if structured_filings.is_exact_match and structured_filings.exact_sections:
+                        logger.info(f"[Orchestrator] Exact sections found via edgartools (Via 1). Skipping SEC Distiller LLM.")
+                        
+                        # Dynamically combine relevant generic sections
+                        # Since the SECAdapter now strictly limits the cached dictionary to the 3 target dates (Latest 10-K, Latest 10-Q, YoY 10-Q), 
+                        # we can safely just check for the item name without worrying about intermediate quarters.
+                        business_items = [f"--- {k} ---\n{v}" for k, v in structured_filings.exact_sections.items() if "10-K" in k and k.endswith("ITEM 1")]
+                        risk_items = [f"--- {k} ---\n{v}" for k, v in structured_filings.exact_sections.items() if k.endswith("ITEM 1A")]
+                        mda_items = [f"--- {k} ---\n{v}" for k, v in structured_filings.exact_sections.items() if ("10-K" in k and (k.endswith("ITEM 7") or k.endswith("ITEM 7A"))) or ("10-Q" in k and k.endswith("ITEM 2"))]
+                        
+                        biz_text = "\n\n".join(business_items)
+                        risk_text = "\n\n".join(risk_items)
+                        mda_text = "\n\n".join(mda_items)
+                        
+                        business_context = f"{quant_metrics}\n\nEXACT BUSINESS FACTS (FROM SEC 10-K):\n{biz_text}\n"
+                        moat_context = f"{quant_metrics}\n\nEXACT COMPETITIVE & MD&A FACTS (FROM SEC 10-K/10-Q):\n{mda_text}\n"
+                        risks_context = f"{quant_metrics}\n\nEXACT RISK FACTS (FROM SEC 10-K/10-Q):\n{risk_text}\n"
+                    elif structured_filings.markdown_content:
+                        logger.info(f"[Orchestrator] Exact extraction failed. Running sec-parser markdown through SEC Distiller (Via 2)...")
+                        distiller_agent_path = os.path.join(base_dir, "llm", "agents", "sec-distiller", "agent.md")
+                        with open(distiller_agent_path, 'r', encoding='utf-8') as f:
+                            distiller_prompt = f.read().replace("{raw_filing_text}", structured_filings.markdown_content)
+                        
+                        from infrastructure.schemas.qualitative_schemas import SECDistillerSchema
+                        try:
+                            distilled_data = self._get_cached_data(cache_distilled)
+                            if distilled_data:
+                                logger.info(f"[Orchestrator] Cache hit for SEC Distiller for {symbol}, skipping API call.")
+                            else:
+                                logger.info(f"[Orchestrator] Starting SEC Distiller on Markdown content for {symbol}...")
+                                distilled_data = await self._generate_company_profile(distiller_prompt, SECDistillerSchema, model_id="gemini-2.5-flash")
+                                logger.info(f"[Orchestrator] SEC Distiller completed successfully for {symbol}.")
+                                SECDistillerSchema(**distilled_data) # Validate
+                                self._set_cached_data(cache_distilled, distilled_data)
+                            
+                            business_context = f"\n\nREAL-WORLD CONTEXT:\n{quant_metrics}\n\nDISTILLED BUSINESS FACTS:\n{distilled_data.get('business_context', '')}\n"
+                            moat_context = f"\n\nREAL-WORLD CONTEXT:\n{quant_metrics}\n\nDISTILLED COMPETITIVE FACTS:\n{distilled_data.get('moat_context', '')}\n"
+                            risks_context = f"\n\nREAL-WORLD CONTEXT:\n{quant_metrics}\n\nDISTILLED RISK FACTS:\n{distilled_data.get('risk_context', '')}\n"
+                        except Exception as e:
+                            logger.error(f"[Orchestrator-Error] SECDistiller failed for {symbol}: {e}")
+                            raise e # Fail fast to prevent 429 Rate Limit amplification on the 3 parallel agents
+
+
+                agent_prompt_biz = agent_prompt.replace("{symbol}", symbol).replace("{context}", business_context)
+                agent_prompt_moat = agent_prompt.replace("{symbol}", symbol).replace("{context}", moat_context)
+                agent_prompt_risks = agent_prompt.replace("{symbol}", symbol).replace("{context}", risks_context)
+                
+                p_business = f"{agent_prompt_biz}\n\n{business_prompt}"
+                p_moat = f"{agent_prompt_moat}\n\n{moat_prompt}"
+                p_risks = f"{agent_prompt_risks}\n\n{risks_prompt}"
+                
+                res_biz = self._get_cached_data(cache_biz)
+                res_moat = self._get_cached_data(cache_moat)
+                res_risk = self._get_cached_data(cache_risks)
+
+                tasks = []
+                async def run_and_cache(task_coro, cache_path, schema):
+                    res = await task_coro
+                    try:
+                        schema(**res)
+                        self._set_cached_data(cache_path, res)
+                        return res
+                    except ValidationError as ve:
+                        raise LLMParsingError(f"LLM returned invalid JSON structure from a sub-agent: {ve}")
+
+                if res_biz:
+                    logger.info(f"[Orchestrator] Cache hit for Business Agent for {symbol}.")
+                else:
+                    task_biz_coro = self._generate_company_profile(p_business, BusinessModelSchema, model_id="gemini-3.1-pro-preview")
+                    tasks.append(("biz", run_and_cache(task_biz_coro, cache_biz, BusinessModelSchema)))
+                
+                if res_moat:
+                    logger.info(f"[Orchestrator] Cache hit for Moat Agent for {symbol}.")
+                else:
+                    task_moat_coro = self._generate_company_profile(p_moat, MoatAnalysisSchema, model_id="gemini-3.1-pro-preview")
+                    tasks.append(("moat", run_and_cache(task_moat_coro, cache_moat, MoatAnalysisSchema)))
+
+                if res_risk:
+                    logger.info(f"[Orchestrator] Cache hit for Risk Agent for {symbol}.")
+                else:
+                    task_risk_coro = self._generate_company_profile(p_risks, RiskCatalystSchema, model_id="gemini-3.1-pro-preview")
+                    tasks.append(("risk", run_and_cache(task_risk_coro, cache_risks, RiskCatalystSchema)))
+
+                if tasks:
+                    import time
+                    start_time = time.time()
+                    logger.info(f"[Orchestrator] Dispatching {len(tasks)} parallel agents for {symbol}...")
+                    
+                    coros = [t[1] for t in tasks]
+                    results = await asyncio.gather(*coros, return_exceptions=True)
+                    
+                    # Check for exceptions (if one failed, we raise it, but the successful ones were already saved)
+                    for res in results:
+                        if isinstance(res, Exception):
+                            raise res
+                            
+                    # Map results back
+                    for i, (name, coro) in enumerate(tasks):
+                        if name == "biz": res_biz = results[i]
+                        elif name == "moat": res_moat = results[i]
+                        elif name == "risk": res_risk = results[i]
+                        
+                    elapsed = time.time() - start_time
+                    logger.info(f"[Orchestrator] Parallel agents resolved successfully in {elapsed:.2f}s for {symbol}.")
+                import re
+                def reindex_agent_citations(agent_dict, start_idx):
+                    if not agent_dict.get("sources"):
+                        return agent_dict, start_idx
+                    num_sources = len(agent_dict["sources"])
+                    id_map = {}
+                    for i, src in enumerate(agent_dict["sources"]):
+                        old_id = str(src.get("citation_id", i+1))
+                        new_id = str(start_idx + i)
+                        id_map[old_id] = new_id
+                        src["citation_id"] = new_id
+
+                    def update_strings(obj):
+                        if isinstance(obj, str):
+                            def replacer(match):
+                                c_id = match.group(1)
+                                if c_id in id_map:
+                                    return f"[{id_map[c_id]}]"
+                                return match.group(0)
+                            return re.sub(r'\[(\d+)\]', replacer, obj)
+                        elif isinstance(obj, dict):
+                            return {k: update_strings(v) if k != "sources" else v for k, v in obj.items()}
+                        elif isinstance(obj, list):
+                            return [update_strings(x) for x in obj]
+                        return obj
+
+                    agent_dict = update_strings(agent_dict)
+                    return agent_dict, start_idx + num_sources
+
+                next_idx = 1
+                res_biz, next_idx = reindex_agent_citations(res_biz, next_idx)
+                res_moat, next_idx = reindex_agent_citations(res_moat, next_idx)
+                res_risk, next_idx = reindex_agent_citations(res_risk, next_idx)
+
                 # Merge the results
                 data_en = {**res_biz, **res_moat, **res_risk}
                 
@@ -151,7 +287,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         return CompanyProfile(
             business_description="", # Injected later by UseCase
             company_history=schema_instance.company_history,
-            key_executives=[{"name": e.name, "title": e.title, "ownership": float(e.ownership) if e.ownership is not None else None} for e in schema_instance.key_executives],
+            key_executives=[{"name": e.name, "title": e.title} for e in schema_instance.key_executives],
             revenue_model=schema_instance.revenue_model,
             strategy=schema_instance.strategy,
             products_services={p.name: p.description for p in schema_instance.products_services},
@@ -166,7 +302,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             quality_pillars=QualityPillars(**schema_instance.quality_pillars.model_dump()),
             capital_allocation_strategy=schema_instance.capital_allocation_strategy,
             near_term_catalysts=[NearTermCatalyst(event=c.event, impact=c.impact) for c in schema_instance.near_term_catalysts],
-            sources={s.citation_id: EntitySourceInfo(url=s.url, title=s.title) for s in schema_instance.sources}
+            sources={s.citation_id: EntitySourceInfo(source_name=s.source_name, exact_quote=s.exact_quote) for s in schema_instance.sources}
         )
 
     async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:
@@ -215,8 +351,8 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             "economic_sensitivity": "Detailed narrative about economic cycles with citations [6].",
             "interest_rate_exposure": "Detailed narrative about rate impacts with citations [7].",
             "sources": [
-                {{ "citation_id": "1", "url": "SEC EDGAR", "title": "SHORT exact sentence (max 1-2 sentences) from the context. CRITICAL: DO NOT use double quotes inside this text." }},
-                {{ "citation_id": "2", "url": "SEC EDGAR", "title": "Another SHORT exact sentence from the context. Replace internal quotes with single quotes." }}
+                {{ "citation_id": "1", "source_name": "Exact Document Name (e.g., META_10-Q_Q2_2026.txt)", "exact_quote": "SHORT exact sentence (max 1-2 sentences) from the context. CRITICAL: DO NOT use double quotes inside this text." }},
+                {{ "citation_id": "2", "source_name": "Exact Document Name", "exact_quote": "Another SHORT exact sentence from the context. Replace internal quotes with single quotes." }}
             ]
         }}
 
@@ -243,7 +379,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         if not data:
             data_en = self._get_cached_data(cache_path_en)
             if not data_en:
-                data_en = await self._generate_industry_dynamics(prompt, IndustrySectorDynamicsSchema)
+                data_en = await self._generate_industry_dynamics(prompt, IndustrySectorDynamicsSchema, model_id="gemini-2.5-flash")
                 try:
                     IndustrySectorDynamicsSchema(**data_en)
                 except ValidationError as ve:
@@ -280,7 +416,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             threat_of_obsolescence={f.factor: f.analysis for f in schema_instance.threat_of_obsolescence},
             economic_sensitivity=schema_instance.economic_sensitivity,
             interest_rate_exposure=schema_instance.interest_rate_exposure,
-            sources={s.citation_id: EntitySourceInfo(url=s.url, title=s.title) for s in schema_instance.sources}
+            sources={s.citation_id: EntitySourceInfo(source_name=s.source_name, exact_quote=s.exact_quote) for s in schema_instance.sources}
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
@@ -336,7 +472,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         if not data:
             data_en = self._get_cached_data(cache_path_en)
             if not data_en:
-                data_en = await self._generate_earnings_report(prompt, pdf_file_path, EarningsReportSchema)
+                data_en = await self._generate_earnings_report(prompt, pdf_file_path, EarningsReportSchema, model_id="gemini-2.5-flash")
                 self._set_cached_data(cache_path_en, data_en)
 
             data = data_en.copy()
@@ -437,7 +573,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         
         data_en = self._get_cached_data(cache_path_en)
         if not data_en:
-            data_en = await self._generate_dcf_assumptions(prompt, DCFValuationResponseSchema)
+            data_en = await self._generate_dcf_assumptions(prompt, DCFValuationResponseSchema, model_id="gemini-2.5-flash")
             self._set_cached_data(cache_path_en, data_en)
 
         data = data_en.copy()
