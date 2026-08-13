@@ -6,7 +6,7 @@ import pandas as pd
 import httpx
 
 from infrastructure.mappers.yfinance_mapper import parse_financial_period
-from domain.entities import Price, FinancialYear, FinancialQuarter, Ticker
+from domain.entities import Price, LiveQuote, FinancialYear, FinancialQuarter, Ticker
 from application.exceptions.exceptions import TickerNotFoundError, DataFetchError
 from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort, OwnershipDataPort
 from application.ports.discovery_ports import TrendingDataPort, SearchDataPort
@@ -20,15 +20,15 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
     def __init__(self):
         pass
 
-    async def get_stock_current_price(self, symbol: str) -> Price:
+    async def get_stock_current_price(self, symbol: str) -> LiveQuote:
         """
-        Fetches the current stock price for the given symbol using yfinance.
+        Fetches the current stock price and quote for the given symbol using yfinance.
         
         Args:
             symbol (str): The stock ticker symbol (e.g., "AAPL").
             
         Returns:
-            Price: An object containing the current price and currency.
+            LiveQuote: An object containing the current price, change, and live support.
         """
         try:
                 
@@ -36,11 +36,27 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             ticker = await asyncio.to_thread(yf.Ticker, symbol)
             fast_info = await asyncio.to_thread(lambda: ticker.fast_info)
             last_price = fast_info.get("lastPrice")
+            previous_close = fast_info.get("regularMarketPreviousClose")
             
             if last_price is None or pd.isna(last_price):
                 raise TickerNotFoundError(f"Price data not found for {symbol}")
                 
-            return Price(amount=Decimal(str(last_price)), currency="USD")
+            last_price_dec = Decimal(str(last_price))
+            change = None
+            change_percent = None
+            
+            if previous_close is not None and not pd.isna(previous_close) and previous_close != 0:
+                prev_close_dec = Decimal(str(previous_close))
+                change = last_price_dec - prev_close_dec
+                change_percent = (change / prev_close_dec) * 100
+                
+            return LiveQuote(
+                amount=last_price_dec, 
+                currency="USD",
+                change=change,
+                change_percent=change_percent,
+                is_live_supported=True
+            )
         except TickerNotFoundError:
             raise
         except Exception as e:
@@ -471,7 +487,24 @@ class YfinanceAdapter(QuantitativeDataPort, TrendingDataPort, SearchDataPort, Pe
             List[Dict]: A list of dictionaries containing symbol, name, rating, and market weight
         """
         try:
-            sector = await asyncio.to_thread(yf.Sector, sector_key)
+            sector_mapping = {
+                "health-care": "healthcare",
+                "financials": "financial-services",
+                "finance": "financial-services",
+                "consumer-discretionary": "consumer-cyclical",
+                "consumer-staples": "consumer-defensive",
+                "materials": "basic-materials",
+                "basic-materials": "basic-materials",
+                "telecommunication-services": "communication-services",
+                "information-technology": "technology",
+                "technology": "technology",
+                "industrials": "industrials",
+                "energy": "energy",
+                "utilities": "utilities",
+                "real-estate": "real-estate"
+            }
+            mapped_key = sector_mapping.get(sector_key, sector_key)
+            sector = await asyncio.to_thread(yf.Sector, mapped_key)
             top_companies = await asyncio.to_thread(lambda: sector.top_companies)
             
             if top_companies is None or top_companies.empty:
