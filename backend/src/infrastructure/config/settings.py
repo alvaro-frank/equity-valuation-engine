@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     host: str = Field("0.0.0.0", validation_alias="HOST")
     port: int = Field(8000, validation_alias="PORT")
     data_provider: str = Field("YFINANCE", validation_alias="DATA_PROVIDER")
+    alpha_vantage_enable_live_polling: bool = Field(False, validation_alias="ALPHA_VANTAGE_ENABLE_LIVE_POLLING")
     
     model_config = SettingsConfigDict(
         env_file=".env",

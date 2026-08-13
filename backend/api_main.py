@@ -1,7 +1,13 @@
 import sys
 import os
+import warnings
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+# Suppress annoying yfinance DeprecationWarnings for cleaner logs
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="yfinance")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="numpy")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="pandas")
 
 import uvicorn
 from infrastructure.config.settings import settings
