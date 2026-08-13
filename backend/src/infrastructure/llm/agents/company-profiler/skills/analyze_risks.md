@@ -19,4 +19,8 @@ Return ONLY a valid JSON object following this exact schema:
     ],
     "historical_context_crises": "How the company navigated past major crises and recent macro challenges (e.g. 2022 inflation, recent industry downturns)."
 }
+
 Do not include any markdown formatting outside the JSON, preamble, or conversational text. Return only the raw JSON.
+
+SKILL-SPECIFIC INSTRUCTIONS:
+- Comprehensive Risks: MUST provide a detailed list of at least 4 to 6 critical risk factors. Ensure these reflect CURRENT events and real recent news, with specific dates or numbers (e.g. "Q4 2023 supply chain disruption causing $200M impact").
