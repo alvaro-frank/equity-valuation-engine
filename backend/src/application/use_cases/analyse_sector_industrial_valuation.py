@@ -41,23 +41,16 @@ class SectorIndustrialValuationUseCase:
         context_str = ""
         if self.filing_repository_port:
             try:
-                # Fetch recent annual filings (10-K) for sector analysis
-                files_to_inject = await self.filing_repository_port.get_filing_paths_for_rag(ticker_symbol, period="annual")
+                # Fetch recent filings for sector analysis
+                structured_filings = await self.filing_repository_port.get_structured_filings(ticker_symbol)
                 
-                filings_text_parts = []
-                for filepath in files_to_inject:
-                    try:
-                        import os
-                        filename = os.path.basename(filepath)
-                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read(150000) # Read up to 150k chars
-                        filings_text_parts.append(f"--- Document: {filename} ---\n{content}\n")
-                    except Exception as e:
-                        logging.error(f"Failed to read filing {filepath}: {e}")
-                        
-                if filings_text_parts:
-                    filings_str = "\n".join(filings_text_parts)
-                    context_str = f"\n\n--- RECENT SEC FILINGS ---\n{filings_str}\n=====================================\n"
+                if structured_filings:
+                    if structured_filings.is_exact_match and structured_filings.exact_sections:
+                        # Convert dict to string for the context
+                        sections_str = "\n\n".join([f"--- {k} ---\n{v}" for k, v in structured_filings.exact_sections.items()])
+                        context_str = f"\n\n--- RECENT SEC FILINGS ---\n{sections_str}\n=====================================\n"
+                    elif structured_filings.markdown_content:
+                        context_str = f"\n\n--- RECENT SEC FILINGS ---\n{structured_filings.markdown_content}\n=====================================\n"
             except Exception as e:
                 logging.error(f"RAG injection failed for Sector Analysis: {e}")
         

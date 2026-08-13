@@ -6,6 +6,7 @@ from dataclasses import asdict
 import dataclasses
 import datetime
 import logging
+from loguru import logger
 
 class QualitativeValuationUseCase:
     """
@@ -33,6 +34,7 @@ class QualitativeValuationUseCase:
         Returns:
             QualitativeValuationResult: a DTO containing all information about the Qualitative data of the business.
         """
+        logger.info(f"[QualitativeValuationUseCase] Qualitative Analysis requested for {ticker_symbol} (Lang: {language})")
         ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
         
         context_parts = []
@@ -99,6 +101,8 @@ class QualitativeValuationUseCase:
                 
             if getattr(latest_year, 'free_cash_flow', None) is not None:
                 context_parts.append(f"Latest Year Free Cash Flow: {fmt_currency(latest_year.free_cash_flow)}")
+            if getattr(latest_year, 'capital_expenditures', None) is not None:
+                context_parts.append(f"Latest Year CapEx: {fmt_currency(latest_year.capital_expenditures)}")
             if getattr(latest_year, 'total_debt', None) is not None:
                 context_parts.append(f"Latest Year Total Debt: {fmt_currency(latest_year.total_debt)}")
             if getattr(latest_year, 'cash_and_equivalents', None) is not None:
@@ -106,34 +110,23 @@ class QualitativeValuationUseCase:
             
         context_str = "\n".join(context_parts)
         
+        logger.info(f"[QualitativeValuationUseCase] Real-world Context built successfully for {ticker_symbol}.")
+        
         # --- RAG INTEGRATION (SEC EDGAR FILINGS) ---
+        structured_filings = None
         if self.filing_repository_port:
             try:
-                # Get the necessary filings based on the period directly from the port
-                files_to_inject = await self.filing_repository_port.get_filing_paths_for_rag(ticker_symbol, period)
-                
-                # Create filing text string
-                filings_text_parts = []
-                for filepath in files_to_inject:
-                    try:
-                        import os
-                        filename = os.path.basename(filepath)
-                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read(150000) # Read up to 150k chars to avoid token explosion
-                        filings_text_parts.append(f"--- Document: {filename} ---\n{content}\n")
-                    except Exception as e:
-                        logging.error(f"Failed to read filing {filepath}: {e}")
-                        
-                if filings_text_parts:
-                    filings_str = "\n".join(filings_text_parts)
-                    context_str += f"\n\n--- RECENT SEC FILINGS ---\n{filings_str}\n=====================================\n"
+                structured_filings = await self.filing_repository_port.get_structured_filings(ticker_symbol)
+                logger.info(f"[QualitativeValuationUseCase] SEC RAG structured context extracted for {ticker_symbol}. Exact Match: {structured_filings.is_exact_match}")
             except Exception as e:
-                logging.error(f"RAG injection failed: {e}")
+                logger.error(f"[UseCase-Error] RAG injection failed for {ticker_symbol}: {e}")
         
+        logger.info(f"[QualitativeValuationUseCase] Dispatching request to LLM Orchestrator...")
         qual_data: CompanyProfile = await self.adapter.analyse_company(
             symbol=ticker_info.symbol,
             language=language,
-            context=context_str
+            context=context_str,
+            structured_filings=structured_filings
         )
         
         ticker_dto = TickerResult(
