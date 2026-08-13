@@ -30,6 +30,14 @@ export interface TickerResult {
   regular_market_change_percent?: number;
 }
 
+export interface LiveQuoteResult {
+  amount: number;
+  currency: string;
+  change?: number;
+  change_percent?: number;
+  is_live_supported: boolean;
+}
+
 export interface QuantitativeValuationResult {
   ticker: TickerResult;
   metrics: Record<string, MetricSeries>;
@@ -71,8 +79,8 @@ export interface CompetitorData {
 }
 
 export interface SourceInfo {
-  url: string;
-  title: string;
+  source_name: string;
+  exact_quote: string;
 }
 
 export interface QualitativeValuationResult {

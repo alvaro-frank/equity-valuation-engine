@@ -8,11 +8,17 @@ import type {
   LocalFilingListResult,
   EarningsReportResult,
 } from '@/common/types/valuation';
+import type { LiveQuoteResult } from '@/common/types/valuation';
 import i18n from '@/common/i18n/i18n';
 
 export const ValuationApi = {
   validateTicker: async (ticker: string): Promise<{ valid: boolean }> => {
     const response = await api.get(`/valuation/validate/${ticker}`);
+    return response.data;
+  },
+
+  getLiveQuote: async (ticker: string): Promise<LiveQuoteResult> => {
+    const response = await api.get(`/valuation/live-quote/${ticker}`);
     return response.data;
   },
 
