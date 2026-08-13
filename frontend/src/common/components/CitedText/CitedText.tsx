@@ -99,28 +99,51 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                       );
                     }
 
-                    const isUrl = info.url?.startsWith('http');
-                    const displayTitle = info.title || (isUrl ? new URL(info.url).hostname : info.url);
+                    const isUrl = info.source_name?.startsWith('http') || info.exact_quote?.startsWith('http');
                     
                     if (isUrl) {
+                      const url = info.source_name?.startsWith('http') ? info.source_name : info.exact_quote;
+                      const displayTitle = info.source_name?.startsWith('http') ? info.exact_quote : info.source_name;
                       return (
                         <a 
                           key={idx}
-                          href={info.url} 
+                          href={url} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex gap-2 group/link"
                         >
                           <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
-                          <span className="text-primary group-hover/link:underline">{displayTitle}</span>
+                          <span className="text-primary group-hover/link:underline">{displayTitle || url}</span>
                         </a>
                       );
                     }
                     
+                    const formatSourceName = (name: string) => {
+                      if (!name) return name;
+                      // e.g., META_10-Q_2026-Q2_0000320193.txt or META_10-K_FY2025_000.txt
+                      const match = name.match(/_(10-[KQ])_?(FY\d{4}|\d{4}-Q\d)/i);
+                      if (match) {
+                        const form = match[1].replace('-', ''); // "10K" or "10Q"
+                        const period = match[2].replace('FY', ''); // "2025" or "2026-Q2"
+                        // For 10Q, we want "Q2-2026" instead of "2026-Q2"
+                        if (period.includes('-Q')) {
+                          const [year, q] = period.split('-');
+                          return `${form} ${q}-${year}`;
+                        }
+                        return `${form} ${period}`;
+                      }
+                      return name;
+                    };
+
+                    const formattedSourceName = formatSourceName(info.source_name);
+
                     return (
-                      <div key={idx} className="flex gap-2">
-                        <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
-                        <span>"{displayTitle}"</span>
+                      <div key={idx} className="flex gap-2 flex-col mb-1 border-b border-black/30 dark:border-outline-variant/50 pb-2 last:border-0 last:pb-0">
+                        <div className="flex gap-2">
+                          <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
+                          <span className="font-bold text-primary/80">{formattedSourceName}</span>
+                        </div>
+                        <span className="italic">"{info.exact_quote}"</span>
                       </div>
                     );
                   })}

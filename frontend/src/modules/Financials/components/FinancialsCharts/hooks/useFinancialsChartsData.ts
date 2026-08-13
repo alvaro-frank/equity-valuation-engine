@@ -67,8 +67,8 @@ export function useFinancialsChartsData(quantData?: QuantitativeValuationResult,
       return dateB.localeCompare(dateA);
     });
 
-    // For annual, show last 5. For quarterly, show last 8-12 to capture seasonality.
-    const numPeriods = isQuarterly ? 12 : 5;
+    // For annual, show all data returned by the backend. For quarterly, show up to 12.
+    const numPeriods = isQuarterly ? Math.min(sortedData.length, 12) : sortedData.length;
     const recentPeriods = sortedData.slice(0, numPeriods).map((m: any) => m.date).reverse();
 
     const getMetricValue = (metricKey: string, date: string): number => {
