@@ -1,4 +1,14 @@
-from .core import TickerSearchDTO, TickerSearchResult, TrendingTickerDTO, TrendingTickerResult, TickerResult, LocalFilingDTO, LocalFilingListResult
+from .core import (
+    TickerSearchDTO,
+    TickerSearchResult,
+    TickerResult,
+    TrendingTickerDTO,
+    TrendingTickerResult,
+    LocalFilingDTO,
+    LocalFilingListResult,
+    LiveQuoteResult
+)
+from .structured_filing_dto import StructuredFilingDTO
 from .financials import SectorPerformanceResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from .qualitative import MoatSourcesResult, QualityPillarsResult, QualitativeValuationResult, SectorIndustrialValuationResult
 from .earnings import MetricWithGrowthResult, CorePerformanceResult, CapitalAllocationResult, RiskDeconstructionResult, EarningsReportResult
@@ -11,6 +21,7 @@ __all__ = [
     "TickerResult",
     "LocalFilingDTO",
     "LocalFilingListResult",
+    "StructuredFilingDTO",
     "SectorPerformanceResult",
     "MetricYearlyResult",
     "MetricQuarterlyResult",
