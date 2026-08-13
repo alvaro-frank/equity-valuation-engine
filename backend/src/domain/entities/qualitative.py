@@ -41,7 +41,7 @@ class QualityPillars:
 @dataclass(frozen=True)
 class NearTermCatalyst:
     """
-    Details regarding an upcoming event and its potential impact on the stock.
+    Details regarding an upcoming POSITIVE event (e.g., growth driver, tailwind, product launch, regulatory approval) and its potential upside impact on the stock. DO NOT include risks or headwinds here.
     
     Attributes:
         event (str): Description of the upcoming event.
@@ -56,11 +56,11 @@ class SourceInfo:
     Information about a source used in the research.
     
     Attributes:
-        url (str): The URL of the source.
-        title (str): The title of the source.
+        source_name (str): The name of the document or source (e.g., 'SEC Filings').
+        exact_quote (str): The exact verbatim quote extracted from the context.
     """
-    url: str
-    title: str
+    source_name: str
+    exact_quote: str
 
 @dataclass(frozen=True)
 class CompanyProfile:
@@ -69,8 +69,9 @@ class CompanyProfile:
     
     Attributes:
         business_description (str): Summary of the business model.
-        company_history (str): Details about foundation and milestones.
-        key_executives (List[Dict[str, Any]]): List of key executives (e.g. CEO, CFO, COO) with name, title, and ownership.
+        company_history (str): History of the company.
+        key_executives (List[Dict[str, Any]]): List of key executives (e.g. CEO, CFO, COO) with name and title.
+        major_shareholders (Dict[str, Decimal]): Top shareholders and their ownership stake.
         revenue_model (str): Detailed explanation of how the company makes money.
         strategy (str): The company's core strategic focus.
         products_services (Dict[str, str]): Main products and services offered.
@@ -105,12 +106,6 @@ class CompanyProfile:
     capital_allocation_strategy: str = ""
     near_term_catalysts: List[NearTermCatalyst] = field(default_factory=list)
     sources: Dict[str, SourceInfo] = field(default_factory=dict)
-    
-    def __post_init__(self):
-        for exec in self.key_executives:
-            ownership = exec.get('ownership')
-            if ownership is not None and (ownership < 0 or ownership > 100):
-                raise DomainValidationError(f"Executive ownership must be between 0 and 100%. Got {ownership}")
     
 @dataclass(frozen=True)
 class IndustrySectorDynamics:

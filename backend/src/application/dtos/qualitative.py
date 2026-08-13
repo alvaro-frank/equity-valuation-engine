@@ -27,8 +27,8 @@ class SourceInfoDTO(BaseModel):
     """
     Data Transfer Object representing information about a source used in the research.
     """
-    url: str
-    title: str
+    source_name: str
+    exact_quote: str
 
 class NearTermCatalystDTO(BaseModel):
     """
@@ -46,7 +46,7 @@ class QualitativeValuationResult(BaseModel):
     ticker: TickerResult
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
-    key_executives: List[Dict[str, Any]] = Field(..., description="List of key executives with name, title, and ownership")
+    key_executives: List[Dict[str, Any]] = Field(..., description="List of key executives with name and title")
     major_shareholders: Dict[str, Decimal] = Field(..., description="Shareholder name mapping to their ownership type/stakes")
     revenue_model: str = Field(..., description="Detailed explanation of how the company makes money")
     strategy: str = Field(..., description="The company's core strategic focus")

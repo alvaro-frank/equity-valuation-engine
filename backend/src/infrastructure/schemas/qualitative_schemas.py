@@ -45,19 +45,18 @@ class KeyExecutive(BaseModel):
     """
     name: str
     title: str
-    ownership: Optional[float] = None
 
 class NearTermCatalyst(BaseModel):
     """
-    Details regarding an upcoming event and its potential impact on the stock.
+    Details regarding an upcoming POSITIVE event (e.g., growth driver, tailwind, product launch, regulatory approval) and its potential upside impact on the stock. DO NOT include risks or headwinds here.
     """
     event: str
     impact: str
 
 class SourceInfoSchema(BaseModel):
     citation_id: str
-    url: str
-    title: str
+    source_name: str
+    exact_quote: str
 
 class BusinessModelSchema(BaseModel):
     company_history: str
@@ -83,6 +82,11 @@ class RiskCatalystSchema(BaseModel):
     risk_factors: List[RiskFactor]
     historical_context_crises: str
     sources: List[SourceInfoSchema] = []
+
+class SECDistillerSchema(BaseModel):
+    business_context: str
+    moat_context: str
+    risk_context: str
 
 class CompanyProfileSchema(BaseModel):
     """

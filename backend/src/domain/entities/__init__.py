@@ -1,4 +1,4 @@
-from .core import Price, Ticker
+from .core import Price, LiveQuote, Ticker
 from .financials import BaseFinancialPeriod, FinancialYear, FinancialQuarter
 from .earnings import MetricWithGrowth, CorePerformance, CapitalAllocation, RiskDeconstruction, EarningsReport
 from .qualitative import MoatSources, QualityPillars, CompanyProfile, IndustrySectorDynamics

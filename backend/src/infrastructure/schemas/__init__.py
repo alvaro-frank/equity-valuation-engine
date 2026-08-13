@@ -1,7 +1,8 @@
 from .qualitative_schemas import (
     ProductService, Competitor, RiskFactor, KeyExecutive,
     MoatSourcesSchema, QualityPillarsSchema, CompanyProfileSchema,
-    ForceFactor, IndustrySectorDynamicsSchema
+    ForceFactor, IndustrySectorDynamicsSchema,
+    BusinessModelSchema, MoatAnalysisSchema, RiskCatalystSchema, SECDistillerSchema
 )
 from .earnings_schemas import (
     MetricWithGrowthSchema, CorePerformanceSchema, CapitalAllocationSchema,
@@ -19,6 +20,10 @@ __all__ = [
     "QualityPillarsSchema",
     "KeyExecutive",
     "CompanyProfileSchema",
+    "BusinessModelSchema",
+    "MoatAnalysisSchema",
+    "RiskCatalystSchema",
+    "SECDistillerSchema",
     "ForceFactor",
     "IndustrySectorDynamicsSchema",
     "MetricWithGrowthSchema",
