@@ -4,6 +4,8 @@ import { translateSector, translateIndustry } from '@/common/utils/translations'
 import { PriceDisplay } from './components/PriceDisplay';
 import type { QuantitativeValuationResult, QualitativeValuationResult } from '@/common/types/valuation';
 
+import { useLiveQuote } from '@/common/hooks/useLiveQuote';
+
 interface DashboardHeaderProps {
   ticker: string;
   quantData?: QuantitativeValuationResult;
@@ -13,6 +15,13 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ ticker, quantData, qualData, onSearch }: DashboardHeaderProps) {
   const { t } = useTranslation();
+  
+  // Use adaptive live polling for the price
+  const { amount, change, changePercent } = useLiveQuote(ticker, {
+    current_price: quantData?.ticker?.current_price,
+    regular_market_change: quantData?.ticker?.regular_market_change,
+    regular_market_change_percent: quantData?.ticker?.regular_market_change_percent
+  });
 
   return (
     <div className="flex items-end justify-between px-2 pt-2 pb-1">
@@ -42,9 +51,9 @@ export function DashboardHeader({ ticker, quantData, qualData, onSearch }: Dashb
         </div>
       </div>
       <PriceDisplay 
-        currentPrice={quantData?.ticker?.current_price}
-        change={quantData?.ticker?.regular_market_change}
-        changePercent={quantData?.ticker?.regular_market_change_percent}
+        currentPrice={amount}
+        change={change}
+        changePercent={changePercent}
       />
     </div>
   );
