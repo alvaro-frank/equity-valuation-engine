@@ -109,6 +109,21 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
                 net_ppe=parse_decimal(balance_report.get("propertyPlantEquipment", "0"), "propertyPlantEquipment"),
                 intangible_assets=parse_decimal(balance_report.get("intangibleAssets", "0"), "intangibleAssets"),
                 
+                # Operating Expenses
+                research_and_development=parse_decimal(income_report.get("researchAndDevelopment", "0"), "researchAndDevelopment"),
+                selling_general_and_administrative=parse_decimal(income_report.get("sellingGeneralAndAdministrative", "0"), "sellingGeneralAndAdministrative"),
+                
+                # Additional Cash Flow Metrics
+                stock_based_compensation=parse_decimal(cash_report.get("stockBasedCompensation", "0"), "stockBasedCompensation"),
+                stock_repurchases=(
+                    parse_decimal(cash_report.get("paymentsForRepurchaseOfCommonStock", "0"), "paymentsForRepurchaseOfCommonStock") or 
+                    parse_decimal(cash_report.get("paymentsForRepurchaseOfEquity", "0"), "paymentsForRepurchaseOfEquity")
+                ),
+                net_debt_issued=(
+                    parse_decimal(cash_report.get("proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet", "0"), "proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet") +
+                    parse_decimal(cash_report.get("proceedsFromRepaymentsOfShortTermDebt", "0"), "proceedsFromRepaymentsOfShortTermDebt")
+                ),
+                
                 # Market Price at Year End
                 year_end_price=year_end_price
             )
@@ -116,6 +131,77 @@ def map_to_financial_years(income_list: List[Dict[str, Any]], balance_list: List
             years.append(year_data)
         
         return years
+
+def calculate_ttm_year(income_q: List[Dict[str, Any]], balance_q: List[Dict[str, Any]], cash_q: List[Dict[str, Any]]) -> FinancialYear:
+    """
+    Calculates Trailing Twelve Months (TTM) by summing the last 4 quarters for flow metrics 
+    and taking the most recent quarter for stock metrics.
+    """
+    if len(income_q) < 4 or len(cash_q) < 4 or not balance_q:
+        return None
+        
+    def sum_q_flow(reports, key):
+        total = Decimal("0")
+        for i in range(4):
+            total += parse_decimal(reports[i].get(key, "0"), key)
+        return total
+
+    def latest_stock(reports, key):
+        return parse_decimal(reports[0].get(key, "0"), key)
+        
+    return FinancialYear(
+        fiscal_date_ending="TTM",
+        
+        # Flow metrics (Sum of last 4 quarters)
+        revenue=sum_q_flow(income_q, "totalRevenue"),
+        ebitda=sum_q_flow(income_q, "ebitda"),
+        gross_profit=sum_q_flow(income_q, "grossProfit"),
+        operating_income=sum_q_flow(income_q, "operatingIncome"),
+        net_income=sum_q_flow(income_q, "netIncome"),
+        
+        # Cash Flow metrics (Sum of last 4 quarters)
+        operating_cash_flow=sum_q_flow(cash_q, "operatingCashflow"),
+        depreciation_and_amortization=sum_q_flow(cash_q, "depreciationDepletionAndAmortization"),
+        capital_expenditures=sum_q_flow(cash_q, "capitalExpenditures"),
+        net_investing_cash_flow=sum_q_flow(cash_q, "cashflowFromInvestment"),
+        dividends_paid=sum_q_flow(cash_q, "dividendPayout"),
+        net_financing_cash_flow=sum_q_flow(cash_q, "cashflowFromFinancing"),
+        
+        # Stock metrics (Latest quarter snapshot)
+        shares_outstanding=latest_stock(balance_q, "commonStockSharesOutstanding"),
+        short_term_debt=latest_stock(balance_q, "shortTermDebt"),
+        long_term_debt=latest_stock(balance_q, "longTermDebt"),
+        total_debt=latest_stock(balance_q, "shortTermDebt") + latest_stock(balance_q, "longTermDebt"),
+        total_assets=latest_stock(balance_q, "totalAssets"),
+        total_liabilities=latest_stock(balance_q, "totalLiabilities"),
+        cash_and_equivalents=latest_stock(balance_q, "cashAndCashEquivalentsAtCarryingValue") + latest_stock(balance_q, "shortTermInvestments"),
+        accounts_payable=latest_stock(balance_q, "currentAccountsPayable"),
+        current_liabilities=latest_stock(balance_q, "totalCurrentLiabilities"),
+        accounts_receivable=latest_stock(balance_q, "currentNetReceivables"),
+        inventory=latest_stock(balance_q, "inventory"),
+        current_assets=latest_stock(balance_q, "totalCurrentAssets"),
+        net_ppe=latest_stock(balance_q, "propertyPlantEquipment"),
+        intangible_assets=latest_stock(balance_q, "intangibleAssets"),
+        
+        # Operating Expenses
+        research_and_development=sum_q_flow(income_q, "researchAndDevelopment"),
+        selling_general_and_administrative=sum_q_flow(income_q, "sellingGeneralAndAdministrative"),
+        
+        # Additional Cash Flow Metrics
+        stock_based_compensation=sum_q_flow(cash_q, "stockBasedCompensation"),
+        stock_repurchases=(
+            sum_q_flow(cash_q, "paymentsForRepurchaseOfCommonStock") or 
+            sum_q_flow(cash_q, "paymentsForRepurchaseOfEquity")
+        ),
+        net_debt_issued=(
+            sum_q_flow(cash_q, "proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet") +
+            sum_q_flow(cash_q, "proceedsFromRepaymentsOfShortTermDebt")
+        ),
+        
+        # TTM stock price injected later
+        year_end_price=Decimal("0")
+    )
+
 
 def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: List[Dict[str, Any]], cash_list: List[Dict[str, Any]], historical_prices: Dict[str, Price]) -> List[FinancialQuarter]:
         """
@@ -178,6 +264,22 @@ def map_to_financial_quarters(income_list: List[Dict[str, Any]], balance_list: L
                 current_assets=parse_decimal(balance_report.get("totalCurrentAssets", "0"), "totalCurrentAssets"),
                 net_ppe=parse_decimal(balance_report.get("propertyPlantEquipment", "0"), "propertyPlantEquipment"),
                 intangible_assets=parse_decimal(balance_report.get("intangibleAssets", "0"), "intangibleAssets"),
+                
+                # Operating Expenses
+                research_and_development=parse_decimal(income_report.get("researchAndDevelopment", "0"), "researchAndDevelopment"),
+                selling_general_and_administrative=parse_decimal(income_report.get("sellingGeneralAndAdministrative", "0"), "sellingGeneralAndAdministrative"),
+                
+                # Additional Cash Flow Metrics
+                stock_based_compensation=parse_decimal(cash_report.get("stockBasedCompensation", "0"), "stockBasedCompensation"),
+                stock_repurchases=(
+                    parse_decimal(cash_report.get("paymentsForRepurchaseOfCommonStock", "0"), "paymentsForRepurchaseOfCommonStock") or 
+                    parse_decimal(cash_report.get("paymentsForRepurchaseOfEquity", "0"), "paymentsForRepurchaseOfEquity")
+                ),
+                net_debt_issued=(
+                    parse_decimal(cash_report.get("proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet", "0"), "proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet") +
+                    parse_decimal(cash_report.get("proceedsFromRepaymentsOfShortTermDebt", "0"), "proceedsFromRepaymentsOfShortTermDebt")
+                ),
+                
                 quarter_end_price=year_end_price
             )
             
