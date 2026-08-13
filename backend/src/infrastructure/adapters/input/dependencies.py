@@ -4,7 +4,7 @@ from application.use_cases.analyse_quantitative_valuation import QuantitativeVal
 from application.use_cases.analyse_qualitative_valuation import QualitativeValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
-from application.use_cases.list_company_filings import ListCompanyFilingsUseCase
+
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
@@ -51,11 +51,15 @@ def get_quantitative_adapter() -> Union[QuantitativeDataPort, OwnershipDataPort]
 
 def get_search_adapter() -> SearchDataPort:
     """Provides the Search Data Port instance."""
-    return _yfinance_adapter
+    if settings.data_provider.upper() == "YFINANCE":
+        return _yfinance_adapter
+    return _alpha_adapter
 
 def get_performance_adapter() -> PerformanceDataPort:
     """Provides the Performance Data Port instance."""
-    return _yfinance_adapter
+    if settings.data_provider.upper() == "YFINANCE":
+        return _yfinance_adapter
+    return _alpha_adapter
 
 def get_sector_industrial_adapter() -> SectorIndustrialDataPort:
     """
@@ -167,9 +171,3 @@ def get_trending_tickers_use_case(
     Builds and provides the Trending Tickers Use Case via Dependency Injection.
     """
     return GetTrendingTickersUseCase(trending_port=trending_adapter)
-
-def get_list_company_filings_use_case() -> ListCompanyFilingsUseCase:
-    """
-    Builds and provides the List Company Filings Use Case via Dependency Injection.
-    """
-    return ListCompanyFilingsUseCase(filing_repository_port=_sec_adapter)

@@ -10,7 +10,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
-from application.use_cases.list_company_filings import ListCompanyFilingsUseCase
+
 from application.exceptions.exceptions import (
     TickerNotFoundError,
     RateLimitExceededError,
@@ -30,11 +30,11 @@ from infrastructure.adapters.input.dependencies import (
     get_sector_performance_use_case,
     get_dcf_use_case,
     get_search_tickers_use_case,
-    get_list_company_filings_use_case,
     get_quantitative_adapter
 )
 from application.ports.core_financial_ports import QuantitativeDataPort
 from pydantic import BaseModel
+from loguru import logger
 
 from application.dtos import (
     EarningsReportResult,
@@ -42,7 +42,7 @@ from application.dtos import (
     QualitativeValuationResult,
     SectorIndustrialValuationResult,
     TickerSearchResult,
-    LocalFilingListResult
+    LiveQuoteResult
 )
 
 def handle_domain_error(e: Exception):
@@ -50,17 +50,23 @@ def handle_domain_error(e: Exception):
     Maps domain exceptions to appropriate HTTP responses.
     """
     if isinstance(e, TickerNotFoundError):
+        logger.warning(f"[Router-Error] Ticker not found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
     elif isinstance(e, RateLimitExceededError):
+        logger.warning(f"[Router-Error] Rate Limit Exceeded: {e}")
         raise HTTPException(status_code=429, detail="rate_limit_exceeded")
     elif isinstance(e, (InvalidDocumentFormatError, DomainValidationError)):
+        logger.warning(f"[Router-Error] Bad Request: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     elif isinstance(e, (ExternalServiceError, DataFetchError, LLMParsingError)):
+        logger.error(f"[Router-Error] Bad Gateway: {e}")
         raise HTTPException(status_code=502, detail=str(e))
     elif isinstance(e, ConfigurationError):
-        raise HTTPException(status_code=500, detail=str(e))
-    else:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        logger.error(f"[Router-Error] Configuration Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal configuration error")
+    
+    logger.exception(f"[Router-Error] Unhandled Internal Error: {e}")
+    raise HTTPException(status_code=500, detail="Internal server error")
 
 router = APIRouter(
     prefix="/api/v1/valuation",
@@ -130,18 +136,7 @@ async def analyse_earnings_report(
             except Exception as e:
                 print(f"Error removing temporary file: {e}")
 
-@router.get("/filings/{ticker}", response_model=LocalFilingListResult)
-async def list_company_filings(
-    ticker: str,
-    use_case: ListCompanyFilingsUseCase = Depends(get_list_company_filings_use_case)
-):
-    """
-    Lists the available SEC filings for a given company.
-    """
-    try:
-        return await use_case.execute(ticker.upper())
-    except Exception as e:
-        handle_domain_error(e)
+
 
 class LocalFilingRequest(BaseModel):
     file_path: str
@@ -166,6 +161,27 @@ async def analyse_local_filing(
     except Exception as e:
         handle_domain_error(e)
 
+@router.get("/live-quote/{ticker}", response_model=LiveQuoteResult)
+async def get_live_quote(
+    ticker: str,
+    adapter: QuantitativeDataPort = Depends(get_quantitative_adapter)
+):
+    """
+    Fetches the live quote (price and change) for a ticker.
+    Used for high-frequency polling when supported by the provider.
+    """
+    try:
+        quote = await adapter.get_stock_current_price(ticker.upper())
+        return LiveQuoteResult(
+            amount=quote.amount,
+            currency=quote.currency,
+            change=quote.change,
+            change_percent=quote.change_percent,
+            is_live_supported=quote.is_live_supported
+        )
+    except Exception as e:
+        handle_domain_error(e)
+
 @router.get("/quantitative/{ticker}", response_model=QuantitativeValuationResult)
 async def analyse_quantitative(
     ticker: str,
@@ -176,6 +192,7 @@ async def analyse_quantitative(
     Analyses the historical financial data of a given company.
     Returns a structured DTO with quantitative metrics and CAGRs.
     """
+    logger.info(f"[Router] GET /quantitative/{ticker} initiated (years={years}).")
     try:
         result = await use_case.evaluate_ticker(ticker.upper(), years)
         return result
@@ -193,6 +210,7 @@ async def analyse_qualitative(
     Generates a qualitative profile of the company, extracting the CEO, moat, competitors, etc.
     Returns a structured DTO representing the company profile.
     """
+    logger.info(f"[Router] GET /qualitative/{ticker} initiated (lang={lang}).")
     try:
         result = await use_case.analyse_ticker(ticker.upper(), language=lang, period=period)
         return result
