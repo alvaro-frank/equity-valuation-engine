@@ -3,6 +3,7 @@ import time
 import json
 import asyncio
 import httpx
+from loguru import logger
 
 import pandas as pd
 from decimal import Decimal
@@ -10,7 +11,8 @@ from typing import Dict, Optional, List
 from dotenv import load_dotenv
 
 from domain.entities import Price, LiveQuote, FinancialYear, FinancialQuarter, Ticker
-from application.ports.core_financial_ports import QuantitativeDataPort, OwnershipDataPort, PerformanceDataPort
+from domain.entities.earnings import EarningsCallTranscript
+from application.ports.core_financial_ports import QuantitativeDataPort, OwnershipDataPort, PerformanceDataPort, TranscriptDataPort
 from application.ports.discovery_ports import SearchDataPort
 from application.exceptions.exceptions import TickerNotFoundError, RateLimitExceededError, ConfigurationError, ExternalServiceError
 from infrastructure.config.settings import settings
@@ -18,7 +20,7 @@ from infrastructure.mappers.alphavantage_mapper import map_to_financial_years, m
 
 load_dotenv()
 
-class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDataPort, SearchDataPort):
+class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDataPort, SearchDataPort, TranscriptDataPort):
     """
     Adapter for fetching stock data from the Alpha Vantage API. Implements the QuantitativeDataPort interface.
     This adapter handles both current price and fundamental financial data retrieval, with built-in caching and error handling.
@@ -37,10 +39,24 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
         
         self.api_key = api_key.strip()
         self.client = client
+        self._in_flight_requests: Dict[str, asyncio.Task] = {}
 
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         self.cache_dir = os.path.join(base_dir, '.alpha_vantage_cache')
         os.makedirs(self.cache_dir, exist_ok=True)
+
+    def _get_ttl_for_function(self, function: str) -> float:
+        """
+        Returns the appropriate Time-To-Live (TTL) in seconds for a given Alpha Vantage API function.
+        """
+        if function == "GLOBAL_QUOTE":
+            return 86400.0  # 2 minutes for live quotes
+        elif function == "INSTITUTIONAL_HOLDINGS":
+            return 604800.0  # 7 days (1 week) for institutional holdings
+        elif function == "EARNINGS_CALL_TRANSCRIPT":
+            return 2592000.0 # 30 days for historical transcripts
+        else:
+            return 86400.0  # 24 hours for all other endpoints (Financials, Overview, Monthly Time Series)
 
     async def _get_data(self, function: str, symbol: str, **kwargs) -> Dict:
         """
@@ -55,21 +71,43 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
         Returns:
             dict: The JSON response from the Alpha Vantage API as a dictionary.
         """
-        cache_filename = f"{function}_{symbol.upper()}.json"
-        cache_path = os.path.join(self.cache_dir, cache_filename)
+        ticker_cache_dir = os.path.join(self.cache_dir, symbol.upper())
+        os.makedirs(ticker_cache_dir, exist_ok=True)
+        
+        # Build cache filename with optional suffix based on kwargs
+        suffix = ""
+        if "year" in kwargs and "quarter" in kwargs:
+            suffix = f"_{kwargs['year']}_Q{kwargs['quarter']}"
+            
+        cache_filename = f"{function}{suffix}.json"
+        cache_path = os.path.join(ticker_cache_dir, cache_filename)
+
+        ttl_seconds = self._get_ttl_for_function(function)
 
         if os.path.exists(cache_path):
             file_age_seconds = time.time() - os.path.getmtime(cache_path)
-            if file_age_seconds < 86400: # 24 hours
+            if file_age_seconds < ttl_seconds:
                 try:
                     with open(cache_path, 'r', encoding='utf-8') as f:
                         return json.load(f)
                 except Exception:
                     pass
 
+        # In-flight request deduplication
+        if cache_filename in self._in_flight_requests:
+            return await self._in_flight_requests[cache_filename]
+            
+        # Create a new task and store it
+        task = asyncio.create_task(self._fetch_and_cache(function, symbol, cache_path, **kwargs))
+        self._in_flight_requests[cache_filename] = task
+        try:
+            return await task
+        finally:
+            self._in_flight_requests.pop(cache_filename, None)
+            
+    async def _fetch_and_cache(self, function: str, symbol: str, cache_path: str, **kwargs) -> Dict:
         params = {
-            "function": function,
-            "apikey": self.api_key
+            "function": function
         }
         
         if function == "SYMBOL_SEARCH":
@@ -79,23 +117,41 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             
         params.update(kwargs)
         
-        try:
-            await asyncio.sleep(1.5)
+        # Alpha Vantage expects quarter="2024Q1" for transcripts, not year=2024 & quarter=1
+        if function == "EARNINGS_CALL_TRANSCRIPT" and "year" in params and "quarter" in params:
+            params["quarter"] = f"{params['year']}Q{params['quarter']}"
+            del params["year"]
             
-            if self.client:
-                response = await self.client.get(self.BASE_URL, params=params, timeout=15)
-            else:
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(self.BASE_URL, params=params, timeout=15)
-            response.raise_for_status()
-        except httpx.HTTPError as e: 
-            raise ExternalServiceError(f"Connection Error: {e}")
-        else:
+        # VERY IMPORTANT: Alpha Vantage has a bug where the 'demo' key fails for EARNINGS_CALL_TRANSCRIPT
+        # if 'apikey' is not the LAST parameter in the query string.
+        # Python 3.7+ preserves dict insertion order, and httpx preserves it in the URL.
+        params["apikey"] = self.api_key
+            
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:                
+                if self.client:
+                    response = await self.client.get(self.BASE_URL, params=params, timeout=15)
+                else:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get(self.BASE_URL, params=params, timeout=15)
+                response.raise_for_status()
+            except httpx.HTTPError as e:
+                if attempt == max_retries - 1:
+                    raise ExternalServiceError(f"Connection Error after {max_retries} attempts: {e}")
+                await asyncio.sleep(2 ** attempt)
+                continue
+                
             data = response.json()
             
             if "Information" in data:
-                raise RateLimitExceededError(f"Rate Limit (Speed): {data['Information']}")
-            
+                if attempt == max_retries - 1:
+                    raise RateLimitExceededError(f"Rate Limit (Speed) Exceeded after {max_retries} attempts: {data['Information']}")
+                # Exponential backoff for rate limits: 1s, 2s, 4s...
+                await asyncio.sleep(2 ** attempt)
+                continue
+                
             if "Note" in data:
                  raise RateLimitExceededError("Rate Limit (Daily): 25 requests/day reached.")
                  
@@ -194,15 +250,18 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
         Returns:
             List[FinancialYear]: List containing the fundamental stock data for each Financial Year.
         """
-        income_stmt = await self._get_data("INCOME_STATEMENT", symbol)
-        balance_sheet = await self._get_data("BALANCE_SHEET", symbol)
-        cash_flow = await self._get_data("CASH_FLOW", symbol)
+        income_task = self._get_data("INCOME_STATEMENT", symbol)
+        balance_task = self._get_data("BALANCE_SHEET", symbol)
+        cash_task = self._get_data("CASH_FLOW", symbol)
+        prices_task = self.get_historical_prices(symbol)
+        
+        income_stmt, balance_sheet, cash_flow, historical_prices = await asyncio.gather(
+            income_task, balance_task, cash_task, prices_task
+        )
 
         income_data = income_stmt.get("annualReports", [])
         balance_data = balance_sheet.get("annualReports", [])
         cash_data = cash_flow.get("annualReports", [])
-
-        historical_prices = await self.get_historical_prices(symbol)
         
         financial_years = map_to_financial_years(income_data, balance_data, cash_data, historical_prices)
         
@@ -349,6 +408,61 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             print(f"Failed to fetch major shareholders for {symbol}: {e}")
             return {}
 
+    async def get_earnings_call_transcript(self, ticker: str, year: int, quarter: int) -> Optional[EarningsCallTranscript]:
+        """
+        Fetches the earnings call transcript for a given stock symbol, year, and quarter.
+        """
+        try:
+            from domain.entities.earnings import EarningsCallTranscript, TranscriptStatement
+            from datetime import datetime
+            
+            # Alpha Vantage API expects quarter in format like "2024Q1" or year/quarter params.
+            # Using standard year/quarter kwargs based on the API docs. 
+            # Note: We pass them to _get_data so the cache filename generates correctly (e.g. _2024_Q1)
+            data = await self._get_data("EARNINGS_CALL_TRANSCRIPT", ticker, year=year, quarter=quarter)
+            
+            if not data or "transcript" not in data:
+                logger.error(f"DEBUG GET_DATA RESULT for {ticker} {year}Q{quarter}: {data}")
+                return None
+                
+            # The structure returned by Alpha Vantage might vary. Let's gracefully parse it.
+            # Usually it returns a 'transcript' array of objects with speaker and content.
+            raw_transcripts = data.get("transcript", [])
+            date_str = data.get("date")
+            transcript_date = datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.now()
+            
+            statements = []
+            for item in raw_transcripts:
+                speaker = item.get("speaker", "Unknown")
+                title = item.get("title", "Unknown")
+                content = item.get("content", item.get("text", ""))
+                sentiment = item.get("sentiment")
+                
+                # Try to cast sentiment to float if it exists
+                if sentiment is not None:
+                    try:
+                        sentiment = float(sentiment)
+                    except ValueError:
+                        sentiment = None
+                        
+                statements.append(TranscriptStatement(
+                    speaker=speaker,
+                    title=title,
+                    content=content,
+                    sentiment=sentiment
+                ))
+                
+            return EarningsCallTranscript(
+                ticker=ticker.upper(),
+                quarter=quarter,
+                year=year,
+                date=transcript_date,
+                transcripts=statements
+            )
+        except Exception as e:
+            logger.error(f"Failed to fetch earnings call transcript for {ticker} Q{quarter} {year}: {e}")
+            return None
+
     async def search_tickers(self, query: str) -> List[Dict[str, str]]:
         """
         Searches for tickers matching the query using Alpha Vantage SYMBOL_SEARCH.
@@ -382,13 +496,13 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
 
         Args:
             tickers (List[str]): A list of stock/ETF ticker symbols.
-            period (str): The time period for which to fetch data (ignored here as we use TIME_SERIES_WEEKLY).
+            period (str): The time period for which to fetch data (ignored here as we use TIME_SERIES_MONTHLY).
 
         Returns:
             List[Dict]: [{'date': '2020-01-01', 'SMH': 0.0, 'SPY': 0.0}, ...]
         """
         try:
-            tasks = [self._get_data("TIME_SERIES_WEEKLY", ticker) for ticker in tickers]
+            tasks = [self._get_data("TIME_SERIES_MONTHLY", ticker) for ticker in tickers]
             responses = await asyncio.gather(*tasks)
             
             # Extract closing prices per ticker per date
@@ -397,7 +511,7 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             all_dates = set()
             
             for ticker, data in zip(tickers, responses):
-                ts = data.get("Weekly Time Series", {})
+                ts = data.get("Monthly Time Series", {})
                 series = {}
                 for date_str, metrics in ts.items():
                     close_val = metrics.get("4. close")
@@ -412,9 +526,9 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             # Sort dates chronologically
             sorted_dates = sorted(list(all_dates))
             
-            # Limit to 5 years (5 * 52 weeks = ~260 data points)
+            # Limit to 5 years (5 * 12 months = 60 data points)
             if period == "5y":
-                sorted_dates = sorted_dates[-260:]
+                sorted_dates = sorted_dates[-60:]
                 
             # Build DataFrame-like structure
             df_dict = {"date": sorted_dates}
@@ -466,15 +580,18 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
         Returns:
             List[FinancialQuarter]: List containing the fundamental stock data for each Financial Quarter.
         """
-        income_stmt = await self._get_data("INCOME_STATEMENT", symbol)
-        balance_sheet = await self._get_data("BALANCE_SHEET", symbol)
-        cash_flow = await self._get_data("CASH_FLOW", symbol)
+        income_task = self._get_data("INCOME_STATEMENT", symbol)
+        balance_task = self._get_data("BALANCE_SHEET", symbol)
+        cash_task = self._get_data("CASH_FLOW", symbol)
+        prices_task = self.get_historical_prices(symbol)
+        
+        income_stmt, balance_sheet, cash_flow, historical_prices = await asyncio.gather(
+            income_task, balance_task, cash_task, prices_task
+        )
 
         income_data = income_stmt.get("quarterlyReports", [])
         balance_data = balance_sheet.get("quarterlyReports", [])
         cash_data = cash_flow.get("quarterlyReports", [])
-
-        historical_prices = await self.get_historical_prices(symbol)
         
         financial_quarters = map_to_financial_quarters(income_data, balance_data, cash_data, historical_prices)
         return financial_quarters[:12]
