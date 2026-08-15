@@ -9,6 +9,7 @@ from application.use_cases.analyse_qualitative_valuation import QualitativeValua
 from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
+from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 
 from application.exceptions.exceptions import (
@@ -28,6 +29,7 @@ from infrastructure.adapters.input.dependencies import (
     get_qualitative_use_case,
     get_sector_use_case,
     get_sector_performance_use_case,
+    get_transcript_use_case,
     get_dcf_use_case,
     get_search_tickers_use_case,
     get_quantitative_adapter
@@ -42,7 +44,8 @@ from application.dtos import (
     QualitativeValuationResult,
     SectorIndustrialValuationResult,
     TickerSearchResult,
-    LiveQuoteResult
+    LiveQuoteResult,
+    EarningsCallTranscriptResult
 )
 
 def handle_domain_error(e: Exception):
@@ -260,6 +263,24 @@ async def get_sector_performance(
     """
     try:
         result = await use_case.execute(ticker.upper())
+        return result
+    except Exception as e:
+        handle_domain_error(e)
+
+@router.get(
+    "/{ticker}/transcripts",
+    response_model=EarningsCallTranscriptResult,
+    summary="Get Earnings Call Transcript",
+    description="Fetches the earnings call transcript for a given stock ticker, year, and quarter.",
+)
+async def get_earnings_call_transcript(
+    ticker: str,
+    year: int = Query(..., description="The financial year (e.g., 2024)"),
+    quarter: int = Query(..., description="The financial quarter (1, 2, 3, or 4)"),
+    use_case: GetEarningsCallTranscriptUseCase = Depends(get_transcript_use_case)
+):
+    try:
+        result = await use_case.execute(ticker=ticker.upper(), year=year, quarter=quarter)
         return result
     except Exception as e:
         handle_domain_error(e)

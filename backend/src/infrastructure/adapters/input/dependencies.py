@@ -6,6 +6,7 @@ from application.use_cases.analyse_sector_industrial_valuation import SectorIndu
 from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCase
 
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
+from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
@@ -15,7 +16,7 @@ from infrastructure.adapters.output.sec_edgar_adapter import SECAdapter
 from infrastructure.adapters.output.sec_edgar_adapter import SECAdapter
 from infrastructure.config.settings import settings
 from typing import Union
-from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort, OwnershipDataPort
+from application.ports.core_financial_ports import QuantitativeDataPort, PerformanceDataPort, OwnershipDataPort, TranscriptDataPort
 from application.ports.llm_analysis_ports import SectorIndustrialDataPort, EarningsReportPort, QualitativeDataPort
 from application.ports.discovery_ports import SearchDataPort, TrendingDataPort
 from application.ports.intrinsic_value_calculation_port import IntrinsicValueCalculationPort
@@ -41,10 +42,16 @@ def get_translator() -> GroqTranslatorAdapter:
     """Provides the translator adapter instance."""
     return _translator
 
-def get_quantitative_adapter() -> Union[QuantitativeDataPort, OwnershipDataPort]:
+def get_quantitative_adapter() -> Union[QuantitativeDataPort, OwnershipDataPort, TranscriptDataPort]:
     """
     Provides the Quantitative Data Port instance based on settings.
     """
+    if settings.data_provider.upper() == "YFINANCE":
+        return _yfinance_adapter
+    return _alpha_adapter
+
+def get_transcript_adapter() -> TranscriptDataPort:
+    """Provides the data adapter for fetching earnings call transcripts."""
     if settings.data_provider.upper() == "YFINANCE":
         return _yfinance_adapter
     return _alpha_adapter
@@ -171,3 +178,9 @@ def get_trending_tickers_use_case(
     Builds and provides the Trending Tickers Use Case via Dependency Injection.
     """
     return GetTrendingTickersUseCase(trending_port=trending_adapter)
+
+def get_transcript_use_case(
+    adapter: TranscriptDataPort = Depends(get_transcript_adapter)
+) -> GetEarningsCallTranscriptUseCase:
+    """Provides the use case for fetching an earnings call transcript."""
+    return GetEarningsCallTranscriptUseCase(transcript_port=adapter)

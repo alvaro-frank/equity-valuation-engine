@@ -11,7 +11,7 @@ from .core import (
 from .structured_filing_dto import StructuredFilingDTO
 from .financials import SectorPerformanceResult, MetricYearlyResult, MetricQuarterlyResult, MetricAnalysisResult, QuantitativeValuationResult
 from .qualitative import MoatSourcesResult, QualityPillarsResult, QualitativeValuationResult, SectorIndustrialValuationResult
-from .earnings import MetricWithGrowthResult, CorePerformanceResult, CapitalAllocationResult, RiskDeconstructionResult, EarningsReportResult
+from .earnings import MetricWithGrowthResult, CorePerformanceResult, CapitalAllocationResult, RiskDeconstructionResult, EarningsReportResult, TranscriptStatementResult, EarningsCallTranscriptResult
 
 __all__ = [
     "TickerSearchDTO",
@@ -35,5 +35,7 @@ __all__ = [
     "CorePerformanceResult",
     "CapitalAllocationResult",
     "RiskDeconstructionResult",
-    "EarningsReportResult"
+    "EarningsReportResult",
+    "TranscriptStatementResult",
+    "EarningsCallTranscriptResult"
 ]

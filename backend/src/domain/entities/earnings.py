@@ -1,6 +1,7 @@
 from decimal import Decimal
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 
 @dataclass(frozen=True)
 class MetricWithGrowth:
@@ -87,3 +88,24 @@ class EarningsReport:
     risk_deconstruction: RiskDeconstruction
     bottom_line: str
     sources: Dict[str, str]
+
+@dataclass(frozen=True)
+class TranscriptStatement:
+    """
+    Represents a single spoken statement by a participant during the earnings call.
+    """
+    speaker: str
+    title: str
+    content: str
+    sentiment: Optional[float] = None
+
+@dataclass(frozen=True)
+class EarningsCallTranscript:
+    """
+    Represents the full earnings call event, aggregating all spoken statements.
+    """
+    ticker: str
+    quarter: int
+    year: int
+    date: datetime
+    transcripts: List[TranscriptStatement]

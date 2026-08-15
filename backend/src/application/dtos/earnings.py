@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Dict, List, Optional
+from datetime import datetime
 from .core import TickerResult
 from .qualitative import SourceInfoDTO
 
@@ -61,3 +62,22 @@ class EarningsReportResult(BaseModel):
         ..., 
         description="Mapping of numerical citations to source document pages/sections (e.g. {'1': 'MD&A Page 15'})"
     )
+
+class TranscriptStatementResult(BaseModel):
+    """
+    DTO for a single spoken statement by a participant during the earnings call.
+    """
+    speaker: str
+    title: str
+    content: str
+    sentiment: Optional[float] = None
+
+class EarningsCallTranscriptResult(BaseModel):
+    """
+    DTO for the full earnings call transcript.
+    """
+    ticker: str
+    quarter: int
+    year: int
+    date: datetime
+    transcripts: List[TranscriptStatementResult]
