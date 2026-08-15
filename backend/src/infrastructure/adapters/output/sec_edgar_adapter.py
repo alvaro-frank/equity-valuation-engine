@@ -28,7 +28,7 @@ class SECAdapter(FilingRepositoryPort):
 
     def _save_to_cache(self, ticker: str, data: dict):
         import json
-        target_dir = os.path.join(self.cache_dir, ticker.upper(), "context")
+        target_dir = os.path.join(self.cache_dir, ticker.upper(), "filings")
         os.makedirs(target_dir, exist_ok=True)
         cache_path = os.path.join(target_dir, f"sec_structured_{ticker.upper()}.json")
         try:
@@ -40,7 +40,7 @@ class SECAdapter(FilingRepositoryPort):
 
     def _get_from_cache(self, ticker: str) -> Optional[dict]:
         import json
-        cache_path = os.path.join(self.cache_dir, ticker.upper(), "context", f"sec_structured_{ticker.upper()}.json")
+        cache_path = os.path.join(self.cache_dir, ticker.upper(), "filings", f"sec_structured_{ticker.upper()}.json")
         if os.path.exists(cache_path):
             try:
                 with open(cache_path, 'r', encoding='utf-8') as f:

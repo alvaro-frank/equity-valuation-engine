@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from domain.entities import Price, LiveQuote, FinancialYear, FinancialQuarter, Ticker
+from domain.entities.earnings import EarningsCallTranscript
 
 class QuantitativeDataPort(ABC):
     """
@@ -104,5 +105,25 @@ class OwnershipDataPort(ABC):
             
         Returns:
             Dict[str, float]: Dictionary mapping shareholder name to their ownership percentage (e.g. {"Vanguard": 7.8}).
+        """
+        pass
+
+class TranscriptDataPort(ABC):
+    """
+    Interface for fetching Earnings Call Transcripts.
+    Implemented by financial data providers (e.g., Alpha Vantage, FMP).
+    """
+    @abstractmethod
+    async def get_earnings_call_transcript(self, ticker: str, year: int, quarter: int) -> Optional[EarningsCallTranscript]:
+        """
+        Fetches the earnings call transcript for a specific company, year, and quarter.
+        
+        Args:
+            ticker (str): The stock ticker (e.g., 'IBM').
+            year (int): The financial year (e.g., 2024).
+            quarter (int): The financial quarter (1, 2, 3, or 4).
+            
+        Returns:
+            Optional[EarningsCallTranscript]: The domain entity containing the transcript, or None if not found.
         """
         pass
