@@ -10,6 +10,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 from application.use_cases.analyse_sector_industrial_valuation import SectorIndustrialValuationUseCase
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
+from application.use_cases.get_available_filings import GetAvailableFilingsUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 
 from application.exceptions.exceptions import (
@@ -32,7 +33,8 @@ from infrastructure.adapters.input.dependencies import (
     get_transcript_use_case,
     get_dcf_use_case,
     get_search_tickers_use_case,
-    get_quantitative_adapter
+    get_quantitative_adapter,
+    get_available_filings_use_case
 )
 from application.ports.core_financial_ports import QuantitativeDataPort
 from pydantic import BaseModel
@@ -43,7 +45,9 @@ from application.dtos import (
     QuantitativeValuationResult,
     QualitativeValuationResult,
     SectorIndustrialValuationResult,
+    SectorPerformanceResult,
     TickerSearchResult,
+    LocalFilingListResult,
     LiveQuoteResult,
     EarningsCallTranscriptResult
 )
@@ -144,6 +148,20 @@ async def analyse_earnings_report(
 class LocalFilingRequest(BaseModel):
     file_path: str
     focus_period: Optional[str] = None
+
+@router.get("/filings/{ticker}", response_model=LocalFilingListResult)
+async def get_local_filings(
+    ticker: str,
+    use_case: GetAvailableFilingsUseCase = Depends(get_available_filings_use_case)
+):
+    """
+    Returns a list of available historical financial quarters/years for the ticker,
+    formatted as filings so the frontend can display them.
+    """
+    try:
+        return await use_case.execute(ticker.upper())
+    except Exception as e:
+        handle_domain_error(e)
 
 @router.post("/filings/{ticker}/analyse_local", response_model=EarningsReportResult)
 async def analyse_local_filing(

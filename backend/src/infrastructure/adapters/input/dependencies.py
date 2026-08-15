@@ -7,6 +7,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
+from application.use_cases.get_available_filings import GetAvailableFilingsUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
@@ -177,7 +178,11 @@ def get_trending_tickers_use_case(
     """
     Builds and provides the Trending Tickers Use Case via Dependency Injection.
     """
-    return GetTrendingTickersUseCase(trending_port=trending_adapter)
+    return GetTrendingTickersUseCase(adapter=get_trending_adapter())
+
+def get_available_filings_use_case(adapter: QuantitativeDataPort = Depends(get_quantitative_adapter)) -> GetAvailableFilingsUseCase:
+    """Provides the GetAvailableFilingsUseCase instance."""
+    return GetAvailableFilingsUseCase(quant_adapter=adapter)
 
 def get_transcript_use_case(
     adapter: TranscriptDataPort = Depends(get_transcript_adapter)
