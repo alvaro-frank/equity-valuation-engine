@@ -222,13 +222,13 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             dict[str, Price]: A dictionary where keys are strings in 'YYYY-MM' format 
                               and values are Price objects containing the closing amount and currency.
         """
-        data = await self._get_data("TIME_SERIES_MONTHLY", symbol)
-        time_series = data.get("Monthly Time Series", {})
+        data = await self._get_data("TIME_SERIES_MONTHLY_ADJUSTED", symbol)
+        time_series = data.get("Monthly Adjusted Time Series", {})
         
         historical_prices = {}
         for date_str, metrics in time_series.items():
             year_month = date_str[:7]
-            close_price = metrics.get("4. close")
+            close_price = metrics.get("5. adjusted close")
             
             if close_price:
                 historical_prices[year_month] = Price(
@@ -502,19 +502,19 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
             List[Dict]: [{'date': '2020-01-01', 'SMH': 0.0, 'SPY': 0.0}, ...]
         """
         try:
-            tasks = [self._get_data("TIME_SERIES_MONTHLY", ticker) for ticker in tickers]
+            tasks = [self._get_data("TIME_SERIES_MONTHLY_ADJUSTED", ticker) for ticker in tickers]
             responses = await asyncio.gather(*tasks)
             
             # Extract closing prices per ticker per date
-            # time_series structure: {"2024-05-10": {"4. close": "123.45"}, ...}
+            # time_series structure: {"2024-05-10": {"5. adjusted close": "123.45"}, ...}
             ticker_series = {}
             all_dates = set()
             
             for ticker, data in zip(tickers, responses):
-                ts = data.get("Monthly Time Series", {})
+                ts = data.get("Monthly Adjusted Time Series", {})
                 series = {}
                 for date_str, metrics in ts.items():
-                    close_val = metrics.get("4. close")
+                    close_val = metrics.get("5. adjusted close")
                     if close_val:
                         series[date_str] = float(close_val)
                         all_dates.add(date_str)
