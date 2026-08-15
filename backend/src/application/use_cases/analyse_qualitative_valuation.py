@@ -6,6 +6,7 @@ from dataclasses import asdict
 import dataclasses
 import datetime
 import logging
+import asyncio
 from loguru import logger
 
 class QualitativeValuationUseCase:
@@ -35,7 +36,23 @@ class QualitativeValuationUseCase:
             QualitativeValuationResult: a DTO containing all information about the Qualitative data of the business.
         """
         logger.info(f"[QualitativeValuationUseCase] Qualitative Analysis requested for {ticker_symbol} (Lang: {language})")
-        ticker_info = await self.quant_adapter.get_ticker_info(ticker_symbol)
+        
+        # --- BACKGROUND TASK: RAG INTEGRATION (SEC EDGAR FILINGS) ---
+        # Start fetching EDGAR filings in the background immediately to parallelize with Alpha Vantage calls
+        filings_task = None
+        if self.filing_repository_port:
+            filings_task = asyncio.create_task(
+                self.filing_repository_port.get_structured_filings(ticker_symbol)
+            )
+
+        # --- ALPHA VANTAGE TASKS ---
+        ticker_info_task = self.quant_adapter.get_ticker_info(ticker_symbol)
+        major_shareholders_task = self.ownership_adapter.get_major_shareholders(ticker_symbol)
+        financials_task = self.quant_adapter.get_stock_fundamental_data(ticker_symbol)
+        
+        ticker_info, major_shareholders, financials = await asyncio.gather(
+            ticker_info_task, major_shareholders_task, financials_task
+        )
         
         context_parts = []
         
@@ -77,19 +94,17 @@ class QualitativeValuationUseCase:
             context_parts.append(f"Current Key Executives/Officers: {officers_str}")
             
         # Inject Major Shareholders
-        major_shareholders = await self.ownership_adapter.get_major_shareholders(ticker_info.symbol)
         if major_shareholders:
             sh_str = ", ".join([f"{k} ({v:.2f}%)" for k, v in list(major_shareholders.items())[:5]])
             context_parts.append(f"Top Institutional Shareholders: {sh_str}")
             
         # Fetch Deep Fundamentals for ROIC, FCF, Debt
-        financials = await self.quant_adapter.get_stock_fundamental_data(ticker_symbol)
         if financials:
             latest_year = financials[0]
             if getattr(latest_year, 'roic', None) is not None:
-                context_parts.append(f"Latest Year ROIC: {float(latest_year.roic):.2f}%")
+                context_parts.append(f"TTM ROIC: {float(latest_year.roic):.2f}%")
             if getattr(latest_year, 'roe', None) is not None:
-                context_parts.append(f"Latest Year ROE: {float(latest_year.roe):.2f}%")
+                context_parts.append(f"TTM ROE: {float(latest_year.roe):.2f}%")
             
             # Format large numbers
             def fmt_currency(val):
@@ -100,23 +115,23 @@ class QualitativeValuationUseCase:
                 return f"${v:,.0f}"
                 
             if getattr(latest_year, 'free_cash_flow', None) is not None:
-                context_parts.append(f"Latest Year Free Cash Flow: {fmt_currency(latest_year.free_cash_flow)}")
+                context_parts.append(f"TTM Free Cash Flow: {fmt_currency(latest_year.free_cash_flow)}")
             if getattr(latest_year, 'capital_expenditures', None) is not None:
-                context_parts.append(f"Latest Year CapEx: {fmt_currency(latest_year.capital_expenditures)}")
+                context_parts.append(f"TTM CapEx: {fmt_currency(latest_year.capital_expenditures)}")
             if getattr(latest_year, 'total_debt', None) is not None:
-                context_parts.append(f"Latest Year Total Debt: {fmt_currency(latest_year.total_debt)}")
+                context_parts.append(f"TTM Total Debt: {fmt_currency(latest_year.total_debt)}")
             if getattr(latest_year, 'cash_and_equivalents', None) is not None:
-                context_parts.append(f"Latest Year Cash on Hand: {fmt_currency(latest_year.cash_and_equivalents)}")
+                context_parts.append(f"Latest Quarter Cash on Hand: {fmt_currency(latest_year.cash_and_equivalents)}")
             
         context_str = "\n".join(context_parts)
         
         logger.info(f"[QualitativeValuationUseCase] Real-world Context built successfully for {ticker_symbol}.")
         
-        # --- RAG INTEGRATION (SEC EDGAR FILINGS) ---
+        # --- AWAIT BACKGROUND TASK ---
         structured_filings = None
-        if self.filing_repository_port:
+        if filings_task:
             try:
-                structured_filings = await self.filing_repository_port.get_structured_filings(ticker_symbol)
+                structured_filings = await filings_task
                 logger.info(f"[QualitativeValuationUseCase] SEC RAG structured context extracted for {ticker_symbol}. Exact Match: {structured_filings.is_exact_match}")
             except Exception as e:
                 logger.error(f"[UseCase-Error] RAG injection failed for {ticker_symbol}: {e}")

@@ -34,17 +34,17 @@ class QuantitativeValuationUseCase:
         Returns:
             QuantitativeValuationResult: a DTO containing all information about the Quantitative data of the business.
         """
-        ticker, current_price_obj = await asyncio.gather(
-            self.adapter.get_ticker_info(ticker_symbol),
-            self.adapter.get_stock_current_price(ticker_symbol)
-        )
-        ticker = dataclasses.replace(ticker, current_price=current_price_obj.amount)
+        # Concurrently fetch all required data from the adapter in one massive batch
+        ticker_task = self.adapter.get_ticker_info(ticker_symbol)
+        price_task = self.adapter.get_stock_current_price(ticker_symbol)
+        yearly_task = self.adapter.get_stock_fundamental_data(ticker_symbol)
+        quarterly_task = self.adapter.get_stock_quarterly_data(ticker_symbol)
         
-        # Concurrently fetch yearly and quarterly data
-        financial_years, financial_quarters = await asyncio.gather(
-            self.adapter.get_stock_fundamental_data(ticker_symbol),
-            self.adapter.get_stock_quarterly_data(ticker_symbol)
+        ticker, current_price_obj, financial_years, financial_quarters = await asyncio.gather(
+            ticker_task, price_task, yearly_task, quarterly_task
         )
+        
+        ticker = dataclasses.replace(ticker, current_price=current_price_obj.amount)
         if financial_years:
             ttm_idx = next((i for i, y in enumerate(financial_years) if y.fiscal_date_ending == "TTM"), None)
             if ttm_idx is not None:
