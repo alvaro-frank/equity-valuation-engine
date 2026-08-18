@@ -40,6 +40,15 @@ class ResilientLLMAdapter(QualitativeDataPort, SectorIndustrialDataPort, Earning
         stop=stop_after_attempt(3),
         reraise=True
     )
+    async def analyse_earnings_from_context(self, symbol: str, context: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        return await self.base.analyse_earnings_from_context(symbol, context, language, focus_period)
+
+    @retry(
+        retry=retry_if_exception_type((RateLimitExceededError, ExternalServiceError)),
+        wait=wait_exponential(multiplier=2, min=2, max=10),
+        stop=stop_after_attempt(3),
+        reraise=True
+    )
     async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:
         return await self.base.analyse_industry(sector, industry, language, ticker, context)
 

@@ -76,6 +76,13 @@ class FallbackQualitativeAdapter(SectorIndustrialDataPort, EarningsReportPort, Q
             print(f"Primary adapter failed for analyse_earnings_report: {e}. Falling back to backup adapter.")
             return await self.backup.analyse_earnings_report(symbol, pdf_file_path, language=language, focus_period=focus_period)
 
+    async def analyse_earnings_from_context(self, symbol: str, context: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        try:
+            return await self.primary.analyse_earnings_from_context(symbol, context, language=language, focus_period=focus_period)
+        except (ExternalServiceError, RateLimitExceededError, LLMParsingError) as e:
+            print(f"Primary adapter failed for analyse_earnings_from_context: {e}. Falling back to backup adapter.")
+            return await self.backup.analyse_earnings_from_context(symbol, context, language=language, focus_period=focus_period)
+
     async def deduce_dcf_assumptions(self, ticker: str, company_profile: dict, quant_data: dict, language: str = "en") -> dict:
         """
         Attempts to deduce DCF assumptions using the primary adapter. If it fails, falls back to the backup adapter.

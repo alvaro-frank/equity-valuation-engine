@@ -123,6 +123,30 @@ class GeminiAdapter(BaseLLMAdapter):
                 except Exception:
                     pass
 
+    async def _generate_earnings_from_context(self, prompt: str, context: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
+        import time
+        start_time = time.time()
+        logger.info(f"[LLM - {schema.__name__}] Dispatching earnings context request to {model_id}...")
+        try:
+            response = await self.client.aio.models.generate_content(
+                model=model_id,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=schema,
+                    temperature=0.0
+                )
+            )
+            elapsed = time.time() - start_time
+            logger.info(f"[LLM] Resolved successfully in {elapsed:.2f}s.")
+            return json.loads(response.text)
+        except Exception as e:
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_from_context: {e}")
+            error_str = str(e).lower()
+            if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
+                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+            raise ExternalServiceError(f"Gemini API Error: {e}")
+
     async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T], model_id: str = "gemini-3.1-pro-preview") -> dict:
         import time
         start_time = time.time()

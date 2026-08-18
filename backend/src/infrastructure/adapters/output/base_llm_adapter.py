@@ -54,6 +54,11 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         pass
 
     @abstractmethod
+    async def _generate_earnings_from_context(self, prompt: str, context: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
+        """Call the LLM API to analyze an earnings report from structured context."""
+        pass
+
+    @abstractmethod
     async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         """Call the LLM API to generate DCF assumptions."""
         pass
@@ -420,52 +425,38 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         )
 
     async def analyse_earnings_report(self, symbol: str, pdf_file_path: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        agent_path = os.path.join(base_dir, "llm", "agents", "earnings-analyst", "agent.md")
+        skill_path = os.path.join(base_dir, "llm", "agents", "earnings-analyst", "skills", "analyze_pdf.md")
+        
+        with open(agent_path, 'r', encoding='utf-8') as f:
+            base_prompt = f.read().split("---")[-1].strip()
+            
+        with open(skill_path, 'r', encoding='utf-8') as f:
+            skill_prompt = f.read().split("---")[-1].strip()
+            
         focus_instruction = ""
         if focus_period:
-            focus_instruction = f"\n\n        CRITICAL: The user requested an analysis exclusively for the period {focus_period}. This document is an annual report, but you MUST isolate and extract ONLY the performance, guidance, and events pertaining to {focus_period}, ignoring the rest of the year."
+            focus_instruction = f"\nCRITICAL: The user requested an analysis exclusively for the period {focus_period}. This document is an annual report, but you MUST isolate and extract ONLY the performance, guidance, and events pertaining to {focus_period}, ignoring the rest of the year."
 
-        prompt = f"""
-        You are a Senior Equity Analyst focused on long-term value investing. I am providing the full text of an Earnings Report for the company "{symbol}". Ignore short-term stock reactions and Wall Street consensus. Focus exclusively on underlying business fundamentals.{focus_instruction}
+        prompt = f"{base_prompt}\n\n{skill_prompt}\n\n{focus_instruction}".replace("{symbol}", symbol)
 
-        Perform a deep-dive analysis and return ONLY a structured JSON object. Do not include markdown formatting, code blocks, or conversational text.
-        Language: Generate ALL analysis text strictly in English. The JSON keys must remain in English as defined by the schema.
-
-        CRITICAL MATHEMATICAL RULES:
-        - For margins, output as whole percentages (e.g. 66.3 for 66.3%) and NOT as decimals (e.g. 0.663).
-        - ALWAYS output absolute monetary amounts strictly in BILLIONS. For example, 500 million must be written as 0.5. 17.6 billion must be written as 17.6. NEVER output raw large numbers.
-        - If a metric is fundamentally not applicable to the business model (like gross margin for a bank), output null.
-
-        CRITICAL TEMPORAL SCOPE:
-        - If the document is a quarterly report (10-Q), you MUST extract financial figures (Revenue, Margins, Cash Flows, CapEx) exclusively from the isolated 'Three Months Ended' column. NEVER extract the 'Six Months Ended', 'Nine Months Ended' or 'Year-to-Date' cumulative columns.
-        - If the document is an annual report (10-K), extract the full fiscal year figures.
-
-        Extract and synthesize the following fields EXACTLY as named.
-
-        1. period_end_date: (String) The end date of the fiscal period strictly in 'YYYY-MM-DD' format.
-        2. core_performance: (Object) Extract Adjusted (Non-GAAP) Revenue, Adjusted EPS, Adjusted Gross Margin, Adjusted Operating Margin, Adjusted Net Margin, and Free Cash Flow. Free Cash Flow MUST be calculated as 'Net Cash from Operations' minus 'CapEx' (Additions to property and equipment). For each metric, return an object with a single float field: 'amount'. Do NOT include any growth or YoY calculations — those are computed externally from verified data.
-        3. capital_allocation: (Object) Detail exact amounts (as floats, in billions) spent on 'share_buybacks', 'dividends', and 'capex_rd'. Also provide an 'infrastructure_assessment' string containing a full 2-3 sentence paragraph assessing the "why" behind the CapEx. You MUST extract specific hardware names, exact geographic locations of new facilities, specific project names, or exact financial sub-allocations if mentioned. Assess whether this CapEx cycle appears Defensive or Offensive. Explicitly IGNORE generic corporate jargon like "meeting customer needs" or "investing for the future".
-        4. forward_guidance: (String) Detailed 2-3 sentence analysis of management's forward-looking projections and guidance.
-        5. moat_trajectory_status: (String) Exactly "EXPANDING", "STABLE", or "SHRINKING".
-        5b. moat_trajectory_description: (String) Detailed 2-3 sentence analysis of the company's competitive advantage trajectory.
-        6. risk_deconstruction: (Object) Separate headwinds into two string lists (arrays of strings): 'macro_risks' (external) and 'internal_risks' (execution/product). Each individual risk must be a separate string element in the array. You MUST include numerical citations directly inside each string.
-        7. bottom_line: (String) A brutal, concise summary answering: Did the underlying business execute well, or are structural cracks forming?
-        8. sources: (List of Objects) You MUST provide inline numerical citations (e.g. [1], [2]) directly within your narrative text for fields like 'infrastructure_assessment', 'forward_guidance', 'moat_trajectory_description', 'risk_deconstruction', and 'bottom_line'. Then, in this 'sources' array, return a list of objects each containing 'citation_number' (integer) and 'source_text' (string). 
-        CRITICAL: The 'source_text' MUST be the exact raw quote or sentence from the document that proves your claim (e.g. "Cloud revenue grew 24% driven by AI workload demand"). DO NOT just provide page numbers or section titles. Citations must be strictly sequential (1, 2, 3...) with no skipped numbers.
-
-        QUALITY EXAMPLES (follow this tone and depth):
-        GOOD bottom_line: "Alphabet executed strongly: Search revenue grew 12% YoY driven by AI Overviews adoption, Cloud crossed the $12B annualized run-rate with 28% margins, and the $70B buyback signals management's confidence in sustained free cash flow generation [1]. The key risk is a potential deceleration in ad spend if macro conditions deteriorate [2]."
-        BAD bottom_line: "The company did well this quarter and beat expectations."
-        GOOD infrastructure_assessment: "CapEx surged to $30.8B, aggressively allocated to scaling Azure's AI infrastructure. Management is securing scarce GPU supply and building next-gen liquid-cooled datacenters, signaling an offensive land-grab in AI compute. This massive capital intensity will compress near-term operating margins but is designed to lock in long-term enterprise AI workloads."
-        BAD infrastructure_assessment: "The company is spending more on datacenters to meet growing AI demand and serve customers better."
-        """
-
-        with open(pdf_file_path, "rb") as f:
-            file_hash = hashlib.md5(f.read()).hexdigest()[:12]
-        cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
-        target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis")
+        if focus_period:
+            if len(focus_period) >= 6 and focus_period[:4].isdigit():
+                fp_formatted = focus_period[4:] + focus_period[:4]
+            else:
+                fp_formatted = focus_period
+            cache_filename = f"earnings_{fp_formatted}_{language}.json"
+            cache_filename_en = f"earnings_{fp_formatted}_en.json"
+        else:
+            with open(pdf_file_path, "rb") as f:
+                file_hash = hashlib.md5(f.read()).hexdigest()[:12]
+            cache_filename = f"earnings_{symbol.upper()}_{file_hash}_{language}.json"
+            cache_filename_en = f"earnings_{symbol.upper()}_{file_hash}_en.json"
+            
+        target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis", "earnings")
         os.makedirs(target_dir, exist_ok=True)
         cache_path = os.path.join(target_dir, cache_filename)
-        cache_filename_en = f"earnings_{symbol.upper()}_{file_hash}_en.json"
         cache_path_en = os.path.join(target_dir, cache_filename_en)
         
         data = self._get_cached_data(cache_path)
@@ -502,23 +493,11 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             self._set_cached_data(cache_path, data)
 
         schema_instance = EarningsReportSchema(**data)
-        def get_metric(m):
-            return MetricWithGrowth(amount=Decimal(str(m.amount)) if m and m.amount is not None else None)
 
         return EarningsReport(
             period_end_date=schema_instance.period_end_date,
-            core_performance=CorePerformance(
-                adjusted_revenue=get_metric(schema_instance.core_performance.adjusted_revenue),
-                adjusted_eps=get_metric(schema_instance.core_performance.adjusted_eps),
-                adjusted_gross_margin=get_metric(schema_instance.core_performance.adjusted_gross_margin),
-                adjusted_operating_margin=get_metric(schema_instance.core_performance.adjusted_operating_margin),
-                adjusted_net_margin=get_metric(schema_instance.core_performance.adjusted_net_margin),
-                free_cash_flow=get_metric(schema_instance.core_performance.free_cash_flow)
-            ),
+
             capital_allocation=CapitalAllocation(
-                share_buybacks=Decimal(str(schema_instance.capital_allocation.share_buybacks)) if schema_instance.capital_allocation.share_buybacks is not None else None,
-                dividends=Decimal(str(schema_instance.capital_allocation.dividends)) if schema_instance.capital_allocation.dividends is not None else None,
-                capex_rd=Decimal(str(schema_instance.capital_allocation.capex_rd)) if schema_instance.capital_allocation.capex_rd is not None else None,
                 infrastructure_assessment=schema_instance.capital_allocation.infrastructure_assessment
             ),
             forward_guidance=schema_instance.forward_guidance,
@@ -529,8 +508,94 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
                 internal_risks=schema_instance.risk_deconstruction.internal_risks
             ),
             bottom_line=schema_instance.bottom_line,
-            sources={str(src.citation_number): src.source_text for src in schema_instance.sources}
+            sources={str(src.citation_number): EntitySourceInfo(source_name=src.source_name, exact_quote=src.source_text) for src in schema_instance.sources}
         )
+
+    async def analyse_earnings_from_context(self, symbol: str, context: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        agent_path = os.path.join(base_dir, "llm", "agents", "earnings-analyst", "agent.md")
+        skill_path = os.path.join(base_dir, "llm", "agents", "earnings-analyst", "skills", "analyze_context.md")
+        
+        with open(agent_path, 'r', encoding='utf-8') as f:
+            base_prompt = f.read().split("---")[-1].strip()
+            
+        with open(skill_path, 'r', encoding='utf-8') as f:
+            skill_prompt = f.read().split("---")[-1].strip()
+            
+        prompt = f"{base_prompt}\n\n{skill_prompt}\n\nContext:\n{context}".replace("{symbol}", symbol)
+        
+        import hashlib
+        
+        if focus_period:
+            if len(focus_period) >= 6 and focus_period[:4].isdigit():
+                fp_formatted = focus_period[4:] + focus_period[:4]
+            else:
+                fp_formatted = focus_period
+            cache_filename = f"earnings_{fp_formatted}_{language}.json"
+            cache_filename_en = f"earnings_{fp_formatted}_en.json"
+        else:
+            context_hash = hashlib.md5(context.encode('utf-8')).hexdigest()[:12]
+            cache_filename = f"earnings_{symbol.upper()}_{context_hash}_{language}.json"
+            cache_filename_en = f"earnings_{symbol.upper()}_{context_hash}_en.json"
+            
+        target_dir = os.path.join(self.cache_dir, symbol.upper(), "analysis", "earnings")
+        os.makedirs(target_dir, exist_ok=True)
+        cache_path = os.path.join(target_dir, cache_filename)
+        cache_path_en = os.path.join(target_dir, cache_filename_en)
+        
+        data = self._get_cached_data(cache_path)
+        if not data:
+            data_en = self._get_cached_data(cache_path_en)
+            if not data_en:
+                data_en = await self._generate_earnings_from_context(prompt, context, EarningsReportSchema, model_id="gemini-2.5-flash")
+                self._set_cached_data(cache_path_en, data_en)
+
+            data = data_en.copy()
+            if language != "en" and self.translator:
+                translatable_fields = {
+                    "forward_guidance": data_en["forward_guidance"],
+                    "moat_trajectory_description": data_en["moat_trajectory_description"],
+                    "bottom_line": data_en["bottom_line"],
+                    "risk_deconstruction": {
+                        "macro_risks": data_en["risk_deconstruction"]["macro_risks"],
+                        "internal_risks": data_en["risk_deconstruction"]["internal_risks"]
+                    },
+                    "capital_allocation": {
+                        "infrastructure_assessment": data_en["capital_allocation"]["infrastructure_assessment"]
+                    }
+                }
+                translated = await self.translator.translate_json(translatable_fields, language)
+                data["forward_guidance"] = translated.get("forward_guidance", data["forward_guidance"])
+                data["moat_trajectory_description"] = translated.get("moat_trajectory_description", data["moat_trajectory_description"])
+                data["bottom_line"] = translated.get("bottom_line", data["bottom_line"])
+                if "risk_deconstruction" in translated:
+                    data["risk_deconstruction"]["macro_risks"] = translated["risk_deconstruction"].get("macro_risks", data["risk_deconstruction"]["macro_risks"])
+                    data["risk_deconstruction"]["internal_risks"] = translated["risk_deconstruction"].get("internal_risks", data["risk_deconstruction"]["internal_risks"])
+                if "capital_allocation" in translated and "infrastructure_assessment" in translated["capital_allocation"]:
+                    data["capital_allocation"]["infrastructure_assessment"] = translated["capital_allocation"]["infrastructure_assessment"]
+            
+            self._set_cached_data(cache_path, data)
+
+        schema_instance = EarningsReportSchema(**data)
+
+
+        return EarningsReport(
+            period_end_date=schema_instance.period_end_date,
+
+            capital_allocation=CapitalAllocation(
+                infrastructure_assessment=schema_instance.capital_allocation.infrastructure_assessment
+            ),
+            forward_guidance=schema_instance.forward_guidance,
+            moat_trajectory_status=schema_instance.moat_trajectory_status,
+            moat_trajectory_description=schema_instance.moat_trajectory_description,
+            risk_deconstruction=RiskDeconstruction(
+                macro_risks=schema_instance.risk_deconstruction.macro_risks,
+                internal_risks=schema_instance.risk_deconstruction.internal_risks
+            ),
+            bottom_line=schema_instance.bottom_line,
+            sources={str(src.citation_number): EntitySourceInfo(source_name=src.source_name, exact_quote=src.source_text) for src in schema_instance.sources}
+        )
+
 
     async def deduce_dcf_assumptions(self, ticker: str, company_profile: dict, quant_data: dict, language: str = "en") -> dict:
         prompt = f"""
