@@ -29,14 +29,13 @@ class EarningsReportSchema(BaseModel):
     Schema for earnings report analysis focused on Value Investing.
     """
     period_end_date: str
-
+    sources: List[SourceCitation] = Field(
+        ..., 
+        description="List of numerical citations used in the text and their source document section or page"
+    )
     capital_allocation: CapitalAllocationSchema
     forward_guidance: str
     moat_trajectory_status: str
     moat_trajectory_description: str
     risk_deconstruction: RiskDeconstructionSchema
     bottom_line: str
-    sources: List[SourceCitation] = Field(
-        ..., 
-        description="List of numerical citations used in the text and their source document section or page"
-    )

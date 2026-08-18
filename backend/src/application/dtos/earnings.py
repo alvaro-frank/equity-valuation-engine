@@ -46,10 +46,14 @@ class RiskDeconstructionResult(BaseModel):
 
 class EarningsReportResult(BaseModel):
     """
-    Data Transfer Object for the comprehensive value-investing focused earnings report valuation.
+    Data Transfer Object representing the analysis of an earnings report, including performance, guidance, management tone, and specific value investing metrics.
     """
     model_config = ConfigDict(frozen=True)
     
+    sources: Dict[str, SourceInfoDTO] = Field(
+        ..., 
+        description="Mapping of numerical citations to source document pages/sections and exact quotes"
+    )
     ticker: TickerResult
     period_end_date: str = Field(..., description="The end date of the fiscal period")
     core_performance: Optional[CorePerformanceResult] = Field(None, description="Core non-GAAP performance metrics")
@@ -59,10 +63,6 @@ class EarningsReportResult(BaseModel):
     moat_trajectory_description: str = Field(..., description="Evidence of moat trajectory")
     risk_deconstruction: RiskDeconstructionResult = Field(..., description="Macro and internal risk breakdown")
     bottom_line: str = Field(..., description="Brutal, concise summary of business execution")
-    sources: Dict[str, SourceInfoDTO] = Field(
-        ..., 
-        description="Mapping of numerical citations to source document pages/sections and exact quotes"
-    )
     transcript: Optional[List['TranscriptStatementResult']] = Field(None, description="The full earnings call transcript")
 
 class TranscriptStatementResult(BaseModel):

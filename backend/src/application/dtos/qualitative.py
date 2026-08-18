@@ -44,6 +44,7 @@ class QualitativeValuationResult(BaseModel):
     model_config = ConfigDict(frozen=True)
     
     ticker: TickerResult
+    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Google Search citation mapping")
     business_description: str = Field(..., description="Description of business operations")
     company_history: str = Field(None, description="History of company foundation and evolution")
     key_executives: List[Dict[str, Any]] = Field(..., description="List of key executives with name and title")
@@ -62,7 +63,6 @@ class QualitativeValuationResult(BaseModel):
     moat_trajectory_description: str = Field(..., description="Detailed analysis of the moat trajectory")
     moat_sources: MoatSourcesResult = Field(..., description="Quantitative evaluation of moat sources (1-5)")
     quality_pillars: QualityPillarsResult = Field(..., description="Quantitative evaluation of business quality pillars (1-5)")
-    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Google Search citation mapping")
 
 class SectorIndustrialValuationResult(BaseModel):
     """
@@ -71,6 +71,7 @@ class SectorIndustrialValuationResult(BaseModel):
     model_config = ConfigDict(frozen=True)
     
     ticker: TickerResult
+    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Sources used in the analysis")
     sector: str = Field(..., description="The broad sector name")
     industry: str = Field(..., description="The specific industry name")
     rivalry_among_competitors: Dict[str, str] = Field(..., description="Analysis of intensity of competition")
@@ -80,4 +81,3 @@ class SectorIndustrialValuationResult(BaseModel):
     threat_of_obsolescence: Dict[str, str] = Field(..., description="Risk of technological or market displacement")
     economic_sensitivity: str = Field(..., description="How the industry reacts to economic cycles")
     interest_rate_exposure: str = Field(..., description="Impact of interest rate fluctuations on the sector")
-    sources: Dict[str, SourceInfoDTO] = Field(default_factory=dict, description="Sources used in the analysis")
