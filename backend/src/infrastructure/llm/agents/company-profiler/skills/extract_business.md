@@ -27,6 +27,7 @@ Return ONLY a valid JSON object following this exact schema:
 }
 
 Do not include any markdown formatting outside the JSON, preamble, or conversational text. Return only the raw JSON.
+JSON Formatting Integrity: CRITICAL: NEVER use double quotes (") inside any extracted text string. Always replace them with single quotes (') to avoid breaking the JSON schema formatting.
 
 SKILL-SPECIFIC INSTRUCTIONS:
 - Source Fact-Extraction First: You MUST extract and define all 'sources' first at the top of the JSON. Then, use those exact citation IDs (e.g. [1]) to reference the evidence in the narrative sections.

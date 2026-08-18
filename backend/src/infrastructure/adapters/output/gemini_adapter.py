@@ -2,6 +2,7 @@ from google import genai
 from loguru import logger
 from google.genai import types
 import json
+import json_repair
 import asyncio
 from typing import Optional, Type, TypeVar
 from pydantic import BaseModel
@@ -45,7 +46,9 @@ class GeminiAdapter(BaseLLMAdapter):
             elapsed = time.time() - start_time
             logger.info(f"[LLM - {schema.__name__}] {model_id} responded successfully in {elapsed:.2f}s")
             raw_text = response.text
-            data_en = json.loads(raw_text)
+            logger.debug(f"[LLM] Parsing JSON response from {model_id}...")
+            data_en = json_repair.loads(raw_text)
+            logger.info(f"[LLM] Validation successful for {schema.__name__}.")
             return data_en
         except Exception as e:
             logger.error(f"[LLM-Error] Gemini API Error during _generate_company_profile: {e}")
@@ -71,7 +74,7 @@ class GeminiAdapter(BaseLLMAdapter):
             )
             elapsed = time.time() - start_time
             logger.info(f"[LLM - {schema.__name__}] {model_id} responded successfully in {elapsed:.2f}s")
-            data_en = extract_json_from_response(response.text)
+            data_en = json_repair.loads(response.text)
             return data_en
         except Exception as e: 
             error_str = str(e).lower()
@@ -107,7 +110,7 @@ class GeminiAdapter(BaseLLMAdapter):
             )
             elapsed = time.time() - start_time
             logger.info(f"[LLM - {schema.__name__}] {model_id} PDF analysis completed in {elapsed:.2f}s")
-            return json.loads(response.text)
+            return json_repair.loads(response.text)
         except Exception as e: 
             logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_report: {e}")
             error_str = str(e).lower()
@@ -139,7 +142,7 @@ class GeminiAdapter(BaseLLMAdapter):
             )
             elapsed = time.time() - start_time
             logger.info(f"[LLM] Resolved successfully in {elapsed:.2f}s.")
-            return json.loads(response.text)
+            return json_repair.loads(response.text)
         except Exception as e:
             logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_from_context: {e}")
             error_str = str(e).lower()
@@ -163,7 +166,7 @@ class GeminiAdapter(BaseLLMAdapter):
             )
             elapsed = time.time() - start_time
             logger.info(f"[LLM - {schema.__name__}] {model_id} responded successfully in {elapsed:.2f}s")
-            return json.loads(response.text)
+            return json_repair.loads(response.text)
         except Exception as e:
             logger.error(f"[LLM-Error] Gemini API Error during _generate_dcf_assumptions: {e}")
             error_str = str(e).lower()
