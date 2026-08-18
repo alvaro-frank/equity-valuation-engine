@@ -44,6 +44,22 @@ class EarningsReportPort(ABC):
         """
         pass
 
+    @abstractmethod
+    async def analyse_earnings_from_context(self, symbol: str, context: str, language: str = "en", focus_period: str = None) -> EarningsReport:
+        """
+        Analyses the earnings report of a company using structured quantitative and transcript data.
+        
+        Args:
+            symbol (str): The stock ticker symbol of the company
+            context (str): The structured JSON containing financials and transcripts
+            language (str): Target language for the analysis
+            focus_period (str): The fiscal period to focus on (e.g., "FY2023", "Q12023")
+            
+        Returns:
+            EarningsReport: Domain Entity containing the analytical data
+        """
+        pass
+
 class SectorIndustrialDataPort(ABC):   
     @abstractmethod
     async def analyse_industry(self, sector: str, industry: str, language: str = "en", ticker: str = "", context: str = "") -> IndustrySectorDynamics:

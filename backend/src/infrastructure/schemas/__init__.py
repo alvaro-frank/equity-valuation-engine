@@ -5,7 +5,7 @@ from .qualitative_schemas import (
     BusinessModelSchema, MoatAnalysisSchema, RiskCatalystSchema, SECDistillerSchema
 )
 from .earnings_schemas import (
-    MetricWithGrowthSchema, CorePerformanceSchema, CapitalAllocationSchema,
+    CapitalAllocationSchema,
     RiskDeconstructionSchema, SourceCitation, EarningsReportSchema
 )
 from .dcf_schemas import (
@@ -26,8 +26,7 @@ __all__ = [
     "SECDistillerSchema",
     "ForceFactor",
     "IndustrySectorDynamicsSchema",
-    "MetricWithGrowthSchema",
-    "CorePerformanceSchema",
+
     "CapitalAllocationSchema",
     "RiskDeconstructionSchema",
     "SourceCitation",

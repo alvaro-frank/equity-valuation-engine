@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from .core import TickerResult
 
 class MoatSourcesResult(BaseModel):
@@ -27,7 +27,7 @@ class SourceInfoDTO(BaseModel):
     """
     Data Transfer Object representing information about a source used in the research.
     """
-    source_name: str
+    source_name: Optional[str] = None
     exact_quote: str
 
 class NearTermCatalystDTO(BaseModel):

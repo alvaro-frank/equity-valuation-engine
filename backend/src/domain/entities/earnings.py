@@ -2,6 +2,7 @@ from decimal import Decimal
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+from domain.entities.qualitative import SourceInfo
 
 @dataclass(frozen=True)
 class MetricWithGrowth:
@@ -9,31 +10,30 @@ class MetricWithGrowth:
     Represents a financial metric extracted from an earnings report.
     
     Attributes:
-        amount (Optional[Decimal]): The absolute value or margin of the metric (e.g., revenue amount, EPS value, or margin percentage).
-    
-    Note:
-        YoY growth is calculated deterministically in the frontend using quantitative API data.
+        amount (Optional[Decimal]): The absolute value or margin of the metric.
+        yoy_growth (Optional[Decimal]): The year-over-year growth percentage (or point difference for margins).
     """
     amount: Optional[Decimal] = None
+    yoy_growth: Optional[Decimal] = None
 
 @dataclass(frozen=True)
 class CorePerformance:
     """
-    Represents the core non-GAAP financial performance metrics of a company for a specific period.
+    Represents the core GAAP financial performance metrics of a company for a specific period.
     
     Attributes:
-        adjusted_revenue (MetricWithGrowth): The adjusted revenue figure and its year-over-year growth.
-        adjusted_eps (MetricWithGrowth): The adjusted earnings per share figure and its year-over-year growth.
-        adjusted_gross_margin (MetricWithGrowth): The adjusted gross margin percentage and its year-over-year change.
-        adjusted_operating_margin (MetricWithGrowth): The adjusted operating margin percentage and its year-over-year change.
-        adjusted_net_margin (MetricWithGrowth): The adjusted net margin percentage and its year-over-year change.
+        revenue (MetricWithGrowth): The revenue figure and its year-over-year growth.
+        eps (MetricWithGrowth): The earnings per share figure and its year-over-year growth.
+        gross_margin (MetricWithGrowth): The gross margin percentage and its year-over-year change.
+        operating_margin (MetricWithGrowth): The operating margin percentage and its year-over-year change.
+        net_margin (MetricWithGrowth): The net margin percentage and its year-over-year change.
         free_cash_flow (MetricWithGrowth): The free cash flow figure and its year-over-year growth.
     """
-    adjusted_revenue: MetricWithGrowth
-    adjusted_eps: MetricWithGrowth
-    adjusted_gross_margin: MetricWithGrowth
-    adjusted_operating_margin: MetricWithGrowth
-    adjusted_net_margin: MetricWithGrowth
+    revenue: MetricWithGrowth
+    eps: MetricWithGrowth
+    gross_margin: MetricWithGrowth
+    operating_margin: MetricWithGrowth
+    net_margin: MetricWithGrowth
     free_cash_flow: MetricWithGrowth
 
 @dataclass(frozen=True)
@@ -80,14 +80,14 @@ class EarningsReport:
         bottom_line (str): Brutal, concise summary of business execution.
     """
     period_end_date: str
-    core_performance: CorePerformance
     capital_allocation: CapitalAllocation
     forward_guidance: str
     moat_trajectory_status: str
     moat_trajectory_description: str
     risk_deconstruction: RiskDeconstruction
     bottom_line: str
-    sources: Dict[str, str]
+    sources: Dict[str, SourceInfo]
+    core_performance: Optional[CorePerformance] = None
 
 @dataclass(frozen=True)
 class TranscriptStatement:
