@@ -19,27 +19,19 @@ export function CorePerformanceGrid({ data, quantData, periodEndDate }: CorePerf
   const formatEps = (amount: number | string | null | undefined) => 
     amount != null ? `$${Number(amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : 'N/A';
 
-  // Helper to get exact YoY growth from our reliable quantitative data source
-  const getAccurateYoY = (metricKey: string, fallback: number | null | undefined) => {
-    if (!quantData?.quarterly_metrics?.[metricKey]) return fallback;
-    const series = quantData.quarterly_metrics[metricKey];
-    if (!series || series.length < 5) return fallback;
-    
-    const isNewestFirst = series[0].date > series[series.length - 1].date;
-    const latestIndex = isNewestFirst ? 0 : series.length - 1;
-    const priorYearIndex = isNewestFirst ? 4 : series.length - 5;
-    
-    const latestValue = series[latestIndex].value;
-    const priorValue = series[priorYearIndex].value;
-
-    const isMargin = metricKey.includes('margin');
-    return calcYoY(latestValue, priorValue, isMargin) ?? fallback;
-  };
-
+  const revenueFallback = getFallbackValue('revenue');
+  const epsFallback = getFallbackValue('eps');
   const fcfFallback = getFallbackValue('free_cash_flow');
-  const finalFcf = data.free_cash_flow?.amount != null 
-    ? data.free_cash_flow.amount * 1e9 
-    : (fcfFallback != null ? fcfFallback : null);
+  const grossMarginFallback = getFallbackValue('gross_margin');
+  const opMarginFallback = getFallbackValue('operating_margin');
+  const netMarginFallback = getFallbackValue('net_margin');
+
+  const finalRevenue = data?.revenue?.amount != null ? data.revenue.amount * 1e9 : revenueFallback;
+  const finalEps = data?.eps?.amount != null ? data.eps.amount : epsFallback;
+  const finalFcf = data?.free_cash_flow?.amount != null ? data.free_cash_flow.amount * 1e9 : fcfFallback;
+  const finalGross = data?.gross_margin?.amount != null ? data.gross_margin.amount : grossMarginFallback;
+  const finalOp = data?.operating_margin?.amount != null ? data.operating_margin.amount : opMarginFallback;
+  const finalNet = data?.net_margin?.amount != null ? data.net_margin.amount : netMarginFallback;
 
   return (
     <div>
@@ -49,36 +41,36 @@ export function CorePerformanceGrid({ data, quantData, periodEndDate }: CorePerf
       </h3>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <PerformanceMetric 
-          label={t('filings.adj_revenue')} 
-          value={formatLargeCurrency(data.adjusted_revenue?.amount != null ? data.adjusted_revenue.amount * 1e9 : null)} 
-          growth={getAccurateYoY('revenue', data.adjusted_revenue?.yoy_growth)} 
+          label={t('filings.revenue')} 
+          value={formatLargeCurrency(finalRevenue)} 
+          growth={data?.revenue?.yoy_growth} 
         />
         <PerformanceMetric 
-          label={t('filings.adj_eps')} 
-          value={formatEps(data.adjusted_eps?.amount)} 
-          growth={getAccurateYoY('eps', data.adjusted_eps?.yoy_growth)} 
+          label={t('filings.eps')} 
+          value={formatEps(finalEps)} 
+          growth={data?.eps?.yoy_growth} 
         />
         <PerformanceMetric 
           label={t('filings.fcf')} 
           value={formatLargeCurrency(finalFcf)} 
-          growth={getAccurateYoY('free_cash_flow', data.free_cash_flow?.yoy_growth)} 
+          growth={data?.free_cash_flow?.yoy_growth} 
         />
         <PerformanceMetric 
           label={t('filings.gross_margin')} 
-          value={formatPercentage(data.adjusted_gross_margin.amount)} 
-          growth={getAccurateYoY('gross_margin', data.adjusted_gross_margin.yoy_growth)}
+          value={formatPercentage(finalGross)} 
+          growth={data?.gross_margin?.yoy_growth}
           isMargin={true}
         />
         <PerformanceMetric 
           label={t('filings.operating_margin')} 
-          value={formatPercentage(data.adjusted_operating_margin.amount)} 
-          growth={getAccurateYoY('operating_margin', data.adjusted_operating_margin.yoy_growth)}
+          value={formatPercentage(finalOp)} 
+          growth={data?.operating_margin?.yoy_growth}
           isMargin={true}
         />
         <PerformanceMetric 
           label={t('filings.net_margin')} 
-          value={formatPercentage(data.adjusted_net_margin.amount)} 
-          growth={getAccurateYoY('net_margin', data.adjusted_net_margin.yoy_growth)}
+          value={formatPercentage(finalNet)} 
+          growth={data?.net_margin?.yoy_growth}
           isMargin={true}
         />
       </div>

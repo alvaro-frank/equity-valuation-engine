@@ -20,7 +20,7 @@ export function InfoTooltip({ content }: InfoTooltipProps) {
         </Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content 
-            className="z-[100] max-w-sm px-4 py-3 bg-surface-container-high border border-outline-variant text-on-surface text-sm rounded-lg shadow-xl leading-relaxed" 
+            className="z-[100] max-h-[300px] overflow-y-auto custom-scrollbar max-w-sm px-4 py-3 bg-surface-container-high border border-outline-variant text-on-surface text-sm rounded-lg shadow-xl leading-relaxed" 
             sideOffset={8}
           >
             {content}

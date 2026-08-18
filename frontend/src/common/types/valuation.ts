@@ -129,11 +129,11 @@ export interface MetricWithGrowth {
 }
 
 export interface CorePerformance {
-  adjusted_revenue: MetricWithGrowth;
-  adjusted_eps: MetricWithGrowth;
-  adjusted_gross_margin: MetricWithGrowth;
-  adjusted_operating_margin: MetricWithGrowth;
-  adjusted_net_margin: MetricWithGrowth;
+  revenue: MetricWithGrowth;
+  eps: MetricWithGrowth;
+  gross_margin: MetricWithGrowth;
+  operating_margin: MetricWithGrowth;
+  net_margin: MetricWithGrowth;
   free_cash_flow: MetricWithGrowth;
 }
 
@@ -164,7 +164,14 @@ export interface EarningsReportResult {
   moat_trajectory_description: string;
   risk_deconstruction: RiskDeconstruction;
   bottom_line: string;
-  sources: Record<string, SourceInfo | string>;
+  sources: Record<string, SourceInfo>;
+  transcript?: TranscriptStatement[];
+}
+
+export interface TranscriptStatement {
+  speaker: string;
+  title: string;
+  content: string;
 }
 
 export interface SectorPerformancePoint {

@@ -84,26 +84,27 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Content
-                  className="z-50 max-w-[300px] px-3 py-2 text-xs font-medium text-on-surface bg-surface-container-high border border-outline-variant rounded-lg shadow-lg animate-in fade-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 flex flex-col gap-2"
+                  className="z-50 max-h-[300px] overflow-y-auto custom-scrollbar max-w-[300px] px-3 py-2 text-xs font-medium text-on-surface bg-surface-container-high border border-outline-variant rounded-lg shadow-lg animate-in fade-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 flex flex-col gap-2"
                   sideOffset={6}
                 >
                   {validSources.map((srcItem, idx) => {
                     const info = srcItem.sourceText;
                     
+                    let quoteText = "";
+                    let rawSourceName = null;
+
                     if (typeof info === 'string') {
-                      return (
-                        <div key={idx} className="flex gap-2">
-                          <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
-                          <span>"{info}"</span>
-                        </div>
-                      );
+                      quoteText = info;
+                    } else {
+                      quoteText = info.exact_quote;
+                      rawSourceName = info.source_name;
                     }
 
-                    const isUrl = info.source_name?.startsWith('http') || info.exact_quote?.startsWith('http');
+                    const isUrl = rawSourceName?.startsWith('http') || quoteText.startsWith('http');
                     
                     if (isUrl) {
-                      const url = info.source_name?.startsWith('http') ? info.source_name : info.exact_quote;
-                      const displayTitle = info.source_name?.startsWith('http') ? info.exact_quote : info.source_name;
+                      const url = rawSourceName?.startsWith('http') ? rawSourceName : quoteText;
+                      const displayTitle = rawSourceName?.startsWith('http') ? quoteText : rawSourceName;
                       return (
                         <a 
                           key={idx}
@@ -135,15 +136,15 @@ export function CitedText({ text, sources: overrideSources }: CitedTextProps) {
                       return name;
                     };
 
-                    const formattedSourceName = formatSourceName(info.source_name);
+                    const formattedSourceName = rawSourceName ? formatSourceName(rawSourceName) : null;
 
                     return (
                       <div key={idx} className="flex gap-2 flex-col mb-1 border-b border-black/30 dark:border-outline-variant/50 pb-2 last:border-0 last:pb-0">
                         <div className="flex gap-2">
                           <span className="text-primary font-bold min-w-max">[{srcItem.number}]</span>
-                          <span className="font-bold text-primary/80">{formattedSourceName}</span>
+                          {formattedSourceName && <span className="font-bold">{formattedSourceName}</span>}
                         </div>
-                        <span className="italic">"{info.exact_quote}"</span>
+                        <span className="italic">"{quoteText}"</span>
                       </div>
                     );
                   })}
