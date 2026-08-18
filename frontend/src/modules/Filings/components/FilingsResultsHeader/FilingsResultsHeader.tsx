@@ -17,7 +17,7 @@ export function FilingsResultsHeader({ onReset, ticker, name, sector, industry, 
   const formattedDate = formatDateString(periodEndDate, i18n.language);
 
   return (
-    <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-6 pb-4 mb-6 flex items-end justify-between border-b border-outline-variant/20 -mx-4 px-4 sm:-mx-8 sm:px-8">
+    <div className="flex items-end justify-between px-2 pt-2 pb-6 border-b border-outline-variant">
       <div>
         <div className="flex items-center gap-3">
           <h1 className="font-display-md text-display-md text-on-surface">{name || ticker}</h1>

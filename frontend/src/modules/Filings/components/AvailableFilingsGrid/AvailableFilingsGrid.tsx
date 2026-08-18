@@ -20,21 +20,7 @@ export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, ana
   const annualFilings = filings.filter((f) => f.form_type === '10-K');
   let quarterlyFilings = filings.filter((f) => f.form_type === '10-Q');
 
-  const q4Filings: LocalFilingDTO[] = [];
-  annualFilings.forEach(annual => {
-    const yearMatch = annual.period.match(/\d{4}/);
-    if (yearMatch) {
-      const year = yearMatch[0];
-      q4Filings.push({
-        ...annual,
-        form_type: '10-Q',
-        period: `${year}-Q4`,
-        focus_period: 'Q4'
-      });
-    }
-  });
-
-  quarterlyFilings = [...quarterlyFilings, ...q4Filings].sort((a, b) => b.period.localeCompare(a.period));
+  quarterlyFilings = quarterlyFilings.sort((a, b) => b.period.localeCompare(a.period));
 
   const renderFilingButton = (filing: LocalFilingDTO) => {
     const isQuarterly = filing.form_type === '10-Q';
