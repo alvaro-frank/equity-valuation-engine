@@ -26,21 +26,28 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
 
   return (
     <SourcesProvider sources={qualData?.sources}>
-      <div className="max-w-[1600px] mx-auto w-full flex-1 space-y-panel-gap">
-        <DashboardHeader 
-          ticker={ticker} 
-          quantData={quantData} 
-          qualData={qualData} 
-          onSearch={onSearch} 
-        />
+      <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col pb-12">
+        
+        {/* Sticky Header with Blur */}
+        <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-6 pb-4 flex flex-col gap-6 -mx-4 px-4 sm:-mx-8 sm:px-8 border-b border-outline-variant/20 mb-6">
+          <DashboardHeader 
+            ticker={ticker} 
+            quantData={quantData} 
+            qualData={qualData} 
+            onSearch={onSearch} 
+          />
 
-        <KPIGrid 
-          quantData={quantData} 
-          ev={ev} 
-          fcf={fcf} 
-          getLatestMetric={getLatestMetric} 
-          getRawLatestMetric={getRawLatestMetric} 
-        />
+          <KPIGrid 
+            quantData={quantData} 
+            ev={ev} 
+            fcf={fcf} 
+            getLatestMetric={getLatestMetric} 
+            getRawLatestMetric={getRawLatestMetric} 
+          />
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex flex-col gap-panel-gap">
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-panel-gap">
           <BusinessMoatPanel qualData={qualData} />
@@ -51,6 +58,7 @@ export function DashboardView({ ticker, quantData, qualData, onSearch }: Dashboa
           <RevenueChart quantData={quantData} />
           <MarginChart quantData={quantData} />
         </section>
+        </div>
       </div>
     </SourcesProvider>
   );
