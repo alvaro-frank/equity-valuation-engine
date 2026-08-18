@@ -1,6 +1,7 @@
 export interface BaseMetric {
   date: string;
   value: number;
+  yoy_growth?: number;
 }
 
 export interface CAGRData {

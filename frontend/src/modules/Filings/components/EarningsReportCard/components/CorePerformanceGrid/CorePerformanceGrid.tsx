@@ -1,7 +1,6 @@
 import type { EarningsReportResult } from '@/common/types/valuation';
 import { useTranslation } from 'react-i18next';
 import { formatLargeCurrency, formatPercentage } from '@/common/utils/formatters';
-import { calcYoY } from '@/common/utils/financialCalcs';
 import { PerformanceMetric } from '../PerformanceMetric';
 import { useQuantitativeFallback } from '../../hooks/useQuantitativeFallback';
 

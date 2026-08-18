@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import type { MetricSeries, BaseMetric } from '@/common/types/valuation';
 import type { FinancialTableRow } from './FinancialTable';
 import { formatFinancialMetric, formatPercentage } from '@/common/utils/formatters';
-import { calcYoY } from '@/common/utils/financialCalcs';
 
 interface UseFinancialTableProps {
   metricsData: Record<string, MetricSeries> | undefined;
@@ -58,8 +57,13 @@ export function useFinancialTable({ metricsData, quarterlyData, isQuarterly = fa
       const quarterlySeries = quarterlyData?.[row.key];
       
       const valuesByDate: Record<string, number> = {};
+      const yoyGrowthByDate: Record<string, number | undefined> = {};
+      
       if (isQuarterly && quarterlySeries) {
-        quarterlySeries.forEach(item => valuesByDate[item.date] = item.value);
+        quarterlySeries.forEach(item => {
+          valuesByDate[item.date] = item.value;
+          yoyGrowthByDate[item.date] = item.yoy_growth;
+        });
       } else if (!isQuarterly && metricSeries?.yearly_data) {
         metricSeries.yearly_data.forEach(item => valuesByDate[item.date] = item.value);
       }
@@ -72,13 +76,11 @@ export function useFinancialTable({ metricsData, quarterlyData, isQuarterly = fa
         if (!isQuarterly) {
           growth = metricSeries?.cagr != null ? formatPercentage(metricSeries.cagr) : '-';
         } else {
-          if (periods.length >= 5) {
-            // Index 0 is the newest quarter, Index 4 is the same quarter last year
-            const current = valuesByDate[periods[0]];
-            const previous = valuesByDate[periods[4]];
-            // Guard against division by zero only; negatives are valid (CapEx, dividends, etc.)
-            const yoy = calcYoY(current, previous);
-            if (yoy != null) growth = formatPercentage(yoy);
+          if (periods.length > 0) {
+            const latestYoy = yoyGrowthByDate[periods[0]];
+            if (latestYoy != null) {
+              growth = formatPercentage(latestYoy);
+            }
           }
         }
       }
