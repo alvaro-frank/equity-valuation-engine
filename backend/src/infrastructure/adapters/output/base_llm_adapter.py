@@ -346,6 +346,10 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
         OUTPUT FORMAT:
         Return ONLY a valid JSON object following this exact schema:
         {{
+            "sources": [
+                {{ "citation_id": "1", "source_name": "Exact Document Name (e.g., META_10-Q_Q2_2026.txt)", "exact_quote": "SHORT exact sentence (max 1-2 sentences) from the context. CRITICAL: DO NOT use double quotes inside this text." }},
+                {{ "citation_id": "2", "source_name": "Exact Document Name", "exact_quote": "Another SHORT exact sentence from the context. Replace internal quotes with single quotes." }}
+            ],
             "sector": "{sector}",
             "industry": "{industry}",
             "rivalry_among_competitors": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [1]..." }} ],
@@ -354,11 +358,7 @@ class BaseLLMAdapter(SectorIndustrialDataPort, EarningsReportPort, QualitativeDa
             "threat_of_new_entrants": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [4]..." }} ],
             "threat_of_obsolescence": [ {{ "factor": "Key Factor", "analysis": "Analysis with citations [5]..." }} ],
             "economic_sensitivity": "Detailed narrative about economic cycles with citations [6].",
-            "interest_rate_exposure": "Detailed narrative about rate impacts with citations [7].",
-            "sources": [
-                {{ "citation_id": "1", "source_name": "Exact Document Name (e.g., META_10-Q_Q2_2026.txt)", "exact_quote": "SHORT exact sentence (max 1-2 sentences) from the context. CRITICAL: DO NOT use double quotes inside this text." }},
-                {{ "citation_id": "2", "source_name": "Exact Document Name", "exact_quote": "Another SHORT exact sentence from the context. Replace internal quotes with single quotes." }}
-            ]
+            "interest_rate_exposure": "Detailed narrative about rate impacts with citations [7]."
         }}
 
         CRITICAL: YOU MUST INCLUDE ALL FIELDS IN THE OUTPUT. DO NOT OMIT 'interest_rate_exposure' or 'sources'. 

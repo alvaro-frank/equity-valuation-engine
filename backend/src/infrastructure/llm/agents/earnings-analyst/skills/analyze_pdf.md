@@ -16,3 +16,5 @@ Because this is a raw PDF text extraction:
 3. Locate the Consolidated Statement of Cash Flows for Operating Cash Flow and Capital Expenditures.
 4. Be diligent in matching the correct column for the target period.
 5. For qualitative fields, extract evidence from the Management's Discussion and Analysis (MD&A) section.
+6. Source Fact-Extraction First: You MUST extract and define all 'sources' first. Then, use those exact citation IDs to reference the evidence in the narrative sections.
+7. Financial Reality Check: Management narratives are often overly optimistic. You MUST anchor the 'moat_trajectory_status' and 'moat_trajectory_description' on hard financial data. If gross margins are compressing or revenue is declining, the moat is fundamentally NOT 'EXPANDING', regardless of management's claims about new technologies or market share. A declining financial profile implies a 'SHRINKING' or 'STABLE' moat.

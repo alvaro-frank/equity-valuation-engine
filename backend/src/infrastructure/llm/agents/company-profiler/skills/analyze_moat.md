@@ -6,7 +6,10 @@ description: Analyzes the competitive advantage, competitors, moat trajectory, a
 REQUIRED JSON STRUCTURE:
 Return ONLY a valid JSON object following this exact schema:
 {
-    "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly anchor the analysis in ROIC, gross margins, or market share metrics.",
+    "sources": [
+        { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" }
+    ],
+    "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly anchor the analysis in ROIC, gross margins, or market share metrics. Use citations [1].",
     "competitors": [
         { "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis of direct overlap and competitive threat..." },
         { "name": "Competitor 2 Name", "ticker": "MSFT", "overlap": "Detailed 2-3 sentence analysis..." },
@@ -33,6 +36,7 @@ Return ONLY a valid JSON object following this exact schema:
 Do not include any markdown formatting outside the JSON, preamble, or conversational text. Return only the raw JSON.
 
 SKILL-SPECIFIC INSTRUCTIONS:
+- Source Fact-Extraction First: You MUST extract and define all 'sources' first at the top of the JSON. Then, use those exact citation IDs (e.g. [1]) to reference the evidence in the narrative sections.
 - Quantitative Anchors: Whenever analyzing the 'competitive_advantage', you MUST explicitly cite structural financial metrics if available (e.g., Gross Margins, Operating Margins, ROIC, or FCF generation) to prove the qualitative thesis. A moat without margin or ROIC expansion is not a moat.
 - Independent Scoring: You MUST independently evaluate and assign a score from 1 to 5 for EACH 'moat_sources' and 'quality_pillars' metric based on the SPECIFIC company being analyzed. DO NOT copy the arbitrary numbers from the JSON example.
 - Competitors: Enforce exactly ONE single company per item, providing its official stock ticker (use "PRIVATE" if unlisted). The 'overlap' must explicitly detail where they compete and quantify the competitor's threat.
