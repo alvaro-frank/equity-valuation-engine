@@ -10,15 +10,15 @@ Return ONLY a valid JSON object following this exact schema:
         { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" }
     ],
     "management_insights": "Synthesize the caliber, candor, and track record of management. Do they acknowledge mistakes? Are they overly promotional? Use citations [1].",
-    "capital_allocation_strategy": "Detailed analysis of how management deploys Free Cash Flow: CapEx intensity, M&A track record, share buybacks, and dividend policy.",
+    "capital_allocation_strategy": "Detailed analysis of how management deploys Free Cash Flow: CapEx intensity, M&A track record, share buybacks, and dividend policy. Use citations [1].",
     "near_term_catalysts": [
-        { "event": "Catalyst 1 Name", "impact": "Detailed 2-3 sentence breakdown of how this upcoming event could positively or negatively re-rate the stock in the next 12-24 months." }
+        { "event": "Catalyst 1 Name", "impact": "Detailed 2-3 sentence breakdown of how this upcoming event could positively or negatively re-rate the stock in the next 12-24 months. Use citations [1]." }
     ],
     "risk_factors": [
-        { "title": "Risk 1 Title (e.g. Geopolitical)", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability. Must include recent specific headwinds and quantifiable data." },
-        { "title": "Risk 2 Title (e.g. Competitive)", "description": "Detailed 2-3 sentence breakdown..." },
-        { "title": "Risk 3 Title (e.g. Internal)", "description": "Detailed 2-3 sentence breakdown..." },
-        { "title": "Risk 4 Title (e.g. Macro)", "description": "Detailed 2-3 sentence breakdown..." }
+        { "title": "Risk 1 Title (e.g. Geopolitical)", "description": "Detailed 2-3 sentence breakdown of the risk impact and probability. Must include recent specific headwinds and quantifiable data. Use citations [1]." },
+        { "title": "Risk 2 Title (e.g. Competitive)", "description": "Detailed 2-3 sentence breakdown. Use citations [1]." },
+        { "title": "Risk 3 Title (e.g. Internal)", "description": "Detailed 2-3 sentence breakdown. Use citations [1]." },
+        { "title": "Risk 4 Title (e.g. Macro)", "description": "Detailed 2-3 sentence breakdown. Use citations [1]." }
     ],
     "historical_context_crises": "How the company navigated past major crises and recent macro challenges (e.g. 2022 inflation, recent industry downturns)."
 }
