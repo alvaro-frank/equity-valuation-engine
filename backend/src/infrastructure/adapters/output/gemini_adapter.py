@@ -46,16 +46,15 @@ class GeminiAdapter(BaseLLMAdapter):
             elapsed = time.time() - start_time
             logger.info(f"[LLM - {schema.__name__}] {model_id} responded successfully in {elapsed:.2f}s")
             raw_text = response.text
-            logger.debug(f"[LLM] Parsing JSON response from {model_id}...")
             data_en = json_repair.loads(raw_text)
             logger.info(f"[LLM] Validation successful for {schema.__name__}.")
             return data_en
         except Exception as e:
-            logger.error(f"[LLM-Error] Gemini API Error during _generate_company_profile: {e}")
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_company_profile: {type(e).__name__} - {str(e)}")
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
-                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
-            raise ExternalServiceError(f"Gemini API Error: {e}")
+                raise RateLimitExceededError(f"Gemini Rate Limit: {type(e).__name__} - {str(e)}")
+            raise ExternalServiceError(f"Gemini API Error: {type(e).__name__} - {str(e)}")
 
     async def _generate_industry_dynamics(self, prompt: str, schema: Type[T], model_id: str = "gemini-3.1-pro-preview") -> dict:
         import time
@@ -77,10 +76,11 @@ class GeminiAdapter(BaseLLMAdapter):
             data_en = json_repair.loads(response.text)
             return data_en
         except Exception as e: 
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_industry_dynamics: {type(e).__name__} - {str(e)}")
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
-                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
-            raise ExternalServiceError(f"Gemini API Error: {e}")
+                raise RateLimitExceededError(f"Gemini Rate Limit: {type(e).__name__} - {str(e)}")
+            raise ExternalServiceError(f"Gemini API Error: {type(e).__name__} - {str(e)}")
 
     async def _generate_earnings_report(self, prompt: str, pdf_file_path: str, schema: Type[T], model_id: str = "gemini-2.5-flash") -> dict:
         import time
@@ -112,13 +112,13 @@ class GeminiAdapter(BaseLLMAdapter):
             logger.info(f"[LLM - {schema.__name__}] {model_id} PDF analysis completed in {elapsed:.2f}s")
             return json_repair.loads(response.text)
         except Exception as e: 
-            logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_report: {e}")
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_report: {type(e).__name__} - {str(e)}")
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
-                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
+                raise RateLimitExceededError(f"Gemini Rate Limit: {type(e).__name__} - {str(e)}")
             elif isinstance(e, InvalidDocumentFormatError):
                 raise
-            raise ExternalServiceError(f"Gemini API Error: {e}")
+            raise ExternalServiceError(f"Gemini API Error: {type(e).__name__} - {str(e)}")
         finally:
             if uploaded_file is not None:
                 try:
@@ -144,11 +144,11 @@ class GeminiAdapter(BaseLLMAdapter):
             logger.info(f"[LLM] Resolved successfully in {elapsed:.2f}s.")
             return json_repair.loads(response.text)
         except Exception as e:
-            logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_from_context: {e}")
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_earnings_from_context: {type(e).__name__} - {str(e)}")
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
-                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
-            raise ExternalServiceError(f"Gemini API Error: {e}")
+                raise RateLimitExceededError(f"Gemini Rate Limit: {type(e).__name__} - {str(e)}")
+            raise ExternalServiceError(f"Gemini API Error: {type(e).__name__} - {str(e)}")
 
     async def _generate_dcf_assumptions(self, prompt: str, schema: Type[T], model_id: str = "gemini-3.1-pro-preview") -> dict:
         import time
@@ -168,8 +168,8 @@ class GeminiAdapter(BaseLLMAdapter):
             logger.info(f"[LLM - {schema.__name__}] {model_id} responded successfully in {elapsed:.2f}s")
             return json_repair.loads(response.text)
         except Exception as e:
-            logger.error(f"[LLM-Error] Gemini API Error during _generate_dcf_assumptions: {e}")
+            logger.error(f"[LLM-Error] Gemini API Error during _generate_dcf_assumptions: {type(e).__name__} - {str(e)}")
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "quota" in error_str or "exhausted" in error_str:
-                raise RateLimitExceededError(f"Gemini Rate Limit: {e}")
-            raise ExternalServiceError(f"Gemini API Error: {e}")
+                raise RateLimitExceededError(f"Gemini Rate Limit: {type(e).__name__} - {str(e)}")
+            raise ExternalServiceError(f"Gemini API Error: {type(e).__name__} - {str(e)}")
