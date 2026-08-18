@@ -12,6 +12,7 @@ from application.use_cases.get_sector_performance import GetSectorPerformanceUse
 from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
 from application.use_cases.get_available_filings import GetAvailableFilingsUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
+from application.use_cases.analyse_earnings import AnalyseEarningsUseCase
 
 from application.exceptions.exceptions import (
     TickerNotFoundError,
@@ -34,7 +35,8 @@ from infrastructure.adapters.input.dependencies import (
     get_dcf_use_case,
     get_search_tickers_use_case,
     get_quantitative_adapter,
-    get_available_filings_use_case
+    get_available_filings_use_case,
+    get_analyse_earnings_use_case
 )
 from application.ports.core_financial_ports import QuantitativeDataPort
 from pydantic import BaseModel
@@ -163,21 +165,18 @@ async def get_local_filings(
     except Exception as e:
         handle_domain_error(e)
 
-@router.post("/filings/{ticker}/analyse_local", response_model=EarningsReportResult)
+@router.post("/filings/{ticker}/analyse_local")
 async def analyse_local_filing(
     ticker: str,
     request: LocalFilingRequest,
-    lang: str = Query("en", description="Language to generate the report in"),
-    use_case: EarningsReportUseCase = Depends(get_earnings_report_use_case)
+    use_case: AnalyseEarningsUseCase = Depends(get_analyse_earnings_use_case)
 ):
     """
-    Analyses a locally cached SEC filing (txt or html) using the Gemini-powered model.
+    Fetches the earnings call transcript and financial data for a specific quarter,
+    preparing the context for AI analysis.
     """
     try:
-        if not os.path.exists(request.file_path):
-            raise InvalidDocumentFormatError(f"File not found: {request.file_path}")
-            
-        result = await use_case.analyse_earnings_report(ticker.upper(), request.file_path, language=lang, focus_period=request.focus_period)
+        result = await use_case.execute(ticker.upper(), quarter_id=request.file_path)
         return result
     except Exception as e:
         handle_domain_error(e)

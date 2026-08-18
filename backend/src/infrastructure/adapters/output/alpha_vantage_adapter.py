@@ -594,4 +594,4 @@ class AlphaVantageAdapter(QuantitativeDataPort, OwnershipDataPort, PerformanceDa
         cash_data = cash_flow.get("quarterlyReports", [])
         
         financial_quarters = map_to_financial_quarters(income_data, balance_data, cash_data, historical_prices)
-        return financial_quarters[:12]
+        return financial_quarters[:20]

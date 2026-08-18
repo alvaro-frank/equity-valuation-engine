@@ -8,6 +8,7 @@ from application.use_cases.analyse_dcf_valuation import AnalyseDCFValuationUseCa
 from application.use_cases.get_sector_performance import GetSectorPerformanceUseCase
 from application.use_cases.get_earnings_call_transcript import GetEarningsCallTranscriptUseCase
 from application.use_cases.get_available_filings import GetAvailableFilingsUseCase
+from application.use_cases.analyse_earnings import AnalyseEarningsUseCase
 from application.use_cases.search_tickers import SearchTickersUseCase
 from application.use_cases.get_trending_tickers import GetTrendingTickersUseCase
 from infrastructure.adapters.output.alpha_vantage_adapter import AlphaVantageAdapter
@@ -189,3 +190,15 @@ def get_transcript_use_case(
 ) -> GetEarningsCallTranscriptUseCase:
     """Provides the use case for fetching an earnings call transcript."""
     return GetEarningsCallTranscriptUseCase(transcript_port=adapter)
+
+def get_analyse_earnings_use_case(
+    transcript_adapter: TranscriptDataPort = Depends(get_transcript_adapter),
+    quant_adapter: QuantitativeDataPort = Depends(get_quantitative_adapter),
+    llm_adapter = Depends(get_llm_adapter)
+) -> AnalyseEarningsUseCase:
+    """Provides the use case for analyzing earnings transcripts combined with financial statements."""
+    return AnalyseEarningsUseCase(
+        transcript_port=transcript_adapter,
+        quant_port=quant_adapter,
+        llm_port=llm_adapter
+    )

@@ -51,7 +51,7 @@ class GetAvailableFilingsUseCase:
                     )
                 )
                 
-        # Add Top 8 Quarters
+        # Add Top 10 Quarters
         if financial_quarters:
             from collections import defaultdict
             quarters_by_year = defaultdict(list)
@@ -76,6 +76,6 @@ class GetAvailableFilingsUseCase:
                     )
                     
             quarter_dtos.sort(key=lambda x: x.period, reverse=True)
-            filings.extend(quarter_dtos[:8])
+            filings.extend(quarter_dtos[:12])
                 
         return LocalFilingListResult(filings=filings)
