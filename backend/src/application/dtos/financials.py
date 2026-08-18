@@ -32,6 +32,7 @@ class MetricQuarterlyResult(BaseModel):
     
     date: str = Field(..., description="Fiscal quarter end date")
     value: Decimal | None = Field(..., description="Value of the metric for the quarter")
+    yoy_growth: Decimal | None = Field(None, description="Year-over-Year growth relative to the same quarter in the previous year")
     
 class MetricAnalysisResult(BaseModel):
     """

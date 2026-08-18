@@ -205,7 +205,7 @@ class AnalyseEarningsUseCase:
                 core_perf["gross_margin"] = {"amount": (gross / rev) * 100}
                 core_perf["operating_margin"] = {"amount": (op_inc / rev) * 100}
                 core_perf["net_margin"] = {"amount": (net_inc / rev) * 100}
-                core_perf["free_cash_flow"] = {"amount": (ocf - capex) / 1e9}
+                core_perf["free_cash_flow"] = {"amount": (ocf - abs(capex)) / 1e9}
                 
                 # YoY calculations
                 if previous_financial:
@@ -217,8 +217,8 @@ class AnalyseEarningsUseCase:
                     prev_ocf = to_float(previous_financial.operating_cash_flow)
                     prev_capex = to_float(previous_financial.capital_expenditures)
                     
-                    if prev_rev > 0:
-                        core_perf["revenue"]["yoy_growth"] = ((rev / prev_rev) - 1) * 100
+                    if prev_rev != 0:
+                        core_perf["revenue"]["yoy_growth"] = ((rev - prev_rev) / abs(prev_rev)) * 100
                         
                         prev_gross_margin = (prev_gross / prev_rev) * 100
                         core_perf["gross_margin"]["yoy_growth"] = core_perf["gross_margin"]["amount"] - prev_gross_margin
@@ -233,12 +233,12 @@ class AnalyseEarningsUseCase:
                         eps = net_inc / shares
                         prev_eps = prev_net_inc / prev_shares
                         if prev_eps != 0:
-                            core_perf["eps"]["yoy_growth"] = ((eps / prev_eps) - 1) * 100
+                            core_perf["eps"]["yoy_growth"] = ((eps - prev_eps) / abs(prev_eps)) * 100
                     
-                    prev_fcf = prev_ocf - prev_capex
-                    fcf = ocf - capex
+                    prev_fcf = prev_ocf - abs(prev_capex)
+                    fcf = ocf - abs(capex)
                     if prev_fcf != 0:
-                        core_perf["free_cash_flow"]["yoy_growth"] = ((fcf / prev_fcf) - 1) * 100
+                        core_perf["free_cash_flow"]["yoy_growth"] = ((fcf - prev_fcf) / abs(prev_fcf)) * 100
             
             result_dict["core_performance"] = core_perf
             

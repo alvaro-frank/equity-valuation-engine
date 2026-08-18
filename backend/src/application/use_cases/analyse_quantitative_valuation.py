@@ -110,9 +110,13 @@ class QuantitativeValuationUseCase:
         if financial_quarters:
             for metric in metrics_to_analyse:
                 quarterly_dtos = []
-                for fq in financial_quarters:
+                for i, fq in enumerate(financial_quarters):
                     val = getattr(fq, metric)
-                    quarterly_dtos.append(MetricQuarterlyResult(date=fq.fiscal_date_ending, value=val))
+                    yoy_growth = None
+                    if i + 4 < len(financial_quarters):
+                        prev_val = getattr(financial_quarters[i + 4], metric)
+                        yoy_growth = QuantitativeValuationUseCase.calculate_yoy(val, prev_val)
+                    quarterly_dtos.append(MetricQuarterlyResult(date=fq.fiscal_date_ending, value=val, yoy_growth=yoy_growth))
                 quarterly_metrics_dtos[metric] = quarterly_dtos
 
         return QuantitativeValuationResult(
@@ -121,6 +125,15 @@ class QuantitativeValuationUseCase:
             quarterly_metrics=quarterly_metrics_dtos
         )
     
+    @staticmethod
+    def calculate_yoy(current: Decimal | None, previous: Decimal | None) -> Decimal | None:
+        """
+        Calculates the Year-over-Year growth correctly handling negative previous values.
+        """
+        if current is None or previous is None or previous == 0:
+            return None
+        return ((current - previous) / abs(previous)) * 100
+
     @staticmethod
     def calculate_cagr(values: List[Decimal]) -> Decimal | None:
         """
