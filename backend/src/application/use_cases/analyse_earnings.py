@@ -82,7 +82,6 @@ class AnalyseEarningsUseCase:
                 # We need to find the closest match or exact match.
                 # First try exact match
                 previous_financial = next((fq for fq in financial_quarters if fq.fiscal_date_ending == expected_prev_date), None)
-                print(f"[DEBUG] expected_prev_date: {expected_prev_date}, Found exact: {previous_financial is not None}")
                 
                 # If not found, look for one within 10 days of the expected date
                 if not previous_financial:
@@ -92,7 +91,6 @@ class AnalyseEarningsUseCase:
                         fq_dt = datetime.strptime(fq.fiscal_date_ending, "%Y-%m-%d")
                         if abs((fq_dt - expected_dt).days) <= 10:
                             previous_financial = fq
-                            print(f"[DEBUG] Found approx: {fq.fiscal_date_ending}")
                             break
 
         if not transcript_entity and not target_financial:
