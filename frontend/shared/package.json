@@ -1,0 +1,10 @@
+{
+  "name": "@equity/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./tailwind.config.js": "./tailwind.config.js",
+    "./theme.css": "./src/theme.css"
+  }
+}
