@@ -6,10 +6,6 @@ description: Extracts the core business model, history, products, and strategy o
 REQUIRED JSON STRUCTURE:
 Return ONLY a valid JSON object following this exact schema:
 {
-    "sources": [
-        { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" },
-        { "citation_id": "2", "source_name": "Q3 Earnings Call", "exact_quote": "Exact quote here" }
-    ],
     "company_history": "Strategic history and major business pivots of the last 3-5 years. DO NOT waste citations on bureaucratic incorporation dates or state of registry. Use citations [1].",
     "key_executives": [
         { "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER" },
@@ -23,6 +19,10 @@ Return ONLY a valid JSON object following this exact schema:
         { "name": "Product/Service 1", "description": "Comprehensive 2-3 sentence description explaining the utility, market fit, and strategic importance, including recent traction data." },
         { "name": "Product/Service 2", "description": "Comprehensive 2-3 sentence description..." },
         { "name": "Product/Service 3", "description": "Comprehensive 2-3 sentence description..." }
+    ],
+    "sources": [
+        { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" },
+        { "citation_id": "2", "source_name": "Q3 Earnings Call", "exact_quote": "Exact quote here" }
     ]
 }
 
@@ -30,6 +30,6 @@ Do not include any markdown formatting outside the JSON, preamble, or conversati
 JSON Formatting Integrity: CRITICAL: NEVER use double quotes (") inside any extracted text string. Always replace them with single quotes (') to avoid breaking the JSON schema formatting.
 
 SKILL-SPECIFIC INSTRUCTIONS:
-- Source Fact-Extraction First: You MUST extract and define all 'sources' first at the top of the JSON. Then, use those exact citation IDs (e.g. [1]) to reference the evidence in the narrative sections.
+- Narrative First, Citations Last: Generate your narrative analysis and append inline citations like [1]. Once you finish the narrative, populate the `sources` array at the end of the JSON with the extracted exact quotes that correspond to your numbers.
 - Quantitative Anchors: Whenever analyzing the 'revenue_model', you MUST explicitly cite structural financial metrics if available (e.g., Gross Margins, Operating Margins, ROIC, or FCF generation) to prove the qualitative thesis.
 - Executives: Extract the CEO and CFO. Then, from the provided real-world context, extract the next 1 or 2 most senior/relevant officers. Do NOT invent roles. Clean the titles by keeping only the role, removing company names. Convert titles to UPPERCASE.

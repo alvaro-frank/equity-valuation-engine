@@ -59,29 +59,29 @@ class SourceInfoSchema(BaseModel):
     exact_quote: str
 
 class BusinessModelSchema(BaseModel):
-    sources: List[SourceInfoSchema] = []
     company_history: str
     key_executives: List[KeyExecutive]
     revenue_model: str
     strategy: str
     products_services: List[ProductService]
+    sources: List[SourceInfoSchema] = []
 
 class MoatAnalysisSchema(BaseModel):
-    sources: List[SourceInfoSchema] = []
     competitive_advantage: str
     competitors: List[Competitor]
     moat_trajectory_status: str
     moat_trajectory_description: str
     moat_sources: MoatSourcesSchema
     quality_pillars: QualityPillarsSchema
+    sources: List[SourceInfoSchema] = []
 
 class RiskCatalystSchema(BaseModel):
-    sources: List[SourceInfoSchema] = []
     management_insights: str
     capital_allocation_strategy: str
     near_term_catalysts: List[NearTermCatalyst]
     risk_factors: List[RiskFactor]
     historical_context_crises: str
+    sources: List[SourceInfoSchema] = []
 
 class SECDistillerSchema(BaseModel):
     business_context: str
@@ -92,7 +92,6 @@ class CompanyProfileSchema(BaseModel):
     """
     Comprehensive profile and business model analysis of a specific company.
     """
-    sources: List[SourceInfoSchema] = []
     company_history: str
     key_executives: List[KeyExecutive]
     revenue_model: str
@@ -100,15 +99,16 @@ class CompanyProfileSchema(BaseModel):
     products_services: List[ProductService]
     competitive_advantage: str
     competitors: List[Competitor]
+    moat_trajectory_status: str
+    moat_trajectory_description: str
+    moat_sources: MoatSourcesSchema
+    quality_pillars: QualityPillarsSchema
     management_insights: str
     capital_allocation_strategy: str
     near_term_catalysts: List[NearTermCatalyst]
     risk_factors: List[RiskFactor]
     historical_context_crises: str
-    moat_trajectory_status: str
-    moat_trajectory_description: str
-    moat_sources: MoatSourcesSchema
-    quality_pillars: QualityPillarsSchema
+    sources: List[SourceInfoSchema] = []
 
 class ForceFactor(BaseModel):
     """

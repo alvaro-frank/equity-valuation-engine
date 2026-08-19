@@ -6,9 +6,6 @@ description: Analyzes the competitive advantage, competitors, moat trajectory, a
 REQUIRED JSON STRUCTURE:
 Return ONLY a valid JSON object following this exact schema:
 {
-    "sources": [
-        { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" }
-    ],
     "competitive_advantage": "Deep 4-5 sentence analysis defending the existence, strength, and durability of the Moat. Explicitly anchor the analysis in ROIC, gross margins, or market share metrics. Use citations [1].",
     "competitors": [
         { "name": "Competitor 1 Name", "ticker": "AAPL", "overlap": "Detailed 2-3 sentence analysis of direct overlap and competitive threat..." },
@@ -16,7 +13,7 @@ Return ONLY a valid JSON object following this exact schema:
         { "name": "Competitor 3 Name", "ticker": "PRIVATE", "overlap": "Detailed 2-3 sentence analysis..." }
     ],
     "moat_trajectory_status": "EXPANDING/STABLE/SHRINKING",
-    "moat_trajectory_description": "Detailed 2-3 sentence analysis of why the competitive advantage trajectory is shifting. Mention recent news.",
+    "moat_trajectory_description": "Detailed 2-3 sentence analysis of why the competitive advantage trajectory is shifting.",
     "moat_sources": {
         "intangible_assets": 1,
         "switching_costs": 1,
@@ -30,14 +27,17 @@ Return ONLY a valid JSON object following this exact schema:
         "pricing_power": 1,
         "innovation_and_growth": 1,
         "tam_expansion": 1
-    }
+    },
+    "sources": [
+        { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" }
+    ]
 }
 
 Do not include any markdown formatting outside the JSON, preamble, or conversational text. Return only the raw JSON.
 JSON Formatting Integrity: CRITICAL: NEVER use double quotes (") inside any extracted text string. Always replace them with single quotes (') to avoid breaking the JSON schema formatting.
 
 SKILL-SPECIFIC INSTRUCTIONS:
-- Source Fact-Extraction First: You MUST extract and define all 'sources' first at the top of the JSON. Then, use those exact citation IDs (e.g. [1]) to reference the evidence in the narrative sections.
+- Narrative First, Citations Last: Generate your narrative analysis and append inline citations like [1]. Once you finish the narrative, populate the `sources` array at the end of the JSON with the extracted exact quotes that correspond to your numbers.
 - Quantitative Anchors: Whenever analyzing the 'competitive_advantage', you MUST explicitly cite structural financial metrics if available (e.g., Gross Margins, Operating Margins, ROIC, or FCF generation) to prove the qualitative thesis. A moat without margin or ROIC expansion is not a moat.
 - Independent Scoring: You MUST independently evaluate and assign a score from 1 to 5 for EACH 'moat_sources' and 'quality_pillars' metric based on the SPECIFIC company being analyzed. DO NOT copy the arbitrary numbers from the JSON example.
 - Competitors: Enforce exactly ONE single company per item, providing its official stock ticker (use "PRIVATE" if unlisted). The 'overlap' must explicitly detail where they compete and quantify the competitor's threat.
