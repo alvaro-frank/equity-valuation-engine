@@ -10,7 +10,7 @@ Return ONLY a valid JSON object following this exact schema:
         { "citation_id": "1", "source_name": "Latest 10-K", "exact_quote": "Exact quote from document here" },
         { "citation_id": "2", "source_name": "Q3 Earnings Call", "exact_quote": "Exact quote here" }
     ],
-    "company_history": "Key milestones from foundation to present, heavily emphasizing the strategic shifts of the last 3 years with precise dates. Use citations [1].",
+    "company_history": "Strategic history and major business pivots of the last 3-5 years. DO NOT waste citations on bureaucratic incorporation dates or state of registry. Use citations [1].",
     "key_executives": [
         { "name": "Name A", "title": "CHIEF EXECUTIVE OFFICER" },
         { "name": "Name B", "title": "CHIEF FINANCIAL OFFICER" },
