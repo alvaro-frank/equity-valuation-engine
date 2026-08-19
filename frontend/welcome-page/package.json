@@ -1,0 +1,19 @@
+{
+  "name": "@equity/welcome-page",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@equity/shared": "*",
+    "astro": "^4.0.0",
+    "tailwindcss": "^3.4.19"
+  }
+}
