@@ -65,7 +65,6 @@ export function FilingsView() {
               onSelectFiling={handleLocalFilingSelect} 
               isAnalyzing={isPending}
               analyzingFilingId={analyzingFilingId}
-              analyzingPeriod={analyzingPeriod}
             />
             
             {localFilings.length > 0 && (

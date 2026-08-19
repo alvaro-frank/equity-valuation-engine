@@ -7,10 +7,9 @@ interface AvailableFilingsGridProps {
   onSelectFiling: (filing: LocalFilingDTO) => void;
   isAnalyzing: boolean;
   analyzingFilingId: string | null;
-  analyzingPeriod?: string | null;
 }
 
-export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, analyzingFilingId, analyzingPeriod }: AvailableFilingsGridProps) {
+export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, analyzingFilingId }: AvailableFilingsGridProps) {
   const { t } = useTranslation();
 
   if (!filings || filings.length === 0) {
@@ -26,8 +25,8 @@ export function AvailableFilingsGrid({ filings, onSelectFiling, isAnalyzing, ana
     const isQuarterly = filing.form_type === '10-Q';
     const displayPeriod = formatFinancialPeriod(filing.period, isQuarterly);
 
-    // If analyzingPeriod is provided, use it for exact matching (resolves Q4 vs FY overlap). Otherwise fallback to ID.
-    const isThisAnalyzing = isAnalyzing && (analyzingPeriod ? analyzingPeriod === filing.period : analyzingFilingId === filing.id);
+    // Strictly match by ID to avoid overlapping highlights if two filings share the same period string
+    const isThisAnalyzing = isAnalyzing && analyzingFilingId === filing.id;
     return (
       <button
         key={`${filing.id}_${filing.period}`}

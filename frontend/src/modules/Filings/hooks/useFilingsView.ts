@@ -24,7 +24,6 @@ export function useFilingsView(ticker: string) {
   const isInitialLoading = isVerifying || (isValid && isQuantLoading) || (isValid && !!quantData && isFilingsLoading);
 
   const [analyzingFilingId, setAnalyzingFilingId] = useState<string | null>(null);
-  const [analyzingPeriod, setAnalyzingPeriod] = useState<string | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
 
   // Reset mutation state when language changes so mutationData doesn't override cachedData
@@ -43,19 +42,16 @@ export function useFilingsView(ticker: string) {
     resetUpload();
     resetLocal();
     setAnalyzingFilingId(null);
-    setAnalyzingPeriod(null);
     queryClient.removeQueries({ queryKey: ['earnings_analysis', ticker, i18n.language] });
   };
 
   const handleFileSelect = (file: File) => {
     setAnalyzingFilingId(null);
-    setAnalyzingPeriod(null);
     mutateUpload({ ticker, file });
   };
 
   const handleLocalFilingSelect = (filing: LocalFilingDTO) => {
     setAnalyzingFilingId(filing.id);
-    setAnalyzingPeriod(filing.period);
     mutateLocal({ ticker, filePath: filing.id, focusPeriod: filing.focus_period });
   };
 
@@ -80,7 +76,6 @@ export function useFilingsView(ticker: string) {
     localFilings: localFilingsResult?.filings || [],
     isPending: isUploadPending || isLocalPending,
     analyzingFilingId,
-    analyzingPeriod,
     errorState: getErrorState(),
     handleFileSelect,
     handleLocalFilingSelect,
